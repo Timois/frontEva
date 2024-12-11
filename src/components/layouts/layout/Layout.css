@@ -1,0 +1,25 @@
+.sidebar {
+    transition: transform 0.3s ease-in-out;
+}
+
+.sidebar-open {
+    transform: translateX(0);
+}
+
+.sidebar-closed {
+    transform: translateX(-100%);
+}
+
+@media (min-width: 768px) {
+    .sidebar {
+        transform: translateX(0);
+        position: static;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .sidebar {
+        position: fixed;
+        width: 100% !important;
+    }
+}
