@@ -77,7 +77,7 @@ export const FormExtensionAcademic = () => {
                     <span>{response ? "Guardando..." : "Guardar"}</span>
                 </Button>
                 <Button type="button" name="reset" onClick={() => reset()}>
-                    <span>Limpiar</span>
+                    <span>Ver Extensions</span>
                 </Button>
             </ContainerButton>
         </form>
