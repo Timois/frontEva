@@ -13,6 +13,7 @@ import { UserProvider } from './context/UserProvider.jsx'
 import { CareerProvider } from './context/CareerProvider.jsx'
 import { GestionProvider } from './context/GestionProvider.jsx'
 import { PeriodProvider } from './context/PeriodProvider.jsx'
+import { ExtensionGestionProvider } from './context/ExtensionGestionProvider.jsx'
 
 createRoot(document.getElementById('root')).render(
   <BrowserRouter>
@@ -22,7 +23,9 @@ createRoot(document.getElementById('root')).render(
           <CareerProvider>
             <GestionProvider>
               <PeriodProvider>
-                <App />
+                <ExtensionGestionProvider>
+                  <App />
+                </ExtensionGestionProvider>
               </PeriodProvider>
             </GestionProvider>
           </CareerProvider>

@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
 import React, { useContext, useEffect, useState } from 'react'
@@ -8,47 +9,65 @@ import { ContainerInput } from '../login/ContainerInput'
 import { Input } from '../login/Input'
 import { ContainerButton } from '../login/ContainerButton'
 import { Button } from '../login/Button'
-import { Validate } from './components/Validate'
-import { SelectInput } from './components/SelectInput'
 import { CareerContext } from '../../context/CareerProvider'
 import { UnitContext } from '../../context/UnitProvider'
 import { useFetchUnit } from '../../hooks/fetchUnit'
 import { postApi } from '../../services/axiosServices/ApiService'
-import { useFetchCareer } from '../../hooks/fetchCareers'
+import { Validate } from '../forms/components/Validate'
+import { SelectInput } from '../forms/components/SelectInput'
 
 
-export const FormCareer = () => {
+export const EditCareer = ({ data }) => {
     const { getData } = useFetchUnit()
     const { units } = useContext(UnitContext)
     const [response, setResponse] = useState(false)
-    const { addCareer } = useContext(CareerContext)
+    const { updateCareer } = useContext(CareerContext)
     const [array, setArray] = useState([])
-
+    const [preview, setPreview] = useState(null)
+    
     const { control, handleSubmit, reset, setValue, formState: { errors }, setError } = useForm({
         resolver: zodResolver(CareerSchema)
     })
 
-    const [preview, setPreview] = useState(null)
-    const onSubmit = async (data) => {
+    useEffect(() => {
+        if(data){
+            setValue("name", data.name)
+            setValue("initials", data.initials)
+            setValue("unit_id", data.unit_id)
+            setPreview(data.logo)
+        }
+
+    }, [data, setValue])
+
+    const onSubmit = async (formData) => {
         setResponse(true)
 
-        const formData = new FormData()
-        formData.append("name", data.name)
-        formData.append("initials", data.initials)
-        formData.append("logo", data.logo[0])
-        formData.append("unit_id", data.unit_id)
-        
-        const response = await postApi("career/save", formData)
-        setResponse(false)
-
-        if (response.status == 422) {
-            for(var key in response.data.errors){
-                setError(key, {type: "custom", message: response.data.errors[key][0]})
-            }
-            return null
+        const requestData = new FormData()
+        requestData.append("name", formData.name)
+        requestData.append("initials", formData.initials)
+        requestData.append("unit_id", formData.unit_id)
+        if (formData.logo && formData.logo[0]) {
+            requestData.append("logo", formData.logo[0])
         }
-        addCareer(response)
-        reset()
+        try {
+            const response = await postApi(`career/edit/${data.id}`, requestData)
+            setResponse(false)
+            
+            console.log("::Form::", formData)
+            console.log("::RESPONSE::", response)
+
+            if (response.status === 422) {
+                for (let key in response.data.errors) {
+                    setError(key, { type: "custom", message: response.data.errors[key][0] })
+                }
+                return
+            }
+            updateCareer(response)
+            reset()
+        } catch (error) {
+            console.error("Error al actualizar unidad:", error)
+            setResponse(false)
+        }
     }
 
     const formatData = () => {
@@ -103,7 +122,7 @@ export const FormCareer = () => {
                     <span>{response ? "Guardando..." : "Guardar"}</span>
                 </Button>
                 <Button type="button" name="reset" onClick={() => reset()}>
-                    <span>Limpiar</span>
+                    <span>CANCELAR</span>
                 </Button>
             </ContainerButton>
         </form>

@@ -1,20 +1,26 @@
 /* eslint-disable no-unused-vars */
-import React, { useContext, useEffect } from 'react'
-import {RegistrarPeriodo} from '../components/modal/RegistrarPeriodo'
-import { PeriodContext } from '../context/PeriodProvider'
-import { useFetchPeriod } from '../hooks/fetchPeriod'
+import React, { useContext, useEffect, useState } from 'react'
+import { PeriodContext } from '../../context/PeriodProvider'
+import { useFetchPeriod } from '../../hooks/fetchPeriod'
+import ButtonEdit from './ButtonEdit'
+import ModalEdit from './ModalEdit'
+
 
 export const Periodos = () => {
   const { periods, setPeriods } = useContext(PeriodContext)
+  const [selectedPeriod, setSelectedPeriod] =useState(null)
+
+  const handleEditClick = (periodo) => {
+    setSelectedPeriod(periodo)
+  }
+
   const { getData } = useFetchPeriod()
   useEffect(() => {
     getData()
   }, [])
+  const idEditar = "editarperiodo"
   return (
     <>
-      <div className="container-fluid justify-content-end mb-3">
-        <RegistrarPeriodo />
-      </div>
       <table className="table table-dark table-striped table-bordered table-responsive border border-warning">
         <thead>
           <tr>
@@ -29,11 +35,10 @@ export const Periodos = () => {
             periods.map((period, index) => (
               <tr key={index}>
                 <td>{index + 1}</td>
-                <td>{period.level}</td>
                 <td>{period.period}</td>
+                <td>{period.level}</td>
                 <td>
-                  <button className="btn btn-warning btn-sm me-2">Editar</button>
-                  <button className="btn btn-info btn-sm">Ver</button>
+                  <ButtonEdit idEditar={idEditar} onEditClick={() => handleEditClick(period)}/>
                 </td>
               </tr>
             ))
@@ -46,6 +51,7 @@ export const Periodos = () => {
           )}
         </tbody>
       </table>
+      <ModalEdit idEditar={idEditar} data={selectedPeriod}/>
     </>
   )
 }

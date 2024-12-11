@@ -8,7 +8,15 @@ export const GestionProvider = ({ children }) => {
     const addGestion = (gestion) => {
         setGestions([...gestions, gestion])
     }
-    const values = { gestions, addGestion, setGestions }
+    const updateGestion = (gestion) => {
+        const posicion = gestions.findIndex(p => p.id === gestion.id)
+        if (posicion !== -1){
+            const lista = [...gestions]
+            lista[posicion] = { ...lista[posicion], ...gestion}
+            setGestions(lista)
+        }
+    }
+    const values = { gestions, addGestion, setGestions, updateGestion}
     return (
         <GestionContext.Provider value={values}>
             {children}

@@ -9,7 +9,15 @@ export const PeriodProvider = ({children}) => {
     const addPeriod = (period) => {
         setPeriods([...periods, period])
     }
-    const values = {periods, addPeriod, setPeriods}
+    const updatePeriod = (periodo) => {
+      const posicion = periods.findIndex(p => p.id === periodo.id)
+      if(posicion !== -1){
+        const lista = [...periods]
+        lista[posicion] = { ...lista[posicion], periodo}
+        setPeriods(lista)
+      }
+    }
+    const values = {periods, addPeriod, setPeriods, updatePeriod}
   return (
     <PeriodContext.Provider value={values}>
         {children}

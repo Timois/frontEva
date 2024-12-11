@@ -20,7 +20,7 @@ export const FormUnit = () => {
     const { control, handleSubmit, reset, setValue, formState: { errors }, setError } = useForm({
         resolver: zodResolver(UnitSchema),
     })
-
+    const [preview,setPreview] = useState(null) 
     const onSubmit = async (data) => {
         setResponse(true)
 
@@ -41,6 +41,10 @@ export const FormUnit = () => {
         addUnit(response)
         reset()
     }
+    const onChange = (e) =>{
+        setValue("logo", e.target.files)
+        setPreview(URL.createObjectURL(e.target.files[0]))
+    }
     return (
         <form onSubmit={handleSubmit(onSubmit)} >
             <ContainerInput>
@@ -54,9 +58,10 @@ export const FormUnit = () => {
             <ContainerInput>
                 <input
                     type="file"
-                    onChange={(e) => setValue("logo", e.target.files)}
+                    onChange={onChange}
                 />
                 <Validate error={errors.logo} />
+                {preview?<img src={preview} alt="preview" width={80} height={80}/>:null}
             </ContainerInput>
             <ContainerInput>
                 <SelectInput

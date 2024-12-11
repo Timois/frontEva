@@ -1,8 +1,8 @@
 /* eslint-disable no-unused-vars */
 import React from 'react'
-import FormLogin from '../components/forms/FormLogin'
-import { Logo } from '../components/Login/Logo'
-import { Card } from '../components/login/Card'
+import { Card } from '../../components/login/Card'
+import { Logo } from '../../components/login/Logo'
+import FormLogin from '../../components/forms/FormLogin'
 
 export const Login = () => {
     return (
