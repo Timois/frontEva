@@ -1,4 +1,4 @@
-/* eslint-disable no-undef */
+/* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 import React, { useContext, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -14,10 +14,8 @@ import { CareerContext } from '../../context/CareerProvider'
 import { UnitContext } from '../../context/UnitProvider'
 import { useFetchUnit } from '../../hooks/fetchUnit'
 import { postApi } from '../../services/axiosServices/ApiService'
-import { useFetchCareer } from '../../hooks/fetchCareers'
 
-
-export const FormCareer = () => {
+export const FormCareer = ({ closeModal }) => {
     const { getData } = useFetchUnit()
     const { units } = useContext(UnitContext)
     const [response, setResponse] = useState(false)
@@ -29,6 +27,7 @@ export const FormCareer = () => {
     })
 
     const [preview, setPreview] = useState(null)
+
     const onSubmit = async (data) => {
         setResponse(true)
 
@@ -37,26 +36,30 @@ export const FormCareer = () => {
         formData.append("initials", data.initials)
         formData.append("logo", data.logo[0])
         formData.append("unit_id", data.unit_id)
-        
+
         const response = await postApi("career/save", formData)
         setResponse(false)
 
         if (response.status == 422) {
-            for(var key in response.data.errors){
-                setError(key, {type: "custom", message: response.data.errors[key][0]})
+            for (var key in response.data.errors) {
+                setError(key, { type: "custom", message: response.data.errors[key][0] })
             }
             return null
         }
+
         addCareer(response)
-        reset()
+        // Limpiar el formulario, incluyendo el archivo y la vista previa
+        reset({ name: '', initials: '', unit_id: '', logo: null })
+        setPreview(null)  // Limpiar la vista previa de la imagen
+        if (closeModal) {
+            closeModal();
+        }
     }
 
     const formatData = () => {
-        const newArray = units.map(element =>
-        ({
+        const newArray = units.map(element => ({
             value: element.id, text: element.name
-        })
-        );
+        }))
         setArray(newArray)
     }
 
@@ -69,11 +72,20 @@ export const FormCareer = () => {
     }, [units])
 
     const onChange = (e) => {
-        setValue("logo", e.target.files)
-        setPreview(URL.createObjectURL(e.target.files[0]))
+        const files = e.target.files
+        if (files && files.length > 0) {
+            setValue("logo", files)  // Actualizar el valor en react-hook-form
+            const objectURL = URL.createObjectURL(files[0])
+            setPreview(objectURL)
+
+            return () => URL.revokeObjectURL(objectURL)  // Limpiar la URL temporal
+        } else {
+            console.error("No se seleccionó ningún archivo.")
+        }
     }
+
     return (
-        <form onSubmit={handleSubmit(onSubmit)} >
+        <form onSubmit={handleSubmit(onSubmit)}>
             <ContainerInput>
                 <Input name={"name"} control={control} type={"text"} placeholder={"Ingrese un nombre"} />
                 <Validate error={errors.name} />
@@ -88,21 +100,22 @@ export const FormCareer = () => {
                     onChange={onChange}
                 />
                 <Validate error={errors.logo} />
-                {preview?<img src={preview} alt="preview" width={80} height={80}/>:null}
+                {preview && <img src={preview} alt="preview" width={80} height={80} />}
             </ContainerInput>
             <ContainerInput>
                 <SelectInput
+                    label="Selecciona una Unidad Academica "
                     name="unit_id"
                     options={array}
                     control={control}
-                    error={errors.type}
+                    error={errors.unit_id}
                 />
             </ContainerInput>
             <ContainerButton>
                 <Button type="submit" name="submit" disabled={response}>
                     <span>{response ? "Guardando..." : "Guardar"}</span>
                 </Button>
-                <Button type="button" name="reset" onClick={() => reset()}>
+                <Button type="button" name="reset" onClick={() => { reset({ name: '', initials: '', unit_id: '', logo: null }); setPreview(null) }}>
                     <span>Limpiar</span>
                 </Button>
             </ContainerButton>

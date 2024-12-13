@@ -13,6 +13,7 @@ import { GestionContext } from '../../context/GestionProvider'
 import { useFetchGestion } from '../../hooks/fetchGestion'
 import { postApi } from '../../services/axiosServices/ApiService'
 import { GestionExtensionContext } from '../../context/ExtensionGestionProvider'
+import { useNavigate } from 'react-router-dom'
 
 export const FormExtensionAcademic = () => {
     const { getData } = useFetchGestion()
@@ -66,6 +67,7 @@ export const FormExtensionAcademic = () => {
 
             <ContainerInput>
                 <SelectInput
+                    label="Seleccione la gestion"
                     name="academic_management_id"
                     options={array}
                     control={control}
@@ -77,7 +79,7 @@ export const FormExtensionAcademic = () => {
                     <span>{response ? "Guardando..." : "Guardar"}</span>
                 </Button>
                 <Button type="button" name="reset" onClick={() => reset()}>
-                    <span>Ver Extensions</span>
+                    <span>Limpiar</span>
                 </Button>
             </ContainerButton>
         </form>

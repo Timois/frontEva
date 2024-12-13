@@ -20,8 +20,6 @@ export const Gestiones = () => {
   const idEditar = "editarGestion"
   return (
     <>
-      <div className="container-fluid justify-content-end mb-3">
-      </div>
       <table className="table table-dark table-striped table-bordered table-responsive border border-warning">
         <thead>
           <tr>

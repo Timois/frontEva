@@ -13,12 +13,13 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { UnitSchema } from "../../models/schemas/UnitSchema"
 import { postApi } from "../../services/axiosServices/ApiService"
 import { UnitContext } from "../../context/UnitProvider"
+import CancelButton from "../forms/components/CancelButon"
 
 const arrayOption = [{ value: "unidad", text: "Unidad" }, { value: "facultad", text: "Facultad" }]
 export const EditUnit = ({ data }) => {
     const [response, setResponse] = useState(false)
     const { updateUnit } = useContext(UnitContext)
-    const [preview,setPreview] = useState(null)
+    const [preview, setPreview] = useState(null)
 
     const { control, handleSubmit, reset, setValue, formState: { errors }, setError } = useForm({
         resolver: zodResolver(UnitSchema),
@@ -42,11 +43,11 @@ export const EditUnit = ({ data }) => {
         if (formData.logo && formData.logo[0]) {
             requestData.append("logo", formData.logo[0])
         }
-        
+
         try {
             const response = await postApi(`unit/edit/${data.id}`, requestData)
             setResponse(false)
-            
+
             console.log("::Form::", formData)
             console.log("::RESPONSE::", response)
 
@@ -57,16 +58,24 @@ export const EditUnit = ({ data }) => {
                 return
             }
             updateUnit(response)
-            reset()
+            resetForm()
         } catch (error) {
             console.error("Error al actualizar unidad:", error)
             setResponse(false)
         }
     }
-    const onChange = (e) =>{
+    const resetForm = () => {
+        reset({ name: '', initials: '', type: '', logo: null });
+        setPreview(null);  // Limpiar la vista previa de la imagen
+    };
+
+    const onChange = (e) => {
         setValue("logo", e.target.files)
         setPreview(URL.createObjectURL(e.target.files[0]))
     }
+    const handleCancel = () => {
+        resetForm();
+    };
     return (
         <form onSubmit={handleSubmit(onSubmit)} >
             <ContainerInput>
@@ -83,10 +92,11 @@ export const EditUnit = ({ data }) => {
                     onChange={onChange}
                 />
                 <Validate error={errors.logo} />
-                {preview?<img src={preview} alt="preview" width={80} height={80}/>:null}
+                {preview ? <img src={preview} alt="preview" width={80} height={80} /> : null}
             </ContainerInput>
             <ContainerInput>
                 <SelectInput
+                    label="Seleccione un tipo"
                     name="type"
                     options={arrayOption}
                     control={control}
@@ -98,9 +108,7 @@ export const EditUnit = ({ data }) => {
                 <Button type="submit" name="submit" disabled={response}>
                     <span>{response ? "Guardando..." : "Guardar"}</span>
                 </Button>
-                <Button type="button" name="reset" onClick={() => reset()}>
-                    <span>Limpiar</span>
-                </Button>
+                <CancelButton disabled={response} onClick={handleCancel}/>
             </ContainerButton>
         </form>
     )

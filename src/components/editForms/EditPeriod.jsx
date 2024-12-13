@@ -65,6 +65,7 @@ export const EditPeriod = ({data}) => {
         </ContainerInput>
         <ContainerInput>
             <SelectInput 
+                level="Seleccione un nivel"
                 name={"level"}
                 control={control}
                 options={option}

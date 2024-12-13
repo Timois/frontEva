@@ -1,8 +1,8 @@
 /* eslint-disable no-unused-vars */
 import React from 'react'
 
-export const AsignPeriod = () => {
+export const AsignarGestion = () => {
   return (
-    <div>AsignGestion</div>
+    <div>AsignarGestion</div>
   )
 }

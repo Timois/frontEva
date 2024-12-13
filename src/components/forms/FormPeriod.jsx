@@ -45,6 +45,7 @@ export const FormPeriod = () => {
             </ContainerInput>
             <ContainerInput>
                 <SelectInput
+                    label="Seleccione un nivel"
                     name={"level"}
                     control={control}
                     options={option}

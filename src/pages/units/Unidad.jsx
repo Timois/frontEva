@@ -4,7 +4,7 @@ import ReactPaginate from "react-paginate"
 import { UnitContext } from "../../context/UnitProvider"
 import { useFetchUnit } from "../../hooks/fetchUnit"
 import ButtonEdit from "./ButtonEdit"
-import ModalEdit from "./modalEdit"
+import ModalEdit from "./ModalEdit"
 
 export const Unidad = () => {
   const { units, setUnits } = useContext(UnitContext)
@@ -48,6 +48,7 @@ export const Unidad = () => {
           </thead>
           <tbody>
             {currentItems.length > 0 ? (
+              
               currentItems.map((unit, index) => (
                 <tr key={index}>
                   <td>{offset + index + 1}</td>

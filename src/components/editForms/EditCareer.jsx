@@ -111,6 +111,7 @@ export const EditCareer = ({ data }) => {
             </ContainerInput>
             <ContainerInput>
                 <SelectInput
+                    label="Seleccione la Unidad Academica"
                     name="unit_id"
                     options={array}
                     control={control}

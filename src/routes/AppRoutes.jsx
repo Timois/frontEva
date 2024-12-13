@@ -4,14 +4,16 @@ import { PublicGuard } from "./PublicGuard"
 import { Inicio } from "../pages/Inicio"
 import { Login } from "../pages/auth/Login"
 import Layout from '../components/layouts/layout/Layout'
-import { NotFound404 } from "../pages/errors/NotFound404"
 import { IndexUnit } from "../pages/units/IndexUnit"
 import { IndexCareer } from "../pages/careers/IndexCareer"
 import { IndexGestion } from "../pages/managements/IndexGestion"
 import { IndexPeriod } from "../pages/periods/IndexPeriod"
+import { NotFound404 } from "../pages/errors/NotFound404"
 export const AppRoutes = () => {
   return (
-    <Routes>
+    <Routes
+    future={{ v7_startTransition: true }}
+    >
       <Route element={<PublicGuard />}>
         <Route path="/" element={<Navigate to={"/login"} />} ></Route>
         <Route path="login" element={<Login />}></Route>

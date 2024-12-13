@@ -11,11 +11,11 @@ export const IndexUnit = () => {
   return (
     <div className='m-3 p-3'>
 
-      <ButtonModal modalId={modalId} />
+      <ButtonModal modalId={modalId} title="Editar Unidad"/>
       <div className='w-100 d-flex justify-content-center'>
         <Unidad />
       </div>
-      <ModalRegister modalId={modalId} />
+      <ModalRegister modalId={modalId} title="Registro de Unidades Academicas"/>
 
     </div>
   )

@@ -1,10 +1,8 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import './index.css'
-import 'bootstrap/dist/css/bootstrap.min.css'
-import 'bootstrap/js/dist/collapse.js'
-import 'bootstrap/js/dist/dropdown.js'
-import 'bootstrap/js/dist/modal.js'
+import './index.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js'; // Incluye todos los componentes JS de Bootstrap
 
 import App from './App.jsx'
 import { BrowserRouter } from 'react-router-dom'

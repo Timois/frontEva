@@ -8,6 +8,7 @@ export const UnitProvider = ({children}) => {
 
   const addUnit = (unit) =>{
       setUnits([...units, unit])
+
   }
   const updateUnit = (unit) =>{
     const posicion = units.findIndex(p => p.id === unit.id)
