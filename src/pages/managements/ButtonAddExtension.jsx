@@ -6,7 +6,7 @@ const ButtonAddExtension = ({ modalIdE }) => {
   return (
     <button
       type="button"
-      className="btn btn-success justify-content-end"
+      className="btn justify-content-end" style={{backgroundColor: '#0b7e31', color: 'white'}}
       data-bs-toggle="modal"
       data-bs-target={`#${modalIdE}`}
     >

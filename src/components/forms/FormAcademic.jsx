@@ -12,15 +12,17 @@ import { Validate } from './components/Validate'
 import { DateInput } from './components/DateInput'
 import { GestionContext } from '../../context/GestionProvider'
 import { postApi } from '../../services/axiosServices/ApiService'
+import CancelButton from './components/CancelButon'
 
 export const  FormAcademic = () => {
     const [response, setResponse] = useState(false)
     const {addGestion} = useContext(GestionContext)
     const { control, handleSubmit, reset, register, formState: { errors }, setError } = useForm({ resolver: zodResolver(AcademicSchema) })
 
+    const [preview, setPreview] = useState(null)
     const onSubmit = async (data) => {
         setResponse(true)
-
+        
         const formData = new FormData()
         formData.append("year", data.year)
         formData.append("initial_date", data.initial_date)
@@ -36,8 +38,15 @@ export const  FormAcademic = () => {
             return null
         }
         addGestion(response)
-        reset()
+        resetForm()
     }
+    const resetForm = () => {
+        reset({ year: '', initial_date: '', end_date: '' });
+        setPreview(null);  // Limpiar la vista previa de la imagen
+    };
+    const handleCancel = () => {
+        resetForm();
+    };
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
             <ContainerInput>
@@ -56,9 +65,7 @@ export const  FormAcademic = () => {
                 <Button type="submit" name="submit" disabled={response}>
                     <span>{response ? "Guardando..." : "Guardar"}</span>
                 </Button>
-                <Button type="button" name="reset" onClick={() => reset()}>
-                    <span>Limpiar</span>
-                </Button>
+                <CancelButton disabled={response} onClick={handleCancel}/>
             </ContainerButton>
         </form>
     )

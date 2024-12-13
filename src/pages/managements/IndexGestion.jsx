@@ -16,9 +16,9 @@ export const IndexGestion = () => {
       <div>
         <Gestiones />
       </div>
-      <ModalRegister modalId={modalId} />
+      <ModalRegister modalId={modalId} title="Registrar Gestion Academica"/>
       <div>
-        <ModalExtension modalId={modalIdE} />
+        <ModalExtension modalId={modalIdE} title="Crear Extension Academica"/>
       </div>
     </div>
 

@@ -13,7 +13,7 @@ import { GestionContext } from '../../context/GestionProvider'
 import { useFetchGestion } from '../../hooks/fetchGestion'
 import { postApi } from '../../services/axiosServices/ApiService'
 import { GestionExtensionContext } from '../../context/ExtensionGestionProvider'
-import { useNavigate } from 'react-router-dom'
+import CancelButton from './components/CancelButon'
 
 export const FormExtensionAcademic = () => {
     const { getData } = useFetchGestion()
@@ -22,7 +22,7 @@ export const FormExtensionAcademic = () => {
     const { addGestionExtension } = useContext(GestionExtensionContext)
     const [array, setArray] = useState([])
     const { control, handleSubmit, reset, formState: { errors }, setError } = useForm({ resolver: zodResolver(ExtensionAcademicSchema) })
-
+    const [preview, setPreview] = useState(null)
     const onSubmit = async (data) => {
         setResponse(true)
 
@@ -40,8 +40,12 @@ export const FormExtensionAcademic = () => {
             return null
         }
         addGestionExtension(response)
-        reset()
+        resetForm()
     }
+    const resetForm = () => {
+        reset({ date_extension: '', academic_management_id: '' });
+        setPreview(null);  // Limpiar la vista previa de la imagen
+    };
     const formatData = () => {
         const newArray = gestions.map(element =>
         ({
@@ -58,6 +62,9 @@ export const FormExtensionAcademic = () => {
     useEffect(() => {
         formatData()
     }, [gestions])
+    const handleCancel = () => {
+        resetForm();
+    };
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
             <ContainerInput>
@@ -78,9 +85,7 @@ export const FormExtensionAcademic = () => {
                 <Button type="submit" name="submit" disabled={response}>
                     <span>{response ? "Guardando..." : "Guardar"}</span>
                 </Button>
-                <Button type="button" name="reset" onClick={() => reset()}>
-                    <span>Limpiar</span>
-                </Button>
+                <CancelButton disabled={response} onClick={handleCancel}/>
             </ContainerButton>
         </form>
     )

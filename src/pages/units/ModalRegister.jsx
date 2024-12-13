@@ -4,7 +4,6 @@
 import React, { useEffect } from "react";
 import { Card } from "../../components/login/Card";
 import { FormUnit } from '../../components/forms/FormUnit';
-import { Modal } from "bootstrap"; // Importa el módulo Modal
 
 const ModalRegister = ({ modalId, title }) => {
 

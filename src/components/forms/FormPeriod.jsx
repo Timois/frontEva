@@ -11,6 +11,7 @@ import { PeriodContext } from '../../context/PeriodProvider'
 import { postApi } from '../../services/axiosServices/ApiService'
 import { ContainerButton } from '../login/ContainerButton'
 import { Button } from '../login/Button'
+import CancelButton from './components/CancelButon'
 
 const option = [{ value: "1", text: "1" }, { value: "2", text: "2" }, { value: "3", text: "3" }, { value: "4", text: "4" }, { value: "5", text: "5" }]
 export const FormPeriod = () => {
@@ -18,6 +19,7 @@ export const FormPeriod = () => {
     const [response, setResponse] = useState(false)
     const { addPeriod } = useContext(PeriodContext)
     const { control, handleSubmit, reset, formState: { errors }, setError } = useForm({ resolver: zodResolver(PeriodSchema) })
+    const [preview, setPreview] = useState(null)
     const onSubmit = async (data) => {
         setResponse(true)
 
@@ -34,8 +36,15 @@ export const FormPeriod = () => {
             return null
         }
         addPeriod(response)
-        reset()
+        resetForm()
     }
+    const resetForm = () => {
+        reset({ period: '', level: '' });
+        setPreview(null);  // Limpiar la vista previa de la imagen
+    };
+    const handleCancel = () => {
+        resetForm();
+    };
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
 
@@ -57,9 +66,7 @@ export const FormPeriod = () => {
                 <Button type="submit" name="submit" disabled={response}>
                     <span>{response ? "Guardando..." : "Guardar"}</span>
                 </Button>
-                <Button type="button" name="reset" onClick={() => reset()}>
-                    <span>Limpiar</span>
-                </Button>
+                <CancelButton disabled={response} onClick={handleCancel}/>
             </ContainerButton>
         </form>
     )

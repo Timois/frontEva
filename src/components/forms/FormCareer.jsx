@@ -14,6 +14,7 @@ import { CareerContext } from '../../context/CareerProvider'
 import { UnitContext } from '../../context/UnitProvider'
 import { useFetchUnit } from '../../hooks/fetchUnit'
 import { postApi } from '../../services/axiosServices/ApiService'
+import CancelButton from './components/CancelButon'
 
 export const FormCareer = ({ closeModal }) => {
     const { getData } = useFetchUnit()
@@ -48,13 +49,12 @@ export const FormCareer = ({ closeModal }) => {
         }
 
         addCareer(response)
-        // Limpiar el formulario, incluyendo el archivo y la vista previa
-        reset({ name: '', initials: '', unit_id: '', logo: null })
-        setPreview(null)  // Limpiar la vista previa de la imagen
-        if (closeModal) {
-            closeModal();
-        }
+        resetForm()
     }
+    const resetForm = () => {
+        reset({ name: '', initials: '', unit_id: '', logo: null });
+        setPreview(null);  // Limpiar la vista previa de la imagen
+    };
 
     const formatData = () => {
         const newArray = units.map(element => ({
@@ -62,6 +62,9 @@ export const FormCareer = ({ closeModal }) => {
         }))
         setArray(newArray)
     }
+    const handleCancel = () => {
+        resetForm();
+    };
 
     useEffect(() => {
         getData()
@@ -115,9 +118,7 @@ export const FormCareer = ({ closeModal }) => {
                 <Button type="submit" name="submit" disabled={response}>
                     <span>{response ? "Guardando..." : "Guardar"}</span>
                 </Button>
-                <Button type="button" name="reset" onClick={() => { reset({ name: '', initials: '', unit_id: '', logo: null }); setPreview(null) }}>
-                    <span>Limpiar</span>
-                </Button>
+                <CancelButton disabled={response} onClick={handleCancel}/>
             </ContainerButton>
         </form>
     )

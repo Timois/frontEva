@@ -12,7 +12,7 @@ export const IndexPeriod = () => {
       <div className='w-100 d-flex justify-content-center'>
         <Periodos/>
       </div>
-      <ModalRegister modalIdP={modalId}/>
+      <ModalRegister modalIdP={modalId} title="Registrar Periodo"/>
     </div>
   )
 }

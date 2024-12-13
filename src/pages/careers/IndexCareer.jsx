@@ -9,12 +9,12 @@ import { ModalRegister } from './ModalRegister'
 export const IndexCareer = () => {
     const modalId = "registroCarrera"
   return (
-    <div className='m-3 p-3'>
+    <div className='m-3 p-3 '>
         <ButtonAdd modalIdCareer={modalId}/>
         <div className='w-100 d-flex justify-content-center'>
             <Carreras/>
         </div>
-        <ModalRegister ModalId={modalId}/>
+        <ModalRegister ModalId={modalId} title="Registrar Carrera"/>
     </div>
   )
 }

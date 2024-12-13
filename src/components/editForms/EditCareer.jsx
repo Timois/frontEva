@@ -15,9 +15,10 @@ import { useFetchUnit } from '../../hooks/fetchUnit'
 import { postApi } from '../../services/axiosServices/ApiService'
 import { Validate } from '../forms/components/Validate'
 import { SelectInput } from '../forms/components/SelectInput'
+import CancelButton from '../forms/components/CancelButon'
 
 
-export const EditCareer = ({ data }) => {
+export const EditCareer = ({ data, closeModal }) => {
     const { getData } = useFetchUnit()
     const { units } = useContext(UnitContext)
     const [response, setResponse] = useState(false)
@@ -69,6 +70,9 @@ export const EditCareer = ({ data }) => {
             setResponse(false)
         }
     }
+    const handleCancel = () => {
+        closeModal(); // Close the modal
+    };
 
     const formatData = () => {
         const newArray = units.map(element =>
@@ -122,9 +126,7 @@ export const EditCareer = ({ data }) => {
                 <Button type="submit" name="submit" disabled={response}>
                     <span>{response ? "Guardando..." : "Guardar"}</span>
                 </Button>
-                <Button type="button" name="reset" onClick={() => reset()}>
-                    <span>CANCELAR</span>
-                </Button>
+                <CancelButton disabled={response} onClick={handleCancel}/>
             </ContainerButton>
         </form>
     )

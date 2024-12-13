@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 
@@ -16,7 +17,8 @@ import { UnitContext } from "../../context/UnitProvider"
 import CancelButton from "../forms/components/CancelButon"
 
 const arrayOption = [{ value: "unidad", text: "Unidad" }, { value: "facultad", text: "Facultad" }]
-export const EditUnit = ({ data }) => {
+
+export const EditUnit = ({ data, closeModal }) => {
     const [response, setResponse] = useState(false)
     const { updateUnit } = useContext(UnitContext)
     const [preview, setPreview] = useState(null)
@@ -24,6 +26,7 @@ export const EditUnit = ({ data }) => {
     const { control, handleSubmit, reset, setValue, formState: { errors }, setError } = useForm({
         resolver: zodResolver(UnitSchema),
     })
+
     useEffect(() => {
         if (data) {
             setValue("name", data.name)
@@ -58,24 +61,23 @@ export const EditUnit = ({ data }) => {
                 return
             }
             updateUnit(response)
-            resetForm()
+            reset()
         } catch (error) {
             console.error("Error al actualizar unidad:", error)
             setResponse(false)
         }
     }
-    const resetForm = () => {
-        reset({ name: '', initials: '', type: '', logo: null });
-        setPreview(null);  // Limpiar la vista previa de la imagen
+
+    // Handle cancel: only close the modal without resetting the form
+    const handleCancel = () => {
+        closeModal(); // Close the modal
     };
 
     const onChange = (e) => {
         setValue("logo", e.target.files)
         setPreview(URL.createObjectURL(e.target.files[0]))
     }
-    const handleCancel = () => {
-        resetForm();
-    };
+
     return (
         <form onSubmit={handleSubmit(onSubmit)} >
             <ContainerInput>
@@ -108,7 +110,7 @@ export const EditUnit = ({ data }) => {
                 <Button type="submit" name="submit" disabled={response}>
                     <span>{response ? "Guardando..." : "Guardar"}</span>
                 </Button>
-                <CancelButton disabled={response} onClick={handleCancel}/>
+                <CancelButton disabled={response} onClick={ handleCancel}/>
             </ContainerButton>
         </form>
     )

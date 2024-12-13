@@ -14,8 +14,9 @@ import { DateInput } from "../../components/forms/components/DateInput"
 import { useContext, useEffect, useState } from "react"
 import { GestionContext } from "../../context/GestionProvider"
 import { postApi } from "../../services/axiosServices/ApiService"
+import CancelButton from "../forms/components/CancelButon"
 
-export const EditGestion = ({ data }) => {
+export const EditGestion = ({ data, closeModal }) => {
     const [response, setResponse] = useState(false)
     const { updateGestion } = useContext(GestionContext)
     const { control, handleSubmit, reset, setValue, register, formState: { errors }, setError } = useForm({ resolver: zodResolver(AcademicSchema) })
@@ -55,6 +56,9 @@ export const EditGestion = ({ data }) => {
             setResponse(false)
         }
     }
+    const handleCancel = () => {
+        closeModal(); // Close the modal
+    };
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
             <ContainerInput>
@@ -73,9 +77,7 @@ export const EditGestion = ({ data }) => {
                 <Button type="submit" name="submit" disabled={response}>
                     <span>{response ? "Guardando..." : "Guardar"}</span>
                 </Button>
-                <Button type="button" name="reset" onClick={() => reset()}>
-                    <span>Limpiar</span>
-                </Button>
+                <CancelButton disabled={response} onClick={handleCancel}/>
             </ContainerButton>
         </form>
     )

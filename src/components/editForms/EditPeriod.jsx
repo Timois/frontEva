@@ -13,10 +13,11 @@ import { Validate } from "../forms/components/Validate"
 import { SelectInput } from "../forms/components/SelectInput"
 import { ContainerButton } from "../login/ContainerButton"
 import { Button } from "../login/Button"
+import CancelButton from "../forms/components/CancelButon"
 
 
 const option = [{value: "1", text: "1"},{value: "2", text: "2"},{value: "3", text: "3"},{value: "4", text: "4"}, {value: "5", text: "5"}]
-export const EditPeriod = ({data}) => {
+export const EditPeriod = ({data, closeModal}) => {
     
     const [ response, setResponse ] = useState(false)
     const { updatePeriod } = useContext(PeriodContext)
@@ -56,6 +57,9 @@ export const EditPeriod = ({data}) => {
             setResponse(false)
         }
     }
+    const handleCancel = () => {
+        closeModal(); // Close the modal
+    };
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
         
@@ -77,9 +81,7 @@ export const EditPeriod = ({data}) => {
                 <Button type="submit" name="submit" disabled={response}>
                     <span>{response ? "Guardando..." : "Guardar"}</span>
                 </Button>
-                <Button type="button" name="reset" onClick={() => reset()}>
-                    <span>Limpiar</span>
-                </Button>
+                <CancelButton disabled={response} onClick={handleCancel}/>
             </ContainerButton>
     </form>
   )
