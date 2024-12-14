@@ -1,4 +1,4 @@
-/* eslint-disable react/no-unknown-property */
+
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { LoginSchema } from "../../models/schemas/LoginSchema"
@@ -13,9 +13,9 @@ import { useContext, useState } from "react"
 import { UserContext } from "../../context/UserProvider"
 
 const FormLogin = () => {
-  const {storeUser} = useContext(UserContext)
+  const { storeUser } = useContext(UserContext)
   const [response, setResponse] = useState(false)
-  const { control, handleSubmit, formState: { errors},setError } = useForm({ resolver: zodResolver(LoginSchema) })
+  const { control, handleSubmit, formState: { errors }, setError } = useForm({ resolver: zodResolver(LoginSchema) })
   const navigate = useNavigate()
 
   const onSubmit = async (data) => {
@@ -23,12 +23,12 @@ const FormLogin = () => {
     await getToken('session/init/')
     const response = await loginSystem("login", data)
     setResponse(false)
-    if (response?.status == "success"){
+    if (response?.status) {
       storeUser(response.user)
       return navigate("/home")
     }
-    setError("email", {type: "custom", message: response.data.email})
-    setError("password", {type: "custom", message: response.data.password})
+    setError("email", { type: "custom", message: response.data.email })
+    setError("password", { type: "custom", message: response.data.password })
   }
   return (
     <form onSubmit={handleSubmit(onSubmit)}>

@@ -8,7 +8,7 @@ import ModalEdit from './ModalEdit'
 
 export const Periodos = () => {
   const { periods, setPeriods } = useContext(PeriodContext)
-  const [selectedPeriod, setSelectedPeriod] =useState(null)
+  const [selectedPeriod, setSelectedPeriod] = useState(null)
 
   const handleEditClick = (periodo) => {
     setSelectedPeriod(periodo)
@@ -18,7 +18,7 @@ export const Periodos = () => {
   useEffect(() => {
     getData()
   }, [])
-  const idEditar = "editarperiodo"
+  const idEditar = "editarPeriodo"
   return (
     <>
       <table className="table table-dark table-striped table-bordered table-responsive border border-warning">
@@ -38,7 +38,7 @@ export const Periodos = () => {
                 <td>{period.period}</td>
                 <td>{period.level}</td>
                 <td>
-                  <ButtonEdit idEditar={idEditar} onEditClick={() => handleEditClick(period)}/>
+                  <ButtonEdit idEditar={idEditar} onEditClick={() => handleEditClick(period)} />
                 </td>
               </tr>
             ))
@@ -51,7 +51,7 @@ export const Periodos = () => {
           )}
         </tbody>
       </table>
-      <ModalEdit idEditar={idEditar} data={selectedPeriod}/>
+      <ModalEdit idEditar={idEditar} data={selectedPeriod} />
     </>
   )
 }

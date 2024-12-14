@@ -13,6 +13,7 @@ import { UnitSchema } from '../../models/schemas/UnitSchema';
 import { UnitContext } from '../../context/UnitProvider';
 import { postApi } from '../../services/axiosServices/ApiService';
 import CancelButton from './components/CancelButon';
+import { closeFormModal, customAlert } from '../../utils/domHelper';
 
 const arrayOption = [{ value: "unidad", text: "Unidad" }, { value: "facultad", text: "Facultad" }];
 
@@ -42,6 +43,10 @@ export const FormUnit = () => {
             }
             return null;
         }
+
+        customAlert("Unidad Guardada", "success");
+
+        closeFormModal("registroUnidad");
 
         addUnit(response);
         resetForm();  // Llamada a la función para limpiar el formulario y la vista previa

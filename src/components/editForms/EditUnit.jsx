@@ -1,6 +1,6 @@
-/* eslint-disable no-undef */
+
 /* eslint-disable react/prop-types */
-/* eslint-disable no-unused-vars */
+
 
 import { useContext, useEffect, useState } from "react"
 import { SelectInput } from "../forms/components/SelectInput"
@@ -15,6 +15,7 @@ import { UnitSchema } from "../../models/schemas/UnitSchema"
 import { postApi } from "../../services/axiosServices/ApiService"
 import { UnitContext } from "../../context/UnitProvider"
 import CancelButton from "../forms/components/CancelButon"
+import { closeFormModal, customAlert } from "../../utils/domHelper"
 
 const arrayOption = [{ value: "unidad", text: "Unidad" }, { value: "facultad", text: "Facultad" }]
 
@@ -60,6 +61,11 @@ export const EditUnit = ({ data, closeModal }) => {
                 }
                 return
             }
+
+            customAlert("Unidad Editada", "success");
+
+            closeFormModal("editarUnidad");
+
             updateUnit(response)
             reset()
         } catch (error) {
@@ -110,7 +116,7 @@ export const EditUnit = ({ data, closeModal }) => {
                 <Button type="submit" name="submit" disabled={response}>
                     <span>{response ? "Guardando..." : "Guardar"}</span>
                 </Button>
-                <CancelButton disabled={response} onClick={ handleCancel}/>
+                <CancelButton disabled={response} onClick={handleCancel} />
             </ContainerButton>
         </form>
     )

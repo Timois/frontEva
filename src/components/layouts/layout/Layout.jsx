@@ -9,7 +9,7 @@ import { useContext } from "react";
 import { UserContext } from "../../../context/UserProvider";
 
 const Layout = ({ children }) => {
-    const {user} = useContext(UserContext)
+    const { user } = useContext(UserContext)
     const { isSidebarOpen, toggleSidebar, closeSidebar } = useSidebar();
     const navigate = useNavigate()
     const logout = () => {
@@ -20,8 +20,8 @@ const Layout = ({ children }) => {
         <div className="d-flex flex-column vh-100">
             <nav className="navbar navbar-dark bg-dark">
                 <div className="container-fluid justify-content-end">
-                    <span className="navbar-brand">{user.name}</span>
-                    <div style={{width: "100px"}}>
+                    <span className="navbar-brand">{user?.name}</span>
+                    <div style={{ width: "100px" }}>
                         <Button name="logout" type="button" onClick={logout} >Cerrar Sesion</Button>
                     </div>
 
