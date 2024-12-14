@@ -12,6 +12,7 @@ import { postApi } from '../../services/axiosServices/ApiService'
 import { ContainerButton } from '../login/ContainerButton'
 import { Button } from '../login/Button'
 import CancelButton from './components/CancelButon'
+import { closeFormModal, customAlert } from '../../utils/domHelper'
 
 const option = [{ value: "1", text: "1" }, { value: "2", text: "2" }, { value: "3", text: "3" }, { value: "4", text: "4" }, { value: "5", text: "5" }]
 export const FormPeriod = () => {
@@ -35,6 +36,10 @@ export const FormPeriod = () => {
             }
             return null
         }
+        customAlert("Periodo Guardado", "success");
+
+        closeFormModal("registerPeriod");
+
         addPeriod(response)
         resetForm()
     }
@@ -66,7 +71,7 @@ export const FormPeriod = () => {
                 <Button type="submit" name="submit" disabled={response}>
                     <span>{response ? "Guardando..." : "Guardar"}</span>
                 </Button>
-                <CancelButton disabled={response} onClick={handleCancel}/>
+                <CancelButton disabled={response} onClick={handleCancel} />
             </ContainerButton>
         </form>
     )

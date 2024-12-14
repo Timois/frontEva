@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-/* eslint-disable no-undef */
+
 /* eslint-disable no-unused-vars */
 import React, { useContext, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -16,6 +16,7 @@ import { postApi } from '../../services/axiosServices/ApiService'
 import { Validate } from '../forms/components/Validate'
 import { SelectInput } from '../forms/components/SelectInput'
 import CancelButton from '../forms/components/CancelButon'
+import { closeFormModal, customAlert } from '../../utils/domHelper'
 
 
 export const EditCareer = ({ data, closeModal }) => {
@@ -25,13 +26,13 @@ export const EditCareer = ({ data, closeModal }) => {
     const { updateCareer } = useContext(CareerContext)
     const [array, setArray] = useState([])
     const [preview, setPreview] = useState(null)
-    
+
     const { control, handleSubmit, reset, setValue, formState: { errors }, setError } = useForm({
         resolver: zodResolver(CareerSchema)
     })
 
     useEffect(() => {
-        if(data){
+        if (data) {
             setValue("name", data.name)
             setValue("initials", data.initials)
             setValue("unit_id", data.unit_id)
@@ -53,7 +54,7 @@ export const EditCareer = ({ data, closeModal }) => {
         try {
             const response = await postApi(`career/edit/${data.id}`, requestData)
             setResponse(false)
-            
+
             console.log("::Form::", formData)
             console.log("::RESPONSE::", response)
 
@@ -63,6 +64,11 @@ export const EditCareer = ({ data, closeModal }) => {
                 }
                 return
             }
+
+            customAlert("Carrera Editada", "success")
+
+            closeFormModal("editarCarrera");
+
             updateCareer(response)
             reset()
         } catch (error) {
@@ -111,7 +117,7 @@ export const EditCareer = ({ data, closeModal }) => {
                     onChange={onChange}
                 />
                 <Validate error={errors.logo} />
-                {preview?<img src={preview} alt="preview" width={80} height={80}/>:null}
+                {preview ? <img src={preview} alt="preview" width={80} height={80} /> : null}
             </ContainerInput>
             <ContainerInput>
                 <SelectInput
@@ -126,7 +132,7 @@ export const EditCareer = ({ data, closeModal }) => {
                 <Button type="submit" name="submit" disabled={response}>
                     <span>{response ? "Guardando..." : "Guardar"}</span>
                 </Button>
-                <CancelButton disabled={response} onClick={handleCancel}/>
+                <CancelButton disabled={response} onClick={handleCancel} />
             </ContainerButton>
         </form>
     )

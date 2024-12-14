@@ -15,6 +15,7 @@ import { UnitContext } from '../../context/UnitProvider'
 import { useFetchUnit } from '../../hooks/fetchUnit'
 import { postApi } from '../../services/axiosServices/ApiService'
 import CancelButton from './components/CancelButon'
+import { closeFormModal, customAlert } from '../../utils/domHelper'
 
 export const FormCareer = ({ closeModal }) => {
     const { getData } = useFetchUnit()
@@ -49,6 +50,11 @@ export const FormCareer = ({ closeModal }) => {
         }
 
         addCareer(response)
+
+        customAlert("Carrera Guardada", "success");
+
+        closeFormModal("registroCarrera");
+
         resetForm()
     }
     const resetForm = () => {
@@ -118,7 +124,7 @@ export const FormCareer = ({ closeModal }) => {
                 <Button type="submit" name="submit" disabled={response}>
                     <span>{response ? "Guardando..." : "Guardar"}</span>
                 </Button>
-                <CancelButton disabled={response} onClick={handleCancel}/>
+                <CancelButton disabled={response} onClick={handleCancel} />
             </ContainerButton>
         </form>
     )
