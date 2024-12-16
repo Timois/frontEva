@@ -5,7 +5,7 @@ import { Controller } from "react-hook-form";
 
 export const SelectInput = ({ name, options, error, control, label }) => {
     return (
-        <div className="mb-3"> 
+        <div className="mb-3">
             {label && <label className="form-label">{label}</label>}
             <Controller
                 label={label}
@@ -18,7 +18,7 @@ export const SelectInput = ({ name, options, error, control, label }) => {
                         {...field}
                     >
                         <option value="">
-                            Seleccione una opción
+                            {label}
                         </option>
                         {options.map((option, index) => (
                             <option key={index} value={option.value}>{option.text}
