@@ -4,11 +4,12 @@ import { CareerContext } from '../../context/CareerProvider'
 import { ButtonEdit } from "./ButtonEdit"
 import { ModalEdit } from "./ModalEdit"
 import { useFetchCareer } from "../../hooks/fetchCareers"
+import { ButtonLink } from "./ButtonLink"
 
 export const Carreras = () => {
-  const {careers, setCareers} = useContext(CareerContext)
+  const { careers, setCareers } = useContext(CareerContext)
   const [selectedCareer, setSelectedCareer] = useState(null)
-  
+
   const handleEditClick = (career) => {
     setSelectedCareer(career)
   }
@@ -37,8 +38,13 @@ export const Carreras = () => {
                 <td><img className="p-2" src={career.logo} alt="logo" width={60} height={60} />{career.name}</td>
                 <td>{career.initials}</td>
                 <td>
-                  <ButtonEdit idEditar={idEditar} onEditClick={()=> handleEditClick(career)}/>
+                  <ButtonEdit idEditar={idEditar} onEditClick={() => handleEditClick(career)} />
                   <button className="btn btn-info btn-sm">Ver</button>
+                  <ButtonLink
+                    to={`/career/${career.id}/assigns`}
+                  >
+                    Ver Gestiones
+                  </ButtonLink>
                 </td>
               </tr>
             ))
@@ -51,7 +57,7 @@ export const Carreras = () => {
           )}
         </tbody>
       </table>
-      <ModalEdit idEditar={idEditar} data={selectedCareer}/>
+      <ModalEdit idEditar={idEditar} data={selectedCareer} />
     </>
   )
 }
