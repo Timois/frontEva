@@ -16,11 +16,11 @@ export const AppRoutes = () => {
       future={{ v7_startTransition: true }}
     >
       <Route element={<PublicGuard />}>
-        <Route path="/" element={<Navigate to={"/home"} />} ></Route>
+        <<Route path="/" element={<Navigate to={"/login"} />} ></Route>
         <Route path="login" element={<Login />}></Route>
       </Route>
 
-      <Route element={<PublicGuard />}>
+      <Route element={<PrivateGuard />}>
         <Route element={<Layout><Outlet /></Layout>}>
           <Route path="home" element={<Inicio />}></Route>
           <Route path="unit" element={<IndexUnit />}></Route>
