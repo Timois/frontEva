@@ -12,12 +12,6 @@ export const useFetchCareer = () => {
         }
         return careers
     }
-    // const { asignGestion, setAsignGestion} = useContext(CareerContext)
-    // const getDataAsign = async () => {
-    //     const response = await getApi("career/findAsign")
-    //     if (response.length > 0){
-    //         setAsignGestion(response)
-    //     }
-    // }
+
     return { careers, getDataCareer}
 }

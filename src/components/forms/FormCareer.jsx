@@ -16,7 +16,7 @@ import { useFetchUnit } from '../../hooks/fetchUnit'
 import { postApi } from '../../services/axiosServices/ApiService'
 import CancelButton from './components/CancelButon'
 
-export const FormCareer = ({ closeModal }) => {
+export const FormCareer = () => {
     const { getData } = useFetchUnit()
     const { units } = useContext(UnitContext)
     const [response, setResponse] = useState(false)

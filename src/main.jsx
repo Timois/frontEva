@@ -12,6 +12,7 @@ import { CareerProvider } from './context/CareerProvider.jsx'
 import { GestionProvider } from './context/GestionProvider.jsx'
 import { PeriodProvider } from './context/PeriodProvider.jsx'
 import { ExtensionGestionProvider } from './context/ExtensionGestionProvider.jsx'
+import { AsignarGestion } from './context/AsignarGestion.jsx';
 
 createRoot(document.getElementById('root')).render(
   <BrowserRouter>
@@ -22,7 +23,9 @@ createRoot(document.getElementById('root')).render(
             <GestionProvider>
               <PeriodProvider>
                 <ExtensionGestionProvider>
-                  <App />
+                  <AsignarGestion>
+                      <App/>
+                  </AsignarGestion>
                 </ExtensionGestionProvider>
               </PeriodProvider>
             </GestionProvider>
