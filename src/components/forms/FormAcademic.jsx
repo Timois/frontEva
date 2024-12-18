@@ -1,4 +1,4 @@
-/* eslint-disable no-undef */
+
 /* eslint-disable no-unused-vars */
 import React, { useContext, useState } from 'react'
 import { ContainerButton } from '../login/ContainerButton'
@@ -13,30 +13,36 @@ import { DateInput } from './components/DateInput'
 import { GestionContext } from '../../context/GestionProvider'
 import { postApi } from '../../services/axiosServices/ApiService'
 import CancelButton from './components/CancelButon'
+import { closeFormModal, customAlert } from '../../utils/domHelper'
 
-export const  FormAcademic = () => {
+export const FormAcademic = () => {
     const [response, setResponse] = useState(false)
-    const {addGestion} = useContext(GestionContext)
+    const { addGestion } = useContext(GestionContext)
     const { control, handleSubmit, reset, register, formState: { errors }, setError } = useForm({ resolver: zodResolver(AcademicSchema) })
 
     const [preview, setPreview] = useState(null)
     const onSubmit = async (data) => {
         setResponse(true)
-        
+
         const formData = new FormData()
         formData.append("year", data.year)
         formData.append("initial_date", data.initial_date)
         formData.append("end_date", data.end_date)
-        
+
         const response = await postApi("management/save", formData)
         setResponse(false)
 
         if (response.status == 422) {
-            for(var key in response.data.errors){
-                setError(key, {type: "custom", message: response.data.errors[key][0]})
+            for (var key in response.data.errors) {
+                setError(key, { type: "custom", message: response.data.errors[key][0] })
             }
             return null
         }
+
+        customAlert("Gestion Guardada", "success");
+
+        closeFormModal("resgistroGestion");
+
         addGestion(response)
         resetForm()
     }
@@ -50,8 +56,8 @@ export const  FormAcademic = () => {
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
             <ContainerInput>
-                <YearInput errors={errors} register={register} label={"Año"} name={"year"} control={control} type={"date"}/>
-                <Validate error={errors.year}/>
+                <YearInput errors={errors} register={register} label={"Año"} name={"year"} control={control} type={"date"} />
+                <Validate error={errors.year} />
             </ContainerInput>
             <ContainerInput>
                 <DateInput label={"Fecha de inicio"} name={"initial_date"} control={control} type={"date"} />
@@ -65,7 +71,7 @@ export const  FormAcademic = () => {
                 <Button type="submit" name="submit" disabled={response}>
                     <span>{response ? "Guardando..." : "Guardar"}</span>
                 </Button>
-                <CancelButton disabled={response} onClick={handleCancel}/>
+                <CancelButton disabled={response} onClick={handleCancel} />
             </ContainerButton>
         </form>
     )

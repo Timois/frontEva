@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-/* eslint-disable no-unused-vars */
+
 
 import { useContext, useEffect, useState } from "react"
 import { PeriodContext } from "../../context/PeriodProvider"
@@ -14,22 +14,23 @@ import { SelectInput } from "../forms/components/SelectInput"
 import { ContainerButton } from "../login/ContainerButton"
 import { Button } from "../login/Button"
 import CancelButton from "../forms/components/CancelButon"
+import { closeFormModal, customAlert } from "../../utils/domHelper"
 
 
-const option = [{value: "1", text: "1"},{value: "2", text: "2"},{value: "3", text: "3"},{value: "4", text: "4"}, {value: "5", text: "5"}]
-export const EditPeriod = ({data, closeModal}) => {
-    
-    const [ response, setResponse ] = useState(false)
+const option = [{ value: "1", text: "1" }, { value: "2", text: "2" }, { value: "3", text: "3" }, { value: "4", text: "4" }, { value: "5", text: "5" }]
+export const EditPeriod = ({ data, closeModal }) => {
+
+    const [response, setResponse] = useState(false)
     const { updatePeriod } = useContext(PeriodContext)
-    
+
     const { control, handleSubmit, reset, setValue, formState: { errors }, setError } = useForm({ resolver: zodResolver(PeriodSchema) })
 
     useEffect(() => {
         if (data) {
-          setValue("period", data.period || "")
-          setValue("level", data.level || "")
+            setValue("period", data.period || "")
+            setValue("level", data.level || "")
         }
-      }, [data, setValue])
+    }, [data, setValue])
     const onSubmit = async (formData) => {
         setResponse(true)
 
@@ -40,7 +41,7 @@ export const EditPeriod = ({data, closeModal}) => {
         try {
             const response = await postApi(`periods/edit/${data.id}`, requestData)
             setResponse(false)
-            
+
             console.log("::Form::", formData)
             console.log("::RESPONSE::", response)
 
@@ -50,6 +51,11 @@ export const EditPeriod = ({data, closeModal}) => {
                 }
                 return
             }
+
+            customAlert("Periodo Editado", "success")
+
+            closeFormModal("editarPeriodo");
+
             updatePeriod(response)
             reset()
         } catch (error) {
@@ -60,29 +66,29 @@ export const EditPeriod = ({data, closeModal}) => {
     const handleCancel = () => {
         closeModal(); // Close the modal
     };
-  return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-        
-        <ContainerInput>
-            <Input name={"period"} control={control} type={"text"} placeholder={"Ingrese un periodo"} />
-            <Validate error={errors.period}/>
-        </ContainerInput>
-        <ContainerInput>
-            <SelectInput 
-                level="Seleccione un nivel"
-                name={"level"}
-                control={control}
-                options={option}
-                error={errors.level}
-            />
-            <Validate error={errors.level}/>
-        </ContainerInput>
-        <ContainerButton>
+    return (
+        <form onSubmit={handleSubmit(onSubmit)}>
+
+            <ContainerInput>
+                <Input name={"period"} control={control} type={"text"} placeholder={"Ingrese un periodo"} />
+                <Validate error={errors.period} />
+            </ContainerInput>
+            <ContainerInput>
+                <SelectInput
+                    level="Seleccione un nivel"
+                    name={"level"}
+                    control={control}
+                    options={option}
+                    error={errors.level}
+                />
+                <Validate error={errors.level} />
+            </ContainerInput>
+            <ContainerButton>
                 <Button type="submit" name="submit" disabled={response}>
                     <span>{response ? "Guardando..." : "Guardar"}</span>
                 </Button>
-                <CancelButton disabled={response} onClick={handleCancel}/>
+                <CancelButton disabled={response} onClick={handleCancel} />
             </ContainerButton>
-    </form>
-  )
+        </form>
+    )
 }

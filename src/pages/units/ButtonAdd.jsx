@@ -10,7 +10,7 @@ const ButtonAdd = ({ modalId }) => {
       data-bs-toggle="modal"
       data-bs-target={`#${modalId}`}
     > 
-      Agregar
+      Agregar Unidad Academica
     </button>
   )
 }

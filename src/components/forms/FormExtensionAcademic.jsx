@@ -68,7 +68,7 @@ export const FormExtensionAcademic = () => {
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
             <ContainerInput>
-                <DateInput label={"Fecha"} name={"date_extension"} control={control} type={"date"} />
+                <DateInput label={"Fecha de extension"} name={"date_extension"} control={control} type={"date"} />
                 <Validate error={errors.initial_date} />
             </ContainerInput>
 

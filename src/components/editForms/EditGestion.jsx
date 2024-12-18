@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
-/* eslint-disable no-undef */
-/* eslint-disable no-unused-vars */
+
+
 
 import { useForm } from "react-hook-form"
 import { Validate } from "../forms/components/Validate"
@@ -15,6 +15,7 @@ import { useContext, useEffect, useState } from "react"
 import { GestionContext } from "../../context/GestionProvider"
 import { postApi } from "../../services/axiosServices/ApiService"
 import CancelButton from "../forms/components/CancelButon"
+import { closeFormModal, customAlert } from "../../utils/domHelper"
 
 export const EditGestion = ({ data, closeModal }) => {
     const [response, setResponse] = useState(false)
@@ -49,6 +50,11 @@ export const EditGestion = ({ data, closeModal }) => {
                 }
                 return
             }
+
+            customAlert("Gestion Editada", "success")
+
+            closeFormModal("editarGestion");
+
             updateGestion(response)
             reset()
         } catch (error) {
@@ -77,7 +83,7 @@ export const EditGestion = ({ data, closeModal }) => {
                 <Button type="submit" name="submit" disabled={response}>
                     <span>{response ? "Guardando..." : "Guardar"}</span>
                 </Button>
-                <CancelButton disabled={response} onClick={handleCancel}/>
+                <CancelButton disabled={response} onClick={handleCancel} />
             </ContainerButton>
         </form>
     )

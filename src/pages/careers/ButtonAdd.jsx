@@ -6,11 +6,11 @@ export const ButtonAdd = ({ modalIdCareer }) => {
     return (
       <button
         type="button"
-        className="btn btn-secondary justify-content-end" style={{backgroundColor: '#5dbf1a', color: 'white'}}
+        className="btn btn-secondary justify-content-center " style={{backgroundColor: '#5dbf1a', color: 'white'}}
         data-bs-toggle="modal"
         data-bs-target={`#${modalIdCareer}`}
       >
-        Agregar
+        Agregar Carrera
       </button>
     )
   }

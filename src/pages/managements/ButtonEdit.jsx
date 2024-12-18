@@ -1,17 +1,20 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
 import React from "react"
+import { FaEdit } from "react-icons/fa"
 
 const ButtonEdit = ({ idEditar,onEditClick }) => {
   return (
     <button
       type="button"
-      className="btn btn-primary justify-content-end" style={{backgroundColor: '#5dbf1a', color: 'white'}}
+      className="btn btn-primary justify-content-end" 
+      style={{ backgroundColor: '#fa8c07', color: 'white', display: 'flex', alignItems: 'center', gap: '5px' }}
       data-bs-toggle="modal"
       data-bs-target={`#${idEditar}`}
       onClick={onEditClick}
     >
-      Editar
+      <FaEdit size={16} /> {/* Agrega el ícono aquí */}
+      Editar {/* Puedes eliminar este texto si solo quieres el ícono */}
     </button>
   )
 }

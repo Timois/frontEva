@@ -11,14 +11,15 @@ export const IndexGestion = () => {
   const modalIdE = "registrarextension"
   return (
     <div className='p-3 m-3'>
-      <ButtonAdd modalIdG={modalId} />
-      <ButtonAddExtension modalIdE={modalIdE} />
+      <div className="d-flex justify-content-center">
+        <ButtonAdd modalIdG={modalId} />
+      </div>
       <div>
         <Gestiones />
       </div>
-      <ModalRegister modalId={modalId} title="Registrar Gestion Academica"/>
+      <ModalRegister modalId={modalId} title="Registrar Gestion Academica" />
       <div>
-        <ModalExtension modalId={modalIdE} title="Crear Extension Academica"/>
+        <ModalExtension modalId={modalIdE} title="Crear Extension Academica" />
       </div>
     </div>
 

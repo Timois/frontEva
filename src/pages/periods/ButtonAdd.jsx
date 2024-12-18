@@ -10,7 +10,7 @@ const ButtonAdd = ({ modalIdP }) => {
       data-bs-toggle="modal"
       data-bs-target={`#${modalIdP}`}
     >
-      Agregar
+      Agregar Periodo
     </button>
   )
 }
