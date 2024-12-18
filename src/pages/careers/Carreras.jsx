@@ -40,7 +40,6 @@ export const Carreras = () => {
             <div key={index} className="col-md-4 mb-4">
               <div className="card h-100 border-warning">
                 <div className="card-header bg-success text-white">
-                  {/* Aplicando la función para capitalizar */}
                   <h5 className="card-title m-0">{capitalizeTitle(career.name)}</h5>
                 </div>
                 <div className="card-body text-center">
@@ -54,13 +53,14 @@ export const Carreras = () => {
                     <strong>Sigla:</strong> {career.initials}
                   </p>
                 </div>
-                <div className="card-footer d-flex justify-content-around">
+                <div className="card-footer d-flex justify-content-around align-items-center p-2">
                   <ButtonEdit
                     idEditar={idEditar}
                     onEditClick={() => handleEditClick(career)}
                   />
                   <ButtonVerGestion to={`/career/${career.id}/assigns`} />
                 </div>
+
               </div>
             </div>
           ))

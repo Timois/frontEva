@@ -7,7 +7,7 @@ const ButtonEdit = ({ idEditar, onEditClick }) => {
   return (
     <button
       type="button"
-      className="btn btn-primary justify-content-end"
+      className="d-flex btn btn-primary justify-content-end p-2 m-2"
       style={{ backgroundColor: '#fa8c07', color: 'white', display: 'flex', alignItems: 'center', gap: '5px' }}
       data-bs-toggle="modal"
       data-bs-target={`#${idEditar}`}

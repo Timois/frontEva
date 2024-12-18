@@ -7,6 +7,7 @@ import { Sidebar, SidebarOpenButton, MenuButton } from "./components"
 import { clearStorage } from "../../../services/storage/clearStorage";
 import { useContext } from "react";
 import { UserContext } from "../../../context/UserProvider";
+import { MdLogout } from "react-icons/md";
 
 const Layout = ({ children }) => {
     const { user } = useContext(UserContext)
@@ -22,7 +23,8 @@ const Layout = ({ children }) => {
                 <div className="container-fluid justify-content-end">
                     <span className="navbar-brand">{user?.name}</span>
                     <div style={{ width: "100px" }}>
-                        <Button name="logout" type="button" onClick={logout} >Cerrar Sesion</Button>
+                        <Button name="logout" type="button" onClick={logout}  icon={<MdLogout size={20} />} 
+                        >Cerrar Sesion</Button>
                     </div>
 
                     <SidebarOpenButton onClick={toggleSidebar} />

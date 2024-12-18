@@ -24,7 +24,7 @@ createRoot(document.getElementById('root')).render(
               <PeriodProvider>
                 <ExtensionGestionProvider>
                   <CareerAssignProvider>
-                    <App />
+                    <App /> 
                   </CareerAssignProvider>
                 </ExtensionGestionProvider>
               </PeriodProvider>
