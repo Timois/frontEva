@@ -2,6 +2,7 @@ import PropTypes from "prop-types";
 import { useFetchGestion } from "../../../hooks/fetchGestion";
 import { useContext, useEffect, useState } from "react";
 import { GestionContext } from "../../../context/GestionProvider";
+import { ViewPeriod } from "../periodsAsign/ViewPeriod";
 
 const capitalizeTitle = (text) => {
     if (!text) return "";
@@ -82,7 +83,6 @@ export const CareerAssigns = ({ data }) => {
         const modal = document.getElementById("asignarPeriodo");
         //add an attribute to the modal to know which career is being assigned
         modal.setAttribute("data-academic_management_career_id", id);
-        console.log(modal);
     };
 
     return (
@@ -144,7 +144,7 @@ export const CareerAssigns = ({ data }) => {
                                 </p>
 
                             </div>
-                            <div className="d-flex justify-content-end mt-3">
+                            <div className="d-flex justify-content-center mt-3">
                                 <button
                                     className="btn btn-primary me-2"
                                     data-bs-toggle="modal"
@@ -153,7 +153,7 @@ export const CareerAssigns = ({ data }) => {
                                 >
                                     Asignar Periodo
                                 </button>
-                                <button className="btn btn-secondary">Ver Periodos</button>
+                                <ViewPeriod/>
                             </div>
                         </div>
                     </div>

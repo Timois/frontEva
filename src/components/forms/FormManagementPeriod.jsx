@@ -11,7 +11,6 @@ import { postApi } from "../../services/axiosServices/ApiService"
 import { useParams } from "react-router-dom"
 import { AcademicManagementCareerPeriodSchema } from "../../models/schemas/AcademicManagementCareerPeriodSchema"
 import { DateInput } from "./components/DateInput"
-import { Validate } from "./components/Validate"
 
 export const FormManagementPeriod = ({ data }) => {
     const { control, handleSubmit, reset, formState: { errors }, setError } = useForm({
@@ -26,12 +25,15 @@ export const FormManagementPeriod = ({ data }) => {
     }
 
     const onSubmit = async (data) => {
-        const formData = new FormData()
-        formData.append("period_id", data.period_id)
-        formData.append("career_id", career_id)
-        formData.append("initial_date", data.initial_date)
-        formData.append("end_date", data.end_date)
-        formData.append("academic_management_career_id", getManagementCareerIdByAttr())
+        const initialDateTime = `${data.initial_date}T${data.initial_time}`;
+        const endDateTime = `${data.end_date}T${data.end_time}`;
+    
+        const formData = new FormData();
+        formData.append("period_id", data.period_id);
+        formData.append("career_id", career_id);
+        formData.append("initial_date", initialDateTime);
+        formData.append("end_date", endDateTime);
+        formData.append("academic_management_career_id", getManagementCareerIdByAttr());
 
         reset({
             period_id: ""
@@ -64,12 +66,16 @@ export const FormManagementPeriod = ({ data }) => {
                 />
             </ContainerInput>
             <ContainerInput>
-                <DateInput label={"Fecha de inicio"} name={"initial_date"} control={control} type={"date"} />
-                <Validate error={errors.initial_date} />
+                <div style={{ display: "flex", gap: "10px" }}>
+                    <DateInput label={"Fecha de inicio"} name={"initial_date"} control={control} type={"date"} />
+                    <DateInput label={"Hora de inicio"} name={"initial_time"} control={control} type={"time"} />
+                </div>
             </ContainerInput>
             <ContainerInput>
-                <DateInput label={"Fecha de fin"} name={"end_date"} control={control} type={"date"} />
-                <Validate error={errors.end_date} />
+                <div style={{ display: "flex", gap: "10px" }}>
+                    <DateInput label={"Fecha de Fin"} name={"end_date"} control={control} type={"date"} />
+                    <DateInput label={"Hora de Fin"} name={"end_time"} control={control} type={"time"} />
+                </div>
             </ContainerInput>
             <ContainerButton>
                 <Button type="submit" name="submit">Guardar</Button>
