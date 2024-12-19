@@ -34,12 +34,12 @@ export const CareerAssigns = ({ data }) => {
         const intervalId = setInterval(() => {
             const updatedCountdowns = data.map((gestion, index) => {
                 const endDate = new Date(gestion.end_date);
-    
+
                 endDate.setHours(23, 59, 59, 999);
-    
+
                 const currentDate = new Date();
                 const timeRemaining = endDate - currentDate;
-    
+
                 if (timeRemaining <= 0) {
                     return { index, countdown: "Tiempo agotado" };
                 } else {
@@ -47,14 +47,14 @@ export const CareerAssigns = ({ data }) => {
                     const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                     const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
                     const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
-    
+
                     return {
                         index,
                         countdown: `${days}d ${hours}h ${minutes}m ${seconds}s`,
                     };
                 }
             });
-    
+
             setCountdowns((prev) => {
                 const updated = [...prev];
                 updatedCountdowns.forEach(({ index, countdown }) => {
@@ -63,10 +63,10 @@ export const CareerAssigns = ({ data }) => {
                 return updated;
             });
         }, 1000);
-    
+
         return () => clearInterval(intervalId);
     }, [data]);
-    
+
 
     if (data.length === 0) {
         return (
@@ -77,6 +77,13 @@ export const CareerAssigns = ({ data }) => {
     }
 
     const careerName = capitalizeTitle(data[0].name);
+
+    const setModalData = (id) => {
+        const modal = document.getElementById("asignarPeriodo");
+        //add an attribute to the modal to know which career is being assigned
+        modal.setAttribute("data-academic_management_career_id", id);
+        console.log(modal);
+    };
 
     return (
         <div className="container">
@@ -100,9 +107,10 @@ export const CareerAssigns = ({ data }) => {
                                 Gestión {transformedGestions[index]?.text}
                                 <div
                                     className="alert"
-                                    style={{color: "#fff", padding: "10px", fontWeight: "bold",
-                                        fontSize: "1.2rem", marginTop: "10px", borderRadius: "5px",          
-                                        width: "100%", textAlign: "center",        
+                                    style={{
+                                        color: "#fff", padding: "10px", fontWeight: "bold",
+                                        fontSize: "1.2rem", marginTop: "10px", borderRadius: "5px",
+                                        width: "100%", textAlign: "center",
                                     }}
                                 >
                                     <div>
@@ -135,6 +143,17 @@ export const CareerAssigns = ({ data }) => {
                                     <strong>Fecha de Fin:</strong> {gestion.end_date}
                                 </p>
 
+                            </div>
+                            <div className="d-flex justify-content-end mt-3">
+                                <button
+                                    className="btn btn-primary me-2"
+                                    data-bs-toggle="modal"
+                                    data-bs-target={`#asignarPeriodo`}
+                                    onClick={() => setModalData(gestion.id)}
+                                >
+                                    Asignar Periodo
+                                </button>
+                                <button className="btn btn-secondary">Ver Periodos</button>
                             </div>
                         </div>
                     </div>

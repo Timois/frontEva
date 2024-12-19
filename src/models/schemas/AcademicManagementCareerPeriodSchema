@@ -1,0 +1,18 @@
+
+import { z } from "zod";
+
+export const AcademicManagementCareerPeriodSchema = z.object({
+    period_id: z.string({ required_error: "El periodo es obligatorio" }),
+    initial_date: z.string({ required_error: "La fecha de inicio es obligatoria" }).refine(
+        (value) => !isNaN(new Date(value).getTime()),
+        { message: "La fecha de inicio debe ser válida" }
+    ),
+    end_date: z.string({ required_error: "La fecha de fin es obligatoria" }).refine(
+        (value) => !isNaN(new Date(value).getTime()),
+        { message: "La fecha de fin debe ser válida" }
+    )
+})
+
+
+
+
