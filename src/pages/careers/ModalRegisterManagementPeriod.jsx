@@ -8,11 +8,11 @@ import { useFetchPeriod } from "../../hooks/fetchPeriod";
 export const ModalRegisterManagementPeriod = ({ id }) => {
     const { periods } = useContext(PeriodContext);
     const [data, setData] = useState([]);
-    const { getData } = useFetchPeriod()
+    const { getData } = useFetchPeriod();
 
     useEffect(() => {
         if (periods.length === 0) {
-            getData()
+            getData();
             return;
         }
 
@@ -24,7 +24,6 @@ export const ModalRegisterManagementPeriod = ({ id }) => {
         setData((prevData) => ({
             ...prevData,
             periods: transformedPeriods,
-            // academic_management_career_id: id
         }));
     }, [periods]);
 
@@ -36,6 +35,7 @@ export const ModalRegisterManagementPeriod = ({ id }) => {
             aria-labelledby="exampleModalLabel"
             aria-hidden="true"
             data-bs-backdrop="static"
+            data-academic_management_career_id={id} 
             style={{ zIndex: "1100" }}
         >
             <div className="modal-dialog">
@@ -46,9 +46,9 @@ export const ModalRegisterManagementPeriod = ({ id }) => {
                 </div>
             </div>
         </div>
-    )
+    );
 };
 
 ModalRegisterManagementPeriod.propTypes = {
-    id: PropTypes.string.isRequired
+    id: PropTypes.string.isRequired,
 };

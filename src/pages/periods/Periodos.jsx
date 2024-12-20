@@ -25,8 +25,8 @@ export const Periodos = () => {
         <thead>
           <tr>
             <th scope="col">N°</th>
-            <th scope="col">Nivel</th>
             <th scope="col">Periodo</th>
+            <th scope="col">Nivel</th>
             <th scope="col">Acción</th>
           </tr>
         </thead>

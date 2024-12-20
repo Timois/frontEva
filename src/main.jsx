@@ -1,4 +1,4 @@
-import { StrictMode } from 'react'
+
 import { createRoot } from 'react-dom/client'
 import './index.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -16,23 +16,23 @@ import { CareerAssignProvider } from './context/CareerAssignProvider.jsx';
 
 createRoot(document.getElementById('root')).render(
   <BrowserRouter>
-    <StrictMode>
-      <UserProvider>
-        <UnitProvider>
-          <CareerProvider>
-            <GestionProvider>
-              <PeriodProvider>
-                <ExtensionGestionProvider>
-                  <CareerAssignProvider>
-                    <App /> 
-                  </CareerAssignProvider>
-                </ExtensionGestionProvider>
-              </PeriodProvider>
-            </GestionProvider>
-          </CareerProvider>
-        </UnitProvider>
-      </UserProvider>
-    </StrictMode>
+
+    <UserProvider>
+      <UnitProvider>
+        <CareerProvider>
+          <GestionProvider>
+            <PeriodProvider>
+              <ExtensionGestionProvider>
+                <CareerAssignProvider>
+                  <App />
+                </CareerAssignProvider>
+              </ExtensionGestionProvider>
+            </PeriodProvider>
+          </GestionProvider>
+        </CareerProvider>
+      </UnitProvider>
+    </UserProvider>
+
   </BrowserRouter>
 
 )

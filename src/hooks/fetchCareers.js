@@ -9,10 +9,11 @@ export const useFetchCareer = () => {
 
     const { careers, setCareers } = useContext(CareerContext)
     const getDataCareer = async () => {
-        const response = await getApi("career/list")
-        if (response.length > 0) {
+        
+        if (careers.length < 1) {
+            const response = await getApi("career/list")
             setCareers(response)
-        }
+        }        
         return careers
     }
     return { careers, getDataCareer}
