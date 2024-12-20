@@ -26,8 +26,9 @@ export const FormManagementPeriod = ({ data }) => {
     };
 
     const onSubmit = async (data) => {
-        const initialDateTime = `${data.initial_date}T${data.initial_time}`;
-        const endDateTime = `${data.end_date}T${data.end_time}`;
+        const initialDateTime = `${data.initial_date} ${data.initial_time}:00`;
+        const endDateTime = `${data.end_date} ${data.end_time}:00`;
+
         const academicManagementCareerId = getManagementCareerIdByAttr();
 
         if (!academicManagementCareerId) {
