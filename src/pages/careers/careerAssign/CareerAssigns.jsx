@@ -3,6 +3,7 @@ import { useFetchGestion } from "../../../hooks/fetchGestion";
 import { useContext, useEffect, useState } from "react";
 import { GestionContext } from "../../../context/GestionProvider";
 import { ViewPeriod } from "../periodsAsign/ViewPeriod";
+import { ModalViewManagementPeriod } from "../periodsAsign/ModalViewManagementPeriod";
 
 const capitalizeTitle = (text) => {
     if (!text) return "";
@@ -79,8 +80,8 @@ export const CareerAssigns = ({ data }) => {
 
     const careerName = capitalizeTitle(data[0].name);
 
-    const setModalData = (id) => {
-        const modal = document.getElementById("asignarPeriodo");
+    const setModalData = (id, modalId) => {
+        const modal = document.getElementById(modalId);
         //add an attribute to the modal to know which career is being assigned
         modal.setAttribute("data-academic_management_career_id", id);
     };
@@ -149,16 +150,20 @@ export const CareerAssigns = ({ data }) => {
                                     className="btn btn-primary me-2"
                                     data-bs-toggle="modal"
                                     data-bs-target={`#asignarPeriodo`}
-                                    onClick={() => setModalData(gestion.id)}
+                                    onClick={() => setModalData(gestion['academic_management_career_id'], "asignarPeriodo")}
                                 >
                                     Asignar Periodo
                                 </button>
-                                <ViewPeriod/>
+                                <ViewPeriod handleClick={() => {
+                                    setModalData(gestion['academic_management_career_id'], "verPeriodo");
+                                    console.log(gestion);
+                                }} />
                             </div>
                         </div>
                     </div>
                 ))}
             </div>
+            <ModalViewManagementPeriod ModalId="verPeriodo" title="Ver Periodo" />
         </div>
     );
 };

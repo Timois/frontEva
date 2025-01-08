@@ -5,6 +5,7 @@ export const CareerAssignContext = createContext();
 
 export const CareerAssignProvider = ({ children }) => {
     const [careerAssignments, setCareerAssignments] = useState([]);
+    const [careerAssignmentsPeriods, setCareerAssignmentsPeriods] = useState([]);
 
     const addAssignment = (assignment) => {
         setCareerAssignments([...careerAssignments, assignment]);
@@ -14,8 +15,25 @@ export const CareerAssignProvider = ({ children }) => {
         setCareerAssignments(careerAssignments.filter(assignment => assignment.id !== id));
     };
 
+    const addAssignmentPeriod = (assignment) => {
+        setCareerAssignmentsPeriods([...careerAssignmentsPeriods, assignment]);
+    }
+
+    const removeAssignmentPeriod = (id) => {
+        setCareerAssignmentsPeriods(careerAssignmentsPeriods.filter(assignment => assignment.id !== id));
+    }
+
     return (
-        <CareerAssignContext.Provider value={{ careerAssignments, addAssignment, removeAssignment, setCareerAssignments }}>
+        <CareerAssignContext.Provider value={{
+            careerAssignments,
+            addAssignment,
+            removeAssignment,
+            setCareerAssignments,
+            addAssignmentPeriod,
+            removeAssignmentPeriod,
+            careerAssignmentsPeriods,
+            setCareerAssignmentsPeriods
+        }}>
             {children}
         </CareerAssignContext.Provider>
     );

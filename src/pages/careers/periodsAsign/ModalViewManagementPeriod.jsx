@@ -1,0 +1,79 @@
+import PropTypes from 'prop-types';
+import { Card } from '../../../components/login/Card';
+import { useContext, useEffect, useState } from 'react';
+import { useFetchCareerAssignPeriod } from '../../../hooks/fetchCareers';
+import { CareerAssignContext } from '../../../context/CareerAssignProvider';
+
+export const ModalViewManagementPeriod = ({ ModalId, title }) => {
+    const [id, setId] = useState(null);
+    const { getDataCareerAssignmentPeriods } = useFetchCareerAssignPeriod(id);
+    const { careerAssignmentsPeriods } = useContext(CareerAssignContext);
+
+    useEffect(() => {
+        //wait until the modal gets rendered
+
+
+        const interval = setInterval(() => {
+            const modalElement = document.getElementById(ModalId);
+            if (modalElement) {
+                const idAttr = modalElement.getAttribute("data-academic_management_career_id");
+                if (idAttr) {
+                    setId(idAttr);
+                    clearInterval(interval);
+                }
+            }
+        }, 100);
+    }, [setId, ModalId]);
+
+    useEffect(() => {
+        if (!id) return;
+        getDataCareerAssignmentPeriods();
+    }, [id])
+
+    return (
+        <div
+            className="modal fade"
+            id={ModalId}
+            tabIndex="-1"
+            aria-labelledby="exampleModalLabel"
+            aria-hidden="true"
+            data-bs-backdrop="static"
+            style={{ zIndex: "1100" }}
+        >
+            <div className="modal-dialog">
+                <div className="modal-content">
+                    <div className="modal-header">
+                        <h5 className="modal-title text-center text-success" id="exampleModalLabel">{title}</h5>
+                    </div>
+                    <Card className={"card align-items-center h-auto gap-3 p-3"}>
+                        {careerAssignmentsPeriods && careerAssignmentsPeriods.length > 0 && (
+                            <table className="table">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Periodo</th>
+                                        <th scope="col">Fecha de inicio</th>
+                                        <th scope="col">Fecha de fin</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {careerAssignmentsPeriods.map((period) => (
+                                        <tr key={period.id}>
+                                            <td>{period.period}</td>
+                                            <td>{period.initial_date}</td>
+                                            <td>{period.end_date}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        )}
+                    </Card>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+ModalViewManagementPeriod.propTypes = {
+    ModalId: PropTypes.string.isRequired,
+    title: PropTypes.string.isRequired,
+};
