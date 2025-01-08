@@ -6,6 +6,7 @@ import { GestionContext } from "../../../context/GestionProvider";
 import { ViewPeriod } from "../periodsAsign/ViewPeriod";
 import { ModalViewManagementPeriod } from "../periodsAsign/ModalViewManagementPeriod";
 import { AssignManagement } from "../AssignManagement"
+import { ModalRegisterManagement } from "../ModalRegisterManagement";
 
 const capitalizeTitle = (text) => {
     if (!text) return "";
@@ -70,7 +71,7 @@ export const CareerAssigns = ({ data }) => {
         return () => clearInterval(intervalId);
     }, [data]);
 
-
+    const modalIdManagement = "asignarGestion"
     if (data.length === 0) {
         return (
             <div className="col-12">
@@ -79,6 +80,7 @@ export const CareerAssigns = ({ data }) => {
                 </div>
                 <div className="text-center mt-3">
                     <AssignManagement />
+                    <ModalRegisterManagement id={modalIdManagement} title="Asignar Gestion"/>
                 </div>
             </div>
         );
