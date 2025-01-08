@@ -52,7 +52,7 @@ export const Gestiones = () => {
           )}
         </tbody>
       </table>
-      <ModalEdit idEditar={idEditar} data={selectedGestion}/>
+      <ModalEdit idEditar={idEditar} data={selectedGestion} title="Editar Gestion"/>
     </>
   )
 }

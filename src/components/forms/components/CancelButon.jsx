@@ -2,7 +2,7 @@
 /* eslint-disable no-unused-vars */
 import React from "react";
 
-const CancelButton = ({ onClick, disabled }) => {
+const CancelButton = ({ onClick, disabled, label = "Cancelar" }) => {
   return (
     <button 
       type="button" 
@@ -11,7 +11,7 @@ const CancelButton = ({ onClick, disabled }) => {
       disabled={disabled}
       data-bs-dismiss="modal"
     >
-      <span>Cancelar</span>
+      <span>{label}</span>
     </button>
   );
 };

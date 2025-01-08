@@ -51,7 +51,7 @@ export const Periodos = () => {
           )}
         </tbody>
       </table>
-      <ModalEdit idEditar={idEditar} data={selectedPeriod} />
+      <ModalEdit idEditar={idEditar} data={selectedPeriod} title="Editar Periodo"/>
     </>
   )
 }

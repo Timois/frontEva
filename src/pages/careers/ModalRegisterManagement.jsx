@@ -1,3 +1,5 @@
+/* eslint-disable react/prop-types */
+/* eslint-disable no-unused-vars */
 import { useContext, useEffect, useState } from "react";
 import { RegisterManagement } from "../../components/forms/RegisterManagement";
 import { Card } from "../../components/login/Card";
@@ -6,7 +8,7 @@ import { CareerContext } from "../../context/CareerProvider";
 import { GestionContext } from '../../context/GestionProvider';
 import { useFetchGestion } from "../../hooks/fetchGestion";
 
-export const ModalRegisterManagement = ({ id }) => {
+export const ModalRegisterManagement = ({ id, title }) => {
     const { careers } = useContext(CareerContext);
     const { gestions } = useContext(GestionContext);
     const [data, setData] = useState([]);
@@ -59,6 +61,9 @@ export const ModalRegisterManagement = ({ id }) => {
         >
             <div className="modal-dialog">
                 <div className="modal-content">
+                    <div className="modal-header">
+                        <h5 className="modal-title text-center text-success" id="exampleModalLabel">{title}</h5>
+                    </div>
                     <Card className="card align-items-center h-auto gap-3 p-3">
                         {data.careers && data.academic_managements && <RegisterManagement data={data} />}
                     </Card>

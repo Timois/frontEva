@@ -72,7 +72,7 @@ export const Carreras = () => {
           </div>
         )}
       </div>
-      <ModalEdit idEditar={idEditar} data={selectedCareer} />
+      <ModalEdit idEditar={idEditar} data={selectedCareer} title=" Editar Carrera" />
     </div>
   );
 };

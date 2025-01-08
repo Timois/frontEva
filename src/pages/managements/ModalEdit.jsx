@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import { Card } from '../../components/login/Card'
 import { EditGestion } from '../../components/editForms/EditGestion'
 
-export const ModalEdit = ({ idEditar, data }) => {
+export const ModalEdit = ({ idEditar, data, title }) => {
   const [showModal, setShowModal] = useState(false)
   const handleCloseModal = () => setShowModal(false)
   return (
@@ -19,8 +19,11 @@ export const ModalEdit = ({ idEditar, data }) => {
     >
       <div className="modal-dialog">
         <div className="modal-content">
+          <div className="modal-header">
+            <h5 className="modal-title text-center text-success" id="exampleModalLabel">{title}</h5>
+          </div>
           <Card className="card align-items-center h-auto gap-3 p-3">
-            <EditGestion data={data} closeModal={handleCloseModal}/>
+            <EditGestion data={data} closeModal={handleCloseModal} />
           </Card>
         </div>
       </div>

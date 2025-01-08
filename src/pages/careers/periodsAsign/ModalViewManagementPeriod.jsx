@@ -1,18 +1,26 @@
+/* eslint-disable no-undef */
+/* eslint-disable no-unused-vars */
 import PropTypes from 'prop-types';
 import { Card } from '../../../components/login/Card';
 import { useContext, useEffect, useState } from 'react';
 import { useFetchCareerAssignPeriod } from '../../../hooks/fetchCareers';
 import { CareerAssignContext } from '../../../context/CareerAssignProvider';
+import CancelButton from '../../../components/forms/components/CancelButon';
 
 export const ModalViewManagementPeriod = ({ ModalId, title }) => {
     const [id, setId] = useState(null);
     const { getDataCareerAssignmentPeriods } = useFetchCareerAssignPeriod(id);
     const { careerAssignmentsPeriods } = useContext(CareerAssignContext);
 
+    const handleClose = () => {
+        const modalElement = document.getElementById(ModalId);
+        const bsModal = bootstrap.Modal.getInstance(modalElement);
+        if (bsModal) {
+            bsModal.hide();
+        }
+    };
     useEffect(() => {
         //wait until the modal gets rendered
-
-
         const interval = setInterval(() => {
             const modalElement = document.getElementById(ModalId);
             if (modalElement) {
@@ -46,7 +54,7 @@ export const ModalViewManagementPeriod = ({ ModalId, title }) => {
                         <h5 className="modal-title text-center text-success" id="exampleModalLabel">{title}</h5>
                     </div>
                     <Card className={"card align-items-center h-auto gap-3 p-3"}>
-                        {careerAssignmentsPeriods && careerAssignmentsPeriods.length > 0 && (
+                        {careerAssignmentsPeriods && careerAssignmentsPeriods.length > 0 ? (
                             <table className="table">
                                 <thead>
                                     <tr>
@@ -65,8 +73,28 @@ export const ModalViewManagementPeriod = ({ ModalId, title }) => {
                                     ))}
                                 </tbody>
                             </table>
+                        ) : (
+                            <div className="text-center mt-3">
+                                <p className="text-muted">No hay periodos asignados. <br /> ¿Desea asignar un periodo?</p>
+                                <button
+                                    className="btn btn-primary me-2"
+                                    data-bs-toggle="modal"
+                                    data-bs-target={`#asignarPeriodo`}
+                                    onClick={() => setModalData(null, "asignarPeriodo")}
+                                >
+                                    Asignar Periodo
+                                </button>
+                            </div>
                         )}
+                        <div className="modal-footer w-100">
+                            <CancelButton
+                                data-bs-dismiss="modal"
+                                className="btn btn-secondary"
+                                label="Cerrar"
+                            />
+                        </div>
                     </Card>
+
                 </div>
             </div>
         </div>

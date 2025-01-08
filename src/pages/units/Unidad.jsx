@@ -85,7 +85,7 @@ export const Unidad = () => {
             breakClassName={"page-item"} breakLinkClassName={"page-link"} activeClassName={"active"} />
         </div>
       </div>
-      <ModalEdit idEditar={idEditar} data={selectedUnit} />
+      <ModalEdit idEditar={idEditar} data={selectedUnit} title="Editar Unidad Academica"/>
     </div>
   )
 }

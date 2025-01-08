@@ -21,7 +21,7 @@ export const IndexCareerAssign = () => {
         <div className="m-3 p-3">
             <div className="w-100 d-flex justify-content-center">
                 <CareerAssigns data={careerAssignments} />
-                <ModalRegisterManagementPeriod id={modalIdManagementPeriod} />
+                <ModalRegisterManagementPeriod id={modalIdManagementPeriod}/>
             </div>
         </div>
     )

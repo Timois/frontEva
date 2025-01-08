@@ -1,9 +1,11 @@
+/* eslint-disable no-unused-vars */
 import PropTypes from "prop-types";
 import { useFetchGestion } from "../../../hooks/fetchGestion";
 import { useContext, useEffect, useState } from "react";
 import { GestionContext } from "../../../context/GestionProvider";
 import { ViewPeriod } from "../periodsAsign/ViewPeriod";
 import { ModalViewManagementPeriod } from "../periodsAsign/ModalViewManagementPeriod";
+import { AssignManagement } from "../AssignManagement"
 
 const capitalizeTitle = (text) => {
     if (!text) return "";
@@ -25,12 +27,11 @@ export const CareerAssigns = ({ data }) => {
             getData();
             return;
         }
-        const transformed = gestions.map((gestion) => ({
-            value: gestion.id,
-            text: `${gestion.year}`,
-        }));
+        // Mapeo para transformar los datos
+        const transformed = gestions.map((gestion) => gestion.year || "Sin información");
         setTransformedGestions(transformed);
     }, [gestions]);
+
 
     useEffect(() => {
         const intervalId = setInterval(() => {
@@ -72,8 +73,13 @@ export const CareerAssigns = ({ data }) => {
 
     if (data.length === 0) {
         return (
-            <div className="alert alert-warning text-center">
-                No hay gestiones asignadas. ¿Desea asignar una gestion?<br />
+            <div className="col-12">
+                <div className="alert alert-warning text-center">
+                    No hay gestiones asignadas. ¿Desea asignar una gestion?<br />
+                </div>
+                <div className="text-center mt-3">
+                    <AssignManagement />
+                </div>
             </div>
         );
     }
@@ -105,7 +111,7 @@ export const CareerAssigns = ({ data }) => {
                                     color: "white",
                                 }}
                             >
-                                Gestión {transformedGestions[index]?.text}
+                                Gestión {transformedGestions[index] || "Sin información"}
                                 <div
                                     className="alert"
                                     style={{
@@ -163,7 +169,7 @@ export const CareerAssigns = ({ data }) => {
                     </div>
                 ))}
             </div>
-            <ModalViewManagementPeriod ModalId="verPeriodo" title="Ver Periodo" />
+            <ModalViewManagementPeriod ModalId="verPeriodo" title="Periodos" />
         </div>
     );
 };

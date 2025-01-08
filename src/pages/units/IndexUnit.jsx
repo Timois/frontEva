@@ -16,7 +16,7 @@ export const IndexUnit = () => {
       <div className=''>
         <Unidad />
       </div>
-      <ModalRegister modalId={modalId} title="Registro de Unidades Academicas" />
+      <ModalRegister modalId={modalId} title="Registrar Unidad Academica" />
 
     </div>
   )
