@@ -38,6 +38,11 @@ export const ModalViewManagementPeriod = ({ ModalId, title }) => {
         getDataCareerAssignmentPeriods();
     }, [id])
 
+    const setModalData = (id, modalId) => {
+        const modal = document.getElementById(modalId);
+        //add an attribute to the modal to know which career is being assigned
+        modal.setAttribute("data-academic_management_career_id", id);
+    };
     return (
         <div
             className="modal fade"
@@ -74,8 +79,8 @@ export const ModalViewManagementPeriod = ({ ModalId, title }) => {
                                 </tbody>
                             </table>
                         ) : (
-                            <div className="text-center mt-3">
-                                <p className="text-muted">No hay periodos asignados. <br /> ¿Desea asignar un periodo?</p>
+                            <div className="text-center mt-3 alert alert-warning">
+                                <p className="text-muted">No hay periodos asignados. ¿Desea asignar un periodo?</p>
                                 <button
                                     className="btn btn-primary me-2"
                                     data-bs-toggle="modal"

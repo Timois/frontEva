@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 import React from 'react'
+import { FaPlus } from "react-icons/fa";
 
 export const ButtonAdd = ({ modalIdCareer }) => {
     return (
@@ -10,7 +11,7 @@ export const ButtonAdd = ({ modalIdCareer }) => {
         data-bs-toggle="modal"
         data-bs-target={`#${modalIdCareer}`}
       >
-        Agregar Carrera
+        <FaPlus className="me-2" />Agregar Carrera
       </button>
     )
   }

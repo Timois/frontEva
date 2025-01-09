@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 import React from "react";
+import { FaPlus } from "react-icons/fa";
 
 const ButtonAdd = ({ modalIdP }) => {
   return (
@@ -10,7 +11,7 @@ const ButtonAdd = ({ modalIdP }) => {
       data-bs-toggle="modal"
       data-bs-target={`#${modalIdP}`}
     >
-      Agregar Periodo
+      <FaPlus className="me-2" />Agregar Periodo
     </button>
   )
 }

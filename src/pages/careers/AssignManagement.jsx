@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React from 'react'
-
+import { MdAssignment } from "react-icons/md";
+ 
 export const AssignManagement = () => {
 
   return (
@@ -9,7 +10,7 @@ export const AssignManagement = () => {
       data-bs-toggle="modal"
       data-bs-target="#asignarGestion"
     >
-      Asignar Gestion
+      <MdAssignment className="me-2" />Asignar Gestion
     </button>
   )
 }

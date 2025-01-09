@@ -164,7 +164,7 @@ export const CareerAssigns = ({ data }) => {
                                 </button>
                                 <ViewPeriod handleClick={() => {
                                     setModalData(gestion['academic_management_career_id'], "verPeriodo");
-                                    console.log(gestion);
+                                    // console.log(gestion);
                                 }} />
                             </div>
                         </div>
