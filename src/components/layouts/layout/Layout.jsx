@@ -8,8 +8,7 @@ import { clearStorage } from "../../../services/storage/clearStorage";
 import { useContext } from "react";
 import { UserContext } from "../../../context/UserProvider";
 import { MdLogout } from "react-icons/md";
-import { Accordion } from "react-bootstrap";
-// eslint-disable-next-line no-unused-vars
+
 import { FaUserShield, FaQuestionCircle, FaHome, FaUserGraduate } from "react-icons/fa"; // Ejemplo de íconos
 
 
@@ -43,54 +42,69 @@ const Layout = ({ children }) => {
             </nav>
             <div className="d-flex flex-grow-1 overflow-hidden">
                 <Sidebar isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar}>
-                    <Accordion defaultActiveKey="0" className="w-100 p-3" style={{backgroundColor: '#82e5ef'}}>
+                    <div className="accordion w-100 p-3" id="accordionExample" style={{ backgroundColor: '#82e5ef' }}>
                         {/* Sección Administrador */}
-                        <Accordion.Item eventKey="0" style={{backgroundColor: '#e4f3bf'}}>
-                            <Accordion.Header className="bg-color-success">
-                                <FaUserShield className="me-2" /> Administrador
-                            </Accordion.Header>
-                            <Accordion.Body>
-                                <MenuButton path={"/unit"} label={"unidades"} onClick={closeSidebar} />
-                                <MenuButton path={"/career"} label={"carreras"} onClick={closeSidebar} />
-                                <MenuButton path={"/gestion"} label={"gestiones"} onClick={closeSidebar} />
-                                <MenuButton path={"/periods"} label={"periodos"} onClick={closeSidebar} />
-                            </Accordion.Body>
-                        </Accordion.Item>
-                        
-                        <Accordion.Item eventKey="1" style={{backgroundColor: '#e4f3bf'}}>
-                            <Accordion.Header>
-                                <FaHome className="me-2" /> Inicio
-                            </Accordion.Header>
-                            <Accordion.Body>
-                                <MenuButton path={"/home"} label={"inicio"} onClick={closeSidebar} />
-                                <MenuButton path={"/"} label={"dashboard"} onClick={closeSidebar} />
-                            </Accordion.Body>
-                        </Accordion.Item>
+                        <div className="accordion-item" style={{ backgroundColor: '#e4f3bf' }}>
+                            <h2 className="accordion-header" id="headingOne">
+                                <button className="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                    <FaUserShield className="me-2" /> Administrador - X
+                                </button>
+                            </h2>
+                            <div id="collapseOne" className="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                                <div className="accordion-body">
+                                    <MenuButton path={"/unit"} label={"unidades"} onClick={closeSidebar} />
+                                    <MenuButton path={"/career"} label={"carreras"} onClick={closeSidebar} />
+                                    <MenuButton path={"/gestion"} label={"gestiones"} onClick={closeSidebar} />
+                                    <MenuButton path={"/periods"} label={"periodos"} onClick={closeSidebar} />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="accordion-item" style={{ backgroundColor: '#e4f3bf' }}>
+                            <h2 className="accordion-header" id="headingTwo">
+                                <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                    <FaHome className="me-2" /> Inicio
+                                </button>
+                            </h2>
+                            <div id="collapseTwo" className="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+                                <div className="accordion-body">
+                                    <MenuButton path={"/home"} label={"inicio"} onClick={closeSidebar} />
+                                    <MenuButton path={"/"} label={"dashboard"} onClick={closeSidebar} />
+                                </div>
+                            </div>
+                        </div>
 
                         {/* Sección Exámenes */}
-                        <Accordion.Item eventKey="2" style={{backgroundColor: '#e4f3bf'}}>
-                            <Accordion.Header>
-                                <FaQuestionCircle className="me-2 w-auto" /> Exámenes
-                            </Accordion.Header>
-                            <Accordion.Body>
-                                <MenuButton path={"/"} label={"Categorias"} onClick={closeSidebar}/>
-                            </Accordion.Body>
-                        </Accordion.Item>
-                        <Accordion.Item eventKey="3" style={{backgroundColor: '#e4f3bf'}}>
-                            <Accordion.Header>
-                                <FaUserGraduate className="me-2 w-auto" /> Estudiantes
-                            </Accordion.Header>
-                            <Accordion.Body>
-                                <MenuButton path={"/"} label={"Iniciar Examen"} onClick={closeSidebar} />
-                            </Accordion.Body>
-                        </Accordion.Item>
-                    </Accordion>
+                        <div className="accordion-item" style={{ backgroundColor: '#e4f3bf' }}>
+                            <h2 className="accordion-header" id="headingThree">
+                                <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                    <FaQuestionCircle className="me-2 w-auto" /> Exámenes
+                                </button>
+                            </h2>
+                            <div id="collapseThree" className="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
+                                <div className="accordion-body">
+                                    <MenuButton path={"/"} label={"Categorias"} onClick={closeSidebar} />
+                                </div>
+                            </div>
+                        </div>
+                        <div className="accordion-item" style={{ backgroundColor: '#e4f3bf' }}>
+                            <h2 className="accordion-header" id="headingFour">
+                                <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                                    <FaUserGraduate className="me-2 w-auto" /> Estudiantes
+                                </button>
+                            </h2>
+                            <div id="collapseFour" className="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#accordionExample">
+                                <div className="accordion-body">
+                                    <MenuButton path={"/"} label={"Iniciar Examen"} onClick={closeSidebar} />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </Sidebar>
                 <div className="pt-4 flex-grow-1 overflow-auto">
                     {children}
                 </div>
             </div>
-
         </div>
     );
 };
