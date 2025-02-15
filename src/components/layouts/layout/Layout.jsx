@@ -20,7 +20,7 @@ const Layout = ({ children }) => {
     const logout = () => {
         clearStorage();
         navigate("/");
-    };
+    };  
 
     return (
         <div className="d-flex flex-column vh-100">
@@ -59,7 +59,7 @@ const Layout = ({ children }) => {
                                 </div>
                             </div>
                         </div>
-
+                        {/* Sección pagina principal */}
                         <div className="accordion-item" style={{ backgroundColor: '#e4f3bf' }}>
                             <h2 className="accordion-header" id="headingTwo">
                                 <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
@@ -69,24 +69,27 @@ const Layout = ({ children }) => {
                             <div id="collapseTwo" className="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
                                 <div className="accordion-body">
                                     <MenuButton path={"/home"} label={"inicio"} onClick={closeSidebar} />
-                                    <MenuButton path={"/"} label={"dashboard"} onClick={closeSidebar} />
                                 </div>
                             </div>
                         </div>
 
-                        {/* Sección Exámenes */}
+                        {/* Sección Docente */}
                         <div className="accordion-item" style={{ backgroundColor: '#e4f3bf' }}>
                             <h2 className="accordion-header" id="headingThree">
                                 <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                                    <FaQuestionCircle className="me-2 w-auto" /> Exámenes
+                                    <FaQuestionCircle className="me-2 w-auto" /> Docentes
                                 </button>
                             </h2>
                             <div id="collapseThree" className="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
                                 <div className="accordion-body">
-                                    <MenuButton path={"/"} label={"Categorias"} onClick={closeSidebar} />
+                                <MenuButton path={"/students"} label={"Gestion de Estudiantes"} onClick={closeSidebar} />
+                                <MenuButton path={"/questions"} label={"Gestion de Preguntas"} onClick={closeSidebar} />
+                                <MenuButton path={"/examns"} label={"Gestion de Examen"} onClick={closeSidebar} />
+                                <MenuButton path={"/results"} label={"Gestion de Resultados"} onClick={closeSidebar} />
                                 </div>
                             </div>
                         </div>
+                        {/* Sección Estudiante */}
                         <div className="accordion-item" style={{ backgroundColor: '#e4f3bf' }}>
                             <h2 className="accordion-header" id="headingFour">
                                 <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">

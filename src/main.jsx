@@ -13,6 +13,7 @@ import { GestionProvider } from './context/GestionProvider.jsx'
 import { PeriodProvider } from './context/PeriodProvider.jsx'
 import { ExtensionGestionProvider } from './context/ExtensionGestionProvider.jsx'
 import { CareerAssignProvider } from './context/CareerAssignProvider.jsx';
+import { ImportExcelQuestions } from './context/ImportExcelQuestions.jsx';
 
 createRoot(document.getElementById('root')).render(
   <BrowserRouter>
@@ -24,7 +25,9 @@ createRoot(document.getElementById('root')).render(
             <PeriodProvider>
               <ExtensionGestionProvider>
                 <CareerAssignProvider>
-                  <App />
+                  <ImportExcelQuestions>
+                    <App />
+                  </ImportExcelQuestions>
                 </CareerAssignProvider>
               </ExtensionGestionProvider>
             </PeriodProvider>

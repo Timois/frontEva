@@ -18,25 +18,33 @@ export const getToken = async (url) => {
     }
 }
 
+import { saveUser } from "../storage/storage";
+
 export const loginSystem = async (url, values) => {
-    const token_system = getTokenSystem()
-    const key_system = getKeySystem()
+    const token_system = getTokenSystem();
+    const key_system = getKeySystem();
     try {
-        const { data } = await axios.post(path + url, values,
-            {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': token_system,
-                    'X-System-Key': key_system
-                }
+        const { data } = await axios.post(path + url, values, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': token_system,
+                'X-System-Key': key_system
             }
-        )
-        const {daily_token, weekly_token} = data.tokens
-        saveCredentials(daily_token,weekly_token)
-        return data
+        });
+
+        // Guardamos los tokens
+        const { daily_token, weekly_token } = data.tokens;
+        saveCredentials(daily_token, weekly_token);
+
+        // Guardamos el usuario con su rol
+        if (data.user) {
+            saveUser(data.user);
+        }
+
+        return data;
     } catch (error) {
-        
-        return (error.response)
+        return error.response;
     }
-}
+};
+
 
