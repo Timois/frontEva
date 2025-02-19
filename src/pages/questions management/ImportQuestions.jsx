@@ -1,54 +1,64 @@
 /* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
-import React from 'react'
-import ButtonEdit from '../periods/ButtonEdit'
+import React, { useContext, useEffect, useState } from 'react'
+import { ImportExcelQuestionsContext } from '../../context/ImportExcelQuestions'
+import { useFetchImportQuestions } from '../../hooks/fetchImportQuestions'
+import  ModalEdit  from './ModalEdit'
 
 export const ImportQuestions = () => {
-     const { importExcel, setImportExcel } = useContext(PeriodContext)
-      const [selectedImport, setSelectedImport] = useState(null)
-    
-      const handleEditClick = (import) => {
-        setSelectedPeriod(import)
-      }
-    
-      const { getData } = useFetchPeriod()
-      useEffect(() => {
+    const { importExcelQuestions: imports, setImportExcelQuestions} = useContext(ImportExcelQuestionsContext)
+    const [selectedExcelImport, setSelectedExcelImport] = useState(null)
+
+
+    const handleEditClick = (excel) => {
+        setSelectedExcelImport(excel)
+    }
+
+    const {getData} = useFetchImportQuestions()
+    useEffect(() => {
         getData()
-      }, [])
-      const idEditar = "editarPeriodo"
+    }, [])
+        
+    const idEditar = "editarExcelImport"
     return (
         <>
             <table className="table table-dark table-striped table-bordered table-responsive border border-warning">
                 <thead>
                     <tr>
                         <th scope="col">N°</th>
-                        <th scope="col">Periodo</th>
-                        <th scope="col">Estado</th>
+                        <th scope="col">Archivo</th>
+                        <th scope="col">Carrera</th>
+                        <th scope="col">Sigla</th>
+                        <th scope="col">Tamaño</th>
                         <th scope="col">Acción</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {importQuestions.length > 0 ? (
-                        imports.map((import, index) => (
+                    {imports.length > 0 ? (
+                        imports.map((excel, index) => (
                             <tr key={index}>
                                 <td>{index + 1}</td>
-                                <td>{import.file_name}</td>
-                                <td>{import.status}</td>
+                                <td>{excel.file_name}</td>
+                                <td>{excel.career}</td>
+                                <td>{excel.sigla}</td>
+                                <td>{excel.size}</td>
                                 <td>
-                                    <ButtonEdit idEditar={idEditar} onEditClick={() => handleEditClick(period)} />
+                                    <ModalEdit
+                                        idEditar={idEditar}
+                                        data={excel}
+                                        title="Editar Archivo"
+                                    />
                                 </td>
                             </tr>
                         ))
                     ) : (
                         <tr>
-                            <td colSpan="5" className="text-center">
-                                No hay Periodos registrados.
-                            </td>
+                            <td colSpan="6">No hay ningun archivo importado</td>
                         </tr>
                     )}
                 </tbody>
             </table>
-            <ModalEdit idEditar={idEditar} data={selectedPeriod} title="Editar Periodo" />
+           
         </>
     )
 }

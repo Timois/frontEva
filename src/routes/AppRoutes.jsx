@@ -10,10 +10,11 @@ import { IndexGestion } from "../pages/managements/IndexGestion"
 import { IndexPeriod } from "../pages/periods/IndexPeriod"
 import { NotFound404 } from "../pages/errors/NotFound404"
 import { IndexCareerAssign } from "../pages/careers/careerAssign/IndexCareerAssign"
-import { IndexQuestions } from "../pages/gestion preguntas/IndexQuestions"
+
 import { IndexResults } from "../pages/results management/IndexResults"
 import { IndexExamns } from "../pages/examn management/IndexExamns"
 import { IndexStudents } from "../pages/student management/IndexStudents"
+import { IndexQuestions } from "../pages/questions management/IndexQuestions"
 
 
 export const AppRoutes = () => {

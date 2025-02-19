@@ -6,13 +6,13 @@ import { ContainerInput } from "../login/ContainerInput"
 import PropTypes from 'prop-types'
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
-import { AcademicManagementCareerSchema } from "../../models/schemas/AcademicManagementCareerSchema"
 import { closeFormModal, customAlert } from "../../utils/domHelper"
 import { postApi } from "../../services/axiosServices/ApiService"
+import { AsignGestionSchema } from "../../models/schemas/AsignGestion"
 
 export const RegisterManagement = ({ data }) => {
     const { control, handleSubmit, reset, formState: { errors }, setError } = useForm({
-        resolver: zodResolver(AcademicManagementCareerSchema)
+        resolver: zodResolver(AsignGestionSchema)
     })
 
     const onSubmit = async (data) => {
@@ -57,7 +57,7 @@ export const RegisterManagement = ({ data }) => {
                     name="academic_management_id"
                     options={data?.academic_managements}
                     control={control}
-                    errors={errors.academic_management_id}
+                    error={errors.academic_management_id}
                 />
             </ContainerInput>
             <ContainerButton>
