@@ -56,6 +56,7 @@ const Layout = ({ children }) => {
                                     <MenuButton path={"/career"} label={"carreras"} onClick={closeSidebar} />
                                     <MenuButton path={"/gestion"} label={"gestiones"} onClick={closeSidebar} />
                                     <MenuButton path={"/periods"} label={"periodos"} onClick={closeSidebar} />
+                                    <MenuButton path={"/users"} label={"usuarios"} onClick={closeSidebar} />
                                 </div>
                             </div>
                         </div>
