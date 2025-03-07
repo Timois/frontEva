@@ -3,7 +3,7 @@
 /* eslint-disable no-unused-vars */
 import React, { useEffect } from "react";
 import { Card } from "../../components/login/Card";
-import { FormUnit } from '../../components/forms/FormUnit';
+import { FormCareer } from "../../components/forms/FormCareer";
 
 const ModalRegister = ({ modalId, title }) => {
 
@@ -23,7 +23,7 @@ const ModalRegister = ({ modalId, title }) => {
             <h5 className="modal-title text-center text-success" id="exampleModalLabel">{title}</h5>
           </div>
           <Card className="card align-items-center h-auto gap-3 p-3">
-            <FormUnit />
+            <FormCareer />
           </Card>
         </div>
       </div>

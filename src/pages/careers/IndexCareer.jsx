@@ -15,13 +15,11 @@ export const IndexCareer = () => {
   return (
     <div className='m-3 p-3 '>
       <div className='d-flex justify-content-center gap-2 '>
-        <ButtonAdd modalIdCareer={modalId} />
         <AssignManagement />  
       </div>
       <div className='w-100 d-flex justify-content-center'>
         <Carreras />
       </div>
-      <ModalRegister ModalId={modalId} title="Registrar Carrera" />
       <ModalRegisterManagement id={modalIdManagement} title="Asignar Gestion"/>
 
     </div>

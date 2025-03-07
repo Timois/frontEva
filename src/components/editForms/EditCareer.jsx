@@ -1,133 +1,164 @@
-/* eslint-disable react/prop-types */
-
 /* eslint-disable no-unused-vars */
-import React, { useContext, useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { CareerSchema } from '../../models/schemas/CareerSchema'
-import { ContainerInput } from '../login/ContainerInput'
-import { Input } from '../login/Input'
-import { ContainerButton } from '../login/ContainerButton'
-import { Button } from '../login/Button'
-import { CareerContext } from '../../context/CareerProvider'
-import { UnitContext } from '../../context/UnitProvider'
-import { useFetchUnit } from '../../hooks/fetchUnit'
-import { postApi } from '../../services/axiosServices/ApiService'
-import { Validate } from '../forms/components/Validate'
-import { SelectInput } from '../forms/components/SelectInput'
-import CancelButton from '../forms/components/CancelButon'
-import { closeFormModal, customAlert } from '../../utils/domHelper'
+/* eslint-disable react/prop-types */
+import React, { useContext, useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { CareerSchema } from "../../models/schemas/CareerSchema";
+import { ContainerInput } from "../login/ContainerInput";
+import { Input } from "../login/Input";
+import { ContainerButton } from "../login/ContainerButton";
+import { Button } from "../login/Button";
+import { CareerContext } from "../../context/CareerProvider";
+import { UnitContext } from "../../context/UnitProvider";
+import { useFetchUnit } from "../../hooks/fetchUnit";
+import { postApi } from "../../services/axiosServices/ApiService";
+import { Validate } from "../forms/components/Validate";
+import { SelectInput } from "../forms/components/SelectInput";
+import CancelButton from "../forms/components/CancelButon";
+import { closeFormModal, customAlert } from "../../utils/domHelper";
 
+const arrayOption = [
+    { value: "mayor", text: "Unidad Mayor" },
+    { value: "facultad", text: "Facultad" },
+    { value: "dependiente", text: "Dependiente" },
+    { value: "carrera", text: "Carrera" },
+];
 
 export const EditCareer = ({ data, closeModal }) => {
-    const { getData } = useFetchUnit()
-    const { units } = useContext(UnitContext)
-    const [response, setResponse] = useState(false)
-    const { updateCareer } = useContext(CareerContext)
-    const [array, setArray] = useState([])
-    const [preview, setPreview] = useState(null)
+    const { getData } = useFetchUnit();
+    const { units } = useContext(UnitContext);
+    const [response, setResponse] = useState(false);
+    const { updateCareer } = useContext(CareerContext);
+    const [array, setArray] = useState([]);
+    const [preview, setPreview] = useState(null);
+    const [selectedType, setSelectedType] = useState(""); // Estado para manejar el tipo seleccionado
 
-    const { control, handleSubmit, reset, setValue, formState: { errors }, setError } = useForm({
-        resolver: zodResolver(CareerSchema)
-    })
+    const {
+        control,
+        handleSubmit,
+        reset,
+        setValue,
+        formState: { errors },
+        setError,
+        watch,
+    } = useForm({
+        resolver: zodResolver(CareerSchema),
+    });
 
     useEffect(() => {
         if (data) {
-            setValue("name", data.name)
-            setValue("initials", data.initials)
-            setValue("unit_id", data.unit_id)
-            setPreview(data.logo)
+            setValue("name", data.name);
+            setValue("initials", data.initials);
+            setValue("type", data.type);
+            setSelectedType(data.type);
+            setValue("unit_id", data.unit_id);
+            setPreview(data.logo);
         }
+    }, [data, setValue]);
 
-    }, [data, setValue])
+    // Actualiza unit_id a "0" si el tipo cambia a algo distinto de "dependiente"
+    useEffect(() => {
+        if (selectedType !== "mayor" && selectedType !== "facultad") {
+            setValue("unit_id", "0");
+        }
+    }, [selectedType, setValue]);
 
     const onSubmit = async (formData) => {
-        setResponse(true)
+        setResponse(true);
 
-        const requestData = new FormData()
-        requestData.append("name", formData.name)
-        requestData.append("initials", formData.initials)
-        requestData.append("unit_id", formData.unit_id)
+        const requestData = new FormData();
+        requestData.append("name", formData.name);
+        requestData.append("initials", formData.initials);
+        requestData.append("type", formData.type);
+        requestData.append("unit_id", formData.unit_id);
         if (formData.logo && formData.logo[0]) {
-            requestData.append("logo", formData.logo[0])
+            requestData.append("logo", formData.logo[0]);
         }
         try {
-            const response = await postApi(`career/edit/${data.id}`, requestData)
-            setResponse(false)
-
-            console.log("::Form::", formData)
-            console.log("::RESPONSE::", response)
+            const response = await postApi(`career/edit/${data.id}`, requestData);
+            setResponse(false);
 
             if (response.status === 422) {
                 for (let key in response.data.errors) {
-                    setError(key, { type: "custom", message: response.data.errors[key][0] })
+                    setError(key, { type: "custom", message: response.data.errors[key][0] });
                 }
-                return
+                return;
             }
 
-            customAlert("Carrera Editada", "success")
+            customAlert("Carrera Editada", "success");
 
             closeFormModal("editarCarrera");
 
-            updateCareer(response)
-            reset()
+            updateCareer(response);
+            reset();
         } catch (error) {
-            console.error("Error al actualizar unidad:", error)
-            setResponse(false)
+            console.error("Error al actualizar unidad:", error);
+            setResponse(false);
         }
-    }
+    };
+
     const handleCancel = () => {
-        closeModal(); // Close the modal
+        closeModal();
     };
 
     const formatData = () => {
-        const newArray = units.map(element =>
-        ({
-            value: element.id, text: element.name
-        })
-        );
-        setArray(newArray)
-    }
+        const newArray = units.map((element) => ({
+            value: element.id,
+            text: element.name,
+        }));
+        setArray(newArray);
+    };
 
     useEffect(() => {
-        getData()
-    }, [])
+        getData();
+    }, []);
 
     useEffect(() => {
-        formatData()
-    }, [units])
+        formatData();
+    }, [units]);
 
     const onChange = (e) => {
-        setValue("logo", e.target.files)
-        setPreview(URL.createObjectURL(e.target.files[0]))
-    }
+        setValue("logo", e.target.files);
+        setPreview(URL.createObjectURL(e.target.files[0]));
+    };
+
     return (
-        <form onSubmit={handleSubmit(onSubmit)} >
+        <form onSubmit={handleSubmit(onSubmit)}>
             <ContainerInput>
-                <Input name={"name"} control={control} type={"text"} placeholder={"Ingrese un nombre"} />
+                <Input name="name" control={control} type="text" placeholder="Ingrese un nombre" />
                 <Validate error={errors.name} />
             </ContainerInput>
             <ContainerInput>
-                <Input name={"initials"} control={control} type={"text"} placeholder={"Ingrese la sigla"} />
+                <Input name="initials" control={control} type="text" placeholder="Ingrese la sigla" />
                 <Validate error={errors.initials} />
             </ContainerInput>
             <ContainerInput>
-                <input
-                    type="file"
-                    onChange={onChange}
-                />
+                <input type="file" onChange={onChange} />
                 <Validate error={errors.logo} />
                 {preview ? <img src={preview} alt="preview" width={80} height={80} /> : null}
             </ContainerInput>
             <ContainerInput>
                 <SelectInput
-                    label="Seleccione la Unidad Academica"
-                    name="unit_id"
-                    options={array}
+                    label="Seleccione el tipo"
+                    name="type"
+                    options={arrayOption}
                     control={control}
                     error={errors.type}
+                    onChange={(e) => setSelectedType(e.target.value)} // Actualiza el estado cuando cambia el tipo
                 />
+                <Validate error={errors.type} />
             </ContainerInput>
+            {(selectedType === "dependiente" || selectedType === "carrera") && ( // Renderiza solo si el tipo es "dependiente"
+                <ContainerInput>
+                    <SelectInput
+                        label="Seleccione la Unidad Académica"
+                        name="unit_id"
+                        options={array}
+                        control={control}
+                        error={errors.unit_id}
+                    />
+                </ContainerInput>
+            )}
             <ContainerButton>
                 <Button type="submit" name="submit" disabled={response}>
                     <span>{response ? "Guardando..." : "Guardar"}</span>
@@ -135,5 +166,5 @@ export const EditCareer = ({ data, closeModal }) => {
                 <CancelButton disabled={response} onClick={handleCancel} />
             </ContainerButton>
         </form>
-    )
-}
+    );
+};

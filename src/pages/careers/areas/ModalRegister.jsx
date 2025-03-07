@@ -1,23 +1,16 @@
 /* eslint-disable no-undef */
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
-import React, { useState } from "react";
-import { Card } from "../../components/login/Card";
-import { EditCareer } from "../../components/editForms/EditCareer";
+import React, { useEffect } from "react";
+import { Card } from "../../../components/login/Card";
+import { FormArea } from "../../../components/forms/FormArea";
 
-const ModalEdit = ({ idEditar, data, title }) => {
-  const [showModal, setShowModal] = useState(false);
-  
-  // Modificamos esta función para usar closeFormModal
-  const handleCloseModal = () => {
-    closeFormModal(idEditar); // Cerramos el modal usando la utilidad
-    setShowModal(false);
-  };
-  
+const ModalRegister = ({ modalId, title }) => {
+
   return (
     <div
       className="modal fade"
-      id={idEditar}
+      id={modalId}
       tabIndex="-1"
       aria-labelledby="exampleModalLabel"
       aria-hidden="true"
@@ -30,10 +23,12 @@ const ModalEdit = ({ idEditar, data, title }) => {
             <h5 className="modal-title text-center text-success" id="exampleModalLabel">{title}</h5>
           </div>
           <Card className="card align-items-center h-auto gap-3 p-3">
-            <EditCareer data={data} closeModal={handleCloseModal} />
+            <FormArea />
           </Card>
         </div>
       </div>
     </div>
   );
 };
+
+export default ModalRegister;

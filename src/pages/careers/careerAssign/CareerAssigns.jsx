@@ -7,6 +7,7 @@ import { ViewPeriod } from "../periodsAsign/ViewPeriod";
 import { ModalViewManagementPeriod } from "../periodsAsign/ModalViewManagementPeriod";
 import { AssignManagement } from "../AssignManagement"
 import { ModalRegisterManagement } from "../ModalRegisterManagement";
+import { ButtonVerAreas } from "./ButtonVerAreas";
 
 const capitalizeTitle = (text) => {
     if (!text) return "";
@@ -166,6 +167,7 @@ export const CareerAssigns = ({ data }) => {
                                     setModalData(gestion['academic_management_career_id'], "verPeriodo");
                                     // console.log(gestion);
                                 }} />
+                                <ButtonVerAreas to="/areas"/>
                             </div>
                         </div>
                     </div>

@@ -1,22 +1,21 @@
+
 /* eslint-disable no-unused-vars */
 import React from 'react'
-import { Unidad } from './Unidad'
-import  ModalRegister from './ModalRegister'
 import ButtonAdd from './ButtonAdd'
+import { Area } from './Area'
+import ModalRegister from './ModalRegister'
 
-
-export const IndexUnit = () => {
-  const modalId = "registroCarrera"
-
+export const IndexArea = () => {
+  const modalId = "registroArea"
   return (
     <div className='m-3 p-3'>
       <div className="d-flex justify-content-center">
         <ButtonAdd modalId={modalId}/>
       </div>
       <div className=''>
-        <Unidad />
+        <Area />
       </div>
-      <ModalRegister modalId={modalId} title="Registrar Carrera" />
+      <ModalRegister modalId={modalId} title="Registrar Area" />
     </div>
   )
 }

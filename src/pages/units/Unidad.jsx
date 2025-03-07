@@ -4,7 +4,7 @@ import ReactPaginate from "react-paginate"
 import { UnitContext } from "../../context/UnitProvider"
 import { useFetchUnit } from "../../hooks/fetchUnit"
 import ButtonEdit from "./ButtonEdit"
-import ModalEdit from "./ModalEdit"
+import { ModalEdit } from "../careers/ModalEdit"
 
 export const Unidad = () => {
   const { units, setUnits } = useContext(UnitContext)
@@ -31,7 +31,7 @@ export const Unidad = () => {
     getData()
   }, [])
 
-  const idEditar = "editarUnidad"
+  const idEditar = "editarCarrera"
 
   return (
     <div className="row">

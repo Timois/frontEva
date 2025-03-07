@@ -15,6 +15,7 @@ import { IndexResults } from "../pages/results management/IndexResults"
 import { IndexExamns } from "../pages/examn management/IndexExamns"
 import { IndexStudents } from "../pages/student management/IndexStudents"
 import { IndexQuestions } from "../pages/questions management/IndexQuestions"
+import { IndexArea } from "../pages/careers/areas/IndexArea"
 
 
 export const AppRoutes = () => {
@@ -34,6 +35,7 @@ export const AppRoutes = () => {
           <Route path="career" element={<IndexCareer />}></Route>
           <Route path="career/:id/assigns" element={<IndexCareerAssign />}></Route>
           <Route path="gestion" element={<IndexGestion />}></Route>
+          <Route path="areas" element={<IndexArea />}></Route>
           <Route path="periods" element={<IndexPeriod />} ></Route>
           <Route path="students" element={<IndexStudents />}></Route>
           <Route path="questions" element={<IndexQuestions />}></Route>

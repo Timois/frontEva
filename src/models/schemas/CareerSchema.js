@@ -1,8 +1,8 @@
 import { z } from "zod";
 
 export const CareerSchema = z.object({
-  name: z.string({ required_error: "El nombre es obligatorio" }).min(5, "El minimo de caracteres es 5"),
-  initials: z.string({ required_error: "La sigla es obligatoria" }).max(10, "El maximo de caracteres son 10"),
+  name: z.string({ required_error: "El nombre es obligatorio" }).min(5, "El mínimo de caracteres es 5"),
+  initials: z.string({ required_error: "La sigla es obligatoria" }).max(10, "El máximo de caracteres son 10"),
   logo: z
     .instanceof(FileList)
     .refine(
@@ -16,6 +16,17 @@ export const CareerSchema = z.object({
       { message: "Solo se permiten archivos JPG, PNG, WEBP o SVG" }
     )
     .optional(),
-  unit_id: z.string({ required_error: "seleccione una opcion" })
-    .regex(/^[0-9]+$/, { message: "Debe ser un id válido" }),
-})      
+  type: z.string({ required_error: "Seleccione una opción" }),
+  unit_id: z.union([
+    z.string().regex(/^[0-9]+$/, { message: "Debe ser un ID válido" }),
+    z.literal("")
+  ]).optional()
+}).superRefine((data, ctx) => {
+  if (["carrera", "dependiente"].includes(data.type) && !data.unit_id) {
+    ctx.addIssue({
+      path: ["unit_id"],
+      message: "Seleccione una opción",
+      code: "custom"
+    });
+  }
+});
