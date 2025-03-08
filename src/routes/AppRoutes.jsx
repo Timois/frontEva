@@ -35,12 +35,12 @@ export const AppRoutes = () => {
           <Route path="career" element={<IndexCareer />}></Route>
           <Route path="career/:id/assigns" element={<IndexCareerAssign />}></Route>
           <Route path="gestion" element={<IndexGestion />}></Route>
-          <Route path="areas" element={<IndexArea />}></Route>
+          <Route path="areas/:career_id" element={<IndexArea />}></Route>
           <Route path="periods" element={<IndexPeriod />} ></Route>
           <Route path="students" element={<IndexStudents />}></Route>
           <Route path="questions" element={<IndexQuestions />}></Route>
-          <Route path="examns" element={<IndexExamns/>}></Route>
-          <Route path="results" element={<IndexResults/>}></Route>
+          <Route path="examns" element={<IndexExamns />}></Route>
+          <Route path="results" element={<IndexResults />}></Route>
         </Route>
       </Route>
       <Route path="404" element={<NotFound404 />}></Route>
