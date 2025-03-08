@@ -167,7 +167,7 @@ export const CareerAssigns = ({ data }) => {
                                     setModalData(gestion['academic_management_career_id'], "verPeriodo");
                                     // console.log(gestion);
                                 }} />
-                                <ButtonVerAreas to={`/career/${gestion['academic_management_career_id']}/areas`} />
+                                <ButtonVerAreas to={`/career/areas`} />
                             </div>
                         </div>
                     </div>

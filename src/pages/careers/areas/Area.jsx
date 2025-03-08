@@ -4,10 +4,10 @@ import { AreaContext } from '../../../context/AreaProvider'
 import { useFetchAreasByCareer } from '../../../hooks/fetchAreas';
 import ButtonEdit from './ButtonEdit';
 import { ModalEdit } from './ModalEdit';
-import { useParams } from 'react-router-dom';
+import { CareerContext } from '../../../context/CareerProvider';
 
 export const Area = () => {
-  const { career_id } = useParams();
+  const { selectedCareer } = useContext(CareerContext);
   const { areas, setAreas } = useContext(AreaContext);
   const [selectedArea, setSelectedArea] = useState(null);
   const { getData } = useFetchAreasByCareer();
@@ -17,15 +17,16 @@ export const Area = () => {
   };
 
   useEffect(() => {
-    if (!career_id) return;
+    if (!selectedCareer) return;
 
     const fetchData = async () => {
-      const data = await getData(career_id);
+      const data = await getData(selectedCareer.id);
+      console.log(selectedCareer)
       setAreas(data);
     };
 
     fetchData();
-  }, [career_id, getData, setAreas])
+  }, [getData, selectedCareer, setAreas])
 
   const idEditar = "editarArea"
   return (
