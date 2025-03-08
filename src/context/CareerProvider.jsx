@@ -3,24 +3,32 @@
 import React, { createContext, useState } from 'react'
 
 export const CareerContext = createContext()
-export const CareerProvider = ({children}) => {
-    const [careers, setCareers] = useState([])
-    const addCareer = (career) => {
-        setCareers([...careers, career])
+export const CareerProvider = ({ children }) => {
+  const [careers, setCareers] = useState([])
+  const [selectedCareer, setSelectedCareer] = useState(null)
+
+  const addCareer = (career) => {
+    setCareers([...careers, career])
+  }
+
+  const updateSelectedCareer = (career) => {
+    setSelectedCareer(career);
+  }
+
+  const updateCareer = (career) => {
+    const posicion = careers.findIndex(p => p.id === career.id)
+    if (posicion !== -1) {
+      const lista = [...careers]
+      lista[posicion] = { ...lista[posicion], ...career }
+      setCareers(lista)
     }
-    const updateCareer = (career) => {
-      const posicion = careers.findIndex(p => p.id === career.id)
-      if(posicion !== -1){
-        const lista = [...careers]
-        lista[posicion] = { ...lista[posicion], ...career}
-        setCareers(lista)
-      }
-    }
-    
-    const values = {careers, addCareer, setCareers, updateCareer}
+  }
+
+  const values = { careers, addCareer, setCareers, updateCareer, selectedCareer, updateSelectedCareer }
+
   return (
     <CareerContext.Provider value={values}>
-        {children}
+      {children}
     </CareerContext.Provider>
   )
 }
