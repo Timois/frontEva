@@ -2,7 +2,7 @@ import { useContext } from "react"
 import { getApi } from "../services/axiosServices/ApiService"
 import { AreaContext } from "../context/AreaProvider"
 
-/* eslint-disable no-undef */
+
 export const useFetchArea = () => {
     const { areas, setAreas } = useContext(AreaContext)
     const getData = async () => {
@@ -11,7 +11,18 @@ export const useFetchArea = () => {
             setAreas(response)
         }
         return areas
-    }   
+    }
+
+    return { areas, getData }
+}
+
+export const useFetchAreasByCareer = () => {
+    const { areas, setAreas } = useContext(AreaContext)
+    const getData = async (career_id) => {
+        const response = await getApi(`areas/listByCareer/${career_id}`)
+        setAreas(response)
+        return areas
+    }
 
     return { areas, getData }
 }

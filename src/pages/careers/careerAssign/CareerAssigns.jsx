@@ -1,4 +1,4 @@
-/* eslint-disable no-unused-vars */
+
 import PropTypes from "prop-types";
 import { useFetchGestion } from "../../../hooks/fetchGestion";
 import { useContext, useEffect, useState } from "react";
@@ -81,7 +81,7 @@ export const CareerAssigns = ({ data }) => {
                 </div>
                 <div className="text-center mt-3">
                     <AssignManagement />
-                    <ModalRegisterManagement id={modalIdManagement} title="Asignar Gestion"/>
+                    <ModalRegisterManagement id={modalIdManagement} title="Asignar Gestion" />
                 </div>
             </div>
         );
@@ -154,9 +154,9 @@ export const CareerAssigns = ({ data }) => {
                                 </p>
 
                             </div>
-                            <div className="d-flex justify-content-center mt-3">
+                            <div className="d-flex gap-1 justify-content-center mt-3">
                                 <button
-                                    className="btn btn-primary me-2"
+                                    className="btn btn-primary"
                                     data-bs-toggle="modal"
                                     data-bs-target={`#asignarPeriodo`}
                                     onClick={() => setModalData(gestion['academic_management_career_id'], "asignarPeriodo")}
@@ -167,7 +167,7 @@ export const CareerAssigns = ({ data }) => {
                                     setModalData(gestion['academic_management_career_id'], "verPeriodo");
                                     // console.log(gestion);
                                 }} />
-                                <ButtonVerAreas to="/areas"/>
+                                <ButtonVerAreas to={`/areas/${gestion['academic_management_career_id']}`} />
                             </div>
                         </div>
                     </div>

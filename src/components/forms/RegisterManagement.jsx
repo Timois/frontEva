@@ -25,7 +25,7 @@ export const RegisterManagement = ({ data }) => {
             academic_management_id: ""
         })
 
-        const response = await postApi("career/saveAssign", formData)
+        const response = await postApi("career/assignManagement", formData)
 
         if (response.status == 422) {
             for (var key in response.data.errors) {

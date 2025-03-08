@@ -1,25 +1,31 @@
 /* eslint-disable no-unused-vars */
 import React, { useContext, useEffect, useState } from 'react'
 import { AreaContext } from '../../../context/AreaProvider'
-import { useFetchArea } from '../../../hooks/fetchAreas';
+import { useFetchAreasByCareer } from '../../../hooks/fetchAreas';
 import ButtonEdit from './ButtonEdit';
 import { ModalEdit } from './ModalEdit';
 import { useParams } from 'react-router-dom';
 
 export const Area = () => {
-  const {career_id  } = useParams();
+  const { career_id } = useParams();
   const { areas, setAreas } = useContext(AreaContext);
   const [selectedArea, setSelectedArea] = useState(null);
+  const { getData } = useFetchAreasByCareer();
 
   const handleEditClick = (area) => {
     setSelectedArea(area);
   };
 
-  const { getData } = useFetchArea()
-
   useEffect(() => {
-    getData()
-  }, [])
+    if (!career_id) return;
+
+    const fetchData = async () => {
+      const data = await getData(career_id);
+      setAreas(data);
+    };
+
+    fetchData();
+  }, [career_id, getData, setAreas])
 
   const idEditar = "editarArea"
   return (
