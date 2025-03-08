@@ -28,7 +28,7 @@ export const AppRoutes = () => {
         <Route path="login" element={<Login />}></Route>
       </Route>
 
-      <Route element={<PublicGuard />}>
+      <Route element={<PrivateGuard />}>
         <Route element={<Layout><Outlet /></Layout>}>
           <Route path="home" element={<Inicio />}></Route>
           <Route path="unit" element={<IndexUnit />}></Route>
