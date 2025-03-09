@@ -18,15 +18,11 @@ const capitalizeTitle = (text) => {
 
 
 export const Carreras = () => {
-  const { careers, updateSelectedCareer } = useContext(CareerContext);
-  const [selectedCareer, setSelectedCareerLocally] = useState(null);
+  const { careers, setCareers } = useContext(CareerContext);
+  const [selectedCareer, setSelectedCareer] = useState(null);
 
   const handleEditClick = (career) => {
-    setSelectedCareerLocally(career);
-  };
-
-  const handleSelectedCareer = (career) => {
-    updateSelectedCareer(career);
+    setSelectedCareer(career);
   };
 
   const { getDataCareer } = useFetchCareer();
@@ -62,7 +58,7 @@ export const Carreras = () => {
                     idEditar={idEditar}
                     onEditClick={() => handleEditClick(career)}
                   />
-                  <ButtonVerGestion to={`/career/assigns`} onSelected={() => handleSelectedCareer(career)} />
+                  <ButtonVerGestion to={`/career/${career.id}/assigns`} />
                 </div>
 
               </div>

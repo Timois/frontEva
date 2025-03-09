@@ -21,7 +21,7 @@ export const useFetchAreasByCareer = () => {
     const getData = async (career_id) => {
         const response = await getApi(`areas/listByCareer/${career_id}`)
         setAreas(response)
-        return areas
+        return response
     }
 
     return { areas, getData }

@@ -5,14 +5,9 @@ import React, { createContext, useState } from 'react'
 export const CareerContext = createContext()
 export const CareerProvider = ({ children }) => {
   const [careers, setCareers] = useState([])
-  const [selectedCareer, setSelectedCareer] = useState(null)
 
   const addCareer = (career) => {
     setCareers([...careers, career])
-  }
-
-  const updateSelectedCareer = (career) => {
-    setSelectedCareer(career);
   }
 
   const updateCareer = (career) => {
@@ -24,7 +19,7 @@ export const CareerProvider = ({ children }) => {
     }
   }
 
-  const values = { careers, addCareer, setCareers, updateCareer, selectedCareer, updateSelectedCareer }
+  const values = { careers, addCareer, setCareers, updateCareer }
 
   return (
     <CareerContext.Provider value={values}>

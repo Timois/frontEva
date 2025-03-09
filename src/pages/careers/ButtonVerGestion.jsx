@@ -1,15 +1,14 @@
-/* eslint-disable react/prop-types */
+
 import PropTypes from 'prop-types';
 import { FaEye } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 
-export const ButtonVerGestion = ({ to, children, onSelected }) => {
+export const ButtonVerGestion = ({ to, children }) => {
     const navigate = useNavigate();
 
     const handleClick = (event) => {
         event.preventDefault();
         navigate(to);
-        onSelected();
     };
 
     return (

@@ -2,14 +2,13 @@ import { useContext, useEffect } from "react"
 import { useFetchCareerAssign } from "../../../hooks/fetchCareers"
 import { CareerAssigns } from "./CareerAssigns"
 import { CareerAssignContext } from "../../../context/CareerAssignProvider"
+import { useParams } from "react-router-dom"
 import { ModalRegisterManagementPeriod } from "../ModalRegisterManagementPeriod"
-import { CareerContext } from "../../../context/CareerProvider"
 
 
 export const IndexCareerAssign = () => {
     const { careerAssignments } = useContext(CareerAssignContext)
-    const { selectedCareer } = useContext(CareerContext);
-    const { getDataCareerAssignments } = useFetchCareerAssign(selectedCareer.id);
+    const { getDataCareerAssignments } = useFetchCareerAssign(useParams().id)
 
     const modalIdManagementPeriod = "asignarPeriodo"
 
