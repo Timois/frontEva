@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
-import React, { useContext, useEffect, useState } from 'react'
-import { AreaContext } from '../../../context/AreaProvider'
+import React, { useContext, useEffect, useState } from 'react';
+import { AreaContext } from '../../../context/AreaProvider';
 import { useFetchAreasByCareer } from '../../../hooks/fetchAreas';
 import ButtonEdit from './ButtonEdit';
 import { ModalEdit } from './ModalEdit';
@@ -26,46 +26,32 @@ export const Area = () => {
     };
 
     fetchData();
-  }, [career_id])
+  }, [career_id]);
 
-  const idEditar = "editarArea"
+  const idEditar = "editarArea";
+
   return (
-    <div className="row">
-      <div className="col-12">
-        <table className="table table-dark table-striped table-bordered table-responsive border border-warning">
-          <thead>
-            <tr>
-              <th scope="col">N°</th>
-              <th scope="col">Nombre</th>
-              <th scope="col">Descripcion</th>
-              <th scope="col">Acción</th>
-            </tr>
-          </thead>
-          <tbody>
-            {areas.length > 0 ? (
-              areas.map((area, index) => (
-                <tr key={index}>
-                  <td>{index + 1}</td>
-                  <td>{area.name}</td>
-                  <td>{area.description}</td>
-                  <td>
-                    <ButtonEdit idEditar={idEditar} onEditClick={() => handleEditClick(area)} />
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="5" className="text-center">
-                  No hay Areas registrados.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+    <div className="container">
+      <div className="row">
+        {areas.length > 0 ? (
+          areas.map((area, index) => (
+            <div key={index} className="col-md-4 mb-4">
+              <div className="card border border-warning text-white bg-dark">
+                <div className="card-body">
+                  <h5 className="card-title">{area.name}</h5>
+                  <p className="card-text">{area.description}</p>
+                  <ButtonEdit idEditar={idEditar} onEditClick={() => handleEditClick(area)} />
+                </div>
+              </div>
+            </div>
+          ))
+        ) : (
+          <div className="col-12 text-center text-white">
+            <p>No hay Áreas registradas.</p>
+          </div>
+        )}
       </div>
-      <div className="col-12"></div>
-      <ModalEdit></ModalEdit>
+      <ModalEdit />
     </div>
-  )
-}
-
+  );
+};
