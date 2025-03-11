@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 import React, { useState } from 'react'
-import { Card } from '../../components/login/Card'
+import { Card } from '../../../components/login/Card'
 
 const ModalEdit = ({ idEditar, data, title }) => {
    const [showModal, setShowModal] = useState(false)

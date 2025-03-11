@@ -14,7 +14,7 @@ import { IndexCareerAssign } from "../pages/careers/careerAssign/IndexCareerAssi
 import { IndexResults } from "../pages/results management/IndexResults"
 import { IndexExamns } from "../pages/examn management/IndexExamns"
 import { IndexStudents } from "../pages/student management/IndexStudents"
-import { IndexQuestions } from "../pages/questions management/IndexQuestions"
+import { IndexQuestions } from "../pages/careers/questions management/IndexQuestions"
 import { IndexArea } from "../pages/careers/areas/IndexArea"
 
 

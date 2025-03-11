@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import React from 'react'
-import { Card } from '../../components/login/Card'
+import { Card } from '../../../components/login/Card'
 import { FormImportQuestion } from '../../components/forms/FormImportQuestion'
 
 export const ModalImportQuestions = (modalIdI, title) => {

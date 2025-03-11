@@ -1,8 +1,8 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 import React from 'react'
-import { Card } from '../../components/login/Card'
-import FormImportQuestions from '../../components/forms/FormImportQuestions'
+import { Card } from '../../../components/login/Card'
+import { FileUpload } from '../../../components/forms/FileUpload'
 
 const ModalRegister = ({ modalIdImp, title }) => {
   return (
@@ -21,7 +21,7 @@ const ModalRegister = ({ modalIdImp, title }) => {
             <h5 className="modal-title text-center text-success" id="exampleModalLabel">{title}</h5>
           </div>
           <Card className="card align-items-center h-auto gap-3 p-3">
-            <FormImportQuestions />
+            <FileUpload />
           </Card>
         </div>
       </div>

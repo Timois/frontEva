@@ -26,11 +26,11 @@ createRoot(document.getElementById('root')).render(
             <PeriodProvider>
               <ExtensionGestionProvider>
                 <CareerAssignProvider>
-                  <ImportExcelQuestions>
-                    <AreaProvider>
-                    <App />
-                    </AreaProvider>  
-                  </ImportExcelQuestions>
+                  <AreaProvider>
+                    <ImportExcelQuestions>
+                      <App />
+                    </ImportExcelQuestions>
+                  </AreaProvider>
                 </CareerAssignProvider>
               </ExtensionGestionProvider>
             </PeriodProvider>

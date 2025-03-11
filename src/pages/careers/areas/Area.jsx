@@ -5,6 +5,10 @@ import { useFetchAreasByCareer } from '../../../hooks/fetchAreas';
 import ButtonEdit from './ButtonEdit';
 import { ModalEdit } from './ModalEdit';
 import { useParams } from 'react-router-dom';
+import { ButtonImport } from '../questions management/ButtonImport';
+import { IndexQuestions } from '../questions management/IndexQuestions';
+import ModalRegister from '../questions management/ModalRegister';
+
 
 export const Area = () => {
   const { career_id } = useParams();
@@ -29,7 +33,7 @@ export const Area = () => {
   }, [career_id]);
 
   const idEditar = "editarArea";
-
+  const modalId = "registerImport";
   return (
     <div className="container">
       <div className="row">
@@ -37,10 +41,12 @@ export const Area = () => {
           areas.map((area, index) => (
             <div key={index} className="col-md-4 mb-4">
               <div className="card border border-warning text-white bg-dark">
-                <div className="card-body">
+                <div className="card-body" style={{gap: "10px", alignItems: "center"}}>
                   <h5 className="card-title">{area.name}</h5>
                   <p className="card-text">{area.description}</p>
                   <ButtonEdit idEditar={idEditar} onEditClick={() => handleEditClick(area)} />
+                  <ButtonImport modalIdImp={modalId} />
+                  <ModalRegister modalIdImp={modalId} title="Importar Preguntas" />
                 </div>
               </div>
             </div>
@@ -51,7 +57,7 @@ export const Area = () => {
           </div>
         )}
       </div>
-      <ModalEdit />
+      <ModalEdit idEditar={idEditar} data={selectedArea} title="Editar Área"/>
     </div>
   );
 };
