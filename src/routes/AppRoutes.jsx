@@ -14,8 +14,11 @@ import { IndexCareerAssign } from "../pages/careers/careerAssign/IndexCareerAssi
 import { IndexResults } from "../pages/results management/IndexResults"
 import { IndexExamns } from "../pages/examn management/IndexExamns"
 import { IndexStudents } from "../pages/student management/IndexStudents"
-import { IndexQuestions } from "../pages/careers/questions management/IndexQuestions"
 import { IndexArea } from "../pages/careers/areas/IndexArea"
+import { IndexImports } from "../pages/careers/areas/imports/IndexImports"
+import { IndexQuestions } from "../pages/careers/questions/IndexQuestions"
+import { IndexAnswers } from "../pages/careers/answers/IndexAnswers"
+import { IndexUser } from "../pages/users/IndexUser"
 
 
 export const AppRoutes = () => {
@@ -38,9 +41,12 @@ export const AppRoutes = () => {
           <Route path="gestion" element={<IndexGestion />}></Route>
           <Route path="periods" element={<IndexPeriod />} ></Route>
           <Route path="students" element={<IndexStudents />}></Route>
+          <Route path="imports" element={<IndexImports />}></Route>
           <Route path="questions" element={<IndexQuestions />}></Route>
+          <Route path="answers" element={<IndexAnswers />}></Route>
           <Route path="examns" element={<IndexExamns />}></Route>
           <Route path="results" element={<IndexResults />}></Route>
+          <Route path="users" element={<IndexUser/>}></Route>
         </Route>
       </Route>
       <Route path="404" element={<NotFound404 />}></Route>

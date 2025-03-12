@@ -13,29 +13,38 @@ import { GestionProvider } from './context/GestionProvider.jsx'
 import { PeriodProvider } from './context/PeriodProvider.jsx'
 import { ExtensionGestionProvider } from './context/ExtensionGestionProvider.jsx'
 import { CareerAssignProvider } from './context/CareerAssignProvider.jsx';
-import { ImportExcelQuestions } from './context/ImportExcelQuestions.jsx';
+import { ImportExcelQuestionsProvider } from './context/ImportExcelQuestionsProvider.jsx';
 import { AreaProvider } from './context/AreaProvider.jsx';
+import { QuestionsProvider } from './context/QuestionsProvider.jsx';
+import { AnswersProvider } from './context/AnswersProvider.jsx';
+import { PersonaProvider } from './context/PersonaProvider.jsx';
 
 createRoot(document.getElementById('root')).render(
   <BrowserRouter>
 
     <UserProvider>
       <UnitProvider>
-        <CareerProvider>
-          <GestionProvider>
-            <PeriodProvider>
-              <ExtensionGestionProvider>
-                <CareerAssignProvider>
-                  <AreaProvider>
-                    <ImportExcelQuestions>
-                      <App />
-                    </ImportExcelQuestions>
-                  </AreaProvider>
-                </CareerAssignProvider>
-              </ExtensionGestionProvider>
-            </PeriodProvider>
-          </GestionProvider>
-        </CareerProvider>
+        <PersonaProvider>
+          <CareerProvider>
+            <GestionProvider>
+              <PeriodProvider>
+                <ExtensionGestionProvider>
+                  <CareerAssignProvider>
+                    <AreaProvider>
+                      <QuestionsProvider>
+                        <AnswersProvider>
+                          <ImportExcelQuestionsProvider>
+                            <App />
+                          </ImportExcelQuestionsProvider>
+                        </AnswersProvider>
+                      </QuestionsProvider>
+                    </AreaProvider>
+                  </CareerAssignProvider>
+                </ExtensionGestionProvider>
+              </PeriodProvider>
+            </GestionProvider>
+          </CareerProvider>
+        </PersonaProvider>
       </UnitProvider>
     </UserProvider>
 

@@ -1,6 +1,6 @@
 import { useContext } from "react"
 import { getApi } from "../services/axiosServices/ApiService"
-import { ImportExcelQuestionsContext } from "../context/ImportExcelQuestions"
+import { ImportExcelQuestionsContext } from "../context/ImportExcelQuestionsProvider"
 
 export const useFetchImportQuestions = () => {
     const { importExcelQuestions, setImportExcelQuestions } = useContext(ImportExcelQuestionsContext)

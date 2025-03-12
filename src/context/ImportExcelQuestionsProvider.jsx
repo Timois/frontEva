@@ -3,13 +3,13 @@
 /* eslint-disable no-unused-vars */
 import React, { createContext, useState } from 'react'
 export const ImportExcelQuestionsContext = createContext()
-export const ImportExcelQuestions = ({children}) => {
+export const ImportExcelQuestionsProvider = ({children}) => {
     const [importExcelQuestions, setImportExcelQuestions] = useState([])
-    const importQuestions = (import_excel) => {
+    const addImportExcel = (import_excel) => {
         setImportExcelQuestions(import_excel)
     }
 
-    const values = {importExcelQuestions, setImportExcelQuestions}
+    const values = {importExcelQuestions, setImportExcelQuestions, addImportExcel}
   return (
     <ImportExcelQuestionsContext.Provider value={values}>
         {children}

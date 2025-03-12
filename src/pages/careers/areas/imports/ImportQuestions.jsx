@@ -1,12 +1,13 @@
 /* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
-import React, { useContext, useEffect, useState } from 'react'
-import { ImportExcelQuestionsContext } from '../../../context/ImportExcelQuestions'
-import { useFetchImportQuestions } from '../../../hooks/fetchImportQuestions'
-import  ModalEdit  from './ModalEdit'
+
+import { useContext, useState } from 'react'
+import { ModalEdit } from '../ModalEdit'
+import { ImportExcelQuestionsContext } from '../../../../context/ImportExcelQuestionsProvider'
+
 
 export const ImportQuestions = () => {
-    const { importExcelQuestions: imports, setImportExcelQuestions} = useContext(ImportExcelQuestionsContext)
+    const { imports, setImportExcelQuestions} = useContext(ImportExcelQuestionsContext)
     const [selectedExcelImport, setSelectedExcelImport] = useState(null)
 
 

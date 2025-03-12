@@ -3,10 +3,11 @@
 /* eslint-disable no-unused-vars */
 import React from 'react'
 import { ButtonImport } from './ButtonImport'
-import ModalRegister  from './ModalRegister'
-import { ImportQuestions } from './ImportQuestions'
 
-export const IndexQuestions = () => {
+import { ImportQuestions } from './ImportQuestions'
+import { ModalRegister } from './ModalRegister'
+
+export const IndexImports = () => {
   const modalId = "registerImport"
   return (
 
