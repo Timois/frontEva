@@ -12,7 +12,7 @@ const ButtonAdd = ({ modalId }) => {
       data-bs-toggle="modal"
       data-bs-target={`#${modalId}`}
     >
-      <FaPlus className="me-2" /> Agregar Pregunta
+      <FaPlus className="me-2" /> Agregar Preguntas
     </button>
   );
 };

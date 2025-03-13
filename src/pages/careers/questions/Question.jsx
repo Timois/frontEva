@@ -35,11 +35,11 @@ export const Question = () => {
     const nextPage = () => setCurrentPage((prev) => (prev < totalPages ? prev + 1 : 1));
     const prevPage = () => setCurrentPage((prev) => (prev > 1 ? prev - 1 : totalPages));
 
-    const truncateText = (text, maxLength) => 
+    const truncateText = (text, maxLength) =>
         text.length > maxLength ? text.slice(0, maxLength) + "..." : text;
 
     const idEditar = "editarPregunta";
-
+    
     return (
         <div className="row">
             <div className="col-15">
@@ -85,6 +85,7 @@ export const Question = () => {
                                         <td>{question.type}</td>
                                         <td>
                                             <ButtonEdit idEditar={idEditar} onEditClick={() => handleEditClick(question)} />
+                                            
                                         </td>
                                     </tr>
                                 ))
@@ -122,7 +123,6 @@ export const Question = () => {
                 )}
             </div>
             <ModalEdit idEditar={idEditar} data={selectedQuestion} title="Editar Pregunta" />
-
             {modalImage && (
                 <div className="modal fade show d-block" tabIndex="-1" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
                     <div className="modal-dialog">

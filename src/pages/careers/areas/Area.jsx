@@ -5,9 +5,6 @@ import { useFetchAreasByCareer } from '../../../hooks/fetchAreas';
 import ButtonEdit from './ButtonEdit';
 import { ModalEdit } from './ModalEdit';
 import { useParams } from 'react-router-dom';
-import { ButtonImport } from './imports/ButtonImport';
-import { ModalRegister } from './imports/ModalRegister';
-
 
 
 export const Area = () => {
@@ -47,12 +44,6 @@ export const Area = () => {
                   <h5 className="card-title">{area.name}</h5>
                   <p className="card-text">{area.description}</p>
                   <ButtonEdit idEditar={idEditar} onEditClick={() => handleEditClick(area)} />
-                  <ButtonImport modalIdImp={`import-${area.id}`} onClick={() => handleImportClick(area)} />
-                  <ModalRegister 
-                    modalIdImp={`import-${area.id}`} 
-                    title={`Importar Preguntas para ${area.name}`} 
-                    areaId={area.id} 
-                  />
                 </div>
               </div>
             </div>

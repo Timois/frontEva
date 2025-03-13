@@ -2,7 +2,8 @@
 import { FileUpload } from "../../../../components/forms/FileUpload"
 import { Card } from "../../../../components/login/Card"
 
-export const ModalRegister = ({ modalIdImp, title, areaId }) => {
+export const ModalImport = ({ modalIdImp, title, areaId }) => {
+  console.log("title", title);  
   return (
     <div
       className="modal fade"
