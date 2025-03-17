@@ -1,52 +1,34 @@
-export const saveTokenSystem = (token) =>{
-    window.localStorage.setItem("token_system", token)
-} 
+// Guarda el token JWT en el almacenamiento local
+export const saveToken = (token) => {
+    window.localStorage.setItem("jwt_token", token);
+};
 
-export const getTokenSystem = () =>{
-    return window.localStorage.getItem("token_system")
-}
+// Obtiene el token JWT del almacenamiento local
+export const getToken = () => {
+    return window.localStorage.getItem("jwt_token");
+};
 
-export const removeTokenSystem = () =>{
-    window.localStorage.removeItem("token_system")
-}
-export const saveKeySystem = (key) =>{
-    window.localStorage.setItem("key", key)
-}
+// Elimina el token JWT del almacenamiento local
+export const removeToken = () => {
+    window.localStorage.removeItem("jwt_token");
+};
 
-export const getKeySystem = () =>{
-    return window.localStorage.getItem("key")
-}
-
-export const removeKeySystem = () =>{
-    window.localStorage.removeItem("key")
-}
-
-export const saveCredentials = (dayly, weekly) =>{
-    window.localStorage.setItem("dayly", dayly)
-    window.localStorage.setItem("weekly", weekly)
-}
-
-export const getDaylyToken = () => {
-    return window.localStorage.getItem("dayly")
-}
-export const getWeeklyToken = () =>{
-    return window.localStorage.getItem("weekly")
-}
-
-export const removeCredentials = () =>{
-    window.localStorage.removeItem("dayly")
-    window.localStorage.removeItem("weekly")
-}
-
+// Guarda la información del usuario en el almacenamiento local
 export const saveUser = (user) => {
-    const dataString = JSON.stringify(user)
-    window.localStorage.setItem("user",dataString)
-}
-
+    if (user) { // Verifica que el valor no sea null ni undefined
+        const dataString = JSON.stringify(user); // Convierte el objeto a JSON
+        window.localStorage.setItem("user", dataString); // Guarda el JSON en localStorage
+    }
+};
+// Obtiene la información del usuario del almacenamiento local
 export const getUser = () => {
-    const user = window.localStorage.getItem("user")
-    return JSON.parse(user)
-}
+    const user = window.localStorage.getItem("user"); // Obtiene el valor del localStorage
+    if (user && user !== "undefined") { // Verifica que el valor no sea null ni "undefined"
+        return JSON.parse(user); // Parsea el JSON
+    }
+    return null; // Devuelve null si no hay un valor válido
+};
+
 export const removeUser = () => {
-    window.localStorage.removeItem("user")
-}
+    window.localStorage.removeItem("user");
+};

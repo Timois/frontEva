@@ -1,7 +1,6 @@
-import { removeCredentials, removeKeySystem, removeTokenSystem } from "./storage"
+import { removeToken, removeUser } from "./storage"
 
 export const clearStorage = () => {
-    removeCredentials()
-    removeKeySystem()
-    removeTokenSystem()
+    removeToken()
+    removeUser()
 }

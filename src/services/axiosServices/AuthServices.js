@@ -1,50 +1,30 @@
+import axios from "axios";
+import { saveToken, saveUser } from "../storage/storage"; // Importa saveToken en lugar de saveCredentials
 
-import axios from "axios"
-import { getKeySystem, getTokenSystem, saveCredentials, saveKeySystem, saveTokenSystem } from "../storage/storage"
-import { decodeToken } from "../decodeService"
+const path = import.meta.env.VITE_AUTH_ENDPOINT; // Endpoint del backend
 
-const path = import.meta.env.VITE_AUTH_ENDPOINT
-const systemName = import.meta.env.VITE_NAME_SYSTEM
-export const getToken = async (url) => {
+export const loginSystem = async (values) => {
     try {
-        const { data } = await axios.get(path + url + systemName)
-        const {token} = data
-        saveTokenSystem(token)
-        const { passwordAdmin } = decodeToken(token)
-        saveKeySystem(passwordAdmin)
-        return data
-    } catch (error) {
-        console.error('Error en la respuesta', error)
-    }
-}
-
-import { saveUser } from "../storage/storage";
-
-export const loginSystem = async (url, values) => {
-    const token_system = getTokenSystem();
-    const key_system = getKeySystem();
-    try {
-        const { data } = await axios.post(path + url, values, {
+        // Envía las credenciales al endpoint de login
+        const { data } = await axios.post(path + "users/login", values, {
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': token_system,
-                'X-System-Key': key_system
-            }
+            },
         });
 
-        // Guardamos los tokens
-        const { daily_token, weekly_token } = data.tokens;
-        saveCredentials(daily_token, weekly_token);
-
-        // Guardamos el usuario con su rol
-        if (data.user) {
-            saveUser(data.user);
+        // Guarda el token JWT en el almacenamiento local
+        if (data.token) {
+            saveToken(data.token); // Guarda el token JWT
         }
 
-        return data;
+        // Guarda la información del usuario (si está incluida en la respuesta)
+        if (data.user) {
+            saveUser(data.user); // Guarda la información del usuario
+        }
+
+        return data; // Devuelve la respuesta del backend
     } catch (error) {
-        return error.response;
+        console.error("Error en el login:", error);
+        return error.response; // Devuelve el error en caso de fallo
     }
 };
-
-
