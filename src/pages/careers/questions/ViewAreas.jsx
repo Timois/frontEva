@@ -1,7 +1,6 @@
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { AreaContext } from "../../../context/AreaProvider";
 import { Question } from "./Question";
-import { QuestionContext } from "../../../context/QuestionsProvider";
 import ButtonAdd from "./ButtonAdd";
 import { ButtonImport } from "../areas/imports/ButtonImport";
 import { ModalRegister } from "./ModalRegister";
@@ -9,18 +8,30 @@ import { ModalImport } from "../areas/imports/ModalImport";
 
 export const ViewAreas = () => {
   const { areas } = useContext(AreaContext);
-  const { questions } = useContext(QuestionContext);
+  
   const [expandedArea, setExpandedArea] = useState(null);
   
+  // Recuperar el área expandida del localStorage al cargar el componente
+  useEffect(() => {
+    const savedExpandedArea = localStorage.getItem('expandedArea');
+    if (savedExpandedArea) {
+      setExpandedArea(savedExpandedArea);
+    }
+  }, []);
+
   const toggleArea = (areaId) => {
     if (expandedArea === areaId) {
-      setExpandedArea(null); // Colapsar si ya está expandido
+      setExpandedArea(null);
+      localStorage.removeItem('expandedArea'); // Eliminar del localStorage
     } else {
-      setExpandedArea(areaId); // Expandir el área seleccionada
+      setExpandedArea(areaId);
+      localStorage.setItem('expandedArea', areaId); // Guardar en localStorage
     }
   };
+  
   const modalId = "registroPregunta";
   const modalIdImp = "registerImport";
+  
   return (
     <div className="container-fluid p-0">
       <div className="w-100">
@@ -50,7 +61,7 @@ export const ViewAreas = () => {
           <div className="w-100">
             <div className="d-flex justify-content-between align-items-center p-2 bg-light">
               <h2 className="mb-0">
-                {areas.find(area => area.id === expandedArea)?.name}
+                {areas?.find(area => area.id === expandedArea)?.name || "Área"}
               </h2>
               <ButtonAdd modalId={modalId} />
               <ButtonImport modalIdImp={modalIdImp} />
@@ -62,10 +73,7 @@ export const ViewAreas = () => {
               </button>
             </div>
             <div className="p-3"> 
-              <Question 
-                areaId={expandedArea} 
-                questions={questions.filter(q => q.area_id === expandedArea)} 
-              />
+              <Question areaId={expandedArea} />
             </div>
           </div>
         )}

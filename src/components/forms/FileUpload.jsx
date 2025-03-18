@@ -7,35 +7,39 @@ import { ContainerInput } from "../login/ContainerInput";
 import { closeFormModal, customAlert } from "../../utils/domHelper";
 import { postApi } from "../../services/axiosServices/ApiService";
 import { InputFile } from "./components/InputFile";
-import { CheckBox } from "./components/CheckBox";
-
 
 export const FileUpload = ({ area_id }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [withImages, setWithImages] = useState(false);
-  const [withoutImages, setWithoutImages] = useState(false);
+  const [importOption, setImportOption] = useState(null);
   const [fileInputAccept, setFileInputAccept] = useState(".xlsx,.xls,.csv,.zip");
 
   useEffect(() => {
-    if (withImages) {
+    if (importOption === "withImages") {
       setFileInputAccept(".xlsx,.xls,.csv,.zip");
-    } else if (withoutImages) {
+    } else if (importOption === "withoutImages") {
       setFileInputAccept(".xlsx,.xls,.csv");
     } else {
       setFileInputAccept(".xlsx,.xls,.csv,.zip");
     }
-  }, [withImages, withoutImages]);
+  }, [importOption]);
 
   const handleFileChange = (event) => {
-    setSelectedFile(event.target.files[0]);
+    const file = event.target.files[0];
+  
+    if (file) {
+      console.log("✅ Archivo seleccionado:", file);
+      setSelectedFile(file);
+    } else {
+      console.warn("⚠ No se seleccionó ningún archivo.");
+    }
   };
+  
 
   const resetForm = () => {
     setSelectedFile(null);
     setIsUploading(false);
-    setWithImages(false);
-    setWithoutImages(false);
+    setImportOption(null);
   };
 
   const handleUpload = async () => {
@@ -44,10 +48,11 @@ export const FileUpload = ({ area_id }) => {
       return;
     }
     if (!selectedFile) {
+      console.log("Error: No hay archivo seleccionado.");
       customAlert("Por favor, selecciona un archivo.", "warning");
       return;
     }
-    if (!withImages && !withoutImages) {
+    if (!importOption) {
       customAlert("Selecciona una opción: Con imágenes o Sin imágenes.", "warning");
       return;
     }
@@ -56,9 +61,11 @@ export const FileUpload = ({ area_id }) => {
     formData.append("file", selectedFile);
     formData.append("area_id", area_id);
 
+    console.log("Subiendo archivo con los siguientes datos:", formData.get("file"));
+
     try {
       setIsUploading(true);
-      const response = withImages
+      const response = importOption === "withImages"
         ? await postApi("excel_import_image/savezip", formData)
         : await postApi("excel_import/save", formData);
 
@@ -68,6 +75,7 @@ export const FileUpload = ({ area_id }) => {
       resetForm();
     } catch (error) {
       setIsUploading(false);
+      console.error("Error al importar el Excel:", error);
       customAlert("Error al importar el Excel", "error");
     }
   };
@@ -82,25 +90,31 @@ export const FileUpload = ({ area_id }) => {
       {/* Opciones de importación */}
       <ContainerInput>
         <div className="d-flex gap-3">
-          {/* CheckBox para "Con imágenes" */}
-          <CheckBox
-            label="Con imágenes (.zip)"
-            checked={withImages}
-            onChange={(isChecked) => {
-              setWithImages(isChecked);
-              if (isChecked) setWithoutImages(false);
-            }}
-          />
+          {/* Radio para "Con imágenes" */}
+          <div>
+            <input
+              type="radio"
+              id="withImages"
+              name="importOption"
+              value="withImages"
+              checked={importOption === "withImages"}
+              onChange={() => setImportOption("withImages")}
+            />
+            <label htmlFor="withImages" className="ms-2">Con imágenes (.zip)</label>
+          </div>
 
-          {/* CheckBox para "Sin imágenes" */}
-          <CheckBox
-            label="Sin imágenes (.xlsx, .xls, .csv)"
-            checked={withoutImages}
-            onChange={(isChecked) => {
-              setWithoutImages(isChecked);
-              if (isChecked) setWithImages(false);
-            }}
-          />
+          {/* Radio para "Sin imágenes" */}
+          <div>
+            <input
+              type="radio"
+              id="withoutImages"
+              name="importOption"
+              value="withoutImages"
+              checked={importOption === "withoutImages"}
+              onChange={() => setImportOption("withoutImages")}
+            />
+            <label htmlFor="withoutImages" className="ms-2">Sin imágenes (.xlsx, .xls, .csv)</label>
+          </div>
         </div>
       </ContainerInput>
 
@@ -116,7 +130,7 @@ export const FileUpload = ({ area_id }) => {
         <Button
           type="button"
           onClick={handleUpload}
-          disabled={isUploading || !selectedFile || (!withImages && !withoutImages)}
+          disabled={isUploading || !selectedFile || !importOption}
           className="btn btn-primary"
         >
           {isUploading ? "Procesando..." : "Importar Archivo"}

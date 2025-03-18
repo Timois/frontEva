@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 import { useContext, useEffect, useState } from "react";
 import { QuestionContext } from "../../../context/QuestionsProvider";
@@ -5,9 +6,11 @@ import { useFetchQuestions } from "../../../hooks/fetchQuestions";
 import ButtonEdit from "./ButtonEdit";
 import { ModalEdit } from "./ModalEdit";
 import { MdAddPhotoAlternate } from "react-icons/md";
+import { AreaContext } from "../../../context/AreaProvider";
 const urlimages = import.meta.env.VITE_URL_IMAGES;
 
-export const Question = () => {
+export const Question = ({ areaId }) => {
+    const { areas, setAreas } = useContext(AreaContext);
     const { questions, setQuestions } = useContext(QuestionContext);
     const [selectedQuestion, setSelectedQuestion] = useState(null);
     const [modalImage, setModalImage] = useState(null);
@@ -25,11 +28,16 @@ export const Question = () => {
         getData();
     }, []);
 
+    // Filtrar preguntas por área si se proporciona un areaId
+    const filteredQuestions = areaId 
+        ? questions.filter(q => String(q.area_id) === String(areaId))
+        : questions;
+
     const indexOfLastQuestion = currentPage * questionsPerPage;
     const indexOfFirstQuestion = indexOfLastQuestion - questionsPerPage;
-    const currentQuestions = questions.slice(indexOfFirstQuestion, indexOfLastQuestion);
+    const currentQuestions = filteredQuestions.slice(indexOfFirstQuestion, indexOfLastQuestion);
 
-    const totalPages = Math.ceil(questions.length / questionsPerPage);
+    const totalPages = Math.ceil(filteredQuestions.length / questionsPerPage);
 
     const changePage = (page) => setCurrentPage(page);
     const nextPage = () => setCurrentPage((prev) => (prev < totalPages ? prev + 1 : 1));
@@ -92,7 +100,7 @@ export const Question = () => {
                             ) : (
                                 <tr>
                                     <td colSpan="8" className="text-center">
-                                        No hay preguntas registradas.
+                                        No hay preguntas registradas para esta área.
                                     </td>
                                 </tr>
                             )}
@@ -100,7 +108,7 @@ export const Question = () => {
                     </table>
                 </div>
 
-                {questions.length > questionsPerPage && (
+                {filteredQuestions.length > questionsPerPage && (
                     <div className="d-flex justify-content-center align-items-center mt-3">
                         <button className="btn btn-warning mx-1" onClick={prevPage}>
                             ⬅ Anterior
