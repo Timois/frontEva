@@ -18,6 +18,7 @@ import { AreaProvider } from './context/AreaProvider.jsx';
 import { QuestionsProvider } from './context/QuestionsProvider.jsx';
 import { AnswersProvider } from './context/AnswersProvider.jsx';
 import { PersonaProvider } from './context/PersonaProvider.jsx';
+import { StudentProvider } from './context/StudentProvider.jsx';
 
 createRoot(document.getElementById('root')).render(
   <BrowserRouter>
@@ -30,6 +31,7 @@ createRoot(document.getElementById('root')).render(
               <PeriodProvider>
                 <ExtensionGestionProvider>
                   <CareerAssignProvider>
+                    <StudentProvider>
                     <AreaProvider>
                       <QuestionsProvider>
                         <AnswersProvider>
@@ -39,7 +41,8 @@ createRoot(document.getElementById('root')).render(
                         </AnswersProvider>
                       </QuestionsProvider>
                     </AreaProvider>
-                  </CareerAssignProvider>
+                    </StudentProvider>
+                  </CareerAssignProvider>  
                 </ExtensionGestionProvider>
               </PeriodProvider>
             </GestionProvider>

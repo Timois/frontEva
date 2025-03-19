@@ -4,7 +4,7 @@ import { useSidebar } from "../../../hooks/useSidebar";
 import { Button } from "../../login/Button";
 import "./Layout.css";
 import { Sidebar, SidebarOpenButton, MenuButton } from "./components";
-import { clearStorage } from "../../../services/storage/clearStorage";
+import { clearStorage, clearStorageStudent } from "../../../services/storage/clearStorage";
 import { useContext } from "react";
 import { UserContext } from "../../../context/UserProvider";
 import { MdLogout } from "react-icons/md";
@@ -14,13 +14,25 @@ import { FaUserShield, FaQuestionCircle, FaHome, FaUserGraduate } from "react-ic
 
 
 const Layout = ({ children }) => {
-    const { user } = useContext(UserContext);
+    const { user, storeUser } = useContext(UserContext);
+    const {student, storeStudent} = useContext(UserContext);
     const { isSidebarOpen, toggleSidebar, closeSidebar } = useSidebar();
     const navigate = useNavigate();
     const logout = () => {
-        clearStorage();
-        navigate("/");
-    };  
+        if (student) {
+            clearStorageStudent(); // Limpia el almacenamiento del estudiante
+            storeStudent(null); // Limpia el contexto de estudiantes
+        } else {
+            clearStorage(); // Limpia el almacenamiento del usuario normal
+            storeUser(null); // Limpia el contexto de usuarios
+        }
+
+        if (student) {
+            navigate("/students"); // Redirige al login de estudiantes
+        } else {
+            navigate("/administracion"); // Redirige al login de administradores
+        }
+    }; 
 
     return (
         <div className="d-flex flex-column vh-100">
@@ -34,7 +46,7 @@ const Layout = ({ children }) => {
                             onClick={logout}
                             icon={<MdLogout size={20} />}
                         >
-                            Cerrar Sesión
+                            Cerrar Sesión   
                         </Button>
                     </div>
                     <SidebarOpenButton onClick={toggleSidebar} />

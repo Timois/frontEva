@@ -1,43 +1,54 @@
+/* eslint-disable react/prop-types */
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { LoginSchema } from "../../models/schemas/LoginSchema";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../login/Button";
 import { ContainerInput } from "../login/ContainerInput";
 import { ContainerButton } from "../login/ContainerButton";
 import { Input } from "../login/Input";
 import { Validate } from "./components/Validate";
-import { loginSystem } from "../../services/axiosServices/AuthServices"; // Actualiza la importación
+import { loginSystem, loginStudent } from "../../services/axiosServices/AuthServices";
 import { useContext, useState } from "react";
 import { UserContext } from "../../context/UserProvider";
+import { StudentContext } from "../../context/StudentProvider";
+import { StudentLoginSchema } from "../../models/schemas/StudentLoginSchema";
+import { LoginSchema } from "../../models/schemas/LoginSchema";
 
-const FormLogin = () => {
+const FormLogin = ({ isStudentLogin = false }) => {
   const { storeUser } = useContext(UserContext);
+  const { storeStudent } = useContext(StudentContext);
   const [response, setResponse] = useState(false);
   const {
     control,
     handleSubmit,
     formState: { errors },
     setError,
-  } = useForm({ resolver: zodResolver(LoginSchema) });
+  } = useForm({ resolver: zodResolver(isStudentLogin ? StudentLoginSchema : LoginSchema) });
   const navigate = useNavigate();
 
   const onSubmit = async (data) => {
     setResponse(true);
 
     try {
-      // Envía las credenciales al nuevo endpoint de login
-      const response = await loginSystem(data); // Usa la función actualizada
-
-      if (response?.token) {
-        // Si el login es exitoso, guarda el token y la información del usuario
-        storeUser(response.user); // Guarda el usuario en el contexto
-        localStorage.setItem("jwt_token", response.token); // Guarda el token JWT
-        navigate("/home"); // Redirige al usuario
+      let response;
+      if (isStudentLogin) {
+      response = await loginStudent(data); // Login para estudiantes con CI y contraseña
+      if (response?.access_token) {
+        storeStudent(response.student);
+        localStorage.setItem("jwt_token", response.access_token);
+        navigate("/home");
+      }
       } else {
-        // Si hay errores, muestra los mensajes de error
-        setError("email", { type: "custom", message: response.data.email });
-        setError("password", { type: "custom", message: response.data.password });
+        response = await loginSystem(data); // Login para usuarios con email y contraseña
+        if (response?.token) {
+          storeUser(response.user);
+          localStorage.setItem("jwt_token", response.token);
+          navigate("/home");
+        }
+      }
+
+      if (!response?.token) {
+        setError("root", { type: "custom", message: "Credenciales incorrectas" });
       }
     } catch (error) {
       console.error("Error en el login:", error);
@@ -51,12 +62,12 @@ const FormLogin = () => {
     <form onSubmit={handleSubmit(onSubmit)}>
       <ContainerInput>
         <Input
-          type={"email"}
-          placeholder={"Ingrese su correo"}
-          name={"email"}
+          type={isStudentLogin ? "text" : "email"}
+          placeholder={isStudentLogin ? "Ingrese su CI" : "Ingrese su correo"}
+          name={isStudentLogin ? "ci" : "email"}
           control={control}
         />
-        <Validate error={errors.email} />
+        <Validate error={isStudentLogin ? errors.ci : errors.email} />
       </ContainerInput>
       <ContainerInput>
         <Input
@@ -72,7 +83,7 @@ const FormLogin = () => {
           <span>Iniciar Sesion</span>
         </Button>
       </ContainerButton>
-      {errors.root && <p>{errors.root.message}</p>} {/* Muestra errores generales */}
+      {errors.root && <p>{errors.root.message}</p>}
     </form>
   );
 };

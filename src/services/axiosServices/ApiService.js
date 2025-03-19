@@ -1,5 +1,5 @@
 import axios from "axios";
-import { getToken } from "../storage/storage"; // Importa getToken en lugar de getTokenSystem
+import { getToken } from "../storage/storageUser"; // Importa getToken en lugar de getTokenSystem
 
 const path = import.meta.env.VITE_API_ENDPOINT; // Endpoint del backend
 

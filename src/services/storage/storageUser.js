@@ -32,3 +32,4 @@ export const getUser = () => {
 export const removeUser = () => {
     window.localStorage.removeItem("user");
 };
+

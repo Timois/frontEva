@@ -10,15 +10,15 @@ import { IndexGestion } from "../pages/managements/IndexGestion"
 import { IndexPeriod } from "../pages/periods/IndexPeriod"
 import { NotFound404 } from "../pages/errors/NotFound404"
 import { IndexCareerAssign } from "../pages/careers/careerAssign/IndexCareerAssign"
-
+import { IndexStudents } from "../pages/students/IndexStudents"
 import { IndexResults } from "../pages/results management/IndexResults"
 import { IndexExamns } from "../pages/examn management/IndexExamns"
-import { IndexStudents } from "../pages/student management/IndexStudents"
 import { IndexArea } from "../pages/careers/areas/IndexArea"
 import { IndexImports } from "../pages/careers/areas/imports/IndexImports"
 import { IndexQuestions } from "../pages/careers/questions/IndexQuestions"
 import { IndexAnswers } from "../pages/careers/answers/IndexAnswers"
 import { IndexUser } from "../pages/users/IndexUser"
+import { StudentLogin } from "../pages/auth/StudentLogin"
 
 
 export const AppRoutes = () => {
@@ -27,8 +27,9 @@ export const AppRoutes = () => {
       future={{ v7_startTransition: true }}
     >
       <Route element={<PublicGuard />}>
-        <Route path="/" element={<Navigate to={"/login"} />} ></Route>
-        <Route path="login" element={<Login />}></Route>
+        <Route path="/" element={<Navigate to={"/administracion"} />} ></Route>
+        <Route path="administracion" element={<Login />}></Route>
+        <Route path="students" element={<StudentLogin />}></Route>
       </Route>
 
       <Route element={<PrivateGuard />}>

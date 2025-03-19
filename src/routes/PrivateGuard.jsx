@@ -1,6 +1,6 @@
 
 import { Navigate, Outlet } from 'react-router-dom';
-import { getToken } from '../services/storage/storage'; // Importa la función para obtener el token JWT
+import { getToken } from '../services/storage/storageUser'; // Importa la función para obtener el token JWT
 
 export const PrivateGuard = () => {
     const token = getToken(); // Obtiene el token JWT
