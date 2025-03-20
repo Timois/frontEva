@@ -4,7 +4,7 @@ import React from 'react'
 export const Inicio = () => {
     return (
         <>
-            <h1>Contenido Principal asdkal</h1>
+            <h1>Contenido Principal de usuarios adminsitrativos</h1>
             <p>Aquí irá el contenido principal de la página.</p>
         </>
     )

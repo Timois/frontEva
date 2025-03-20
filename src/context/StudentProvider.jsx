@@ -1,18 +1,18 @@
 /* eslint-disable react/prop-types */
 import { createContext, useState } from "react";
-import { getStudent, saveStudent } from "../services/storage/storageStudent";
+import {  saveStudent } from "../services/storage/storageStudent";
 
 export const StudentContext = createContext();
 
 export const StudentProvider = ({ children }) => {
-    const [student, setStudent] = useState(getStudent());
-
+    const [students, setStudents] = useState([]);
+   
     const storeStudent = (student) => {
-        setStudent(student);
+        setStudents(student);
         saveStudent(student);
     };
 
-    const values = { student, storeStudent };
+    const values = { students, storeStudent, setStudents };
     return (
         <StudentContext.Provider value={values}>
             {children}

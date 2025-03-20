@@ -36,14 +36,14 @@ const FormLogin = ({ isStudentLogin = false }) => {
       if (response?.access_token) {
         storeStudent(response.student);
         localStorage.setItem("jwt_token", response.access_token);
-        navigate("/home");
+        navigate("/students/home");
       }
       } else {
         response = await loginSystem(data); // Login para usuarios con email y contraseña
         if (response?.token) {
           storeUser(response.user);
           localStorage.setItem("jwt_token", response.token);
-          navigate("/home");
+          navigate("/administracion/home");
         }
       }
 

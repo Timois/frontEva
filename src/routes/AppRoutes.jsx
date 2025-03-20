@@ -10,7 +10,6 @@ import { IndexGestion } from "../pages/managements/IndexGestion"
 import { IndexPeriod } from "../pages/periods/IndexPeriod"
 import { NotFound404 } from "../pages/errors/NotFound404"
 import { IndexCareerAssign } from "../pages/careers/careerAssign/IndexCareerAssign"
-import { IndexStudents } from "../pages/students/IndexStudents"
 import { IndexResults } from "../pages/results management/IndexResults"
 import { IndexExamns } from "../pages/examn management/IndexExamns"
 import { IndexArea } from "../pages/careers/areas/IndexArea"
@@ -19,7 +18,8 @@ import { IndexQuestions } from "../pages/careers/questions/IndexQuestions"
 import { IndexAnswers } from "../pages/careers/answers/IndexAnswers"
 import { IndexUser } from "../pages/users/IndexUser"
 import { StudentLogin } from "../pages/auth/StudentLogin"
-
+import { StudentsHome } from "../pages/StudentsHome"
+import { IndexStudents} from "../pages/docentes/IndexStudents"
 
 export const AppRoutes = () => {
   return (
@@ -29,25 +29,30 @@ export const AppRoutes = () => {
       <Route element={<PublicGuard />}>
         <Route path="/" element={<Navigate to={"/administracion"} />} ></Route>
         <Route path="administracion" element={<Login />}></Route>
-        <Route path="students" element={<StudentLogin />}></Route>
+        <Route path="estudiantes" element={<StudentLogin />}></Route>
       </Route>
 
       <Route element={<PrivateGuard />}>
         <Route element={<Layout><Outlet /></Layout>}>
-          <Route path="home" element={<Inicio />}></Route>
-          <Route path="unit" element={<IndexUnit />}></Route>
-          <Route path="career" element={<IndexCareer />}></Route>
-          <Route path="career/:id/assigns" element={<IndexCareerAssign />}></Route>
-          <Route path="career/:career_id/areas" element={<IndexArea />}></Route>
-          <Route path="gestion" element={<IndexGestion />}></Route>
-          <Route path="periods" element={<IndexPeriod />} ></Route>
-          <Route path="students" element={<IndexStudents />}></Route>
-          <Route path="imports" element={<IndexImports />}></Route>
-          <Route path="questions" element={<IndexQuestions />}></Route>
-          <Route path="answers" element={<IndexAnswers />}></Route>
-          <Route path="examns" element={<IndexExamns />}></Route>
-          <Route path="results" element={<IndexResults />}></Route>
-          <Route path="users" element={<IndexUser/>}></Route>
+          <Route path="administracion/home" element={<Inicio />} />
+          <Route path="administracion/unit" element={<IndexUnit />} />
+          <Route path="administracion/career" element={<IndexCareer />} />
+          <Route path="administracion/career/:id/assigns" element={<IndexCareerAssign />} />
+          <Route path="administracion/career/:career_id/areas" element={<IndexArea />} />
+          <Route path="administracion/gestion" element={<IndexGestion />} />
+          <Route path="administracion/periods" element={<IndexPeriod />} />
+          <Route path="administracion/estudiantes" element={<IndexStudents />} />
+          <Route path="administracion/imports" element={<IndexImports />} />
+          <Route path="administracion/questions" element={<IndexQuestions />} />
+          <Route path="administracion/answers" element={<IndexAnswers />} />
+          <Route path="administracion/examns" element={<IndexExamns />} />
+          <Route path="administracion/results" element={<IndexResults />} />
+          <Route path="administracion/users" element={<IndexUser />} />
+
+          {/* Rutas de estudiantes */}
+          <Route path="estudiantes/home" element={<StudentsHome />} />
+          <Route path="estudiantes/examns" element={<IndexExamns />} />
+          <Route path="estudiantes/results" element={<IndexResults />} />
         </Route>
       </Route>
       <Route path="404" element={<NotFound404 />}></Route>

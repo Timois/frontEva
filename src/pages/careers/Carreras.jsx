@@ -58,7 +58,7 @@ export const Carreras = () => {
                     idEditar={idEditar}
                     onEditClick={() => handleEditClick(career)}
                   />
-                  <ButtonVerGestion to={`/career/${career.id}/assigns`} />
+                  <ButtonVerGestion to={`/administracion/career/${career.id}/assigns`} />
                 </div>
 
               </div>

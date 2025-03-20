@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 
 export const InputFile = ({
+  onChange,
   uploadUrl, 
   onUploadSuccess = () => {}, 
   onUploadError = () => {},
@@ -14,9 +15,13 @@ export const InputFile = ({
   const [isUploading, setIsUploading] = useState(false)
 
   const handleFileChange = (event) => {
-    setSelectedFile(event.target.files[0])
+    const file = event.target.files[0]
+    setSelectedFile(file)
+    
+    if (file) {
+      onChange(file) // Enviamos el archivo seleccionado al formulario
+    }
   }
-
   const handleUpload = async () => {
     if (!selectedFile) {
       alert('Por favor, selecciona un archivo antes de subirlo.')
