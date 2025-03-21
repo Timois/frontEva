@@ -18,7 +18,7 @@ export const ViewAreas = () => {
       setExpandedArea(savedExpandedArea);
     }
   }, []);
-
+  
   const toggleArea = (areaId) => {
     if (expandedArea === areaId) {
       setExpandedArea(null);

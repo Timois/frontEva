@@ -43,7 +43,7 @@ export const FormCareer = () => {
             setValue("unit_id", "0");
         }
     }, [selectedType, setValue]);
-
+    
     const onSubmit = async (data) => {
         setResponse(true);
         const formData = new FormData();
@@ -62,8 +62,8 @@ export const FormCareer = () => {
             }
             return;
         }
-
-        addCareer(response);
+        // addCareer(response);
+        getData()
         customAlert("Carrera Guardada", "success");
         closeFormModal("registroCarrera");
         resetForm();
