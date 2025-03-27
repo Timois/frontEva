@@ -22,7 +22,6 @@ export const FormExtensionAcademic = () => {
     const { addGestionExtension } = useContext(GestionExtensionContext)
     const [array, setArray] = useState([])
     const { control, handleSubmit, reset, formState: { errors }, setError } = useForm({ resolver: zodResolver(ExtensionAcademicSchema) })
-    const [preview, setPreview] = useState(null)
     const onSubmit = async (data) => {
         setResponse(true)
 
@@ -44,7 +43,6 @@ export const FormExtensionAcademic = () => {
     }
     const resetForm = () => {
         reset({ date_extension: '', academic_management_id: '' });
-        setPreview(null);  // Limpiar la vista previa de la imagen
     };
     const formatData = () => {
         const newArray = gestions.map(element =>

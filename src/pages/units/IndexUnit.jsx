@@ -13,7 +13,7 @@ export const IndexUnit = () => {
       <div className="d-flex justify-content-center">
         <ButtonAdd modalId={modalId}/>
       </div>
-      <div className=''>
+      <div className='d-flex justify-content-center'>
         <Unidad />
       </div>
       <ModalRegister modalId={modalId} title="Registrar Carrera" />

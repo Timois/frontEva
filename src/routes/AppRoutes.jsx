@@ -20,6 +20,7 @@ import { IndexUser } from "../pages/users/IndexUser"
 import { StudentLogin } from "../pages/auth/StudentLogin"
 import { StudentsHome } from "../pages/StudentsHome"
 import { IndexStudents} from "../pages/docentes/IndexStudents"
+import { IndexRoles } from "../pages/roles/IndexRoles"
 
 export const AppRoutes = () => {
   return (
@@ -48,7 +49,7 @@ export const AppRoutes = () => {
           <Route path="administracion/examns" element={<IndexExamns />} />
           <Route path="administracion/results" element={<IndexResults />} />
           <Route path="administracion/users" element={<IndexUser />} />
-
+          <Route path="administracion/roles" element={<IndexRoles/>}/>
           {/* Rutas de estudiantes */}
           <Route path="estudiantes/home" element={<StudentsHome />} />
           <Route path="estudiantes/examns" element={<IndexExamns />} />

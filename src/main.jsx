@@ -19,38 +19,43 @@ import { QuestionsProvider } from './context/QuestionsProvider.jsx';
 import { AnswersProvider } from './context/AnswersProvider.jsx';
 import { PersonaProvider } from './context/PersonaProvider.jsx';
 import { StudentProvider } from './context/StudentProvider.jsx';
+import { PermissionsProvider } from './context/PermissionsProvider.jsx';
+import { RolesProvider } from './context/RolesProvider.jsx';
+
 
 createRoot(document.getElementById('root')).render(
   <BrowserRouter>
-
-    <UserProvider>
-      <UnitProvider>
-        <PersonaProvider>
-          <CareerProvider>
-            <GestionProvider>
-              <PeriodProvider>
-                <ExtensionGestionProvider>
-                  <CareerAssignProvider>
-                    <StudentProvider>
-                    <AreaProvider>
-                      <QuestionsProvider>
-                        <AnswersProvider>
-                          <ImportExcelQuestionsProvider>
-                            <App />
-                          </ImportExcelQuestionsProvider>
-                        </AnswersProvider>
-                      </QuestionsProvider>
-                    </AreaProvider>
-                    </StudentProvider>
-                  </CareerAssignProvider>  
-                </ExtensionGestionProvider>
-              </PeriodProvider>
-            </GestionProvider>
-          </CareerProvider>
-        </PersonaProvider>
-      </UnitProvider>
-    </UserProvider>
-
+    <PermissionsProvider>
+      <RolesProvider>
+        <UserProvider>
+          <UnitProvider>
+            <PersonaProvider>
+              <CareerProvider>
+                <GestionProvider>
+                  <PeriodProvider>
+                    <ExtensionGestionProvider>
+                      <CareerAssignProvider>
+                        <StudentProvider>
+                          <AreaProvider>
+                            <QuestionsProvider>
+                              <AnswersProvider>
+                                <ImportExcelQuestionsProvider>
+                                  <App />
+                                </ImportExcelQuestionsProvider>
+                              </AnswersProvider>
+                            </QuestionsProvider>
+                          </AreaProvider>
+                        </StudentProvider>
+                      </CareerAssignProvider>
+                    </ExtensionGestionProvider>
+                  </PeriodProvider>
+                </GestionProvider>
+              </CareerProvider>
+            </PersonaProvider>
+          </UnitProvider>
+        </UserProvider>
+      </RolesProvider>
+    </PermissionsProvider>
   </BrowserRouter>
 
 )
