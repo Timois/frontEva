@@ -4,12 +4,13 @@ import { useContext, useEffect, useState } from "react"
 import { PersonaContext } from "../../context/PersonaProvider"
 import { useFetchPersona } from "../../hooks/fetchPersona"
 import ButtonEdit from "./ButtonEdit"
+import { RolContext } from "../../context/RolesProvider"
 
 
 export const User = () => {
+    const {roles, setRoles} = useContext(RolContext)
     const { personas, setPersonas } = useContext(PersonaContext)
     const { selectedPersona, setSelectedpersona } = useState(null)
-
     const { getData } = useFetchPersona()
 
     useEffect(() => {

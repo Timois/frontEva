@@ -7,7 +7,7 @@ export const useFetchPermission = () => {
 
     const getData = async () => {
         if(permisos.length < 1){
-            const response = await getApi("permisions/list")
+            const response = await getApi("permissions/list")
             setPermisos(response)
         }
         return permisos

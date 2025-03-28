@@ -9,7 +9,6 @@ export const PermissionsProvider = ({ children }) => {
         setPermisos([...permisos, permiso])
     }
 
-
     const updatePermiso = (permiso) => {
         const posicion = permisos.findIndex(p => p.id === permiso.id)
         if (posicion !== -1){

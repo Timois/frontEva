@@ -1,33 +1,45 @@
-import { useContext, useState } from "react";
-import { PermissionsContext } from "../../context/PermissionsProvider";
+/* eslint-disable react/prop-types */
+import { useContext, useState, useEffect } from "react";
 import { RolContext } from "../../context/RolesProvider";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { PermissionsContext } from "../../context/PermissionsProvider";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { RolSchema } from "../../models/schemas/RolSchema";
 import { postApi } from "../../services/axiosServices/ApiService";
-import { closeFormModal, customAlert } from "../../utils/domHelper";
-import { ContainerInput } from "../login/ContainerInput";
-import { Input } from "../login/Input";
-import { Validate } from "./components/Validate";
+import {  closeFormModal, customAlert } from "../../utils/domHelper";
 import { ContainerButton } from "../login/ContainerButton";
 import { Button } from "../login/Button";
-import CancelButton from "./components/CancelButon";
+import CancelButton from "../forms/components/CancelButon";
+import { ContainerInput } from "../login/ContainerInput";
+import { Input } from "../login/Input";
+import { Validate } from "../forms/components/Validate";
 
-export const FormRol = () => {
+export const EditRol = ({ data, closeModal }) => {
+    const { updateRol } = useContext(RolContext);
     const { permisos } = useContext(PermissionsContext);
-    const { addRol } = useContext(RolContext);
     const [response, setResponse] = useState(false);
     const [selectedPermisos, setSelectedPermisos] = useState([]);
-
+    
     const { 
         control, 
         handleSubmit, 
         reset, 
-        formState: { errors },
+        setValue, 
+        formState: { errors }, 
         setError 
-    } = useForm({ 
-        resolver: zodResolver(RolSchema) 
+    } = useForm({
+        resolver: zodResolver(RolSchema),
     });
+
+    // Inicializar con los permisos actuales del rol
+    useEffect(() => {
+        if (data) {
+            setValue("name", data.name);
+            if (data.permissions) {
+                setSelectedPermisos(data.permissions.map(p => p.id));
+            }
+        }
+    }, [data, setValue]);
 
     // Función para seleccionar/deseleccionar todos los permisos
     const handleSelectAll = (isChecked) => {
@@ -52,17 +64,19 @@ export const FormRol = () => {
     const allPermisosSelected = permisos?.length > 0 && 
                                selectedPermisos.length === permisos.length;
 
-    const onSubmit = async (data) => {
+    const onSubmit = async (formData) => {
         setResponse(true);
-        const formData = new FormData();
-        formData.append("name", data.name);
-        formData.append("permissions", JSON.stringify(selectedPermisos));
+        
+        const payload = {
+            ...formData,
+            permissions: selectedPermisos
+        };
 
         try {
-            const response = await postApi("roles/save", formData);
+            const response = await postApi(`roles/edit/${data.id}`, payload);
             
             if (response.status === 422) {
-                for (const key in response.data.errors) {
+                for (let key in response.data.errors) {
                     setError(key, { 
                         type: "custom", 
                         message: response.data.errors[key][0] 
@@ -71,26 +85,20 @@ export const FormRol = () => {
                 return;
             }
 
-            addRol(response.data);
-            customAlert("Rol Guardado", "success");
-            closeFormModal("registroRol");
-            resetForm();
+            updateRol(response.data);
+            customAlert("Rol Actualizado", "success");
+            closeFormModal("editarRol");
+            reset();
         } catch (error) {
-            console.error("Error al guardar el rol:", error);
-            customAlert("Error al guardar el rol", "error");
+            console.error("Error al actualizar el rol:", error);
+            customAlert("Error al actualizar el rol", "error");
         } finally {
             setResponse(false);
         }
     };
 
-    const resetForm = () => {
-        reset({ name: "" });
-        setSelectedPermisos([]);
-    };
-
     const handleCancel = () => {
-        closeFormModal();
-        resetForm();
+        closeModal();
     };
 
     return (
@@ -98,9 +106,9 @@ export const FormRol = () => {
             <ContainerInput>
                 <Input 
                     name="name" 
-                    control={control} 
                     type="text" 
-                    placeholder="Ingrese un rol" 
+                    placeholder="Ingrese el Rol" 
+                    control={control} 
                 />
                 <Validate error={errors.name} />
             </ContainerInput>
@@ -126,7 +134,7 @@ export const FormRol = () => {
 
                     {/* Lista de permisos */}
                     <div className="border rounded-lg p-4">
-                        <h4 className="text-lg font-semibold mb-3">Permisos disponibles:</h4>
+                        <h4 className="text-lg font-semibold mb-3">Permisos asignados:</h4>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                             {permisos.map((permiso) => (
                                 <div 
@@ -160,7 +168,7 @@ export const FormRol = () => {
                     disabled={response}
                     className={`${response ? 'opacity-75' : ''}`}
                 >
-                    <span>{response ? "Guardando..." : "Guardar"}</span>
+                    <span>{response ? "Actualizando..." : "Actualizar"}</span>
                 </Button>
                 <CancelButton disabled={response} onClick={handleCancel} />
             </ContainerButton>

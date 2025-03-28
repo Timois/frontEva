@@ -13,8 +13,7 @@ import CancelButton from "./components/CancelButon";
 export const FormImportStudents = () => {
     const [response, setResponse] = useState(false);
 
-    const { 
-        control, 
+    const {  
         handleSubmit, 
         reset, 
         setValue, 
