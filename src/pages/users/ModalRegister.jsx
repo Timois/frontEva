@@ -2,6 +2,7 @@
 /* eslint-disable no-unused-vars */
 import React from "react"
 import { Card } from "../../components/login/Card"
+import { FormUser } from "../../components/forms/FormUser"
 
 
 const ModalRegister = ({ modalIdP, title }) => {
@@ -21,7 +22,7 @@ const ModalRegister = ({ modalIdP, title }) => {
             <h5 className="modal-title text-center text-success" id="exampleModalLabel">{title}</h5>
           </div>
           <Card className="card align-items-center h-auto gap-3 p-3">
-            
+              <FormUser />
           </Card>
         </div>
       </div>

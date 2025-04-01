@@ -20,7 +20,7 @@ export const SelectInput = ({ name, options, error, control, label }) => {
                         <option value="">
                             {label}
                         </option>
-                        {options.map((option, index) => (
+                        {options?.map((option, index) => (
                             <option key={index} value={option.value}>{option.text}
                             </option>
                         ))}

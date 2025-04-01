@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { PermissionsContext } from "../../context/PermissionsProvider";
 import { RolContext } from "../../context/RolesProvider";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -12,6 +12,7 @@ import { Validate } from "./components/Validate";
 import { ContainerButton } from "../login/ContainerButton";
 import { Button } from "../login/Button";
 import CancelButton from "./components/CancelButon";
+import { useFetchPermission } from "../../hooks/fetchPermissions";
 
 export const FormRol = () => {
     const { permisos } = useContext(PermissionsContext);
@@ -28,6 +29,11 @@ export const FormRol = () => {
     } = useForm({ 
         resolver: zodResolver(RolSchema) 
     });
+    const { getData } = useFetchPermission()
+    
+    useEffect(() => {
+        getData();
+    }, [getData]);
 
     // Función para seleccionar/deseleccionar todos los permisos
     const handleSelectAll = (isChecked) => {

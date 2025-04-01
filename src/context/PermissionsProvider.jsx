@@ -4,7 +4,7 @@ import { createContext, useState } from "react"
 export const PermissionsContext = createContext()
 export const PermissionsProvider = ({ children }) => {
     const [permisos, setPermisos] = useState([])
-
+    
     const addPermisos = (permiso) =>{
         setPermisos([...permisos, permiso])
     }

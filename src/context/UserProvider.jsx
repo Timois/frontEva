@@ -5,14 +5,27 @@ import { getUser, saveUser } from '../services/storage/storageUser';
 export const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
+    const [users, setUsers] = useState([]);
     const [user, setUser] = useState(getUser());
+    const addUser = (user) => {
+        setUsers([...users, user]);
+    }
+
+    const updateUser = (user) => {
+        const posicion = users.findIndex(p => p.id === user.id)
+        if (posicion !== -1) {
+            const lista = [...users]
+            lista[posicion] = { ...lista[posicion], ...user }
+            setUsers(lista)
+        }
+    };
 
     const storeUser = (user) => {
         setUser(user);
         saveUser(user);
     };
 
-    const values = { user, storeUser };
+    const values = { user, storeUser, users, addUser, updateUser, setUser };
     return (
         <UserContext.Provider value={values}>
             {children}

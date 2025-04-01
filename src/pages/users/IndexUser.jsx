@@ -1,6 +1,7 @@
 import ButtonAdd from "./ButtonAdd"
 import ModalRegister from "./ModalRegister"
-import { User } from "./user"
+import { User } from "./User"
+
 
 
 export const IndexUser = () => {
