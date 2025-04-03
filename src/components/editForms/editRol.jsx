@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { RolSchema } from "../../models/schemas/RolSchema";
 import { postApi } from "../../services/axiosServices/ApiService";
-import {  closeFormModal, customAlert } from "../../utils/domHelper";
+import { closeFormModal, customAlert } from "../../utils/domHelper";
 import { ContainerButton } from "../login/ContainerButton";
 import { Button } from "../login/Button";
 import CancelButton from "../forms/components/CancelButon";
@@ -31,36 +31,32 @@ export const EditRol = ({ data, closeModal }) => {
         resolver: zodResolver(RolSchema),
     });
 
-    // Inicializar con los permisos actuales del rol
     useEffect(() => {
         if (data) {
             setValue("name", data.name);
             if (data.permissions) {
-                setSelectedPermisos(data.permissions.map(p => p.id));
+                setSelectedPermisos(data.permissions.map(p => p.name));
             }
         }
     }, [data, setValue]);
 
-    // Función para seleccionar/deseleccionar todos los permisos
     const handleSelectAll = (isChecked) => {
         if (isChecked) {
-            const allPermisoIds = permisos.map(permiso => permiso.id);
-            setSelectedPermisos(allPermisoIds);
+            const allPermisoNames = permisos.map(permiso => permiso.name);
+            setSelectedPermisos(allPermisoNames);
         } else {
             setSelectedPermisos([]);
         }
     };
 
-    // Función para manejar cambios en permisos individuales
-    const handlePermisoChange = (permisoId) => {
+    const handlePermisoChange = (permisoName) => {
         setSelectedPermisos(prev => 
-            prev.includes(permisoId)
-                ? prev.filter(id => id !== permisoId)
-                : [...prev, permisoId]
+            prev.includes(permisoName)
+                ? prev.filter(name => name !== permisoName)
+                : [...prev, permisoName]
         );
     };
 
-    // Verifica si todos los permisos están seleccionados
     const allPermisosSelected = permisos?.length > 0 && 
                                selectedPermisos.length === permisos.length;
 
@@ -115,7 +111,6 @@ export const EditRol = ({ data, closeModal }) => {
 
             {permisos && permisos.length > 0 && (
                 <div className="space-y-3">
-                    {/* Checkbox para seleccionar todos */}
                     <div className="flex items-center p-2 bg-gray-50 rounded">
                         <input
                             type="checkbox"
@@ -132,7 +127,6 @@ export const EditRol = ({ data, closeModal }) => {
                         </label>
                     </div>
 
-                    {/* Lista de permisos */}
                     <div className="border rounded-lg p-4">
                         <h4 className="text-lg font-semibold mb-3">Permisos asignados:</h4>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -144,8 +138,8 @@ export const EditRol = ({ data, closeModal }) => {
                                     <input
                                         type="checkbox"
                                         id={`permiso-${permiso.id}`}
-                                        checked={selectedPermisos.includes(permiso.id)}
-                                        onChange={() => handlePermisoChange(permiso.id)}
+                                        checked={selectedPermisos.includes(permiso.name)}
+                                        onChange={() => handlePermisoChange(permiso.name)}
                                         className="h-4 w-4 text-blue-600 rounded focus:ring-blue-500"
                                     />
                                     <label 

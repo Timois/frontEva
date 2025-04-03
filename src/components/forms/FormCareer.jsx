@@ -53,7 +53,7 @@ export const FormCareer = () => {
         formData.append("type", data.type);
         if (data.unit_id) formData.append("unit_id", data.unit_id);
 
-        const response = await postApi("career/save", formData);
+        const response = await postApi("careers/save", formData);
         setResponse(false);
 
         if (response.status === 422) {

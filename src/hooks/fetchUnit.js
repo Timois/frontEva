@@ -6,7 +6,7 @@ export const useFetchUnit = () => {
     const { units, setUnits } = useContext(UnitContext)
     const getData = async () => {
         if (units.length < 1) {
-            const response = await getApi("career/listsFacultiesMayor")
+            const response = await getApi("careers/listsFacultiesMayor")
             setUnits(response)
         }
         return units

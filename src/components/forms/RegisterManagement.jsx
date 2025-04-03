@@ -14,7 +14,7 @@ export const RegisterManagement = ({ data }) => {
     const { control, handleSubmit, reset, formState: { errors }, setError } = useForm({
         resolver: zodResolver(AsignGestionSchema)
     })
-
+    console.log(data)
     const onSubmit = async (data) => {
         const formData = new FormData()
         formData.append("career_id", data.career_id)
@@ -25,7 +25,7 @@ export const RegisterManagement = ({ data }) => {
             academic_management_id: ""
         })
 
-        const response = await postApi("career/assignManagement", formData)
+        const response = await postApi("careers/assignManagement", formData)
 
         if (response.status == 422) {
             for (var key in response.data.errors) {

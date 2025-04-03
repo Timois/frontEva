@@ -7,15 +7,15 @@ export const UserContext = createContext();
 export const UserProvider = ({ children }) => {
     const [users, setUsers] = useState([]);
     const [user, setUser] = useState(getUser());
-    const addUser = (user) => {
-        setUsers([...users, user]);
+    const addUser = (usuario) => {
+        setUsers([...users, usuario]);
     }
 
-    const updateUser = (user) => {
-        const posicion = users.findIndex(p => p.id === user.id)
+    const updateUser = (usuario) => {
+        const posicion = users.findIndex(p => p.id === usuario.id)
         if (posicion !== -1) {
             const lista = [...users]
-            lista[posicion] = { ...lista[posicion], ...user }
+            lista[posicion] = { ...lista[posicion], ...usuario }
             setUsers(lista)
         }
     };

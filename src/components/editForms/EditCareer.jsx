@@ -75,7 +75,7 @@ export const EditCareer = ({ data, closeModal }) => {
             requestData.append("logo", formData.logo[0]);
         }
         try {
-            const response = await postApi(`career/edit/${data.id}`, requestData);
+            const response = await postApi(`careers/edit/${data.id}`, requestData);
             setResponse(false);
 
             if (response.status === 422) {

@@ -16,6 +16,7 @@ import { ContainerButton } from "../login/ContainerButton";
 import { Button } from "../login/Button";
 import CancelButton from "./components/CancelButon";
 import { SelectInput } from "./components/SelectInput";
+import { CareerContext } from "../../context/CareerProvider";
 
 // Nuevo componente para los checkboxes de roles
 const RoleCheckboxes = ({ control, roles, error }) => {
@@ -54,9 +55,9 @@ export const FormUser = () => {
     const { addUser } = useContext(UserContext);
     const { roles } = useContext(RolContext);
     const [response, setResponse] = useState(false);
-    const [selectedCareers, setSelectedCareers] = useState([]);
+    const { careers } = useContext(CareerContext);
     const { control, handleSubmit, reset, formState: { errors }, setError } =
-        useForm({ 
+        useForm({
             resolver: zodResolver(UserSchema),
             defaultValues: {
                 roles: {}
@@ -67,32 +68,37 @@ export const FormUser = () => {
     useEffect(() => {
         getData();
     }, [getData]);
-
+    
+    useEffect(() => {
+        if (careers.length > 0) {
+            setError("career_id", null);
+        }
+      }, [careers]);
     const onSubmit = async (data) => {
         setResponse(true);
-        
+
         // Transformar los checkboxes de roles en un array de IDs de roles seleccionados
         const selectedRoleIds = Object.entries(data.roles || {})
             .filter(([_, isSelected]) => isSelected)
             .map(([roleId]) => Number(roleId));
-        
+
         // Verificar si al menos un rol está seleccionado
         if (selectedRoleIds.length === 0) {
-            setError("roles", { 
-                type: "custom", 
-                message: "Debe seleccionar al menos un rol" 
+            setError("roles", {
+                type: "custom",
+                message: "Debe seleccionar al menos un rol"
             });
             setResponse(false);
             return;
         }
-        
+
         const formData = new FormData();
         formData.append("name", data.name);
         formData.append("email", data.email);
         formData.append("password", data.password);
         formData.append("password_confirmation", data.password_confirmation);
         formData.append("career_id", data.career_id || "");
-        
+
         // Agregar cada role_id como un item separado en el FormData
         selectedRoleIds.forEach(roleId => {
             formData.append("role_ids[]", roleId);
@@ -111,7 +117,12 @@ export const FormUser = () => {
             closeFormModal("registerUser");
             resetForm();
         } catch (error) {
-            console.error("Error al guardar el usuario:", error);
+            if (error.response?.status === 403) {
+                setError("email", {
+                    type: "manual",
+                    message: error.response.data.message
+                });
+            }
             customAlert("Error al guardar el usuario", "error");
         } finally {
             setResponse(false);
@@ -153,21 +164,26 @@ export const FormUser = () => {
                 <Validate error={errors.password_confirmation} />
             </ContainerInput>
             <ContainerInput>
-                <SelectInput name="career_id" options={selectedCareers} control={control} label="Carrera" />
+                <SelectInput
+                    name="career_id"
+                    options={careers.map(career => ({ value: career.id, text: career.name }))}
+                    control={control}
+                    label="Carrera"
+                />
                 <Validate error={errors.career_id} />
             </ContainerInput>
-            
+
             {/* Nuevo bloque para los checkboxes de roles */}
-            <RoleCheckboxes 
-                control={control} 
-                roles={roles || []} 
-                error={errors.roles} 
+            <RoleCheckboxes
+                control={control}
+                roles={roles || []}
+                error={errors.roles}
             />
-            
+
             <ContainerButton>
-                <Button 
-                    type="submit" 
-                    name="submit" 
+                <Button
+                    type="submit"
+                    name="submit"
                     disabled={response}
                     className={`${response ? 'opacity-75' : ''}`}
                 >

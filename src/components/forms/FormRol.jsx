@@ -35,34 +35,33 @@ export const FormRol = () => {
         getData();
     }, [getData]);
 
-    // Función para seleccionar/deseleccionar todos los permisos
     const handleSelectAll = (isChecked) => {
         if (isChecked) {
-            const allPermisoIds = permisos.map(permiso => permiso.id);
-            setSelectedPermisos(allPermisoIds);
+            const allPermisoNames = permisos.map(permiso => permiso.name);
+            setSelectedPermisos(allPermisoNames);
         } else {
             setSelectedPermisos([]);
         }
     };
 
-    // Función para manejar cambios en permisos individuales
-    const handlePermisoChange = (permisoId) => {
+    const handlePermisoChange = (permisoName) => {
         setSelectedPermisos(prev => 
-            prev.includes(permisoId)
-                ? prev.filter(id => id !== permisoId)
-                : [...prev, permisoId]
+            prev.includes(permisoName)
+                ? prev.filter(name => name !== permisoName)
+                : [...prev, permisoName]
         );
     };
 
-    // Verifica si todos los permisos están seleccionados
     const allPermisosSelected = permisos?.length > 0 && 
                                selectedPermisos.length === permisos.length;
 
     const onSubmit = async (data) => {
         setResponse(true);
-        const formData = new FormData();
-        formData.append("name", data.name);
-        formData.append("permissions", JSON.stringify(selectedPermisos));
+
+        const formData = {
+            name: data.name,
+            permissions: selectedPermisos 
+        };
 
         try {
             const response = await postApi("roles/save", formData);
@@ -113,7 +112,6 @@ export const FormRol = () => {
 
             {permisos && permisos.length > 0 && (
                 <div className="space-y-3">
-                    {/* Checkbox para seleccionar todos */}
                     <div className="flex items-center p-2 bg-gray-50 rounded">
                         <input
                             type="checkbox"
@@ -130,7 +128,6 @@ export const FormRol = () => {
                         </label>
                     </div>
 
-                    {/* Lista de permisos */}
                     <div className="border rounded-lg p-4">
                         <h4 className="text-lg font-semibold mb-3">Permisos disponibles:</h4>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -142,8 +139,8 @@ export const FormRol = () => {
                                     <input
                                         type="checkbox"
                                         id={`permiso-${permiso.id}`}
-                                        checked={selectedPermisos.includes(permiso.id)}
-                                        onChange={() => handlePermisoChange(permiso.id)}
+                                        checked={selectedPermisos.includes(permiso.name)}
+                                        onChange={() => handlePermisoChange(permiso.name)}
                                         className="h-4 w-4 text-blue-600 rounded focus:ring-blue-500"
                                     />
                                     <label 

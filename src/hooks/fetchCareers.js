@@ -1,29 +1,48 @@
 
-import { useContext } from "react"
+import { useContext, useEffect, useState } from "react"
 import { getApi } from "../services/axiosServices/ApiService"
 import { CareerContext } from "../context/CareerProvider"
 import { CareerAssignContext } from "../context/CareerAssignProvider"
 import { PeriodAssignContext } from "../context/PeriodAssignProvider"
 
 export const useFetchCareer = () => {
-
-    const { careers, setCareers } = useContext(CareerContext)
+    const { careers, setCareers } = useContext(CareerContext);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+  
     const getDataCareer = async () => {
-
-        if (careers.length < 1) {
-            const response = await getApi("career/list")
-            setCareers(response)
+      if (careers.length === 0) {
+        setLoading(true);
+        setError(null);
+        try {
+          const response = await getApi("careers/list");
+  
+          // Aquí verificamos si la respuesta es un array y lo manejamos
+          if (Array.isArray(response)) {
+            setCareers(response); // Si es un array, lo asignamos directamente
+          } else {
+            console.error("Respuesta inesperada del backend:", response);
+            setError("No se pudo obtener la lista de carreras.");
+          }
+        } catch (err) {
+          console.error("Error al obtener las carreras:", err);
+          setError("Error al conectar con el servidor.");
+        } finally {
+          setLoading(false);
         }
-        return careers
-    }
-    return { careers, getDataCareer }
-
-}
-
+      }
+    };
+  
+    useEffect(() => {
+      getDataCareer();
+    }, []); // Se ejecuta una vez al montar el componente
+  
+    return { careers, getDataCareer, loading, error };
+  };
 export const useFetchCareerAssign = (id) => {
     const { careerAssignments, setCareerAssignments } = useContext(CareerAssignContext)
     const getDataCareerAssignments = async () => {
-        const response = await getApi(`career/findByAssignId/${id}`)
+        const response = await getApi(`careers/findByAssignId/${id}`)
         setCareerAssignments(response)
     }
     return { careerAssignments, getDataCareerAssignments }
@@ -33,7 +52,7 @@ export const useFetchCareerAssign = (id) => {
 export const useFetchCareerAssignPeriod = (id) => {
     const { careerAssignmentsPeriods, setCareerAssignmentsPeriods } = useContext(CareerAssignContext)
     const getDataCareerAssignmentPeriods = async () => {
-        const response = await getApi(`career/findPeriodByIdAssign/${id}`)
+        const response = await getApi(`careers/findPeriodByIdAssign/${id}`)
         setCareerAssignmentsPeriods(response)
     }
     return { careerAssignmentsPeriods, getDataCareerAssignmentPeriods }

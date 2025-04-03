@@ -27,7 +27,7 @@ export const EditUser = ({ data, closeModal }) => {
   const { control, handleSubmit, reset, setValue, formState: { errors }, setError } = useForm({
     resolver: zodResolver(UserSchema)
   });
-
+  
   useEffect(() => {
     if (data) {
       setValue("name", data.name);
@@ -43,7 +43,9 @@ export const EditUser = ({ data, closeModal }) => {
     );
   };
 
-  const onSubmit = async (formData) => {
+  const onSubmit = async (formData, event) => {
+    
+    event.preventDefault();
     setResponse(true);
     try {
       formData.roles = selectedRoles; // Agregar roles seleccionados al formData
@@ -72,7 +74,7 @@ export const EditUser = ({ data, closeModal }) => {
   };
 
   const handleCancel = () => {
-    closeFormModal("editarUsuario");
+    closeModal();
   };
 
   return (
@@ -98,7 +100,7 @@ export const EditUser = ({ data, closeModal }) => {
           name="career_id"
           control={control}
           label="Carrera"
-          options={careers}
+          options={careers.map(career => ({ value: career.id, text: career.name }))}
           error={errors.career_id}
         />
         <Validate error={errors.career_id} />
@@ -124,9 +126,8 @@ export const EditUser = ({ data, closeModal }) => {
           ))}
         </div>
       </ContainerInput>
-
       <ContainerButton>
-        <Button type="submit" name="submit" disabled={response} className={`${response ? 'opacity-75' : ''}`}>
+        <Button type="submit" name="submit" disabled={response}>
           <span>{response ? "Actualizando..." : "Actualizar"}</span>
         </Button>
         <CancelButton disabled={response} onClick={handleCancel} />

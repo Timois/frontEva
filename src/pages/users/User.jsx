@@ -11,7 +11,6 @@ export const User = () => {
     const { personas, setPersonas } = useContext(PersonaContext)
     const [selectedPersona, setSelectedPersona] = useState(null)
     const { getData } = useFetchPersona()
-
     useEffect(() => {
         getData()
     }, [])
