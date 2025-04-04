@@ -10,8 +10,6 @@ let isRedirecting = false;
 // Lista de rutas públicas que no requieren verificación de token
 const publicRoutes = [
   "/login", 
-  "/estudiantes",
-  "/administracion"
   // Añade aquí cualquier otra ruta pública
 ];
 
@@ -98,9 +96,9 @@ export const getApi = async (url) => {
         return data;
     } catch (error) {
         console.error("Error en la respuesta:", error);
-
+        console.log(error.response.status);
         // Si el error es 401 o 403 y no estamos en una ruta pública, manejar expiración del token
-        if ((error.response?.status === 401 || error.response?.status === 403) && !isPublicRoute()) {
+        if (error.response?.status === 401 || error.response?.status === 403) {
             handleTokenExpiration();
         }
 

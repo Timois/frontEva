@@ -11,15 +11,12 @@ import { useFetchGestion } from "../../hooks/fetchGestion";
 export const ModalRegisterManagement = ({ id, title }) => {
     const { careers } = useContext(CareerContext);
     const { gestions } = useContext(GestionContext);
-    const [data, setData] = useState([]);
-    const { getData } = useFetchGestion()
+    const [data, setData] = useState({});
+    const { getData } = useFetchGestion();
+    const [hasFetched, setHasFetched] = useState(false);
 
     useEffect(() => {
-        // we know that careers will be filled after some renders
-        // so we assume no fetch will be needed for now
-        if (careers.length === 0) {
-            return;
-        }
+        if (careers.length === 0) return;
 
         const transformedCareers = careers.map((career) => ({
             value: career.id,
@@ -33,21 +30,21 @@ export const ModalRegisterManagement = ({ id, title }) => {
     }, [careers]);
 
     useEffect(() => {
-        if (gestions.length === 0) {
-            getData()
-            return;
+        if (gestions.length === 0 && !hasFetched) {
+            setHasFetched(true); // Evita que la petición se haga más de una vez
+            getData();
+        } else if (gestions.length > 0) {
+            const transformedGestions = gestions.map((gestion) => ({
+                value: gestion.id,
+                text: `${gestion.year} - ${gestion.initial_date} - ${gestion.end_date}`,
+            }));
+
+            setData((prevData) => ({
+                ...prevData,
+                academic_managements: transformedGestions
+            }));
         }
-
-        const transformedGestions = gestions.map((gestion) => ({
-            value: gestion.id,
-            text: `${gestion.year} - ${gestion.initial_date} - ${gestion.end_date}`,
-        }));
-
-        setData((prevData) => ({
-            ...prevData,
-            academic_managements: transformedGestions
-        }));
-    }, [gestions]);
+    }, [gestions, hasFetched]); // Se asegura de ejecutar la lógica una sola vez
 
     return (
         <div
@@ -70,9 +67,10 @@ export const ModalRegisterManagement = ({ id, title }) => {
                 </div>
             </div>
         </div>
-    )
+    );
 };
 
 ModalRegisterManagement.propTypes = {
-    id: PropTypes.string.isRequired
+    id: PropTypes.string.isRequired,
+    title: PropTypes.string.isRequired,
 };

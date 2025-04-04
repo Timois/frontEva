@@ -69,7 +69,7 @@ const Layout = ({ children }) => {
                 <div id="collapseOne" className="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
                   <div className="accordion-body">
                     <MenuButton path={"/administracion/unit"} label={"unidades"} onClick={closeSidebar} />
-                    <MenuButton path={"/administracion/career"} label={"carreras"} onClick={closeSidebar} />
+                    <MenuButton path={"/administracion/careers"} label={"carreras"} onClick={closeSidebar} />
                     <MenuButton path={"/administracion/gestion"} label={"gestiones"} onClick={closeSidebar} />
                     <MenuButton path={"/administracion/periods"} label={"periodos"} onClick={closeSidebar} />
                     <MenuButton path={"/administracion/users"} label={"usuarios"} onClick={closeSidebar} />

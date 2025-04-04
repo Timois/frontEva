@@ -1,16 +1,18 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 import { useContext, useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import { QuestionContext } from "../../../context/QuestionsProvider";
 import { useFetchQuestions } from "../../../hooks/fetchQuestions";
 import ButtonEdit from "./ButtonEdit";
 import { ModalEdit } from "./ModalEdit";
 import { MdAddPhotoAlternate } from "react-icons/md";
-import { AreaContext } from "../../../context/AreaProvider";
+import { ModalImport } from "./imports/ModalImport";
+import { ButtonImport } from "./imports/ButtonImport";
 const urlimages = import.meta.env.VITE_URL_IMAGES;
 
-export const Question = ({ areaId }) => {
-    const { areas, setAreas } = useContext(AreaContext);
+export const Question = () => {
+    const { areaId, career_id } = useParams(); // Obtener ambos parámetros
     const { questions, setQuestions } = useContext(QuestionContext);
     const [selectedQuestion, setSelectedQuestion] = useState(null);
     const [modalImage, setModalImage] = useState(null);
@@ -29,7 +31,7 @@ export const Question = ({ areaId }) => {
     }, []);
 
     // Filtrar preguntas por área si se proporciona un areaId
-    const filteredQuestions = areaId 
+    const filteredQuestions = areaId
         ? questions.filter(q => String(q.area_id) === String(areaId))
         : questions;
 
@@ -47,11 +49,14 @@ export const Question = ({ areaId }) => {
         text.length > maxLength ? text.slice(0, maxLength) + "..." : text;
 
     const idEditar = "editarPregunta";
-    
+    const IdImport = "importExcel"
     return (
         <div className="row">
             <div className="col-15">
                 <div className="table-responsive">
+                    <div className="d-flex justify-content-center my-3">
+                        <ButtonImport />
+                    </div>
                     <table className="table table-dark table-striped table-bordered border border-warning text-wrap">
                         <thead>
                             <tr>
@@ -93,7 +98,7 @@ export const Question = ({ areaId }) => {
                                         <td>{question.type}</td>
                                         <td>
                                             <ButtonEdit idEditar={idEditar} onEditClick={() => handleEditClick(question)} />
-                                            
+
                                         </td>
                                     </tr>
                                 ))
@@ -131,6 +136,7 @@ export const Question = ({ areaId }) => {
                 )}
             </div>
             <ModalEdit idEditar={idEditar} data={selectedQuestion} title="Editar Pregunta" />
+            <ModalImport modalIdImp={IdImport} title={"Importar Preguntas"} areaId={areaId} />
             {modalImage && (
                 <div className="modal fade show d-block" tabIndex="-1" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
                     <div className="modal-dialog">

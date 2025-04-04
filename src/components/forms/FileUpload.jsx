@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Button } from "../login/Button";
 import CancelButton from "./components/CancelButon";
 import { ContainerButton } from "../login/ContainerButton";
@@ -8,12 +8,19 @@ import { ContainerInput } from "../login/ContainerInput";
 import { closeFormModal, customAlert } from "../../utils/domHelper";
 import { postApi } from "../../services/axiosServices/ApiService";
 import { InputFile } from "./components/InputFile";
+import { ImportExcelQuestionsContext } from "../../context/ImportExcelQuestionsProvider";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ImportQuestionsSchema } from "../../models/schemas/ImportQuestionsSchema";
 
 export const FileUpload = ({ area_id }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [importOption, setImportOption] = useState(null);
   const [fileInputAccept, setFileInputAccept] = useState(".xlsx,.xls,.csv,.zip");
+  const { addImportQuestion } = useContext(ImportExcelQuestionsContext);
+  const {control, handleSubmit, reset, formState: { errors }, setError} = 
+  useForm({ resolver: zodResolver(ImportQuestionsSchema) });
 
   useEffect(() => {
     if (importOption === "withImages") {
@@ -71,6 +78,7 @@ export const FileUpload = ({ area_id }) => {
         : await postApi("excel_import/save", formData);
 
       setIsUploading(false);
+      addImportQuestion(response);
       customAlert("Excel importado correctamente", "success");
       closeFormModal("importExcel");
       resetForm();
@@ -80,9 +88,12 @@ export const FileUpload = ({ area_id }) => {
       customAlert("Error al importar el Excel", "error");
     }
   };
-
+  const handleCancel = () => {
+    resetForm();
+    closeFormModal("importExcel");
+  };
   return (
-    <form>
+    <form onSubmit={handleSubmit(handleUpload)}>
       {/* Título */}
       <ContainerInput>
         <h3 className="h5 mb-3">Opciones de importación</h3>

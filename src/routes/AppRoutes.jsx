@@ -13,8 +13,9 @@ import { IndexCareerAssign } from "../pages/careers/careerAssign/IndexCareerAssi
 import { IndexResults } from "../pages/results management/IndexResults"
 import { IndexExamns } from "../pages/examn management/IndexExamns"
 import { IndexArea } from "../pages/careers/areas/IndexArea"
-import { IndexImports } from "../pages/careers/areas/imports/IndexImports"
+import { IndexImports } from "../pages/careers/questions/imports/IndexImports"
 import { IndexQuestions } from "../pages/careers/questions/IndexQuestions"
+import { Question } from "../pages/careers/questions/Question" // Asegúrate de importar el componente Question
 import { IndexAnswers } from "../pages/careers/answers/IndexAnswers"
 import { IndexUser } from "../pages/users/IndexUser"
 import { StudentLogin } from "../pages/auth/StudentLogin"
@@ -37,9 +38,11 @@ export const AppRoutes = () => {
         <Route element={<Layout><Outlet /></Layout>}>
           <Route path="administracion/home" element={<Inicio />} />
           <Route path="administracion/unit" element={<IndexUnit />} />
-          <Route path="administracion/career" element={<IndexCareer />} />
-          <Route path="administracion/career/:id/assigns" element={<IndexCareerAssign />} />
-          <Route path="administracion/career/:career_id/areas" element={<IndexArea />} />
+          <Route path="administracion/careers" element={<IndexCareer />} />
+          <Route path="administracion/careers/:id/assigns" element={<IndexCareerAssign />} />
+          <Route path="administracion/careers/:career_id/areas" element={<IndexArea />} />
+          {/* Nueva ruta para ver preguntas por área */}
+          <Route path="administracion/careers/:career_id/areas/:areaId/questions" element={<Question />} />
           <Route path="administracion/gestion" element={<IndexGestion />} />
           <Route path="administracion/periods" element={<IndexPeriod />} />
           <Route path="administracion/estudiantes" element={<IndexStudents />} />
