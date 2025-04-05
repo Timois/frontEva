@@ -2,7 +2,7 @@
 import { useContext, useEffect, useState } from "react";
 import { UserContext } from "../../context/UserProvider";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm } from "react-hook-form"; // Añadimos useWatch
 import { UserSchema } from "../../models/schemas/UsersSchema";
 import { CareerContext } from "../../context/CareerProvider";
 import { useFetchRol } from "../../hooks/fetchRoles";
@@ -17,19 +17,24 @@ import { Button } from "../login/Button";
 import CancelButton from "../forms/components/CancelButon";
 import { SelectMultiple } from "../forms/components/SelectMultiple";
 
+// Lista de roles que no necesitan carrera
+const ROLES_SIN_CARRERA = ["admin", "super-admin", "decano"];
+
 export const EditUser = ({ data, closeModal }) => {
   const { updateUser } = useContext(UserContext);
   const { roles, loading: loadingRoles, getData } = useFetchRol();
   const { careers } = useContext(CareerContext);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  const { 
-    control, 
-    handleSubmit, 
-    reset, 
-    setValue, 
-    formState: { errors }, 
-    setError 
+  const [showCareerField, setShowCareerField] = useState(true);
+
+  const {
+    control,
+    handleSubmit,
+    reset,
+    setValue,
+    watch,
+    formState: { errors },
+    setError
   } = useForm({
     resolver: zodResolver(UserSchema),
     defaultValues: {
@@ -40,7 +45,29 @@ export const EditUser = ({ data, closeModal }) => {
       role: []
     }
   });
-console.log(errors)
+
+  // Observar cambios en el campo role
+  const selectedRoles = watch("role");
+
+  // Actualizar visibilidad del campo career_id cuando cambian los roles
+  useEffect(() => {
+    if (selectedRoles && selectedRoles.length > 0) {
+      // Verificar si alguno de los roles seleccionados está en la lista de roles sin carrera
+      const tieneRolSinCarrera = selectedRoles.some(rol =>
+        ROLES_SIN_CARRERA.includes(rol)
+      );
+
+      setShowCareerField(!tieneRolSinCarrera);
+
+      // Si tiene un rol sin carrera, limpiar el campo career_id
+      if (tieneRolSinCarrera) {
+        setValue("career_id", null);
+      }
+    } else {
+      setShowCareerField(true);
+    }
+  }, [selectedRoles, setValue]);
+
   useEffect(() => {
     getData();
   }, []);
@@ -49,28 +76,26 @@ console.log(errors)
     if (data) {
       setValue("name", data.name);
       setValue("email", data.email);
-      // Convertir career_id a string si es número
       setValue("career_id", data.career_id ? String(data.career_id) : "");
-      // Asegurar que los roles sean strings
-      setValue("role", data.roles?.map(role => String(role.id)) || []);
+      setValue("role", data.roles?.map(role => String(role.name)) || []);
     }
   }, [data, setValue]);
 
   const onSubmit = async (formData) => {
     setIsSubmitting(true);
-    
+
     try {
       // Preparar datos para el backend
       const requestData = {
         name: formData.name,
         email: formData.email,
         password: formData.password || undefined,
-        career_id: formData.career_id ? Number(formData.career_id) : null,
-        role: formData.role.map(String) // Asegurar que sean strings
+        career_id: showCareerField && formData.career_id ? Number(formData.career_id) : 0,
+        role: formData.role.map(String)
       };
 
       const response = await postApi(`users/edit/${data.id}`, requestData);
-      
+
       if (response.status === 422) {
         for (const [field, errors] of Object.entries(response.data.errors)) {
           setError(field, {
@@ -81,7 +106,7 @@ console.log(errors)
         return;
       }
 
-      updateUser(response.data.user);
+      updateUser(response.data);
       customAlert("Usuario actualizado exitosamente", "success");
       closeFormModal("editarUsuario");
     } catch (error) {
@@ -102,62 +127,61 @@ console.log(errors)
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <ContainerInput>
-        <Input 
-          type="text" 
-          placeholder="Nombre completo" 
-          name="name" 
-          control={control} 
+        <Input
+          type="text"
+          placeholder="Nombre completo"
+          name="name"
+          control={control}
         />
         <Validate error={errors.name} />
       </ContainerInput>
 
       <ContainerInput>
-        <Input 
-          type="email" 
-          placeholder="Correo electrónico" 
-          name="email" 
-          control={control} 
+        <Input
+          type="email"
+          placeholder="Correo electrónico"
+          name="email"
+          control={control}
         />
         <Validate error={errors.email} />
       </ContainerInput>
 
       <ContainerInput>
-        <Input 
-          type="password" 
-          placeholder="Contraseña (dejar vacío para no cambiar)" 
-          name="password" 
-          control={control} 
+        <Input
+          type="password"
+          placeholder="Contraseña (dejar vacío para no cambiar)"
+          name="password"
+          control={control}
         />
         <Validate error={errors.password} />
-      </ContainerInput>
-
-      <ContainerInput>
-        <SelectInput
-          name="career_id"
-          control={control}
-          options={careers.map(career => ({ 
-            value: career.id, 
-            label: career.name, 
-            text: career.name
-          }))}
-          label="Seleccione una carrera"
-        />
-        <Validate error={errors.career_id} />
       </ContainerInput>
 
       <ContainerInput>
         <SelectMultiple
           name="role"
           control={control}
-          options={roles.map(role => ({ 
-            value: role.id, 
-            label: role.name 
-          }))}
-          label="Seleccione uno o más roles"
+          options={roles.map(r => ({ value: r.name, label: r.name }))}
+          label="Seleccione los roles"
           isMulti={true}
         />
         <Validate error={errors.role} />
       </ContainerInput>
+
+      {showCareerField && (
+        <ContainerInput>
+          <SelectInput
+            name="career_id"
+            control={control}
+            options={careers.map(career => ({
+              value: career.id,
+              label: career.name,
+              text: career.name
+            }))}
+            label="Seleccione una carrera"
+          />
+          <Validate error={errors.career_id} />
+        </ContainerInput>
+      )}
 
       <ContainerButton>
         <Button type="submit" disabled={isSubmitting}>

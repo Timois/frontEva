@@ -12,9 +12,11 @@ import { Validate } from "./components/Validate";
 import { ContainerButton } from "../login/ContainerButton";
 import { Button } from "../login/Button";
 import CancelButton from "./components/CancelButon";
+import { useNavigate } from "react-router-dom"; // Importar useNavigate
 import { useFetchPermission } from "../../hooks/fetchPermissions";
 
 export const FormRol = () => {
+    const navigate = useNavigate(); // Inicializar useNavigate
     const { permisos } = useContext(PermissionsContext);
     const { addRol } = useContext(RolContext);
     const [response, setResponse] = useState(false);
@@ -29,7 +31,7 @@ export const FormRol = () => {
     } = useForm({ 
         resolver: zodResolver(RolSchema) 
     });
-    const { getData } = useFetchPermission()
+    const { getData } = useFetchPermission();
     
     useEffect(() => {
         getData();
@@ -76,13 +78,14 @@ export const FormRol = () => {
                 return;
             }
 
-            addRol(response.data);
+            addRol(response);
             customAlert("Rol Guardado", "success");
-            closeFormModal("registroRol");
             resetForm();
+
+            // Redirigir a la vista de roles después de guardar el rol
+            navigate("/administracion/roles"); // Cambiar la ruta según la necesidad
         } catch (error) {
-            console.error("Error al guardar el rol:", error);
-            customAlert("Error al guardar el rol", "error");
+            customAlert(error.response?.data.errors?.name?.[0], "error");
         } finally {
             setResponse(false);
         }
@@ -96,6 +99,9 @@ export const FormRol = () => {
     const handleCancel = () => {
         closeFormModal();
         resetForm();
+
+        // Redirigir a la vista de roles al hacer clic en cancelar
+        navigate("/administracion/roles"); // Cambiar la ruta según la necesidad
     };
 
     return (

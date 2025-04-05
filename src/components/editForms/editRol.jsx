@@ -1,22 +1,26 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
 import { useContext, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom"; // Importa useNavigate para redirección
 import { RolContext } from "../../context/RolesProvider";
-import { PermissionsContext } from "../../context/PermissionsProvider";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { RolSchema } from "../../models/schemas/RolSchema";
 import { postApi } from "../../services/axiosServices/ApiService";
-import { closeFormModal, customAlert } from "../../utils/domHelper";
+import { customAlert } from "../../utils/domHelper";
 import { ContainerButton } from "../login/ContainerButton";
 import { Button } from "../login/Button";
 import CancelButton from "../forms/components/CancelButon";
 import { ContainerInput } from "../login/ContainerInput";
 import { Input } from "../login/Input";
 import { Validate } from "../forms/components/Validate";
+import { useFetchRol } from "../../hooks/fetchRoles";
+import { useFetchPermission } from "../../hooks/fetchPermissions";
 
-export const EditRol = ({ data, closeModal }) => {
+export const EditRol = ({ data }) => {
+    const navigate = useNavigate(); // Hook para la redirección
     const { updateRol } = useContext(RolContext);
-    const { permisos } = useContext(PermissionsContext);
+    const { permisos, getData } = useFetchPermission();
     const [response, setResponse] = useState(false);
     const [selectedPermisos, setSelectedPermisos] = useState([]);
     
@@ -32,13 +36,8 @@ export const EditRol = ({ data, closeModal }) => {
     });
 
     useEffect(() => {
-        if (data) {
-            setValue("name", data.name);
-            if (data.permissions) {
-                setSelectedPermisos(data.permissions.map(p => p.name));
-            }
-        }
-    }, [data, setValue]);
+        getData();
+    }, [getData]);
 
     const handleSelectAll = (isChecked) => {
         if (isChecked) {
@@ -80,21 +79,23 @@ export const EditRol = ({ data, closeModal }) => {
                 }
                 return;
             }
-
-            updateRol(response.data);
+            
+            updateRol(response);
             customAlert("Rol Actualizado", "success");
-            closeFormModal("editarRol");
             reset();
+            
+            // Redirigir a la vista de roles después de actualizar el rol
+            navigate("/administracion/roles"); // Asegúrate de que esta sea la ruta correcta de roles
         } catch (error) {
-            console.error("Error al actualizar el rol:", error);
-            customAlert("Error al actualizar el rol", "error");
+            customAlert(error.response?.data.errors?.name?.[0], "error");
         } finally {
             setResponse(false);
         }
     };
 
+    // Redirigir a la vista de roles al hacer clic en cancelar
     const handleCancel = () => {
-        closeModal();
+        navigate("/administracion/roles"); // Asegúrate de que esta sea la ruta correcta de roles
     };
 
     return (
@@ -164,6 +165,7 @@ export const EditRol = ({ data, closeModal }) => {
                 >
                     <span>{response ? "Actualizando..." : "Actualizar"}</span>
                 </Button>
+                {/* Botón de cancelar redirige a la vista de roles */}
                 <CancelButton disabled={response} onClick={handleCancel} />
             </ContainerButton>
         </form>

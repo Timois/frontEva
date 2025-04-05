@@ -22,6 +22,8 @@ import { StudentLogin } from "../pages/auth/StudentLogin"
 import { StudentsHome } from "../pages/StudentsHome"
 import { IndexStudents} from "../pages/docentes/IndexStudents"
 import { IndexRoles } from "../pages/roles/IndexRoles"
+import RegisterRol from "../pages/roles/RegisterRol"
+import EditRole from "../pages/roles/EditRole"
 
 export const AppRoutes = () => {
   return (
@@ -53,6 +55,8 @@ export const AppRoutes = () => {
           <Route path="administracion/results" element={<IndexResults />} />
           <Route path="administracion/users" element={<IndexUser />} />
           <Route path="administracion/roles" element={<IndexRoles/>}/>
+          <Route path="administracion/roles/crear" element={<RegisterRol/>}></Route>
+          <Route path="administracion/roles/:id/editar" element={<EditRole/>}></Route>
           {/* Rutas de estudiantes */}
           <Route path="estudiantes/home" element={<StudentsHome />} />
           <Route path="estudiantes/examns" element={<IndexExamns />} />
