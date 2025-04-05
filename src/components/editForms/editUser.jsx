@@ -1,136 +1,169 @@
-/* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
 import { useContext, useEffect, useState } from "react";
 import { UserContext } from "../../context/UserProvider";
-import { RolContext } from "../../context/RolesProvider";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 import { UserSchema } from "../../models/schemas/UsersSchema";
+import { CareerContext } from "../../context/CareerProvider";
+import { useFetchRol } from "../../hooks/fetchRoles";
 import { closeFormModal, customAlert } from "../../utils/domHelper";
 import { postApi } from "../../services/axiosServices/ApiService";
 import { ContainerInput } from "../login/ContainerInput";
 import { Input } from "../login/Input";
 import { Validate } from "../forms/components/Validate";
+import { SelectInput } from "../forms/components/SelectInput";
 import { ContainerButton } from "../login/ContainerButton";
 import { Button } from "../login/Button";
 import CancelButton from "../forms/components/CancelButon";
-import { SelectInput } from "../forms/components/SelectInput";
-import { CareerContext } from "../../context/CareerProvider";
+import { SelectMultiple } from "../forms/components/SelectMultiple";
 
 export const EditUser = ({ data, closeModal }) => {
   const { updateUser } = useContext(UserContext);
+  const { roles, loading: loadingRoles, getData } = useFetchRol();
   const { careers } = useContext(CareerContext);
-  const { roles } = useContext(RolContext);
-  const [response, setResponse] = useState(false);
-  const [selectedRoles, setSelectedRoles] = useState([]);
-
-  const { control, handleSubmit, reset, setValue, formState: { errors }, setError } = useForm({
-    resolver: zodResolver(UserSchema)
-  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
+  const { 
+    control, 
+    handleSubmit, 
+    reset, 
+    setValue, 
+    formState: { errors }, 
+    setError 
+  } = useForm({
+    resolver: zodResolver(UserSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      password: "",
+      career_id: null,
+      role: []
+    }
+  });
+console.log(errors)
+  useEffect(() => {
+    getData();
+  }, []);
+
   useEffect(() => {
     if (data) {
       setValue("name", data.name);
       setValue("email", data.email);
-      setValue("career_id", data.career_id || "");
-      setSelectedRoles(data.roles ? data.roles.map(role => role.id) : []);
+      // Convertir career_id a string si es número
+      setValue("career_id", data.career_id ? String(data.career_id) : "");
+      // Asegurar que los roles sean strings
+      setValue("role", data.roles?.map(role => String(role.id)) || []);
     }
   }, [data, setValue]);
 
-  const handleRoleChange = (roleId) => {
-    setSelectedRoles(prev =>
-      prev.includes(roleId) ? prev.filter(id => id !== roleId) : [...prev, roleId]
-    );
-  };
-
-  const onSubmit = async (formData, event) => {
+  const onSubmit = async (formData) => {
+    setIsSubmitting(true);
     
-    event.preventDefault();
-    setResponse(true);
     try {
-      formData.roles = selectedRoles; // Agregar roles seleccionados al formData
-      const response = await postApi(`users/edit/${data.id}`, formData);
+      // Preparar datos para el backend
+      const requestData = {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password || undefined,
+        career_id: formData.career_id ? Number(formData.career_id) : null,
+        role: formData.role.map(String) // Asegurar que sean strings
+      };
 
+      const response = await postApi(`users/edit/${data.id}`, requestData);
+      
       if (response.status === 422) {
-        for (let key in response.data.errors) {
-          setError(key, {
-            type: "custom",
-            message: response.data.errors[key][0]
+        for (const [field, errors] of Object.entries(response.data.errors)) {
+          setError(field, {
+            type: "server",
+            message: Array.isArray(errors) ? errors[0] : errors
           });
         }
         return;
       }
-      
-      updateUser(response.data);
-      customAlert("Usuario Actualizado", "success");
+
+      updateUser(response.data.user);
+      customAlert("Usuario actualizado exitosamente", "success");
       closeFormModal("editarUsuario");
-      reset();
     } catch (error) {
-      console.error("Error al actualizar el usuario:", error);
-      customAlert("Error al actualizar el usuario", "error");
+      console.error("Error al actualizar usuario:", error);
+      customAlert(error.response?.data?.message || "Error al actualizar usuario", "error");
     } finally {
-      setResponse(false);
+      setIsSubmitting(false);
     }
   };
 
   const handleCancel = () => {
     closeModal();
+    reset();
   };
+
+  if (loadingRoles) return <div>Cargando roles...</div>;
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <ContainerInput>
-        <Input name="name" type="text" placeholder="Ingrese el nombre" control={control} />
+        <Input 
+          type="text" 
+          placeholder="Nombre completo" 
+          name="name" 
+          control={control} 
+        />
         <Validate error={errors.name} />
       </ContainerInput>
+
       <ContainerInput>
-        <Input name="email" type="email" placeholder="Ingrese el email" control={control} />
+        <Input 
+          type="email" 
+          placeholder="Correo electrónico" 
+          name="email" 
+          control={control} 
+        />
         <Validate error={errors.email} />
       </ContainerInput>
+
       <ContainerInput>
-        <Input name="password" type="password" placeholder="Ingrese la contraseña" control={control} />
+        <Input 
+          type="password" 
+          placeholder="Contraseña (dejar vacío para no cambiar)" 
+          name="password" 
+          control={control} 
+        />
         <Validate error={errors.password} />
       </ContainerInput>
-      <ContainerInput>
-        <Input name="password_confirmation" type="password" placeholder="Confirme la contraseña" control={control} />
-        <Validate error={errors.password_confirmation} />
-      </ContainerInput>
+
       <ContainerInput>
         <SelectInput
           name="career_id"
           control={control}
-          label="Carrera"
-          options={careers.map(career => ({ value: career.id, text: career.name }))}
-          error={errors.career_id}
+          options={careers.map(career => ({ 
+            value: career.id, 
+            label: career.name, 
+            text: career.name
+          }))}
+          label="Seleccione una carrera"
         />
         <Validate error={errors.career_id} />
       </ContainerInput>
 
-      {/* Checkboxes para roles */}
       <ContainerInput>
-        <label>Roles</label>
-        <div className="d-flex flex-wrap">
-          {roles.map(role => (
-            <div key={role.id} className="form-check me-3">
-              <input
-                className="form-check-input"
-                type="checkbox"
-                id={`role-${role.id}`}
-                checked={selectedRoles.includes(role.id)}
-                onChange={() => handleRoleChange(role.id)}
-              />
-              <label className="form-check-label" htmlFor={`role-${role.id}`}>
-                {role.name}
-              </label>
-            </div>
-          ))}
-        </div>
+        <SelectMultiple
+          name="role"
+          control={control}
+          options={roles.map(role => ({ 
+            value: role.id, 
+            label: role.name 
+          }))}
+          label="Seleccione uno o más roles"
+          isMulti={true}
+        />
+        <Validate error={errors.role} />
       </ContainerInput>
+
       <ContainerButton>
-        <Button type="submit" name="submit" disabled={response}>
-          <span>{response ? "Actualizando..." : "Actualizar"}</span>
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "Guardando..." : "Guardar cambios"}
         </Button>
-        <CancelButton disabled={response} onClick={handleCancel} />
+        <CancelButton onClick={handleCancel} disabled={isSubmitting} />
       </ContainerButton>
     </form>
   );

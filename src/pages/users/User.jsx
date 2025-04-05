@@ -6,11 +6,14 @@ import ButtonEdit from "./ButtonEdit"
 import { ButtonAssign } from "./ButtonAssign"
 import { ModalAsign } from "./ModalAsign"
 import ModalEdit from "./ModalEdit"
+import { CareerContext } from "../../context/CareerProvider"
 
 export const User = () => {
     const { personas, setPersonas } = useContext(PersonaContext)
     const [selectedPersona, setSelectedPersona] = useState(null)
     const { getData } = useFetchPersona()
+    const { careers } = useContext(CareerContext)
+
     useEffect(() => {
         getData()
     }, [])
@@ -18,20 +21,24 @@ export const User = () => {
     const handleEditClick = (persona) => {
         setSelectedPersona(persona)
     }
-    
+
+    // Buscar nombre de carrera según career_id
+    const getCareerName = (career_id) => {
+        const career = careers.find(c => c.id === career_id)
+        return career ? career.name : "No asignada"
+    }
+
     // Función para obtener los nombres de los roles de un usuario
     const getRoleNames = (roles) => {
         if (!roles || roles.length === 0) {
-            return "Sin rol asignado";
+            return "Sin rol asignado"
         }
-        
-        // Mapea los nombres de los roles y los une con comas
-        return roles.map(role => role.name).join(", ");
+        return roles.map(role => role.name).join(", ")
     }
-    
+
     const idEditar = "editarUsuario"
     const modalAsign = "asignarCarrera"
-    
+
     return (
         <div className="row">
             <div className="col-12">
@@ -56,8 +63,10 @@ export const User = () => {
                                     <td>{persona.email}</td>
                                     <td>{getRoleNames(persona.roles)}</td>
                                     <td>
-                                        {persona.career_id || "No asignada"}
-                                        <ButtonAssign modalId={modalAsign} persona={persona} />
+                                        {getCareerName(persona.career_id)}
+                                        {!persona.career_id && (
+                                            <ButtonAssign modalId={modalAsign} persona={persona} />
+                                        )}
                                     </td>
                                     <td>{persona.status}</td>
                                     <td>

@@ -10,17 +10,18 @@ import { ContainerButton } from "../login/ContainerButton";
 import CancelButton from "./components/CancelButon";
 import { Button } from "../login/Button";
 import PropTypes from 'prop-types';
-import {  useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useFetchCareer } from "../../hooks/fetchCareers";
 import { Validate } from "./components/Validate";
 import { AssignCareerSchema } from "../../models/schemas/AssignCareerSchema";
 
 export const AssignCareer = ({ data, personaId }) => {
-  const [response, setResponse] = useState(null);
+  const [response, setResponse] = useState(false);
   const { control, handleSubmit, reset, setValue, formState: { errors }, setError } =
     useForm({
       resolver: zodResolver(AssignCareerSchema),
     });
+
   const { careers, loading, error } = useFetchCareer();
 
   useEffect(() => {
@@ -35,41 +36,54 @@ export const AssignCareer = ({ data, personaId }) => {
     }
   }, [careers]);
 
-  
   const onSubmit = async (formData) => {
     setResponse(true);
-    const form = new FormData();
-    form.append("career_id", formData.career_id);
-    form.append("user_id", formData.user_id || personaId);
+
+    const payload = {
+      career_id: formData.career_id,
+      user_id: formData.user_id || personaId,
+    };
 
     try {
-      const response = await postApi("users/assignCareer", form);
+      const response = await postApi("users/assignCareer", payload);
 
       if (response.status === 422) {
         for (const key in response.data.errors) {
-          setError(key, { type: "custom", message: response.data.errors[key][0] });
+          setError(key, {
+            type: "manual",
+            message: response.data.errors[key][0],
+          });
         }
-        setResponse(false);
-        return null;
+        return;
       }
-      
       customAlert("Carrera Asignada", "success");
       closeFormModal("asignarCarrera");
       reset();
     } catch (error) {
-      if (error.response?.status === 403) {
-        setError("career_id", { 
-          type: "manual", 
-          message: error.response.data.message 
-        });
-      } else {
-        customAlert("Error al asignar carrera", "error");
+      if (error.response?.status === 422) {
+        if (error.response.data.errors.user_id) {
+          setError("user_id", {
+            type: "manual",
+            message: error.response.data.errors.user_id[0], // Mostramos el primer error
+          });
+        }
+    
+        if (error.response.data.errors.career_id) {
+          setError("career_id", {
+            type: "manual",
+            message: error.response.data.errors.career_id[0],
+          });
+        }
+    
+        setResponse(false);
+        return;
       }
+    
+      customAlert("Error al asignar carrera", "error");
     } finally {
       setResponse(false);
     }
   };
-
 
   const handleCancel = () => {
     closeFormModal("asignarCarrera");
