@@ -24,6 +24,7 @@ import { IndexStudents} from "../pages/docentes/IndexStudents"
 import { IndexRoles } from "../pages/roles/IndexRoles"
 import RegisterRol from "../pages/roles/RegisterRol"
 import EditRole from "../pages/roles/EditRole"
+import AccessDenied from "../pages/errors/AccesDenied"
 
 export const AppRoutes = () => {
   return (
@@ -31,23 +32,23 @@ export const AppRoutes = () => {
       future={{ v7_startTransition: true }}
     >
       <Route element={<PublicGuard />}>
-        <Route path="/" element={<Navigate to={"/administracion"} />} ></Route>
-        <Route path="administracion" element={<Login />}></Route>
+        <Route path="/" element={<Navigate to={"/login"} />} ></Route>
+        <Route path="/login" element={<Login />}></Route>
         <Route path="estudiantes" element={<StudentLogin />}></Route>
       </Route>
 
       <Route element={<PrivateGuard />}>
         <Route element={<Layout><Outlet /></Layout>}>
+          <Route path="access-denied" element={<AccessDenied />} />
           <Route path="administracion/home" element={<Inicio />} />
           <Route path="administracion/unit" element={<IndexUnit />} />
           <Route path="administracion/careers" element={<IndexCareer />} />
           <Route path="administracion/careers/:id/assigns" element={<IndexCareerAssign />} />
-          <Route path="administracion/careers/:career_id/areas" element={<IndexArea />} />
-          {/* Nueva ruta para ver preguntas por área */}
-          <Route path="administracion/careers/:career_id/areas/:areaId/questions" element={<Question />} />
           <Route path="administracion/gestion" element={<IndexGestion />} />
           <Route path="administracion/periods" element={<IndexPeriod />} />
           <Route path="administracion/estudiantes" element={<IndexStudents />} />
+          <Route path="administracion/areas" element={<IndexArea />} />
+          <Route path="administracion/areas/:id/questions" element={<Question />} />
           <Route path="administracion/imports" element={<IndexImports />} />
           <Route path="administracion/questions" element={<IndexQuestions />} />
           <Route path="administracion/answers" element={<IndexAnswers />} />

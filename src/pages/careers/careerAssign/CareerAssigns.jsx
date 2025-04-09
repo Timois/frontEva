@@ -7,8 +7,6 @@ import { ViewPeriod } from "../periodsAsign/ViewPeriod";
 import { ModalViewManagementPeriod } from "../periodsAsign/ModalViewManagementPeriod";
 import { AssignManagement } from "../AssignManagement"
 import { ModalRegisterManagement } from "../ModalRegisterManagement";
-import { ButtonVerAreas } from "./ButtonVerAreas";
-import { useParams } from "react-router-dom"
 
 const capitalizeTitle = (text) => {
     if (!text) return "";
@@ -23,8 +21,7 @@ export const CareerAssigns = ({ data }) => {
     const { getData } = useFetchGestion();
     const { gestions } = useContext(GestionContext);
     const [transformedGestions, setTransformedGestions] = useState([]);
-    const [countdowns, setCountdowns] = useState([]);
-    const careerId = useParams().id;
+    const [countdowns, setCountdowns] = useState([])
 
     useEffect(() => {
         if (gestions.length === 0) {
@@ -169,7 +166,6 @@ export const CareerAssigns = ({ data }) => {
                                     setModalData(gestion['academic_management_career_id'], "verPeriodo");
                                     // console.log(gestion);
                                 }} />
-                                <ButtonVerAreas to={`/administracion/careers/${careerId}/areas`} />
                             </div>
                         </div>
                     </div>

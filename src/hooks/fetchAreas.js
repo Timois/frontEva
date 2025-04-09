@@ -18,11 +18,9 @@ export const useFetchArea = () => {
 
 export const useFetchAreasByCareer = () => {
     const { areas, setAreas } = useContext(AreaContext)
-    const getData = async (career_id) => {
-        const response = await getApi(`areas/listByCareer/${career_id}`)
+    const getData = async (careerId) => {
+        const response = await getApi(`areas/listByCareer/${careerId}`)
         setAreas(response)
-        return response
     }
-
     return { areas, getData }
 }

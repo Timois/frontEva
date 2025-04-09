@@ -99,7 +99,7 @@ export const getApi = async (url) => {
         console.log(error.response.status);
         // Si el error es 401 o 403 y no estamos en una ruta pública, manejar expiración del token
         if (error.response?.status === 401 || error.response?.status === 403) {
-            handleTokenExpiration();
+            //handleTokenExpiration();
         }
 
         throw error;
@@ -136,7 +136,7 @@ export const postApi = async (url, values) => {
 
         // Solo manejar la expiración del token para rutas protegidas
         if ((error.response?.status === 401 || error.response?.status === 403) && !isAuthRoute && !isPublicRoute()) {
-            handleTokenExpiration();
+            //handleTokenExpiration();
         }
 
         throw error;

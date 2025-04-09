@@ -1,11 +1,10 @@
 import { useContext } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate} from "react-router-dom";
 import { AreaContext } from "../../../context/AreaProvider";
 
 export const ViewAreas = () => {
   const { areas } = useContext(AreaContext);
-  const navigate = useNavigate();
-  const { career_id } = useParams(); // Obtenemos el career_id de los parámetros
+  const navigate = useNavigate()// Obtenemos el career_id de los parámetros
   
   return (
     <div className="container-fluid p-0">
@@ -18,7 +17,7 @@ export const ViewAreas = () => {
                   <button 
                     className="btn btn-primary w-100 text-white" 
                     type="button" 
-                    onClick={() => navigate(`/administracion/careers/${career_id}/areas/${area.id}/questions`)}
+                    onClick={() => navigate(`/administracion/areas/${area.id}/questions`)}
                   >
                     {area.name}
                   </button>

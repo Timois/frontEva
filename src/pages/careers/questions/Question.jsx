@@ -9,17 +9,17 @@ import { ModalEdit } from "./ModalEdit";
 import { MdAddPhotoAlternate } from "react-icons/md";
 import { ModalImport } from "./imports/ModalImport";
 import { ButtonImport } from "./imports/ButtonImport";
+import { use } from "react";
 const urlimages = import.meta.env.VITE_URL_IMAGES;
 
 export const Question = () => {
-    const { areaId, career_id } = useParams(); // Obtener ambos parámetros
+    const { id } = useParams(); // Obtener ambos parámetros
     const { questions, setQuestions } = useContext(QuestionContext);
     const [selectedQuestion, setSelectedQuestion] = useState(null);
     const [modalImage, setModalImage] = useState(null);
 
     const [currentPage, setCurrentPage] = useState(1);
     const questionsPerPage = 5;
-
     const handleEditClick = (question) => {
         setSelectedQuestion(question);
     };
@@ -31,8 +31,8 @@ export const Question = () => {
     }, []);
 
     // Filtrar preguntas por área si se proporciona un areaId
-    const filteredQuestions = areaId
-        ? questions.filter(q => String(q.area_id) === String(areaId))
+    const filteredQuestions = id
+        ? questions.filter(q => String(q.area_id) === String(id))
         : questions;
 
     const indexOfLastQuestion = currentPage * questionsPerPage;
@@ -55,7 +55,8 @@ export const Question = () => {
             <div className="col-15">
                 <div className="table-responsive">
                     <div className="d-flex justify-content-center my-3">
-                        <ButtonImport />
+                        <h2 className="text-warning">Area</h2>
+                        <ButtonImport modalIdImp={IdImport}/>
                     </div>
                     <table className="table table-dark table-striped table-bordered border border-warning text-wrap">
                         <thead>
@@ -136,7 +137,7 @@ export const Question = () => {
                 )}
             </div>
             <ModalEdit idEditar={idEditar} data={selectedQuestion} title="Editar Pregunta" />
-            <ModalImport modalIdImp={IdImport} title={"Importar Preguntas"} areaId={areaId} />
+            <ModalImport modalIdImp={IdImport} title={"Importar Preguntas"} areaId={id} />
             {modalImage && (
                 <div className="modal fade show d-block" tabIndex="-1" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
                     <div className="modal-dialog">
