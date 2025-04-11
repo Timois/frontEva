@@ -1,32 +1,41 @@
 import axios from "axios";
-import { saveToken, saveUser } from "../storage/storageUser"; // Importa saveToken en lugar de saveCredentials
+import { savePermissions, saveRolesPermissions, saveToken, saveUser } from "../storage/storageUser"; // Importa saveToken en lugar de saveCredentials
 import { saveStudent, saveTokenStudent } from "../storage/storageStudent";
 
 const path = import.meta.env.VITE_AUTH_ENDPOINT; // Endpoint del backend
 
 export const loginSystem = async (values) => {
     try {
-        // Envía las credenciales al endpoint de login
         const { data } = await axios.post(path + "users/login", values, {
             headers: {
                 'Content-Type': 'application/json',
             },
         });
 
-        // Guarda el token JWT en el almacenamiento local
+        // Guarda el token JWT
         if (data.token) {
-            saveToken(data.token); // Guarda el token JWT
+            saveToken(data.token);
         }
 
-        // Guarda la información del usuario (si está incluida en la respuesta)
+        // Guarda la información del usuario
         if (data.user) {
-            saveUser(data.user); // Guarda la información del usuario
+            saveUser(data.user);
         }
 
-        return data; // Devuelve la respuesta del backend
+        // Guarda los permisos generales
+        if (data.permissions) {
+            savePermissions(data.permissions);
+        }
+
+        // Guarda los permisos por rol
+        if (data.roles_permissions) {
+            saveRolesPermissions(data.roles_permissions);
+        }
+
+        return data;
     } catch (error) {
         console.error("Error en el login:", error);
-        return error.response; // Devuelve el error en caso de fallo
+        return error.response;
     }
 };
 

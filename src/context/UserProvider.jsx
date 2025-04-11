@@ -1,12 +1,19 @@
 /* eslint-disable react/prop-types */
-import { createContext, useState } from 'react';
+import { createContext, useEffect, useState } from 'react';
 import { getUser, saveUser } from '../services/storage/storageUser';
 
 export const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
     const [users, setUsers] = useState([]);
-    const [user, setUser] = useState(getUser());
+    const [user, setUser] = useState(getUser());;
+    useEffect(() => {
+        const storedUser = getUser();
+        if (storedUser) {
+            setUser(storedUser);
+        }
+    }, []);
+
     const addUser = (usuario) => {
         setUsers([...users, usuario]);
     }

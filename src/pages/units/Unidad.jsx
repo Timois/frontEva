@@ -5,6 +5,7 @@ import { UnitContext } from "../../context/UnitProvider"
 import { useFetchUnit } from "../../hooks/fetchUnit"
 import ButtonEdit from "./ButtonEdit"
 import { ModalEdit } from "../careers/ModalEdit"
+import CheckPermissions from "../../routes/CheckPermissions"
 
 export const Unidad = () => {
   const { units, setUnits } = useContext(UnitContext)
@@ -48,7 +49,7 @@ export const Unidad = () => {
           </thead>
           <tbody>
             {currentItems.length > 0 ? (
-              
+
               currentItems.map((unit, index) => (
                 <tr key={index}>
                   <td>{offset + index + 1}</td>
@@ -59,10 +60,12 @@ export const Unidad = () => {
                   <td>{unit.initials}</td>
                   <td>{unit.type}</td>
                   <td>
-                    <ButtonEdit
-                      idEditar={idEditar}
-                      onEditClick={() => handleEditClick(unit)}
-                    />
+                    <CheckPermissions requiredPermission={"editar_unidad"}>
+                      <ButtonEdit
+                        idEditar={idEditar}
+                        onEditClick={() => handleEditClick(unit)}
+                      />
+                    </CheckPermissions>
                   </td>
                 </tr>
               ))
@@ -85,7 +88,9 @@ export const Unidad = () => {
             breakClassName={"page-item"} breakLinkClassName={"page-link"} activeClassName={"active"} />
         </div>
       </div>
-      <ModalEdit idEditar={idEditar} data={selectedUnit} title="Editar Unidad Academica"/>
+      <CheckPermissions requiredPermission={"editar_unidad"}>
+        <ModalEdit idEditar={idEditar} data={selectedUnit} title="Editar Unidad Academica" />
+      </CheckPermissions>
     </div>
   )
 }

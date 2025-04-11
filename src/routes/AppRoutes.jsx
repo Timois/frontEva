@@ -20,11 +20,12 @@ import { IndexAnswers } from "../pages/careers/answers/IndexAnswers"
 import { IndexUser } from "../pages/users/IndexUser"
 import { StudentLogin } from "../pages/auth/StudentLogin"
 import { StudentsHome } from "../pages/StudentsHome"
-import { IndexStudents} from "../pages/docentes/IndexStudents"
+import { IndexStudents } from "../pages/docentes/IndexStudents"
 import { IndexRoles } from "../pages/roles/IndexRoles"
 import RegisterRol from "../pages/roles/RegisterRol"
 import EditRole from "../pages/roles/EditRole"
 import AccessDenied from "../pages/errors/AccesDenied"
+import PermissionsGuard from "./PermissionsGuard"
 
 export const AppRoutes = () => {
   return (
@@ -41,23 +42,68 @@ export const AppRoutes = () => {
         <Route element={<Layout><Outlet /></Layout>}>
           <Route path="access-denied" element={<AccessDenied />} />
           <Route path="administracion/home" element={<Inicio />} />
-          <Route path="administracion/unit" element={<IndexUnit />} />
-          <Route path="administracion/careers" element={<IndexCareer />} />
-          <Route path="administracion/careers/:id/assigns" element={<IndexCareerAssign />} />
-          <Route path="administracion/gestion" element={<IndexGestion />} />
-          <Route path="administracion/periods" element={<IndexPeriod />} />
-          <Route path="administracion/estudiantes" element={<IndexStudents />} />
-          <Route path="administracion/areas" element={<IndexArea />} />
-          <Route path="administracion/areas/:id/questions" element={<Question />} />
-          <Route path="administracion/imports" element={<IndexImports />} />
+          <Route path="administracion/unit" element={
+            <PermissionsGuard requiredPermission={"ver-unidades"}>
+              <IndexUnit />
+            </PermissionsGuard>} />
+          <Route path="administracion/careers" element={
+            <PermissionsGuard requiredPermission={"ver-carreras"}>
+              <IndexCareer />
+            </PermissionsGuard>} />
+          <Route path="administracion/careers/:id/assigns" element={
+            <PermissionsGuard requiredPermission={"ver-asignaciones"}>
+              <IndexCareerAssign />
+            </PermissionsGuard>} />
+          <Route path="administracion/gestion" element={
+            <PermissionsGuard requiredPermission={"ver-gestiones"}>
+              <IndexGestion />
+            </PermissionsGuard>} />
+          <Route path="administracion/periods" element={
+            <PermissionsGuard requiredPermission={"ver-periodos"}>
+              <IndexPeriod />
+            </PermissionsGuard>} />
+          <Route path="administracion/estudiantes" element={
+            <PermissionsGuard requiredPermission={"ver-estudiantes"}>
+              <IndexStudents />
+            </PermissionsGuard>} />
+          <Route path="administracion/areas" element={
+            <PermissionsGuard requiredPermission={"ver-areas"}>
+              <IndexArea />
+            </PermissionsGuard>} />
+          <Route path="administracion/areas/:id/questions" element={
+            <PermissionsGuard requiredPermission={"ver-preguntas"}>
+              <Question />
+            </PermissionsGuard>} />
+          <Route path="administracion/imports" element={
+            <PermissionsGuard requiredPermission={"ver-importaciones"}>
+              <IndexImports />
+            </PermissionsGuard>} />
           <Route path="administracion/questions" element={<IndexQuestions />} />
           <Route path="administracion/answers" element={<IndexAnswers />} />
-          <Route path="administracion/examns" element={<IndexExamns />} />
-          <Route path="administracion/results" element={<IndexResults />} />
-          <Route path="administracion/users" element={<IndexUser />} />
-          <Route path="administracion/roles" element={<IndexRoles/>}/>
-          <Route path="administracion/roles/crear" element={<RegisterRol/>}></Route>
-          <Route path="administracion/roles/:id/editar" element={<EditRole/>}></Route>
+          <Route path="administracion/examns" element={
+            <PermissionsGuard requiredPermission={"ver-examenes"}>
+              <IndexExamns />
+            </PermissionsGuard>} />
+          <Route path="administracion/results" element={
+            <PermissionsGuard requiredPermission={"ver-resultados"}>
+              <IndexResults />
+            </PermissionsGuard>} />
+          <Route path="administracion/users" element={
+            <PermissionsGuard requiredPermission={"ver-usuarios"}>
+              <IndexUser />
+            </PermissionsGuard>} />
+          <Route path="administracion/roles" element={
+            <PermissionsGuard requiredPermission={"ver-roles"}>
+              <IndexRoles />
+            </PermissionsGuard>} />
+          <Route path="administracion/roles/crear" element={
+            <PermissionsGuard requiredPermission={"crear-roles"}>
+              <RegisterRol />
+            </PermissionsGuard>}></Route>
+          <Route path="administracion/roles/:id/editar" element={
+            <PermissionsGuard requiredPermission={"editar-roles"}>
+              <EditRole />
+            </PermissionsGuard>}></Route>
           {/* Rutas de estudiantes */}
           <Route path="estudiantes/home" element={<StudentsHome />} />
           <Route path="estudiantes/examns" element={<IndexExamns />} />

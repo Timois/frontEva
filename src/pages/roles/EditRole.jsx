@@ -1,29 +1,32 @@
-/* eslint-disable react/prop-types */
-/* eslint-disable no-unused-vars */
-import React, { useState, useEffect } from "react"
+import { useState, useEffect } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { EditRol } from "../../components/editForms/editRol"
-import { useFetchRol } from "../../hooks/fetchRoles"
+import { getApi } from "../../services/axiosServices/ApiService"
 
 const EditRole = () => {
-  const { id } = useParams(); // Obtén el id de la URL
-  const { roles, getData } = useFetchRol(); // Hook para obtener los roles
+  const { id } = useParams();
   const [selectedRole, setSelectedRole] = useState(null);
   const navigate = useNavigate(); 
 
   useEffect(() => {
-    getData(); // Obtener los roles
-  }, [getData]);
+    const fetchRoleWithPermissions = async () => {
+      try {
+        const response = await getApi(`roles/find/${id}`);
+        if (response) {
+          setSelectedRole(response);
+        } else {
+          navigate("/administracion/roles");
+        }
+      } catch (error) {
+        console.error("Error al obtener el rol:", error);
+        navigate("/administracion/roles");
+      }
+    };
 
-  useEffect(() => {
-    // Buscar el rol que corresponde al id pasado por la URL
-    const role = roles.find(role => role.id === parseInt(id));
-    if (role) {
-      setSelectedRole(role);
-    } else {
-      navigate("roles"); // Si no se encuentra el rol, redirigir a la vista de roles
+    if (id) {
+      fetchRoleWithPermissions();
     }
-  }, [id, roles, navigate]);
+  }, [id, navigate]);
 
   return (
     <div className="container mt-5">

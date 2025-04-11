@@ -1,5 +1,4 @@
 import { useContext, useEffect, useState } from "react";
-import { PermissionsContext } from "../../context/PermissionsProvider";
 import { RolContext } from "../../context/RolesProvider";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -16,12 +15,11 @@ import { useNavigate } from "react-router-dom"; // Importar useNavigate
 import { useFetchPermission } from "../../hooks/fetchPermissions";
 
 export const FormRol = () => {
-    const navigate = useNavigate(); // Inicializar useNavigate
-    const { permisos } = useContext(PermissionsContext);
+    const navigate = useNavigate(); // Inicializar useNavigat
     const { addRol } = useContext(RolContext);
     const [response, setResponse] = useState(false);
+    const { permisos, getData } = useFetchPermission();
     const [selectedPermisos, setSelectedPermisos] = useState([]);
-
     const { 
         control, 
         handleSubmit, 
@@ -31,7 +29,6 @@ export const FormRol = () => {
     } = useForm({ 
         resolver: zodResolver(RolSchema) 
     });
-    const { getData } = useFetchPermission();
     
     useEffect(() => {
         getData();
@@ -104,6 +101,20 @@ export const FormRol = () => {
         navigate("/administracion/roles"); // Cambiar la ruta según la necesidad
     };
 
+    // Nueva función para agrupar permisos
+    const getGroupedPermissions = () => {
+        const groups = {};
+        permisos.forEach(permiso => {
+            // Asumiendo que el nombre del permiso tiene formato "categoria-accion"
+            const [category] = permiso.name.split('-');
+            if (!groups[category]) {
+                groups[category] = [];
+            }
+            groups[category].push(permiso);
+        });
+        return groups;
+    };
+
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <ContainerInput>
@@ -136,25 +147,34 @@ export const FormRol = () => {
 
                     <div className="border rounded-lg p-4">
                         <h4 className="text-lg font-semibold mb-3">Permisos disponibles:</h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            {permisos.map((permiso) => (
-                                <div 
-                                    key={permiso.id} 
-                                    className="flex items-center p-2 hover:bg-gray-50 rounded"
-                                >
-                                    <input
-                                        type="checkbox"
-                                        id={`permiso-${permiso.id}`}
-                                        checked={selectedPermisos.includes(permiso.name)}
-                                        onChange={() => handlePermisoChange(permiso.name)}
-                                        className="h-4 w-4 text-blue-600 rounded focus:ring-blue-500"
-                                    />
-                                    <label 
-                                        htmlFor={`permiso-${permiso.id}`} 
-                                        className="ml-2 text-sm text-gray-700"
-                                    >
-                                        {permiso.name}
-                                    </label>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            {Object.entries(getGroupedPermissions()).map(([category, categoryPermisos]) => (
+                                <div key={category} className="border rounded-lg p-3">
+                                    <h5 className="text-md font-medium text-gray-700 mb-3 capitalize border-b pb-2">
+                                        {category}
+                                    </h5>
+                                    <div className="space-y-2">
+                                        {categoryPermisos.map((permiso) => (
+                                            <div 
+                                                key={permiso.id} 
+                                                className="flex items-center p-2 hover:bg-gray-50 rounded"
+                                            >
+                                                <input
+                                                    type="checkbox"
+                                                    id={`permiso-${permiso.id}`}
+                                                    checked={selectedPermisos.includes(permiso.name)}
+                                                    onChange={() => handlePermisoChange(permiso.name)}
+                                                    className="h-4 w-4 text-blue-600 rounded focus:ring-blue-500"
+                                                />
+                                                <label 
+                                                    htmlFor={`permiso-${permiso.id}`} 
+                                                    className="ml-2 text-sm text-gray-700"
+                                                >
+                                                    {permiso.name}
+                                                </label>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
                             ))}
                         </div>

@@ -9,18 +9,20 @@ export const RolesProvider = ({children}) => {
         setRoles([...roles, rol])
     }
 
-    const updateRol = (rol) => {
-        const posicion = roles.findIndex(p => p.id === rol.id)
-        if (posicion !== -1){
-            const lista = [...roles]
-            lista[posicion] = { ...lista[posicion], ...rol}
-            setRoles(lista)
-        }
+    const updateRol = (updatedRol) => {
+        setRoles(prevRoles => 
+            prevRoles.map(rol => 
+                rol.id === updatedRol.id 
+                    ? { ...rol, ...updatedRol, permissions: updatedRol.permissions }
+                    : rol
+            )
+        );
     }
+
     const values = { roles, addRol, setRoles, updateRol}
-  return (
-    <RolContext.Provider value={values}>
-        {children}
-    </RolContext.Provider>
-  )
+    return (
+        <RolContext.Provider value={values}>
+            {children}
+        </RolContext.Provider>
+    )
 }

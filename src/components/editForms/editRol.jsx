@@ -18,7 +18,7 @@ import { useFetchRol } from "../../hooks/fetchRoles";
 import { useFetchPermission } from "../../hooks/fetchPermissions";
 
 export const EditRol = ({ data }) => {
-    const navigate = useNavigate(); // Hook para la redirección
+    const navigate = useNavigate();
     const { updateRol } = useContext(RolContext);
     const { permisos, getData } = useFetchPermission();
     const [response, setResponse] = useState(false);
@@ -33,7 +33,30 @@ export const EditRol = ({ data }) => {
         setError 
     } = useForm({
         resolver: zodResolver(RolSchema),
+        defaultValues: {
+            name: data.name
+        }
     });
+
+    // Cargar datos iniciales
+    // Agregar console.log para debuggear
+    useEffect(() => {
+        console.log("Datos del rol recibidos:", data);
+        if (data && data.permissions) {
+            setValue('name', data.name);
+            // Asegurarse de que permissions sea un array y manejar diferentes estructuras
+            const permissionsList = Array.isArray(data.permissions) 
+                ? data.permissions
+                : Object.values(data.permissions);
+            
+            const permissionNames = permissionsList.map(p => 
+                typeof p === 'string' ? p : p.name
+            );
+            
+            console.log("Permisos seleccionados:", permissionNames);
+            setSelectedPermisos(permissionNames);
+        }
+    }, [data, setValue]);
 
     useEffect(() => {
         getData();
@@ -64,9 +87,10 @@ export const EditRol = ({ data }) => {
         
         const payload = {
             ...formData,
+            id: data.id,
             permissions: selectedPermisos
         };
-
+    
         try {
             const response = await postApi(`roles/edit/${data.id}`, payload);
             
@@ -80,14 +104,17 @@ export const EditRol = ({ data }) => {
                 return;
             }
             
-            updateRol(response);
-            customAlert("Rol Actualizado", "success");
-            reset();
+            // Asegurarse de que la respuesta incluya los permisos actualizados
+            const updatedRole = {
+                ...response,
+                permissions: selectedPermisos.map(name => ({ name }))
+            };
             
-            // Redirigir a la vista de roles después de actualizar el rol
-            navigate("/administracion/roles"); // Asegúrate de que esta sea la ruta correcta de roles
+            updateRol(updatedRole);
+            customAlert("Rol Actualizado", "success");
+            navigate("/administracion/roles");
         } catch (error) {
-            customAlert(error.response?.data.errors?.name?.[0], "error");
+            customAlert(error.response?.data.errors?.name?.[0] || "Error al actualizar el rol", "error");
         } finally {
             setResponse(false);
         }

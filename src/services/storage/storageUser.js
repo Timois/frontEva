@@ -33,3 +33,34 @@ export const removeUser = () => {
     window.localStorage.removeItem("user");
 };
 
+// Guarda todos los permisos del usuario
+export const savePermissions = (permissions) => {
+    if (permissions) {
+        localStorage.setItem("permissions", JSON.stringify(permissions));
+    }
+};
+
+export const getPermissions = () => {
+    const data = localStorage.getItem("permissions");
+    return data ? JSON.parse(data) : [];
+};
+
+export const removePermissions = () => {
+    localStorage.removeItem("permissions");
+};
+
+// Guarda los permisos agrupados por rol
+export const saveRolesPermissions = (rolesPermissions) => {
+    if (rolesPermissions) {
+        localStorage.setItem("roles_permissions", JSON.stringify(rolesPermissions));
+    }
+};
+
+export const getRolesPermissions = () => {
+    const data = localStorage.getItem("roles_permissions");
+    return data ? JSON.parse(data) : {};
+};
+
+export const removeRolesPermissions = () => {
+    localStorage.removeItem("roles_permissions");
+};

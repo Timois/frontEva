@@ -7,18 +7,20 @@ import { Sidebar, SidebarOpenButton, MenuButton } from "./components";
 import { clearStorage, clearStorageStudent } from "../../../services/storage/clearStorage";
 import { useContext } from "react";
 import { UserContext } from "../../../context/UserProvider";
-import { MdLogout } from "react-icons/md";
-
+import { MdLogout } from "react-icons/md";;
 import { FaUserShield, FaQuestionCircle, FaUserGraduate } from "react-icons/fa";
+import { PermissionsContext } from "../../../context/PermissionsProvider";
+
 
 const Layout = ({ children }) => {
   const { user, storeUser } = useContext(UserContext);
+  const { permissions } = useContext(PermissionsContext);
   const { student, storeStudent } = useContext(UserContext);
   const { isSidebarOpen, toggleSidebar, closeSidebar } = useSidebar();
   const navigate = useNavigate();
-
   const isStudent = !!student;
 
+  const hasPermission = (perm) => permissions.includes(perm);
   const logout = () => {
     if (student) {
       clearStorageStudent();
@@ -54,29 +56,77 @@ const Layout = ({ children }) => {
           <div className="accordion w-100 p-3" id="accordionExample" style={{ backgroundColor: '#82e5ef' }}>
 
             {/* ADMIN */}
-            { (
+            {hasPermission("ver-usuarios") && (
               <div className="accordion-item" style={{ backgroundColor: '#e4f3bf' }}>
                 <h2 className="accordion-header" id="headingOne">
-                  <button className="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                    <FaUserShield className="me-2" /> Administrador - X
+                  <button
+                    className="accordion-button"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#collapseOne"
+                    aria-expanded="true"
+                    aria-controls="collapseOne"
+                  >
+                    <FaUserShield className="me-2" /> Administrador
                   </button>
                 </h2>
-                <div id="collapseOne" className="accordion-collapse collapse show" aria-labelledby="headingOne">
+                <div
+                  id="collapseOne"
+                  className="accordion-collapse collapse show"
+                  aria-labelledby="headingOne"
+                >
                   <div className="accordion-body">
-                    <MenuButton path={"/administracion"} label={"inicio"} onClick={closeSidebar} />
-                    <MenuButton path={"/administracion/unit"} label={"unidades"} onClick={closeSidebar} />
-                    <MenuButton path={"/administracion/careers"} label={"carreras"} onClick={closeSidebar} />
-                    <MenuButton path={"/administracion/gestion"} label={"gestiones"} onClick={closeSidebar} />
-                    <MenuButton path={"/administracion/periods"} label={"periodos"} onClick={closeSidebar} />
-                    <MenuButton path={"/administracion/users"} label={"usuarios"} onClick={closeSidebar} />
-                    <MenuButton path={"/administracion/roles"} label={"roles"} onClick={closeSidebar} />
+                    {hasPermission("ver-usuarios") && (
+                      <MenuButton
+                        path={"/administracion/users"}
+                        label={"Usuarios"}
+                        onClick={closeSidebar}
+                      />
+                    )}
+                    {hasPermission("ver-roles") && (
+                      <MenuButton
+                        path={"/administracion/roles"}
+                        label={"Roles"}
+                        onClick={closeSidebar}
+                      />
+                    )}
+                    {hasPermission("ver-unidades") && (
+                      <MenuButton
+                        path={"/administracion/unit"}
+                        label={"Unidades"}
+                        onClick={closeSidebar}
+                      />
+                    )}
+                    {hasPermission("ver-carreras") && (
+                      <MenuButton
+                        path={"/administracion/careers"}
+                        label={"Carreras"}
+                        onClick={closeSidebar}
+                      />
+                    )}
+
+                    {hasPermission("ver-gestiones") && (
+                      <MenuButton
+                        path={"/administracion/gestion"}
+                        label={"Gestiones"}
+                        onClick={closeSidebar}
+                      />
+                    )}
+                    {hasPermission("ver-periodos") && (
+                      <MenuButton
+                        path={"/administracion/periods"}
+                        label={"Periodos"}
+                        onClick={closeSidebar}
+                      />
+                    )}        
                   </div>
                 </div>
               </div>
             )}
 
+
             {/* DIRECTOR */}
-            { (
+            {(
               <div className="accordion-item" style={{ backgroundColor: '#e4f3bf' }}>
                 <h2 className="accordion-header" id="headingTwo">
                   <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
