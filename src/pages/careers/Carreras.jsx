@@ -5,6 +5,7 @@ import ButtonEdit from "./ButtonEdit";
 import { ModalEdit } from "./ModalEdit";
 import { useFetchCareer } from "../../hooks/fetchCareers";
 import { ButtonVerGestion } from "./ButtonVerGestion";
+import CheckPermissions from "../../routes/CheckPermissions";
 
 // Helper para capitalizar
 const capitalizeTitle = (text) => {
@@ -54,10 +55,12 @@ export const Carreras = () => {
                   </p>
                 </div>
                 <div className="card-footer d-flex justify-content-around align-items-center p-2">
-                  <ButtonEdit
-                    idEditar={idEditar}
-                    onEditClick={() => handleEditClick(career)}
-                  />
+                  <CheckPermissions requiredPermission="editar-unidades-academicas">
+                    <ButtonEdit
+                      idEditar={idEditar}
+                      onEditClick={() => handleEditClick(career)}
+                    />
+                  </CheckPermissions>
                   <ButtonVerGestion to={`/administracion/careers/${career.id}/assigns`} />
                 </div>
 
@@ -72,7 +75,9 @@ export const Carreras = () => {
           </div>
         )}
       </div>
-      <ModalEdit idEditar={idEditar} data={selectedCareer} title=" Editar Carrera" />
+      <CheckPermissions requiredPermission="editar-unidades-academicas">
+        <ModalEdit idEditar={idEditar} data={selectedCareer} title=" Editar Carrera" />
+      </CheckPermissions>
     </div>
   );
 };

@@ -43,7 +43,7 @@ export const AppRoutes = () => {
           <Route path="access-denied" element={<AccessDenied />} />
           <Route path="administracion/home" element={<Inicio />} />
           <Route path="administracion/unit" element={
-            <PermissionsGuard requiredPermission={"ver-unidades"}>
+            <PermissionsGuard requiredPermission={"ver-unidades-academicas"}>
               <IndexUnit />
             </PermissionsGuard>} />
           <Route path="administracion/careers" element={

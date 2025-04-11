@@ -1,6 +1,6 @@
-/* eslint-disable react/prop-types */
 import { useContext } from "react";
 import { PermissionsContext } from "../context/PermissionsProvider";
+
 const CheckPermissions = ({ 
   requiredPermission, 
   requiredPermissions, 
@@ -8,30 +8,28 @@ const CheckPermissions = ({
   fallback = null, 
   children 
 }) => {
-  const { permisos } = useContext(PermissionsContext);
+  const { permissions } = useContext(PermissionsContext); // permissions = ['crear-usuarios', 'editar-usuarios', ...]
 
   let hasAccess = false;
-  if (requiredPermission) {
-    // Verificar un solo permiso
-    hasAccess = permisos.map(p => 
-      p.name.includes(requiredPermission) 
-    )
-    // includes(requiredPermission);
-  } else if (requiredPermissions) {
-    // Verificar varios permisos
+if (requiredPermission) {
+  // console.log("Permiso requerido:", requiredPermission);
+  // console.log("Lista de permisos:", permissions);
+  hasAccess = permissions.includes(requiredPermission);
+  // console.log("¿Tiene el permiso requerido?", hasAccess);
+} else if (requiredPermissions) {
     if (requireAll) {
-      // Necesita tener TODOS los permisos
-      hasAccess = requiredPermissions.every(p => permisos.includes(p));
+      // Necesita tener TODOS los permissions
+      hasAccess = requiredPermissions.every(p => permissions.includes(p));
     } else {
       // Necesita tener AL MENOS UN permiso
-      hasAccess = requiredPermissions.some(p => permisos.includes(p));
+      hasAccess = requiredPermissions.some(p => permissions.includes(p));
     }
   }
 
   if (!hasAccess) {
     return fallback;
   }
-  
+
   return children;
 };
 

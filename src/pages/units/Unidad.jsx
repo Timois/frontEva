@@ -60,7 +60,7 @@ export const Unidad = () => {
                   <td>{unit.initials}</td>
                   <td>{unit.type}</td>
                   <td>
-                    <CheckPermissions requiredPermission={"editar_unidad"}>
+                    <CheckPermissions requiredPermission="editar-unidades-academicas">
                       <ButtonEdit
                         idEditar={idEditar}
                         onEditClick={() => handleEditClick(unit)}
@@ -88,7 +88,7 @@ export const Unidad = () => {
             breakClassName={"page-item"} breakLinkClassName={"page-link"} activeClassName={"active"} />
         </div>
       </div>
-      <CheckPermissions requiredPermission={"editar_unidad"}>
+      <CheckPermissions requiredPermission="editar-unidades-academicas">
         <ModalEdit idEditar={idEditar} data={selectedUnit} title="Editar Unidad Academica" />
       </CheckPermissions>
     </div>

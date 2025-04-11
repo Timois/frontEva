@@ -9,12 +9,10 @@ import { RolSchema } from "../../models/schemas/RolSchema";
 import { postApi } from "../../services/axiosServices/ApiService";
 import { customAlert } from "../../utils/domHelper";
 import { ContainerButton } from "../login/ContainerButton";
-import { Button } from "../login/Button";
 import CancelButton from "../forms/components/CancelButon";
 import { ContainerInput } from "../login/ContainerInput";
 import { Input } from "../login/Input";
 import { Validate } from "../forms/components/Validate";
-import { useFetchRol } from "../../hooks/fetchRoles";
 import { useFetchPermission } from "../../hooks/fetchPermissions";
 
 export const EditRol = ({ data }) => {
@@ -41,7 +39,6 @@ export const EditRol = ({ data }) => {
     // Cargar datos iniciales
     // Agregar console.log para debuggear
     useEffect(() => {
-        console.log("Datos del rol recibidos:", data);
         if (data && data.permissions) {
             setValue('name', data.name);
             // Asegurarse de que permissions sea un array y manejar diferentes estructuras
@@ -52,8 +49,6 @@ export const EditRol = ({ data }) => {
             const permissionNames = permissionsList.map(p => 
                 typeof p === 'string' ? p : p.name
             );
-            
-            console.log("Permisos seleccionados:", permissionNames);
             setSelectedPermisos(permissionNames);
         }
     }, [data, setValue]);
@@ -125,6 +120,19 @@ export const EditRol = ({ data }) => {
         navigate("/administracion/roles"); // Asegúrate de que esta sea la ruta correcta de roles
     };
 
+    // Agregar función para agrupar permisos
+    const getGroupedPermissions = () => {
+        const groups = {};
+        permisos.forEach(permiso => {
+            const [category] = permiso.name.split('-');
+            if (!groups[category]) {
+                groups[category] = [];
+            }
+            groups[category].push(permiso);
+        });
+        return groups;
+    };
+
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <ContainerInput>
@@ -157,25 +165,34 @@ export const EditRol = ({ data }) => {
 
                     <div className="border rounded-lg p-4">
                         <h4 className="text-lg font-semibold mb-3">Permisos asignados:</h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            {permisos.map((permiso) => (
-                                <div 
-                                    key={permiso.id} 
-                                    className="flex items-center p-2 hover:bg-gray-50 rounded"
-                                >
-                                    <input
-                                        type="checkbox"
-                                        id={`permiso-${permiso.id}`}
-                                        checked={selectedPermisos.includes(permiso.name)}
-                                        onChange={() => handlePermisoChange(permiso.name)}
-                                        className="h-4 w-4 text-blue-600 rounded focus:ring-blue-500"
-                                    />
-                                    <label 
-                                        htmlFor={`permiso-${permiso.id}`} 
-                                        className="ml-2 text-sm text-gray-700"
-                                    >
-                                        {permiso.name}
-                                    </label>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            {Object.entries(getGroupedPermissions()).map(([category, categoryPermisos]) => (
+                                <div key={category} className="border rounded-lg p-3">
+                                    <h5 className="text-md font-medium text-gray-700 mb-3 capitalize border-b pb-2">
+                                        {category}
+                                    </h5>
+                                    <div className="space-y-2 row">
+                                        {categoryPermisos.map((permiso) => (
+                                            <div 
+                                                key={permiso.id} 
+                                                className="flex items-center p-2 hover:bg-gray-50 rounded col-md-4"
+                                            >
+                                                <input
+                                                    type="checkbox"
+                                                    id={`permiso-${permiso.id}`}
+                                                    checked={selectedPermisos.includes(permiso.name)}
+                                                    onChange={() => handlePermisoChange(permiso.name)}
+                                                    className="h-4 w-4 text-blue-600 rounded focus:ring-blue-500"
+                                                />
+                                                <label 
+                                                    htmlFor={`permiso-${permiso.id}`} 
+                                                    className="ml-2 text-sm text-gray-700"
+                                                >
+                                                    {permiso.name}
+                                                </label>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
                             ))}
                         </div>
@@ -184,14 +201,15 @@ export const EditRol = ({ data }) => {
             )}
 
             <ContainerButton>
-                <Button 
-                    type="submit" 
-                    name="submit" 
+            <button
+                    type={"submit"}
+                    name={"submit"}
                     disabled={response}
-                    className={`${response ? 'opacity-75' : ''}`}
+                    className="btn rounded-0 btn-lg"
+                    style={{ backgroundColor: "#070785", color: "white" }}
                 >
-                    <span>{response ? "Actualizando..." : "Actualizar"}</span>
-                </Button>
+                    <span>{response ? "Guardando..." : "Guardar"}</span>
+                </button>
                 {/* Botón de cancelar redirige a la vista de roles */}
                 <CancelButton disabled={response} onClick={handleCancel} />
             </ContainerButton>

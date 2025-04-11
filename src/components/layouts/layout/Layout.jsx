@@ -90,7 +90,7 @@ const Layout = ({ children }) => {
                         onClick={closeSidebar}
                       />
                     )}
-                    {hasPermission("ver-unidades") && (
+                    {hasPermission("ver-unidades-academicas") && (
                       <MenuButton
                         path={"/administracion/unit"}
                         label={"Unidades"}

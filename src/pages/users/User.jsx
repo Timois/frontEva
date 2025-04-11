@@ -7,6 +7,7 @@ import { ButtonAssign } from "./ButtonAssign"
 import { ModalAsign } from "./ModalAsign"
 import ModalEdit from "./ModalEdit"
 import { CareerContext } from "../../context/CareerProvider"
+import CheckPermissions from "../../routes/CheckPermissions"
 
 export const User = () => {
     const { personas, setPersonas } = useContext(PersonaContext)
@@ -70,7 +71,9 @@ export const User = () => {
                                     </td>
                                     <td>{persona.status}</td>
                                     <td>
-                                        <ButtonEdit idEditar={idEditar} onEditClick={() => handleEditClick(persona)} />
+                                        <CheckPermissions requiredPermission="editar-usuarios">
+                                            <ButtonEdit idEditar={idEditar} onEditClick={() => handleEditClick(persona)} />
+                                        </CheckPermissions>
                                     </td>
                                 </tr>
                             ))
@@ -84,8 +87,10 @@ export const User = () => {
                     </tbody>
                 </table>
                 <ModalAsign modalId={modalAsign} title="Asignar carrera" data={selectedPersona} />
-                <ModalEdit idEditar={idEditar} title="Editar Usuario" data={selectedPersona} />
+                <CheckPermissions requiredPermission="editar-usuarios">
+                    <ModalEdit idEditar={idEditar} title="Editar Usuario" data={selectedPersona} />
+                </CheckPermissions>
             </div>
-        </div>
+        </div >
     )
 }

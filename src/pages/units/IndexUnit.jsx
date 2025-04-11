@@ -11,7 +11,7 @@ export const IndexUnit = () => {
 
   return (
     <div className='m-3 p-3'>
-      <CheckPermissions requiredPermission={"crear-unidades"}>
+      <CheckPermissions requiredPermission="crear-unidades-academicas">
         <div className="d-flex justify-content-center">
           <ButtonAdd modalId={modalId} />
         </div>
@@ -19,7 +19,7 @@ export const IndexUnit = () => {
       <div className='d-flex justify-content-center'>
         <Unidad />
       </div>
-      <CheckPermissions requiredPermission={"crear-unidades"}>
+      <CheckPermissions requiredPermission={"crear-unidades-academicas"}>
         <ModalRegister modalId={modalId} title="Registrar Carrera" />
       </CheckPermissions>
     </div>

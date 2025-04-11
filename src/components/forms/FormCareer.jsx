@@ -53,20 +53,30 @@ export const FormCareer = () => {
         formData.append("type", data.type);
         if (data.unit_id) formData.append("unit_id", data.unit_id);
 
-        const response = await postApi("careers/save", formData);
-        setResponse(false);
-
-        if (response.status === 422) {
-            for (const key in response.data.errors) {
-                setError(key, { type: "custom", message: response.data.errors[key][0] });
+        try {
+            const response = await postApi("careers/save", formData);
+            
+            if (response.status === 422) {
+                for (const key in response.data.errors) {
+                    setError(key, { type: "custom", message: response.data.errors[key][0] });
+                }
+                return;
             }
-            return;
+
+            getData();
+            customAlert("Carrera Guardada", "success");
+            closeFormModal("registroCarrera");
+            resetForm();
+        } catch (error) {
+            if (error.response?.status === 403) {
+                customAlert("No tienes permisos para realizar esta acción", "error");
+                closeFormModal("registroCarrera");
+            } else {
+                customAlert(error.response?.data.errors?.name?.[0] || "Error al guardar la carrera", "error");
+            }
+        } finally {
+            setResponse(false);
         }
-        // addCareer(response);
-        getData()
-        customAlert("Carrera Guardada", "success");
-        closeFormModal("registroCarrera");
-        resetForm();
     };
 
     const resetForm = () => {

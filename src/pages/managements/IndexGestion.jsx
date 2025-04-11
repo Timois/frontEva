@@ -5,22 +5,26 @@ import ButtonAdd from './ButtonAdd'
 import { ModalRegister } from './ModalRegister'
 import { ModalExtension } from './ModalExtension'
 import ButtonAddExtension from './ButtonAddExtension'
+import CheckPermissions from '../../routes/CheckPermissions'
 
 export const IndexGestion = () => {
   const modalId = "resgistroGestion"
   const modalIdE = "registrarextension"
   return (
     <div className='p-3 m-3'>
-      <div className="d-flex justify-content-center">
-        <ButtonAdd modalIdG={modalId} />
-      </div>
+      <CheckPermissions requiredPermission="crear-gestiones">
+        <div className="d-flex justify-content-center">
+          <ButtonAdd modalIdG={modalId} />
+        </div>
+      </CheckPermissions>
       <div>
         <Gestiones />
       </div>
-      <ModalRegister modalId={modalId} title="Registrar Gestion Academica" />
-      <div>
-        <ModalExtension modalId={modalIdE} title="Crear Extension Academica" />
-      </div>
+      <CheckPermissions requiredPermission="crear-gestiones">
+        <div>
+          <ModalRegister modalId={modalId} title="Registrar Gestion Academica" />
+        </div>
+      </CheckPermissions>
     </div>
 
   )

@@ -9,7 +9,6 @@ import { ContainerInput } from "../login/ContainerInput";
 import { Input } from "../login/Input";
 import { Validate } from "./components/Validate";
 import { ContainerButton } from "../login/ContainerButton";
-import { Button } from "../login/Button";
 import CancelButton from "./components/CancelButon";
 import { useNavigate } from "react-router-dom"; // Importar useNavigate
 import { useFetchPermission } from "../../hooks/fetchPermissions";
@@ -20,16 +19,16 @@ export const FormRol = () => {
     const [response, setResponse] = useState(false);
     const { permisos, getData } = useFetchPermission();
     const [selectedPermisos, setSelectedPermisos] = useState([]);
-    const { 
-        control, 
-        handleSubmit, 
-        reset, 
+    const {
+        control,
+        handleSubmit,
+        reset,
         formState: { errors },
-        setError 
-    } = useForm({ 
-        resolver: zodResolver(RolSchema) 
+        setError
+    } = useForm({
+        resolver: zodResolver(RolSchema)
     });
-    
+
     useEffect(() => {
         getData();
     }, [getData]);
@@ -44,32 +43,32 @@ export const FormRol = () => {
     };
 
     const handlePermisoChange = (permisoName) => {
-        setSelectedPermisos(prev => 
+        setSelectedPermisos(prev =>
             prev.includes(permisoName)
                 ? prev.filter(name => name !== permisoName)
                 : [...prev, permisoName]
         );
     };
 
-    const allPermisosSelected = permisos?.length > 0 && 
-                               selectedPermisos.length === permisos.length;
+    const allPermisosSelected = permisos?.length > 0 &&
+        selectedPermisos.length === permisos.length;
 
     const onSubmit = async (data) => {
         setResponse(true);
 
         const formData = {
             name: data.name,
-            permissions: selectedPermisos 
+            permissions: selectedPermisos
         };
 
         try {
             const response = await postApi("roles/save", formData);
-            
+
             if (response.status === 422) {
                 for (const key in response.data.errors) {
-                    setError(key, { 
-                        type: "custom", 
-                        message: response.data.errors[key][0] 
+                    setError(key, {
+                        type: "custom",
+                        message: response.data.errors[key][0]
                     });
                 }
                 return;
@@ -118,11 +117,11 @@ export const FormRol = () => {
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <ContainerInput>
-                <Input 
-                    name="name" 
-                    control={control} 
-                    type="text" 
-                    placeholder="Ingrese un rol" 
+                <Input
+                    name="name"
+                    control={control}
+                    type="text"
+                    placeholder="Ingrese un rol"
                 />
                 <Validate error={errors.name} />
             </ContainerInput>
@@ -137,8 +136,8 @@ export const FormRol = () => {
                             onChange={(e) => handleSelectAll(e.target.checked)}
                             className="h-4 w-4 text-blue-600 rounded focus:ring-blue-500"
                         />
-                        <label 
-                            htmlFor="select-all" 
+                        <label
+                            htmlFor="select-all"
                             className="ml-2 text-sm font-medium text-gray-700"
                         >
                             {allPermisosSelected ? "Deseleccionar todos" : "Seleccionar todos"}
@@ -153,11 +152,11 @@ export const FormRol = () => {
                                     <h5 className="text-md font-medium text-gray-700 mb-3 capitalize border-b pb-2">
                                         {category}
                                     </h5>
-                                    <div className="space-y-2">
+                                    <div className="space-y-2 row">
                                         {categoryPermisos.map((permiso) => (
-                                            <div 
-                                                key={permiso.id} 
-                                                className="flex items-center p-2 hover:bg-gray-50 rounded"
+                                            <div
+                                                key={permiso.id}
+                                                className="flex items-center p-2 hover:bg-gray-50 rounded col-md-4"
                                             >
                                                 <input
                                                     type="checkbox"
@@ -166,8 +165,8 @@ export const FormRol = () => {
                                                     onChange={() => handlePermisoChange(permiso.name)}
                                                     className="h-4 w-4 text-blue-600 rounded focus:ring-blue-500"
                                                 />
-                                                <label 
-                                                    htmlFor={`permiso-${permiso.id}`} 
+                                                <label
+                                                    htmlFor={`permiso-${permiso.id}`}
                                                     className="ml-2 text-sm text-gray-700"
                                                 >
                                                     {permiso.name}
@@ -183,15 +182,19 @@ export const FormRol = () => {
             )}
 
             <ContainerButton>
-                <Button 
-                    type="submit" 
-                    name="submit" 
+                <button
+                    type={"submit"}
+                    name={"submit"}
                     disabled={response}
-                    className={`${response ? 'opacity-75' : ''}`}
+                    className="btn rounded-0 btn-lg"
+                    style={{ backgroundColor: "#070785", color: "white" }}
                 >
                     <span>{response ? "Guardando..." : "Guardar"}</span>
-                </Button>
-                <CancelButton disabled={response} onClick={handleCancel} />
+                </button>
+                <CancelButton
+                    disabled={response}
+                    onClick={handleCancel}
+                /> 
             </ContainerButton>
         </form>
     );
