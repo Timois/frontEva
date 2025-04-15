@@ -5,6 +5,7 @@ import { GestionContext } from '../../context/GestionProvider'
 import { useFetchGestion } from '../../hooks/fetchGestion'
 import ButtonEdit from "./ButtonEdit"
 import { ModalEdit } from "./ModalEdit"
+import CheckPermissions from "../../routes/CheckPermissions"
 
 export const Gestiones = () => {
   const { gestions, setGestions } = useContext(GestionContext)
@@ -39,7 +40,9 @@ export const Gestiones = () => {
                 <td>{gestion.initial_date}</td>
                 <td>{gestion.end_date}</td>
                 <td>
-                  <ButtonEdit idEditar={idEditar} onEditClick={() => handleEditClick(gestion)}/>
+                  <CheckPermissions requiredPermission="editar-gestiones">
+                    <ButtonEdit idEditar={idEditar} onEditClick={() => handleEditClick(gestion)} />
+                  </CheckPermissions>
                 </td>
               </tr>
             ))
@@ -52,7 +55,9 @@ export const Gestiones = () => {
           )}
         </tbody>
       </table>
-      <ModalEdit idEditar={idEditar} data={selectedGestion} title="Editar Gestion"/>
+      <CheckPermissions requiredPermission="editar-gestiones">
+        <ModalEdit idEditar={idEditar} data={selectedGestion} title="Editar Gestion" />
+      </CheckPermissions>
     </>
   )
 }

@@ -7,6 +7,7 @@ import { ViewPeriod } from "../periodsAsign/ViewPeriod";
 import { ModalViewManagementPeriod } from "../periodsAsign/ModalViewManagementPeriod";
 import { AssignManagement } from "../AssignManagement"
 import { ModalRegisterManagement } from "../ModalRegisterManagement";
+import CheckPermissions from "../../../routes/CheckPermissions";
 
 const capitalizeTitle = (text) => {
     if (!text) return "";
@@ -78,10 +79,12 @@ export const CareerAssigns = ({ data }) => {
                 <div className="alert alert-warning text-center">
                     No hay gestiones asignadas. ¿Desea asignar una gestion?<br />
                 </div>
-                <div className="text-center mt-3">
-                    <AssignManagement />
-                    <ModalRegisterManagement id={modalIdManagement} title="Asignar Gestion" />
-                </div>
+                <CheckPermissions requiredPermission="asignar-gestiones">
+                    <div className="text-center mt-3">
+                        <AssignManagement />
+                        <ModalRegisterManagement id={modalIdManagement} title="Asignar Gestion" />
+                    </div>
+                </CheckPermissions>
             </div>
         );
     }
@@ -154,24 +157,30 @@ export const CareerAssigns = ({ data }) => {
 
                             </div>
                             <div className="d-flex gap-1 justify-content-center mt-3">
-                                <button
-                                    className="btn btn-primary"
-                                    data-bs-toggle="modal"
-                                    data-bs-target={`#asignarPeriodo`}
-                                    onClick={() => setModalData(gestion['academic_management_career_id'], "asignarPeriodo")}
-                                >
-                                    Asignar Periodo
-                                </button>
-                                <ViewPeriod handleClick={() => {
-                                    setModalData(gestion['academic_management_career_id'], "verPeriodo");
-                                    // console.log(gestion);
-                                }} />
+                                <CheckPermissions requiredPermission="asignar-periodos">
+                                    <button
+                                        className="btn btn-primary"
+                                        data-bs-toggle="modal"
+                                        data-bs-target={`#asignarPeriodo`}
+                                        onClick={() => setModalData(gestion['academic_management_career_id'], "asignarPeriodo")}
+                                    >
+                                        Asignar Periodo
+                                    </button>
+                                </CheckPermissions>
+                                <CheckPermissions requiredPermission="ver-periodos-asignados">
+                                    <ViewPeriod handleClick={() => {
+                                        setModalData(gestion['academic_management_career_id'], "verPeriodo");
+                                        // console.log(gestion);
+                                    }} />
+                                </CheckPermissions>
                             </div>
                         </div>
                     </div>
                 ))}
             </div>
-            <ModalViewManagementPeriod ModalId="verPeriodo" title="Periodos" />
+            <CheckPermissions requiredPermission="ver-periodos-asignados">
+                <ModalViewManagementPeriod ModalId="verPeriodo" title="Periodos" />
+            </CheckPermissions>
         </div>
     );
 };

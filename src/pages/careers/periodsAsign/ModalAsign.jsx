@@ -14,7 +14,7 @@ export const ModalAsign = ({ id }) => {
   const { getData } = useFetchPeriodAssign()
   
   useEffect(() => {
-    if (periods.lenght === 0)
+    if (periods.length === 0)
       return
     const transformedPeriods = periods.map((periodo) => ({
       value: periodo.id,
@@ -28,7 +28,7 @@ export const ModalAsign = ({ id }) => {
   }, [periods])
   
   useEffect(() => {
-    if (academic_mangement_careers.lenght === 0){
+    if (academic_mangement_careers.length === 0){
       getData()
       return
     }

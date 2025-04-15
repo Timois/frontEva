@@ -66,7 +66,9 @@ export const User = () => {
                                     <td>
                                         {getCareerName(persona.career_id)}
                                         {!persona.career_id && (
-                                            <ButtonAssign modalId={modalAsign} persona={persona} />
+                                            <CheckPermissions requiredPermission="asignar-carreras-a-usuarios">
+                                                <ButtonAssign modalId={modalAsign} persona={persona} />
+                                            </CheckPermissions>
                                         )}
                                     </td>
                                     <td>{persona.status}</td>
@@ -86,7 +88,9 @@ export const User = () => {
                         )}
                     </tbody>
                 </table>
-                <ModalAsign modalId={modalAsign} title="Asignar carrera" data={selectedPersona} />
+                <CheckPermissions requiredPermission="asignar-carreras-a-usuarios">
+                    <ModalAsign modalId={modalAsign} title="Asignar carrera" data={selectedPersona} />
+                </CheckPermissions>
                 <CheckPermissions requiredPermission="editar-usuarios">
                     <ModalEdit idEditar={idEditar} title="Editar Usuario" data={selectedPersona} />
                 </CheckPermissions>

@@ -13,7 +13,6 @@ export const StudentLogin = () => {
                     <FormLogin isStudentLogin={true}/>
                 </Card>
             </div>
-
         </div>
     )
 }

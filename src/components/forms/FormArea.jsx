@@ -18,7 +18,7 @@ export const FormArea = () => {
 
     // Obtener el career_id desde el localStorage
     const user = JSON.parse(localStorage.getItem('user'));
-    const career_id = user?.carrera;
+    const career_id = user?.career_id;
 
     // Hook de formularios con validaciones
     const {

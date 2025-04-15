@@ -39,7 +39,7 @@ const handleTokenExpiration = () => {
   
   // Redirigir según el tipo de usuario
   setTimeout(() => {
-    window.location.href = isStudent ? "/estudiantes" : "/administracion";
+    window.location.href = isStudent ? "/estudiantes" : "/login";
     isRedirecting = false;
   }, 100);
 };

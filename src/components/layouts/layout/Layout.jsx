@@ -19,6 +19,11 @@ const Layout = ({ children }) => {
   const { isSidebarOpen, toggleSidebar, closeSidebar } = useSidebar();
   const navigate = useNavigate();
   const isStudent = !!student;
+  const { isLoading } = useContext(PermissionsContext);
+
+  if (isLoading) {
+    return <div className="text-center mt-10">Cargando Layout...</div>;
+  }
 
   const hasPermission = (perm) => permissions.includes(perm);
   const logout = () => {
@@ -118,12 +123,11 @@ const Layout = ({ children }) => {
                         label={"Periodos"}
                         onClick={closeSidebar}
                       />
-                    )}        
+                    )}
                   </div>
                 </div>
               </div>
             )}
-
 
             {/* DIRECTOR */}
             {(
@@ -136,11 +140,21 @@ const Layout = ({ children }) => {
                 <div id="collapseTwo" className="accordion-collapse collapse" aria-labelledby="headingTwo">
                   <div className="accordion-body">
                     <MenuButton path={"/administracion/home"} label={"Inicio"} onClick={closeSidebar} />
-                    <MenuButton path={"/administracion/areas"} label={"Areas"} onClick={closeSidebar} />
-                    <MenuButton path={"/administracion/estudiantes"} label={"Estudiantes"} onClick={closeSidebar} />
-                    <MenuButton path={"/administracion/questions"} label={"Preguntas"} onClick={closeSidebar} />
-                    <MenuButton path={"/administracion/examns"} label={"Examenes"} onClick={closeSidebar} />
-                    <MenuButton path={"/administracion/answers"} label={"Respuestas"} onClick={closeSidebar} />
+                    {hasPermission("ver-areas") && (
+                      <MenuButton path={"/administracion/areas"} label={"Areas"} onClick={closeSidebar} />
+                    )}
+                    {hasPermission("ver-postulantes") && (
+                      <MenuButton path={"/administracion/estudiantes"} label={"Estudiantes"} onClick={closeSidebar} />
+                    )}
+                    {hasPermission("ver-preguntas") && (
+                      <MenuButton path={"/administracion/questions"} label={"Preguntas"} onClick={closeSidebar} />
+                    )}
+                    {hasPermission("ver-examenes") && (
+                      <MenuButton path={"/administracion/examns"} label={"Examenes"} onClick={closeSidebar} />
+                    )}
+                    {hasPermission("ver-respuestas") && (
+                      <MenuButton path={"/administracion/answers"} label={"Respuestas"} onClick={closeSidebar} />
+                    )}
                   </div>
                 </div>
               </div>
@@ -157,11 +171,21 @@ const Layout = ({ children }) => {
                 <div id="collapseThree" className="accordion-collapse collapse" aria-labelledby="headingThree">
                   <div className="accordion-body">
                     <MenuButton path={"/administracion/home"} label={"Inicio"} onClick={closeSidebar} />
-                    <MenuButton path={"/administracion/areas"} label={"Areas"} onClick={closeSidebar} />
-                    <MenuButton path={"/administracion/estudiantes"} label={"Estudiantes"} onClick={closeSidebar} />
-                    <MenuButton path={"/administracion/questions"} label={"Preguntas"} onClick={closeSidebar} />
-                    <MenuButton path={"/administracion/examns"} label={"Examen"} onClick={closeSidebar} />
-                    <MenuButton path={"/administracion/results"} label={"Resultados"} onClick={closeSidebar} />
+                    {hasPermission("ver-areas") && (
+                      <MenuButton path={"/administracion/areas"} label={"Areas"} onClick={closeSidebar} />
+                    )}
+                    {hasPermission("ver-postulantes") && (
+                      <MenuButton path={"/administracion/estudiantes"} label={"Estudiantes"} onClick={closeSidebar} />
+                    )}
+                    {hasPermission("ver-preguntas") && (
+                      <MenuButton path={"/administracion/questions"} label={"Preguntas"} onClick={closeSidebar} />
+                    )}
+                    {hasPermission("ver-examenes") && (
+                      <MenuButton path={"/administracion/examns"} label={"Examenes"} onClick={closeSidebar} />
+                    )}
+                    {hasPermission("ver-respuestas") && (
+                      <MenuButton path={"/administracion/answers"} label={"Respuestas"} onClick={closeSidebar} />
+                    )}
                   </div>
                 </div>
               </div>

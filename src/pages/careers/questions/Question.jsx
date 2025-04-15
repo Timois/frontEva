@@ -10,6 +10,7 @@ import { MdAddPhotoAlternate } from "react-icons/md";
 import { ModalImport } from "./imports/ModalImport";
 import { ButtonImport } from "./imports/ButtonImport";
 import { use } from "react";
+import CheckPermissions from "../../../routes/CheckPermissions";
 const urlimages = import.meta.env.VITE_URL_IMAGES;
 
 export const Question = () => {
@@ -56,7 +57,9 @@ export const Question = () => {
                 <div className="table-responsive">
                     <div className="d-flex justify-content-center my-3">
                         <h2 className="text-warning">Area</h2>
-                        <ButtonImport modalIdImp={IdImport}/>
+                        <CheckPermissions requiredPermission="importar-preguntas">
+                            <ButtonImport modalIdImp={IdImport} />
+                        </CheckPermissions>
                     </div>
                     <table className="table table-dark table-striped table-bordered border border-warning text-wrap">
                         <thead>
@@ -98,8 +101,9 @@ export const Question = () => {
                                         </td>
                                         <td>{question.type}</td>
                                         <td>
-                                            <ButtonEdit idEditar={idEditar} onEditClick={() => handleEditClick(question)} />
-
+                                            <CheckPermissions requiredPermission="editar-preguntas">
+                                                <ButtonEdit idEditar={idEditar} onEditClick={() => handleEditClick(question)} />
+                                            </CheckPermissions>
                                         </td>
                                     </tr>
                                 ))
@@ -136,7 +140,9 @@ export const Question = () => {
                     </div>
                 )}
             </div>
-            <ModalEdit idEditar={idEditar} data={selectedQuestion} title="Editar Pregunta" />
+            <CheckPermissions requiredPermission="editar-preguntas">
+                <ModalEdit idEditar={idEditar} data={selectedQuestion} title="Editar Pregunta" />
+            </CheckPermissions>
             <ModalImport modalIdImp={IdImport} title={"Importar Preguntas"} areaId={id} />
             {modalImage && (
                 <div className="modal fade show d-block" tabIndex="-1" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>

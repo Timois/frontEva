@@ -24,8 +24,7 @@ export const FormImportStudents = () => {
     });
 
     const onSubmit = async (data) => {
-        setResponse(true);
-        console.log("Archivo seleccionado:");
+        setResponse(true)
         // Validar si el archivo existe
         if (!data.file) {
             setError("file", { type: "custom", message: "Debes subir un archivo Excel válido" });
@@ -62,7 +61,6 @@ export const FormImportStudents = () => {
     };
 
     const handleFile = (file) => {
-        console.log("Archivo seleccionado en handleFile:", file);
         
         if (file) {
             if (file.name.match(/\.(xlsx|xls|csv)$/i)) {

@@ -1,10 +1,9 @@
-import { useContext } from "react";
-import { useNavigate} from "react-router-dom";
-import { AreaContext } from "../../../context/AreaProvider";
+/* eslint-disable react/prop-types */
 
-export const ViewAreas = () => {
-  const { areas } = useContext(AreaContext);
-  const navigate = useNavigate()// Obtenemos el career_id de los parámetros
+import { useNavigate } from "react-router-dom";
+
+export const ViewAreas = ({ areas }) => {
+  const navigate = useNavigate();
   
   return (
     <div className="container-fluid p-0">

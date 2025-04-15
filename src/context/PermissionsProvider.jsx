@@ -11,18 +11,30 @@ const loadPermissions = () => {
 export const PermissionsContext = createContext();
 
 export const PermissionsProvider = ({ children }) => {
-  // Inicializar los permissions cargándolos del localStorage
-  const [permissions, setpermissions] = useState(loadPermissions());
+  const [permissions, setpermissions] = useState([]);
   const [permisos, setPermisos] = useState([]);
-  // Sincronizar los permissions con el localStorage cuando cambian
+  const [isLoading, setIsLoading] = useState(true); // ⬅️ nuevo estado
+
+  useEffect(() => {
+    // Simular carga o simplemente cargar directamente
+    const stored = loadPermissions();
+    setpermissions(stored);
+    setIsLoading(false); // ⬅️ ya terminó de cargar
+  }, []);
+
   useEffect(() => {
     if (permissions.length > 0) {
       localStorage.setItem("permissions", JSON.stringify(permissions));
     }
   }, [permissions]);
 
-
-  const values = { permissions, setpermissions, permisos, setPermisos};
+  const values = {
+    permissions,
+    setpermissions,
+    permisos,
+    setPermisos,
+    isLoading, // ⬅️ pasamos isLoading al contexto
+  };
 
   return (
     <PermissionsContext.Provider value={values}>

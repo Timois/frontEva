@@ -9,7 +9,7 @@ import CheckPermissions from '../../routes/CheckPermissions'
 
 export const IndexGestion = () => {
   const modalId = "resgistroGestion"
-  const modalIdE = "registrarextension"
+  
   return (
     <div className='p-3 m-3'>
       <CheckPermissions requiredPermission="crear-gestiones">

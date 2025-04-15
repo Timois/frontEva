@@ -14,7 +14,7 @@ import { Button } from 'bootstrap'
 import CancelButton from './components/CancelButon'
 import PropTypes from 'prop-types'
 import { Validate } from './components/Validate'
-import { DateInput} from '../forms/components/DateInput'
+import { DateInput } from '../forms/components/DateInput'
 // eslint-disable-next-line react/prop-types
 export const AsignPeriod = ({ data }) => {
   const { control, handleSubmit, reset, formState: { errors }, setError } = useForm({

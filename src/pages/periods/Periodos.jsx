@@ -4,6 +4,7 @@ import { PeriodContext } from '../../context/PeriodProvider'
 import { useFetchPeriod } from '../../hooks/fetchPeriod'
 import ButtonEdit from './ButtonEdit'
 import ModalEdit from './ModalEdit'
+import CheckPermissions from '../../routes/CheckPermissions'
 
 
 export const Periodos = () => {
@@ -38,7 +39,9 @@ export const Periodos = () => {
                 <td>{period.period}</td>
                 <td>{period.level}</td>
                 <td>
-                  <ButtonEdit idEditar={idEditar} onEditClick={() => handleEditClick(period)} />
+                  <CheckPermissions requiredPermission="editar-periodos">
+                    <ButtonEdit idEditar={idEditar} onEditClick={() => handleEditClick(period)} />
+                  </CheckPermissions>
                 </td>
               </tr>
             ))
@@ -51,7 +54,9 @@ export const Periodos = () => {
           )}
         </tbody>
       </table>
-      <ModalEdit idEditar={idEditar} data={selectedPeriod} title="Editar Periodo"/>
+      <CheckPermissions requiredPermission="editar-periodos">
+        <ModalEdit idEditar={idEditar} data={selectedPeriod} title="Editar Periodo" />
+      </CheckPermissions>
     </>
   )
 }

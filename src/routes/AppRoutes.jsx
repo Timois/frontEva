@@ -51,7 +51,7 @@ export const AppRoutes = () => {
               <IndexCareer />
             </PermissionsGuard>} />
           <Route path="administracion/careers/:id/assigns" element={
-            <PermissionsGuard requiredPermission={"ver-asignaciones"}>
+            <PermissionsGuard requiredPermission={"ver-gestiones-asignadas"}>
               <IndexCareerAssign />
             </PermissionsGuard>} />
           <Route path="administracion/gestion" element={
@@ -63,7 +63,7 @@ export const AppRoutes = () => {
               <IndexPeriod />
             </PermissionsGuard>} />
           <Route path="administracion/estudiantes" element={
-            <PermissionsGuard requiredPermission={"ver-estudiantes"}>
+            <PermissionsGuard requiredPermission={"ver-postulantes"}>
               <IndexStudents />
             </PermissionsGuard>} />
           <Route path="administracion/areas" element={
@@ -73,13 +73,25 @@ export const AppRoutes = () => {
           <Route path="administracion/areas/:id/questions" element={
             <PermissionsGuard requiredPermission={"ver-preguntas"}>
               <Question />
-            </PermissionsGuard>} />
+            </PermissionsGuard>
+          } />
+          <Route path="administracion/questions" element={
+            <PermissionsGuard requiredPermission={"ver-preguntas"}>
+              <IndexQuestions />
+            </PermissionsGuard>
+          } />
           <Route path="administracion/imports" element={
             <PermissionsGuard requiredPermission={"ver-importaciones"}>
               <IndexImports />
             </PermissionsGuard>} />
-          <Route path="administracion/questions" element={<IndexQuestions />} />
-          <Route path="administracion/answers" element={<IndexAnswers />} />
+          <Route path="administracion/questions" element={
+            <PermissionsGuard requiredPermission={"ver-preguntas"}>
+              <IndexQuestions />
+            </PermissionsGuard>} />
+          <Route path="administracion/answers" element={
+            <PermissionsGuard requiredPermission={"ver-respuestas"}>
+              <IndexAnswers />
+            </PermissionsGuard>} />
           <Route path="administracion/examns" element={
             <PermissionsGuard requiredPermission={"ver-examenes"}>
               <IndexExamns />

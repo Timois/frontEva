@@ -3,18 +3,23 @@ import React from 'react'
 import { ButtonImport } from './ButtonImport'
 import { ModalImport } from './ModalImport'
 import { StudentsList } from './StudentsList'
+import CheckPermissions from '../../routes/CheckPermissions'
 
 export const IndexStudents = () => {
   const modalImport = "importarEstudiantes"
   return (
     <div>
-       <div className="d-flex justify-content-center">
-        <ButtonImport modalId={modalImport}/>
+      <CheckPermissions requiredPermission="importar-postulantes">
+        <div className="d-flex justify-content-center">
+          <ButtonImport modalId={modalImport} />
         </div>
-        <div className='w-100 d-flex justify-content-center'>
+      </CheckPermissions>
+      <div className='w-100 d-flex justify-content-center'>
         <StudentsList />
-        </div>
-      <ModalImport ModalId={modalImport} title={"Importar Estudiantes"}/>
+      </div>
+      <CheckPermissions requiredPermission="importar-postulantes">
+        <ModalImport ModalId={modalImport} title={"Importar Estudiantes"} />
+      </CheckPermissions>
     </div>
   )
 }

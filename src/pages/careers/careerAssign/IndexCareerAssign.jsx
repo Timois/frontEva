@@ -4,6 +4,7 @@ import { CareerAssigns } from "./CareerAssigns"
 import { CareerAssignContext } from "../../../context/CareerAssignProvider"
 import { useParams } from "react-router-dom"
 import { ModalRegisterManagementPeriod } from "../ModalRegisterManagementPeriod"
+import CheckPermissions from "../../../routes/CheckPermissions"
 
 
 export const IndexCareerAssign = () => {
@@ -20,8 +21,12 @@ export const IndexCareerAssign = () => {
     return (
         <div className="m-3 p-3">
             <div className="w-100 d-flex justify-content-center">
-                <CareerAssigns data={careerAssignments} />
-                <ModalRegisterManagementPeriod id={modalIdManagementPeriod} />
+                <CheckPermissions requiredPermission="ver-gestiones-asignadas">
+                    <CareerAssigns data={careerAssignments} />
+                </CheckPermissions>
+                <CheckPermissions requiredPermission="asignar-periodos">
+                    <ModalRegisterManagementPeriod id={modalIdManagementPeriod} />
+                </CheckPermissions>
             </div>
         </div>
     )

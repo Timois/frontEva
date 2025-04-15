@@ -53,7 +53,7 @@ export const StudentsList = () => {
             ) : (
               <tr>
                 <td colSpan="7" className="text-center">
-                  No hay Usuarios registrados.
+                  No hay Estudiantes importados.
                 </td>
               </tr>
             )}
