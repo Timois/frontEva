@@ -1,10 +1,5 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
-import { useState, useEffect, useContext } from "react";
-import { Button } from "../login/Button";
-import CancelButton from "./components/CancelButon";
-import { ContainerButton } from "../login/ContainerButton";
-import { ContainerInput } from "../login/ContainerInput";
 import { closeFormModal, customAlert } from "../../utils/domHelper";
 import { postApi } from "../../services/axiosServices/ApiService";
 import { InputFile } from "./components/InputFile";
@@ -12,171 +7,110 @@ import { ImportExcelQuestionsContext } from "../../context/ImportExcelQuestionsP
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ImportQuestionsSchema } from "../../models/schemas/ImportQuestionsSchema";
+import { useParams } from "react-router-dom";
+import { useContext, useState } from "react";
+import { ContainerInput } from "../login/ContainerInput";
+import { ContainerButton } from "../login/ContainerButton";
+import { Button } from "../login/Button";
+import CancelButton from "./components/CancelButon";
 
-export const FileUpload = ({ area_id }) => {
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [isUploading, setIsUploading] = useState(false);
-  const [fileInputAccept, setFileInputAccept] = useState(".xlsx,.xls,.csv,.zip");
-  const { addImportQuestion } = useContext(ImportExcelQuestionsContext);
-  
-  const { control, handleSubmit, reset, formState: { errors }, setValue } = 
-    useForm({ 
+export const FileUpload = () => {
+  const { id } = useParams();
+  const area_id = id;
+  const { addImportExcel, importExcelQuestions } = useContext(ImportExcelQuestionsContext);
+  const [response, setResponse] = useState(false);
+
+  const { control, handleSubmit, reset, formState: { errors }, setError } =
+    useForm({
       resolver: zodResolver(ImportQuestionsSchema),
-      defaultValues: {
-        importOption: "",
-        file: null
-      }
     });
 
-  // Actualizar el tipo de archivo aceptado según la opción seleccionada
-  useEffect(() => {
-    if (control._formValues.importOption === "withImages") {
-      setFileInputAccept(".xlsx,.xls,.csv,.zip");
-    } else if (control._formValues.importOption === "withoutImages") {
-      setFileInputAccept(".xlsx,.xls,.csv");
-    } else {
-      setFileInputAccept(".xlsx,.xls,.csv,.zip");
-    }
-  }, [control._formValues.importOption]);
-
-  const handleFileChange = (file) => {
-    if (file) {
-      console.log("✅ Archivo seleccionado:", file);
-      setSelectedFile(file);
-      setValue("file", file); // Si estás usando React Hook Form
-    } else {
-      console.warn("⚠ No se seleccionó ningún archivo.");
-    }
-  };
-
-  const resetForm = () => {
-    reset();
-    setSelectedFile(null);
-    setIsUploading(false);
-  };
-
   const onSubmit = async (data) => {
-    if (!area_id) {
-      customAlert("El ID de área es obligatorio.", "error");
-      return;
-    }
-    
-    if (!selectedFile) {
-      customAlert("Por favor, selecciona un archivo.", "warning");
-      return;
-    }
-
+    setResponse(true);
     const formData = new FormData();
-    formData.append("file", selectedFile);
+    formData.append("file_name", data.file_name[0]);
     formData.append("area_id", area_id);
-
-    console.log("Subiendo archivo con los siguientes datos:", formData.get("file"));
+    formData.append("status", "completado");
 
     try {
-      setIsUploading(true);
-      const response = data.importOption === "withImages"
-        ? await postApi("excel_import_image/savezip", formData)
-        : await postApi("excel_import/save", formData);
-
-      setIsUploading(false);
-      addImportQuestion(response);
-      customAlert("Excel importado correctamente", "success");
+      const response = await postApi("excel_import/save", formData);
+      const success = response?.data?.success;
+      // Si hay éxito, agregar las preguntas importadas al contexto
+      addImportExcel(success ?? [], data.importOption);
+      // Mostrar mensaje de éxito
+      customAlert("📥 Importación finalizada. Revisa el resumen más abajo.", "success");
+      // Cerrar modal y reiniciar formulario
       closeFormModal("importExcel");
-      resetForm();
+      reset();
     } catch (error) {
-      setIsUploading(false);
-      console.error("Error al importar el Excel:", error);
-      customAlert("Error al importar el Excel", "error");
+      console.error("Error al importar preguntas:", error);
+      customAlert("❌ Error al importar preguntas", "error");
+      reset();
+    } finally {
+      setResponse(false);
     }
-  };
-
-  const handleCancel = () => {
-    resetForm();
-    closeFormModal("importExcel");
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      {/* Título */}
       <ContainerInput>
-        <h3 className="h5 mb-3">Opciones de importación</h3>
-      </ContainerInput>
-
-      {/* Opciones de importación */}
-      <ContainerInput>
-        <div className="d-flex gap-3">
-          {/* Radio para "Con imágenes" */}
-          <div>
-            <Controller
-              name="importOption"
-              control={control}
-              render={({ field }) => (
-                <>
-                  <input
-                    type="radio"
-                    id="withImages"
-                    {...field}
-                    value="withImages"
-                    checked={field.value === "withImages"}
-                  />
-                  <label htmlFor="withImages" className="ms-2">Con imágenes (.zip)</label>
-                </>
-              )}
-            />
-          </div>
-
-          {/* Radio para "Sin imágenes" */}
-          <div>
-            <Controller
-              name="importOption"
-              control={control}
-              render={({ field }) => (
-                <>
-                  <input
-                    type="radio"
-                    id="withoutImages"
-                    {...field}
-                    value="withoutImages"
-                    checked={field.value === "withoutImages"}
-                  />
-                  <label htmlFor="withoutImages" className="ms-2">Sin imágenes (.xlsx, .xls, .csv)</label>
-                </>
-              )}
-            />
-          </div>
-        </div>
-        {errors.importOption && (
-          <p className="text-danger">{errors.importOption.message}</p>
-        )}
-      </ContainerInput>
-
-      {/* Selección de archivo */}
-      <ContainerInput>
-        <label htmlFor="fileInput">Selecciona un archivo</label>
+        <label htmlFor="importOption">Tipo de importación:</label>
         <Controller
-          name="file"
+          name="importOption"
           control={control}
+          defaultValue=""
           render={({ field }) => (
-            <InputFile onChange={handleFileChange} accept={fileInputAccept} />
+            <select {...field}>
+              <option value="">Seleccione una opción</option>
+              <option value="withoutImages">Sin imágenes (Excel)</option>
+              <option value="withImages">Con imágenes (ZIP)</option>
+            </select>
           )}
         />
-        {selectedFile && <p className="mt-2 text-muted">Archivo seleccionado: {selectedFile.name}</p>}
-        {errors.file && (
-          <p className="text-danger">{errors.file.message}</p>
+        {errors.importOption && (
+          <p style={{ color: "red" }}>{errors.importOption.message}</p>
         )}
       </ContainerInput>
+      
+      <ContainerInput>
+        <Controller
+          name="file_name"
+          control={control}
+          defaultValue={[]}
+          render={({ field: { onChange, value }, fieldState: { error } }) => (
+            <InputFile
+              onChange={onChange}
+              value={value}
+              error={error}
+            />
+          )}
+        />
+      </ContainerInput>
 
-      {/* Botones */}
       <ContainerButton>
-        <Button
-          type="submit"
-          disabled={isUploading}
-          className="btn btn-primary"
-        >
-          {isUploading ? "Procesando..." : "Importar Archivo"}
+        <Button type="submit" disabled={response}>
+          {response ? "Importando..." : "Importar"}
         </Button>
-        <CancelButton onClick={handleCancel} className="btn btn-danger" />
+        <CancelButton />
       </ContainerButton>
+
+      {/* Mostrar resumen de importación */}
+      {Array.isArray(importExcelQuestions) && importExcelQuestions.length > 0 && (
+        <div style={{ marginTop: "1rem", background: "#f1f1f1", padding: "1rem", borderRadius: "8px" }}>
+          <h4>📊 Resumen de importación</h4>
+          <ul>
+            {importExcelQuestions.map((item, index) => (
+              <li key={index}>
+                {typeof item === "string" ? (
+                  <span>{item}</span>
+                ) : (
+                  <span>{item.message}</span>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </form>
   );
 };

@@ -7,25 +7,28 @@ import { Sidebar, SidebarOpenButton, MenuButton } from "./components";
 import { clearStorage, clearStorageStudent } from "../../../services/storage/clearStorage";
 import { useContext } from "react";
 import { UserContext } from "../../../context/UserProvider";
-import { MdLogout } from "react-icons/md";;
+import { MdLogout } from "react-icons/md";
 import { FaUserShield, FaQuestionCircle, FaUserGraduate } from "react-icons/fa";
 import { PermissionsContext } from "../../../context/PermissionsProvider";
-
+import { RolContext } from "../../../context/RolesProvider";
 
 const Layout = ({ children }) => {
-  const { user, storeUser } = useContext(UserContext);
-  const { permissions } = useContext(PermissionsContext);
-  const { student, storeStudent } = useContext(UserContext);
+  // Contexts
+  const { user, storeUser, student, storeStudent } = useContext(UserContext);
+  const { permissions, isLoading } = useContext(PermissionsContext);
+  const { userRoles, setUserRoles } = useContext(RolContext);
+  
+  // Hooks
   const { isSidebarOpen, toggleSidebar, closeSidebar } = useSidebar();
   const navigate = useNavigate();
+  
+  // Variables
   const isStudent = !!student;
-  const { isLoading } = useContext(PermissionsContext);
 
-  if (isLoading) {
-    return <div className="text-center mt-10">Cargando Layout...</div>;
-  }
-
+  // Helper functions
+  const hasRole = (role) => userRoles.includes(role.toLowerCase());
   const hasPermission = (perm) => permissions.includes(perm);
+
   const logout = () => {
     if (student) {
       clearStorageStudent();
@@ -34,9 +37,14 @@ const Layout = ({ children }) => {
     } else {
       clearStorage();
       storeUser(null);
+      setUserRoles([]);
       navigate("/login");
     }
   };
+
+  if (isLoading) {
+    return <div className="text-center mt-10">Cargando Layout...</div>;
+  }
 
   return (
     <div className="d-flex flex-column vh-100">
@@ -56,12 +64,12 @@ const Layout = ({ children }) => {
           <SidebarOpenButton onClick={toggleSidebar} />
         </div>
       </nav>
+
       <div className="d-flex flex-grow-1 overflow-hidden">
         <Sidebar isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar}>
           <div className="accordion w-100 p-3" id="accordionExample" style={{ backgroundColor: '#82e5ef' }}>
-
             {/* ADMIN */}
-            {hasPermission("ver-usuarios") && (
+            {hasRole('admin') && hasPermission("ver-usuarios") && (
               <div className="accordion-item" style={{ backgroundColor: '#e4f3bf' }}>
                 <h2 className="accordion-header" id="headingOne">
                   <button
@@ -130,7 +138,7 @@ const Layout = ({ children }) => {
             )}
 
             {/* DIRECTOR */}
-            {(
+            {hasRole('director') && (
               <div className="accordion-item" style={{ backgroundColor: '#e4f3bf' }}>
                 <h2 className="accordion-header" id="headingTwo">
                   <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
@@ -161,7 +169,7 @@ const Layout = ({ children }) => {
             )}
 
             {/* DOCENTE */}
-            {(
+            {hasRole('docente') && (
               <div className="accordion-item" style={{ backgroundColor: '#e4f3bf' }}>
                 <h2 className="accordion-header" id="headingThree">
                   <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
@@ -211,6 +219,7 @@ const Layout = ({ children }) => {
 
           </div>
         </Sidebar>
+        
         <div className="pt-4 flex-grow-1 overflow-auto">
           {children}
         </div>

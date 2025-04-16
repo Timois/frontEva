@@ -2,7 +2,7 @@
 import { FileUpload } from "../../../../components/forms/FileUpload"
 import { Card } from "../../../../components/login/Card"
 
-export const ModalImport = ({ modalIdImp, title, areaId }) => {
+export const ModalImport = ({ modalIdImp, title }) => {
   return (
     <div
       className="modal fade"
@@ -19,7 +19,7 @@ export const ModalImport = ({ modalIdImp, title, areaId }) => {
             <h5 className="modal-title text-center text-success" id="exampleModalLabel">{title}</h5>
           </div>
           <Card className="card align-items-center h-auto gap-3 p-3">
-            <FileUpload area_id={areaId} />
+            <FileUpload />
           </Card>
         </div>
       </div>

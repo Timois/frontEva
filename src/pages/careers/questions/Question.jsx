@@ -3,63 +3,81 @@
 import { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { QuestionContext } from "../../../context/QuestionsProvider";
-import { useFetchQuestions } from "../../../hooks/fetchQuestions";
+import { useFetchQuestionsByArea } from "../../../hooks/fetchQuestions";
 import ButtonEdit from "./ButtonEdit";
 import { ModalEdit } from "./ModalEdit";
 import { MdAddPhotoAlternate } from "react-icons/md";
 import { ModalImport } from "./imports/ModalImport";
 import { ButtonImport } from "./imports/ButtonImport";
-import { use } from "react";
 import CheckPermissions from "../../../routes/CheckPermissions";
+import ButtonAdd from "./ButtonAdd";
+import { ModalRegister } from "./ModalRegister";
+import { useFetchArea } from "../../../hooks/fetchAreas";
 const urlimages = import.meta.env.VITE_URL_IMAGES;
 
 export const Question = () => {
-    const { id } = useParams(); // Obtener ambos parámetros
+    const { id } = useParams();
     const { questions, setQuestions } = useContext(QuestionContext);
     const [selectedQuestion, setSelectedQuestion] = useState(null);
     const [modalImage, setModalImage] = useState(null);
-
     const [currentPage, setCurrentPage] = useState(1);
     const questionsPerPage = 5;
+    const { getData, areas } = useFetchArea();
+    const { getDataQuestions } = useFetchQuestionsByArea();
+    
+    // Get area name
+    const areaName = areas?.find(area => String(area.id) === String(id))?.name || "Área";
+
+    useEffect(() => {
+        const fetchData = async () => {
+            await getData();
+            if (id) {
+                const questionsData = await getDataQuestions(id);
+                setQuestions(questionsData);
+            }
+        };
+        fetchData();
+    }, [id]);
+
     const handleEditClick = (question) => {
         setSelectedQuestion(question);
     };
 
-    const { getData } = useFetchQuestions();
-
-    useEffect(() => {
-        getData();
-    }, []);
-
-    // Filtrar preguntas por área si se proporciona un areaId
-    const filteredQuestions = id
-        ? questions.filter(q => String(q.area_id) === String(id))
-        : questions;
-
+    // Pagination logic
     const indexOfLastQuestion = currentPage * questionsPerPage;
     const indexOfFirstQuestion = indexOfLastQuestion - questionsPerPage;
-    const currentQuestions = filteredQuestions.slice(indexOfFirstQuestion, indexOfLastQuestion);
-
-    const totalPages = Math.ceil(filteredQuestions.length / questionsPerPage);
+    const currentQuestions = questions.slice(indexOfFirstQuestion, indexOfLastQuestion);
+    const totalPages = Math.ceil(questions.length / questionsPerPage);
 
     const changePage = (page) => setCurrentPage(page);
     const nextPage = () => setCurrentPage((prev) => (prev < totalPages ? prev + 1 : 1));
     const prevPage = () => setCurrentPage((prev) => (prev > 1 ? prev - 1 : totalPages));
 
     const truncateText = (text, maxLength) =>
-        text.length > maxLength ? text.slice(0, maxLength) + "..." : text;
+        text?.length > maxLength ? text.slice(0, maxLength) + "..." : text;
 
+    const modalId = "registerPregunta";
     const idEditar = "editarPregunta";
-    const IdImport = "importExcel"
+    const IdImport = "importExcel";
+
     return (
         <div className="row">
             <div className="col-15">
                 <div className="table-responsive">
-                    <div className="d-flex justify-content-center my-3">
-                        <h2 className="text-warning">Area</h2>
-                        <CheckPermissions requiredPermission="importar-preguntas">
-                            <ButtonImport modalIdImp={IdImport} />
-                        </CheckPermissions>
+                    <div className="d-flex justify-content-between align-items-center my-3">
+                        <h2 className="mb-0 px-4 py-2 rounded" style={{ 
+                            color: '#2c3e50',
+                            backgroundColor: '#cff193',
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                        }}>{areaName}</h2>
+                        <div className="d-flex gap-2">
+                            {/* <CheckPermissions requiredPermission="crear-preguntas">
+                                <ButtonAdd ModalId={modalId}/>
+                            </CheckPermissions> */}
+                            <CheckPermissions requiredPermission="importar-excel">
+                                <ButtonImport modalIdImp={IdImport} />
+                            </CheckPermissions>
+                        </div>
                     </div>
                     <table className="table table-dark table-striped table-bordered border border-warning text-wrap">
                         <thead>
@@ -77,7 +95,7 @@ export const Question = () => {
                         <tbody>
                             {currentQuestions.length > 0 ? (
                                 currentQuestions.map((question, index) => (
-                                    <tr key={index}>
+                                    <tr key={question.id || index}>
                                         <td>{indexOfFirstQuestion + index + 1}</td>
                                         <td className="text-break" style={{ fontSize: "15px" }}>
                                             {truncateText(question.question, 15)}
@@ -118,9 +136,12 @@ export const Question = () => {
                     </table>
                 </div>
 
-                {filteredQuestions.length > questionsPerPage && (
+                {questions.length > questionsPerPage && (
                     <div className="d-flex justify-content-center align-items-center mt-3">
-                        <button className="btn btn-warning mx-1" onClick={prevPage}>
+                        <button 
+                            className="btn btn-warning mx-1" 
+                            onClick={prevPage}
+                        >
                             ⬅ Anterior
                         </button>
 
@@ -134,16 +155,26 @@ export const Question = () => {
                             </button>
                         ))}
 
-                        <button className="btn btn-warning mx-1" onClick={nextPage}>
+                        <button 
+                            className="btn btn-warning mx-1" 
+                            onClick={nextPage}
+                        >
                             Siguiente ➡
                         </button>
                     </div>
                 )}
             </div>
+
             <CheckPermissions requiredPermission="editar-preguntas">
                 <ModalEdit idEditar={idEditar} data={selectedQuestion} title="Editar Pregunta" />
             </CheckPermissions>
-            <ModalImport modalIdImp={IdImport} title={"Importar Preguntas"} areaId={id} />
+            <CheckPermissions requiredPermission="importar-excel">
+                <ModalImport modalIdImp={IdImport} title={"Importar Preguntas"} />
+            </CheckPermissions>
+            {/* <CheckPermissions requiredPermission="crear-preguntas">
+                <ModalRegister ModalId={modalId} title="Crear Pregunta" />
+            </CheckPermissions> */}
+
             {modalImage && (
                 <div className="modal fade show d-block" tabIndex="-1" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
                     <div className="modal-dialog">

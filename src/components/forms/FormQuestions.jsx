@@ -41,7 +41,6 @@ export const FormQuestions = () => {
   const { control, handleSubmit, reset, setValue, watch, formState: { errors }, setError } = useForm({
     resolver: zodResolver(QuestionsSchema),
   });
-
   // Monitorear el campo "question_type" y actualizar el estado
   const questionType = watch("question_type");
   useEffect(() => {

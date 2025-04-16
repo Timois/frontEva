@@ -62,7 +62,7 @@ export const FormCareer = () => {
                 }
                 return;
             }
-
+            
             getData();
             customAlert("Carrera Guardada", "success");
             closeFormModal("registroCarrera");

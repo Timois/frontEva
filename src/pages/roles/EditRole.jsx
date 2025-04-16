@@ -2,8 +2,8 @@
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from "react"
 import { useNavigate, useParams } from "react-router-dom"
-import { EditRol } from "../../components/editForms/editRol"
 import { useFetchRol } from "../../hooks/fetchRoles"
+import { EditRol } from "../../components/editForms/EditRol";
 
 const EditRole = () => {
   const { id } = useParams(); // Obtén el id de la URL
