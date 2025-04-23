@@ -10,24 +10,28 @@ export const ImportQuestionsSchema = z
         message: "Debe seleccionar un archivo",
       })
       .refine((files) => {
+        if (!files || !files[0]) return false;
         const file = files[0];
         return file.size <= 20 * 1024 * 1024;
       }, {
         message: "El archivo debe ser menor a 20MB",
       }),
+    confirmImport: z.boolean().refine((val) => val === true, {
+      message: "Debe confirmar que está seguro de importar las preguntas"
+    })
   })
   .superRefine((data, ctx) => {
-    const file = data.file_name?.[0];
+    if (!data.file_name || !data.file_name[0]) return;
+    
+    const file = data.file_name[0];
     const importOption = data.importOption;
 
-    if (!file) return;
-
-    const isZip = file.type === "application/zip";
+    const isZip = file.type === "application/zip" || file.type === "application/x-zip-compressed" || file.name.toLowerCase().endsWith('.zip');
     const isExcelOrCsv = [
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       "application/vnd.ms-excel",
       "text/csv",
-    ].includes(file.type);
+    ].includes(file.type) || file.name.toLowerCase().match(/\.(xlsx|xls|csv)$/);
 
     if (importOption === "withImages" && !isZip) {
       ctx.addIssue({

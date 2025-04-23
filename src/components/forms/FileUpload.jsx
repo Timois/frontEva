@@ -19,33 +19,64 @@ export const FileUpload = () => {
   const area_id = id;
   const { addImportExcel, importExcelQuestions } = useContext(ImportExcelQuestionsContext);
   const [response, setResponse] = useState(false);
+  const [duplicatesUrl, setDuplicatesUrl] = useState("");
 
-  const { control, handleSubmit, reset, formState: { errors }, setError } =
-    useForm({
-      resolver: zodResolver(ImportQuestionsSchema),
-    });
+  const { control, handleSubmit, reset, formState: { errors }, watch } = useForm({
+    resolver: zodResolver(ImportQuestionsSchema),
+    defaultValues: {
+      confirmImport: false
+    }
+  });
+
+  const importOption = watch("importOption");
 
   const onSubmit = async (data) => {
+    if (!data.confirmImport) {
+      customAlert("❌ Debe confirmar que está seguro de importar las preguntas", "error");
+      return;
+    }
+
     setResponse(true);
     const formData = new FormData();
-    formData.append("file_name", data.file_name[0]);
     formData.append("area_id", area_id);
     formData.append("status", "completado");
+    formData.append("file_name", data.file_name[0]);
 
     try {
-      const response = await postApi("excel_import/save", formData);
-      const success = response?.data?.success;
-      // Si hay éxito, agregar las preguntas importadas al contexto
-      addImportExcel(success ?? [], data.importOption);
-      // Mostrar mensaje de éxito
-      customAlert("📥 Importación finalizada. Revisa el resumen más abajo.", "success");
-      // Cerrar modal y reiniciar formulario
-      closeFormModal("importExcel");
-      reset();
+      let response;
+      let repetidasObj = null;
+
+      if (data.importOption === "withoutImages") {
+        response = await postApi("excel_import/save", formData);
+        const { success, message, resumen } = response?.data ?? {};
+
+        if (success) {
+          const mensajeResumen = `Total procesadas: ${resumen.total_procesadas}, Registradas: ${resumen.preguntas_registradas.total}`;
+          addImportExcel([mensajeResumen], data.importOption);
+          customAlert("📥 " + message, "success");
+          closeFormModal("importExcel");
+          reset();
+        } else {
+          customAlert("❌ Error en la importación", "error");
+        }
+
+      } else if (data.importOption === "withImages") {
+        response = await postApi("excel_import_image/savezip", formData);
+        const { success, message } = response?.data ?? {};
+        
+        if (success) {
+          addImportExcel([message], data.importOption);
+          customAlert("📥 " + message, "success");
+          closeFormModal("importExcel");
+          reset();
+        } else {
+          customAlert("❌ Error en la importación", "error");
+        }
+      }
+
     } catch (error) {
-      console.error("Error al importar preguntas:", error);
-      customAlert("❌ Error al importar preguntas", "error");
-      reset();
+      console.error("Error al importar:", error);
+      customAlert(`❌ Error al importar ${data.importOption === "withImages" ? "ZIP" : "Excel"}`, "error");
     } finally {
       setResponse(false);
     }
@@ -71,7 +102,7 @@ export const FileUpload = () => {
           <p style={{ color: "red" }}>{errors.importOption.message}</p>
         )}
       </ContainerInput>
-      
+
       <ContainerInput>
         <Controller
           name="file_name"
@@ -79,14 +110,48 @@ export const FileUpload = () => {
           defaultValue={[]}
           render={({ field: { onChange, value }, fieldState: { error } }) => (
             <InputFile
-              onChange={onChange}
+              onChange={(files) => onChange(files)}
               value={value}
               error={error}
+              accept={importOption === "withImages" ? ".zip" : ".xlsx,.xls"}
+              placeholder={importOption === "withImages" ? "Seleccione archivo ZIP" : "Seleccione archivo Excel"}
             />
           )}
         />
       </ContainerInput>
 
+      {/* Checkbox de confirmación */}
+      <ContainerInput>
+        <div className="form-check mt-3">
+          <Controller
+            name="confirmImport"
+            control={control}
+            defaultValue={false}
+            render={({ field }) => (
+              <div className="d-flex align-items-start border p-3 rounded bg-light">
+                <input
+                  type="checkbox"
+                  className="form-check-input me-2 mt-2"
+                  id="confirmImport"
+                  {...field}
+                  checked={field.value}
+                />
+                <label className="form-check-label text-dark fw-bold" htmlFor="confirmImport" style={{ fontSize: '0.9rem' }}>
+                  ⚠️ Confirmo que he revisado el archivo y su contenido es correcto.
+                  Entiendo que una vez importadas las preguntas, no podrán ser editadas posteriormente.
+                </label>
+              </div>
+            )}
+          />
+        </div>
+        {errors.confirmImport && (
+          <div className="text-danger mt-2">
+            <small>⚠️ {errors.confirmImport.message}</small>
+          </div>
+        )}
+      </ContainerInput>
+
+      {/* Botones */}
       <ContainerButton>
         <Button type="submit" disabled={response}>
           {response ? "Importando..." : "Importar"}
@@ -94,23 +159,31 @@ export const FileUpload = () => {
         <CancelButton />
       </ContainerButton>
 
-      {/* Mostrar resumen de importación */}
+      {/* Resumen y descarga de duplicadas */}
       {Array.isArray(importExcelQuestions) && importExcelQuestions.length > 0 && (
         <div style={{ marginTop: "1rem", background: "#f1f1f1", padding: "1rem", borderRadius: "8px" }}>
           <h4>📊 Resumen de importación</h4>
           <ul>
             {importExcelQuestions.map((item, index) => (
               <li key={index}>
-                {typeof item === "string" ? (
-                  <span>{item}</span>
-                ) : (
-                  <span>{item.message}</span>
-                )}
+                {typeof item === "string" ? item : item.message}
               </li>
             ))}
           </ul>
+          {duplicatesUrl && (
+            <a
+              href={duplicatesUrl}
+              download
+              className="btn btn-warning mt-3"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              📥 Descargar preguntas repetidas
+            </a>
+          )}
         </div>
       )}
     </form>
   );
 };
+

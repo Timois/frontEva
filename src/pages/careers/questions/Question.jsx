@@ -1,7 +1,8 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 import { useContext, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
+import { MdArrowBack } from "react-icons/md";
 import { QuestionContext } from "../../../context/QuestionsProvider";
 import { useFetchQuestionsByArea } from "../../../hooks/fetchQuestions";
 import ButtonEdit from "./ButtonEdit";
@@ -10,10 +11,10 @@ import { MdAddPhotoAlternate } from "react-icons/md";
 import { ModalImport } from "./imports/ModalImport";
 import { ButtonImport } from "./imports/ButtonImport";
 import CheckPermissions from "../../../routes/CheckPermissions";
-import ButtonAdd from "./ButtonAdd";
-import { ModalRegister } from "./ModalRegister";
 import { useFetchArea } from "../../../hooks/fetchAreas";
+import ButtonViewAnswers from "./ButtonViewAnswers";
 const urlimages = import.meta.env.VITE_URL_IMAGES;
+
 
 export const Question = () => {
     const { id } = useParams();
@@ -24,9 +25,9 @@ export const Question = () => {
     const questionsPerPage = 5;
     const { getData, areas } = useFetchArea();
     const { getDataQuestions } = useFetchQuestionsByArea();
-    
+    const navigate = useNavigate();
     // Get area name
-    const areaName = areas?.find(area => String(area.id) === String(id))?.name || "Área";
+    const areaName = areas?.find(area => String(area.id) === String(id))?.name.toUpperCase();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -63,13 +64,21 @@ export const Question = () => {
     return (
         <div className="row">
             <div className="col-15">
+                <button 
+                    className="btn btn-warning mb-3"
+                    onClick={() => navigate('/administracion/questions')}
+                    style={{ marginLeft: '15px' }}
+                >
+                    <MdArrowBack /> Volver
+                </button>
+                
                 <div className="table-responsive">
                     <div className="d-flex justify-content-between align-items-center my-3">
-                        <h2 className="mb-0 px-4 py-2 rounded" style={{ 
+                        <h5 className="mb-0 px-4 py-2 rounded" style={{
                             color: '#2c3e50',
                             backgroundColor: '#cff193',
                             boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-                        }}>{areaName}</h2>
+                        }}>{areaName}</h5>
                         <div className="d-flex gap-2">
                             {/* <CheckPermissions requiredPermission="crear-preguntas">
                                 <ButtonAdd ModalId={modalId}/>
@@ -86,9 +95,9 @@ export const Question = () => {
                                 <th scope="col">Pregunta</th>
                                 <th scope="col">Descripción</th>
                                 <th scope="col">Dificultad</th>
-                                <th scope="col">Tipo de Pregunta</th>
                                 <th scope="col">Imagen</th>
                                 <th scope="col">Tipo</th>
+                                <th scope="col">Respuestas</th>
                                 <th scope="col">Acción</th>
                             </tr>
                         </thead>
@@ -104,7 +113,6 @@ export const Question = () => {
                                             {truncateText(question.description, 15)}
                                         </td>
                                         <td className="text-break" style={{ fontSize: "15px" }}>{question.dificulty}</td>
-                                        <td className="text-break" style={{ fontSize: "15px" }}>{question.question_type}</td>
                                         <td className="justify-content-center">
                                             {question.image ? (
                                                 <button
@@ -118,6 +126,11 @@ export const Question = () => {
                                             )}
                                         </td>
                                         <td>{question.type}</td>
+                                        <td>
+                                            <CheckPermissions requiredPermission={"ver-respuestas"}>
+                                                <ButtonViewAnswers questionId={question.id} />
+                                            </CheckPermissions>
+                                        </td>
                                         <td>
                                             <CheckPermissions requiredPermission="editar-preguntas">
                                                 <ButtonEdit idEditar={idEditar} onEditClick={() => handleEditClick(question)} />
@@ -138,8 +151,8 @@ export const Question = () => {
 
                 {questions.length > questionsPerPage && (
                     <div className="d-flex justify-content-center align-items-center mt-3">
-                        <button 
-                            className="btn btn-warning mx-1" 
+                        <button
+                            className="btn btn-warning mx-1"
                             onClick={prevPage}
                         >
                             ⬅ Anterior
@@ -155,8 +168,8 @@ export const Question = () => {
                             </button>
                         ))}
 
-                        <button 
-                            className="btn btn-warning mx-1" 
+                        <button
+                            className="btn btn-warning mx-1"
                             onClick={nextPage}
                         >
                             Siguiente ➡

@@ -1,6 +1,6 @@
 
 
-export default function IndexAnswer() {
+export const IndexAnswer = () =>{
   return (
     <div>IndexAnswer</div>
   )

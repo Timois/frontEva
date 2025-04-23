@@ -70,7 +70,7 @@ const Layout = ({ children }) => {
           <div className="accordion w-100 p-3" id="accordionExample" style={{ backgroundColor: '#82e5ef' }}>
             {/* ADMIN */}
             {hasRole('admin') && hasPermission("ver-usuarios") && (
-              <div className="accordion-item" style={{ backgroundColor: '#e4f3bf' }}>
+              <div className="accordion-item" style={{ backgroundColor: '#fdfefe' }}>
                 <h2 className="accordion-header" id="headingOne">
                   <button
                     className="accordion-button"
@@ -139,7 +139,7 @@ const Layout = ({ children }) => {
 
             {/* DIRECTOR */}
             {hasRole('director') && (
-              <div className="accordion-item" style={{ backgroundColor: '#e4f3bf' }}>
+              <div className="accordion-item" style={{ backgroundColor: '#fdfefe' }}>
                 <h2 className="accordion-header" id="headingTwo">
                   <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
                     <FaUserGraduate className="me-2" /> Directores
@@ -160,9 +160,6 @@ const Layout = ({ children }) => {
                     {hasPermission("ver-examenes") && (
                       <MenuButton path={"/administracion/examns"} label={"Examenes"} onClick={closeSidebar} />
                     )}
-                    {hasPermission("ver-respuestas") && (
-                      <MenuButton path={"/administracion/answers"} label={"Respuestas"} onClick={closeSidebar} />
-                    )}
                   </div>
                 </div>
               </div>
@@ -170,7 +167,7 @@ const Layout = ({ children }) => {
 
             {/* DOCENTE */}
             {hasRole('docente') && (
-              <div className="accordion-item" style={{ backgroundColor: '#e4f3bf' }}>
+              <div className="accordion-item" style={{ backgroundColor: '#fdfefe' }}>
                 <h2 className="accordion-header" id="headingThree">
                   <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
                     <FaQuestionCircle className="me-2 w-auto" /> Docentes
@@ -191,9 +188,6 @@ const Layout = ({ children }) => {
                     {hasPermission("ver-examenes") && (
                       <MenuButton path={"/administracion/examns"} label={"Examenes"} onClick={closeSidebar} />
                     )}
-                    {hasPermission("ver-respuestas") && (
-                      <MenuButton path={"/administracion/answers"} label={"Respuestas"} onClick={closeSidebar} />
-                    )}
                   </div>
                 </div>
               </div>
@@ -201,7 +195,7 @@ const Layout = ({ children }) => {
 
             {/* ESTUDIANTE */}
             {isStudent && (
-              <div className="accordion-item" style={{ backgroundColor: '#e4f3bf' }}>
+              <div className="accordion-item" style={{ backgroundColor: '#fdfefe' }}>
                 <h2 className="accordion-header" id="headingFour">
                   <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
                     <FaUserGraduate className="me-2 w-auto" /> Estudiantes

@@ -16,7 +16,6 @@ import { IndexArea } from "../pages/careers/areas/IndexArea"
 import { IndexImports } from "../pages/careers/questions/imports/IndexImports"
 import { IndexQuestions } from "../pages/careers/questions/IndexQuestions"
 import { Question } from "../pages/careers/questions/Question" // Asegúrate de importar el componente Question
-import { IndexAnswers } from "../pages/careers/answers/IndexAnswers"
 import { IndexUser } from "../pages/users/IndexUser"
 import { StudentLogin } from "../pages/auth/StudentLogin"
 import { StudentsHome } from "../pages/StudentsHome"
@@ -26,6 +25,8 @@ import RegisterRol from "../pages/roles/RegisterRol"
 import EditRole from "../pages/roles/EditRole"
 import AccessDenied from "../pages/errors/AccesDenied"
 import PermissionsGuard from "./PermissionsGuard"
+import { IndexAnswer } from "../pages/careers/questions/answers/IndexAnswer"
+import { Answer } from "../pages/careers/questions/Answer"
 
 export const AppRoutes = () => {
   return (
@@ -90,7 +91,11 @@ export const AppRoutes = () => {
             </PermissionsGuard>} />
           <Route path="administracion/answers" element={
             <PermissionsGuard requiredPermission={"ver-respuestas"}>
-              <IndexAnswers />
+              <IndexAnswer />
+            </PermissionsGuard>} />
+          <Route path="administracion/questions/:id/answers" element={
+            <PermissionsGuard requiredPermission={"ver-respuestas-por-pregunta"}>
+              <Answer />
             </PermissionsGuard>} />
           <Route path="administracion/examns" element={
             <PermissionsGuard requiredPermission={"ver-examenes"}>
