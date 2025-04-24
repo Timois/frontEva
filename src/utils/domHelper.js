@@ -32,7 +32,7 @@ export const closeFormModal = (id) => {
  */
 export const customAlert = (message, type = 'success', position = 'top-end') => {
     Swal.fire({
-        timer: 1000,
+        timer: 3000,
         showConfirmButton: false,
         title: message,
         icon: type,

@@ -13,77 +13,106 @@ import { ContainerInput } from "../login/ContainerInput";
 import { ContainerButton } from "../login/ContainerButton";
 import { Button } from "../login/Button";
 import CancelButton from "./components/CancelButon";
+import { useFetchQuestionsByArea } from "../../hooks/fetchQuestions";   // ← NUEVO
 
 export const FileUpload = () => {
+  /* ---------- hooks & context ---------- */
   const { id } = useParams();
   const area_id = id;
-  const { addImportExcel, importExcelQuestions } = useContext(ImportExcelQuestionsContext);
-  const [response, setResponse] = useState(false);
-  const [duplicatesUrl, setDuplicatesUrl] = useState("");
 
-  const { control, handleSubmit, reset, formState: { errors }, watch } = useForm({
+  const { importExcelQuestions } = useContext(ImportExcelQuestionsContext);
+
+  // hook que permitirá volver a consultar las preguntas del área
+  const { getDataQuestions } = useFetchQuestionsByArea();                    // ← NUEVO
+
+  const [loading, setLoading] = useState(false);
+
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors },
+    watch
+  } = useForm({
     resolver: zodResolver(ImportQuestionsSchema),
-    defaultValues: {
-      confirmImport: false
-    }
+    defaultValues: { confirmImport: false }
   });
 
   const importOption = watch("importOption");
 
+  /* ============== SUBMIT ============== */
   const onSubmit = async (data) => {
     if (!data.confirmImport) {
       customAlert("❌ Debe confirmar que está seguro de importar las preguntas", "error");
       return;
     }
 
-    setResponse(true);
+    setLoading(true);
+
     const formData = new FormData();
     formData.append("area_id", area_id);
     formData.append("status", "completado");
     formData.append("file_name", data.file_name[0]);
 
     try {
-      let response;
-      let repetidasObj = null;
-
+      /* -------------- SIN IMÁGENES (Excel) -------------- */
       if (data.importOption === "withoutImages") {
-        response = await postApi("excel_import/save", formData);
-        const { success, message, resumen } = response?.data ?? {};
+        const { message, success } = await postApi("excel_import/save", formData);
 
-        if (success) {
-          const mensajeResumen = `Total procesadas: ${resumen.total_procesadas}, Registradas: ${resumen.preguntas_registradas.total}`;
-          addImportExcel([mensajeResumen], data.importOption);
-          customAlert("📥 " + message, "success");
+        const resumenLinea = Array.isArray(success)
+          ? success.find((txt) => txt.startsWith("Resumen:"))
+          : null;
+
+        if (resumenLinea) {
+          customAlert(`📥 ${message}\n${resumenLinea}`, "success");
+          await getDataQuestions(area_id);                                   // ← REFETCH
           closeFormModal("importExcel");
           reset();
         } else {
-          customAlert("❌ Error en la importación", "error");
+          customAlert("❌ Error: no se encontró el resumen en la respuesta", "error");
         }
 
+      /* -------------- CON IMÁGENES (ZIP) -------------- */
       } else if (data.importOption === "withImages") {
-        response = await postApi("excel_import_image/savezip", formData);
-        const { success, message } = response?.data ?? {};
-        
-        if (success) {
-          addImportExcel([message], data.importOption);
-          customAlert("📥 " + message, "success");
+        const { message, success, resumen } = await postApi(
+          "excel_import_image/savezip",
+          formData
+        );
+
+        if (success && resumen) {
+          const {
+            total_procesadas,
+            preguntas_registradas,
+            preguntas_no_registradas,
+            preguntas_duplicadas
+          } = resumen;
+
+          const resumenLinea =
+            `Resumen: Procesadas ${total_procesadas}, ` +
+            `Registradas ${preguntas_registradas.total}, ` +
+            `No registradas ${preguntas_no_registradas.total}, ` +
+            `Duplicadas ${preguntas_duplicadas.total}`;
+
+          customAlert(`📥 ${message}\n${resumenLinea}`, "success");
+          await getDataQuestions(area_id);                                   // ← REFETCH
           closeFormModal("importExcel");
           reset();
         } else {
           customAlert("❌ Error en la importación", "error");
         }
       }
-
-    } catch (error) {
-      console.error("Error al importar:", error);
+    } catch (err) {
+      console.error("Error al importar:", err);
       customAlert(`❌ Error al importar ${data.importOption === "withImages" ? "ZIP" : "Excel"}`, "error");
     } finally {
-      setResponse(false);
+      setLoading(false);
     }
   };
 
+  /* ============== RENDER ============== */
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
+      {/* ---------- Tipo de importación ---------- */}
       <ContainerInput>
         <label htmlFor="importOption">Tipo de importación:</label>
         <Controller
@@ -98,11 +127,10 @@ export const FileUpload = () => {
             </select>
           )}
         />
-        {errors.importOption && (
-          <p style={{ color: "red" }}>{errors.importOption.message}</p>
-        )}
+        {errors.importOption && <p style={{ color: "red" }}>{errors.importOption.message}</p>}
       </ContainerInput>
 
+      {/* ---------- Archivo ---------- */}
       <ContainerInput>
         <Controller
           name="file_name"
@@ -120,7 +148,7 @@ export const FileUpload = () => {
         />
       </ContainerInput>
 
-      {/* Checkbox de confirmación */}
+      {/* ---------- Confirmación ---------- */}
       <ContainerInput>
         <div className="form-check mt-3">
           <Controller
@@ -136,7 +164,11 @@ export const FileUpload = () => {
                   {...field}
                   checked={field.value}
                 />
-                <label className="form-check-label text-dark fw-bold" htmlFor="confirmImport" style={{ fontSize: '0.9rem' }}>
+                <label
+                  className="form-check-label text-dark fw-bold"
+                  htmlFor="confirmImport"
+                  style={{ fontSize: "0.9rem" }}
+                >
                   ⚠️ Confirmo que he revisado el archivo y su contenido es correcto.
                   Entiendo que una vez importadas las preguntas, no podrán ser editadas posteriormente.
                 </label>
@@ -151,39 +183,25 @@ export const FileUpload = () => {
         )}
       </ContainerInput>
 
-      {/* Botones */}
+      {/* ---------- Botones ---------- */}
       <ContainerButton>
-        <Button type="submit" disabled={response}>
-          {response ? "Importando..." : "Importar"}
+        <Button type="submit" disabled={loading}>
+          {loading ? "Importando..." : "Importar"}
         </Button>
         <CancelButton />
       </ContainerButton>
 
-      {/* Resumen y descarga de duplicadas */}
+      {/* ---------- Resumen local (opcional) ---------- */}
       {Array.isArray(importExcelQuestions) && importExcelQuestions.length > 0 && (
         <div style={{ marginTop: "1rem", background: "#f1f1f1", padding: "1rem", borderRadius: "8px" }}>
           <h4>📊 Resumen de importación</h4>
           <ul>
-            {importExcelQuestions.map((item, index) => (
-              <li key={index}>
-                {typeof item === "string" ? item : item.message}
-              </li>
+            {importExcelQuestions.map((item, idx) => (
+              <li key={idx}>{item}</li>
             ))}
           </ul>
-          {duplicatesUrl && (
-            <a
-              href={duplicatesUrl}
-              download
-              className="btn btn-warning mt-3"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              📥 Descargar preguntas repetidas
-            </a>
-          )}
         </div>
       )}
     </form>
   );
 };
-
