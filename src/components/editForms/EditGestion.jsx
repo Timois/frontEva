@@ -16,12 +16,13 @@ import { GestionContext } from "../../context/GestionProvider"
 import { postApi } from "../../services/axiosServices/ApiService"
 import CancelButton from "../forms/components/CancelButon"
 import { closeFormModal, customAlert } from "../../utils/domHelper"
+import { useFetchGestion } from "../../hooks/fetchGestion"
 
 export const EditGestion = ({ data, closeModal }) => {
     const [response, setResponse] = useState(false)
     const { updateGestion } = useContext(GestionContext)
     const { control, handleSubmit, reset, setValue, register, formState: { errors }, setError } = useForm({ resolver: zodResolver(AcademicSchema) })
-
+    const {refreshGestions} = useFetchGestion()
     useEffect(() => {
         if (data) {
             setValue("year", data.year)
@@ -50,11 +51,9 @@ export const EditGestion = ({ data, closeModal }) => {
                 }
                 return
             }
-
+            await refreshGestions()
             customAlert("Gestion Editada", "success")
-
             closeFormModal("editarGestion");
-
             updateGestion(response)
             reset()
         } catch (error) {

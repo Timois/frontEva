@@ -25,45 +25,41 @@ const arrayOption = [
 ];
 
 export const EditCareer = ({ data, closeModal }) => {
-    const { getData } = useFetchUnit();
+    const { getData, refreshUnits } = useFetchUnit();
     const { units } = useContext(UnitContext);
     const [response, setResponse] = useState(false);
     const { updateCareer } = useContext(CareerContext);
     const [array, setArray] = useState([]);
     const [preview, setPreview] = useState(null);
-    const [selectedType, setSelectedType] = useState(""); // Estado para manejar el tipo seleccionado
-
-    const {
-        control,
-        handleSubmit,
-        reset,
-        setValue,
-        formState: { errors },
-        setError,
-        watch,
-    } = useForm({
+    const [selectedType, setSelectedType] = useState("");
+    
+    const { control, handleSubmit, reset, setValue, formState: { errors }, setError, watch,} = useForm({
         resolver: zodResolver(CareerSchema),
     });
-
     useEffect(() => {
         if (data) {
             setValue("name", data.name);
             setValue("initials", data.initials);
             setValue("type", data.type);
             setSelectedType(data.type);
-            setValue("unit_id", data.unit_id);
+            setValue("unit_id", String(data.unit_id));
             setPreview(data.logo);
         }
     }, [data, setValue]);
 
     // Actualiza unit_id a "0" si el tipo cambia a algo distinto de "dependiente"
     useEffect(() => {
-        if (selectedType !== "mayor" && selectedType !== "facultad") {
+        if (!data) return;
+    
+        if (selectedType !== "mayor" && selectedType !== "facultad" && data.unit_id) {
+            setValue("unit_id", String(data.unit_id));
+        } else {
             setValue("unit_id", "0");
         }
-    }, [selectedType, setValue]);
+    }, [selectedType, setValue, data]); 
 
-    const onSubmit = async (formData) => {
+    const onSubmit = async (formData, event) => {
+        if(event) event.preventDefault()
         setResponse(true);
 
         const requestData = new FormData();
@@ -84,15 +80,15 @@ export const EditCareer = ({ data, closeModal }) => {
                 }
                 return;
             }
-
+            await refreshUnits();
+            updateCareer(response.data);
             customAlert("Carrera Editada", "success");
-
             closeFormModal("editarCarrera");
-
-            updateCareer(response);
             reset();
         } catch (error) {
             console.error("Error al actualizar unidad:", error);
+            customAlert(error.response.data.message, "error");
+        }finally {
             setResponse(false);
         }
     };

@@ -25,7 +25,7 @@ const arrayOption = [
 ];
 
 export const FormCareer = () => {
-    const { getData } = useFetchUnit();
+    const { getData, refreshUnits } = useFetchUnit();
     const { units } = useContext(UnitContext);
     const [response, setResponse] = useState(false);
     const { addCareer } = useContext(CareerContext);
@@ -62,7 +62,7 @@ export const FormCareer = () => {
                 }
                 return;
             }
-            
+            await refreshUnits();
             getData();
             customAlert("Carrera Guardada", "success");
             closeFormModal("registroCarrera");

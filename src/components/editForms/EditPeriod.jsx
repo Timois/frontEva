@@ -15,6 +15,7 @@ import { ContainerButton } from "../login/ContainerButton"
 import { Button } from "../login/Button"
 import CancelButton from "../forms/components/CancelButon"
 import { closeFormModal, customAlert } from "../../utils/domHelper"
+import { useFetchPeriod } from "../../hooks/fetchPeriod"
 
 
 const option = [{ value: "1", text: "1" }, { value: "2", text: "2" }, { value: "3", text: "3" }, { value: "4", text: "4" }, { value: "5", text: "5" }]
@@ -22,7 +23,7 @@ export const EditPeriod = ({ data, closeModal }) => {
 
     const [response, setResponse] = useState(false)
     const { updatePeriod } = useContext(PeriodContext)
-
+    const { refreshPeriods } = useFetchPeriod()
     const { control, handleSubmit, reset, setValue, formState: { errors }, setError } = useForm({ resolver: zodResolver(PeriodSchema) })
 
     useEffect(() => {
@@ -51,12 +52,10 @@ export const EditPeriod = ({ data, closeModal }) => {
                 }
                 return
             }
-
+            await refreshPeriods()
             customAlert("Periodo Editado", "success")
-
             closeFormModal("editarPeriodo");
-
-            updatePeriod(response)
+            updatePeriod(response.data)
             reset()
         } catch (error) {
             console.error("Error al actualizar periodo:", error)

@@ -7,7 +7,7 @@ export const PeriodProvider = ({children}) => {
     const [periods, setPeriods] = useState([])
 
     const addPeriod = (period) => {
-        setPeriods([...periods, period])
+        setPeriods(prev =>[...prev, period])
     }
     const updatePeriod = (periodo) => {
       const posicion = periods.findIndex(p => p.id === periodo.id)

@@ -38,7 +38,6 @@ export const FormArea = () => {
     const onSubmit = async (data) => {
         setResponse(true);
 
-        // Validar que career_id exista antes de enviar
         if (!career_id) {
             customAlert("No se encontró el ID de carrera del usuario", "error");
             setResponse(false);
@@ -48,7 +47,7 @@ export const FormArea = () => {
         const formData = new FormData();
         formData.append("name", data.name);
         formData.append("description", data.description);
-        formData.append("career_id", career_id); // Enviar ID directamente
+        formData.append("career_id", career_id);
 
         try {
             const response = await postApi("areas/save", formData);
@@ -63,11 +62,14 @@ export const FormArea = () => {
                 }
                 return;
             }
-
-            addArea(response);
-            customAlert("Área Guardada", "success");
-            closeFormModal("registroArea");
-            resetForm();
+            if (response.area) {
+                addArea(response.area);
+                customAlert("Área Guardada", "success");
+                closeFormModal("registroArea");
+                resetForm();
+            } else {
+                customAlert("La respuesta no contiene el área creada", "error");
+            }
         } catch (error) {
             console.error("Error al guardar área:", error);
             setResponse(false);
@@ -93,7 +95,7 @@ export const FormArea = () => {
                 />
                 <Validate error={errors.name} />
             </ContainerInput>
-            
+
             <ContainerInput>
                 <Input 
                     name="description" 

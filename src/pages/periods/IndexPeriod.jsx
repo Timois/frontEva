@@ -19,7 +19,7 @@ export const IndexPeriod = () => {
       </div>
       <CheckPermissions requiredPermission="crear-periodos">
       <ModalRegister modalIdP={modalId} title="Registrar Periodo" />
-      </CheckPermissions>F
+      </CheckPermissions>
     </div >
   )
 }

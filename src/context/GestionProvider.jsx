@@ -6,7 +6,7 @@ export const GestionContext = createContext()
 export const GestionProvider = ({ children }) => {
     const [gestions, setGestions] = useState([])
     const addGestion = (gestion) => {
-        setGestions([...gestions, gestion])
+        setGestions(prev => [...prev, gestion])
     }
     const updateGestion = (gestion) => {
         const posicion = gestions.findIndex(p => p.id === gestion.id)

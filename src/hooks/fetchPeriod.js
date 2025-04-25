@@ -12,7 +12,12 @@ export const useFetchPeriod = () => {
         }
         return periods
     }
-    return { periods, getData }
+
+    const refreshPeriods = async () => {
+        const response = await getApi("periods/list");
+        setPeriods(response);
+    };
+    return { periods, getData, refreshPeriods }
 
 }
 
