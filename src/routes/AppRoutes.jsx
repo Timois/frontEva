@@ -98,7 +98,7 @@ export const AppRoutes = () => {
               <Answer />
             </PermissionsGuard>} />
           <Route path="administracion/examns" element={
-            <PermissionsGuard requiredPermission={"ver-examenes"}>
+            <PermissionsGuard requiredPermission={"ver-evaluaciones"}>
               <IndexExamns />
             </PermissionsGuard>} />
           <Route path="administracion/results" element={

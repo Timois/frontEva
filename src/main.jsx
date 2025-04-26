@@ -21,6 +21,7 @@ import { PersonaProvider } from './context/PersonaProvider.jsx';
 import { StudentProvider } from './context/StudentProvider.jsx';
 import { PermissionsProvider } from './context/PermissionsProvider.jsx';
 import { RolesProvider } from './context/RolesProvider.jsx';
+import { ExamnsProvider } from './context/ExamnsProvider.jsx';
 
 
 createRoot(document.getElementById('root')).render(
@@ -40,7 +41,9 @@ createRoot(document.getElementById('root')).render(
                             <QuestionsProvider>
                               <AnswersProvider>
                                 <ImportExcelQuestionsProvider>
-                                  <App />
+                                  <ExamnsProvider>
+                                    <App />
+                                  </ExamnsProvider>
                                 </ImportExcelQuestionsProvider>
                               </AnswersProvider>
                             </QuestionsProvider>

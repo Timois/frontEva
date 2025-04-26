@@ -11,7 +11,7 @@ export const ModalViewManagementPeriod = ({ ModalId, title }) => {
     const [id, setId] = useState(null);
     const { getDataCareerAssignmentPeriods } = useFetchCareerAssignPeriod(id);
     const { careerAssignmentsPeriods } = useContext(CareerAssignContext);
-
+    
     const handleClose = () => {
         const modalElement = document.getElementById(ModalId);
         const bsModal = bootstrap.Modal.getInstance(modalElement);

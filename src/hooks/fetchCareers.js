@@ -46,7 +46,6 @@ export const useFetchCareerAssign = (id) => {
         setCareerAssignments(response)
     }
     return { careerAssignments, getDataCareerAssignments }
-
 }
 
 export const useFetchCareerAssignPeriod = (id) => {

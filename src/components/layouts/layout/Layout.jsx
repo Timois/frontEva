@@ -185,7 +185,7 @@ const Layout = ({ children }) => {
                     {hasPermission("ver-preguntas") && (
                       <MenuButton path={"/administracion/questions"} label={"Preguntas"} onClick={closeSidebar} />
                     )}
-                    {hasPermission("ver-examenes") && (
+                    {hasPermission("ver-evaluaciones") && (
                       <MenuButton path={"/administracion/examns"} label={"Examenes"} onClick={closeSidebar} />
                     )}
                   </div>
