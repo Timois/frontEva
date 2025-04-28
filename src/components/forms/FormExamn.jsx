@@ -13,7 +13,7 @@ import { ContainerButton } from "../login/ContainerButton"
 import { Button } from "../login/Button"
 import CancelButton from "./components/CancelButon"
 import { DateInput } from "./components/DateInput"
-import { useFetchCareerAssignPeriod } from "../../hooks/fetchCareers"
+import { useFetchCareerAssign, useFetchCareerAssignPeriod } from "../../hooks/fetchCareers"
 
 const arrayOption = [
     { value: "ocr", text: "OCR" },
@@ -32,38 +32,57 @@ export const FormExamn = () => {
 
     const user = JSON.parse(localStorage.getItem('user'))
     const career_id = user?.career_id
-
+    
+    const { careerAssignments, getDataCareerAssignments } = useFetchCareerAssign(career_id)
     const { careerAssignmentsPeriods, getDataCareerAssignmentPeriods } = useFetchCareerAssignPeriod()
 
+    // Obtienes los datos de la carrera asignada
     useEffect(() => {
-        if (career_id && !isNaN(career_id)) {
-            getDataCareerAssignmentPeriods(career_id)
-        } else {
-            console.warn("career_id no válido:", career_id)
+        const fetchData = async () => {
+            if (career_id && !isNaN(career_id)) {
+                await getDataCareerAssignments();
+            }
         }
+        fetchData();
     }, [career_id])
+
+    // Cuando careerAssignments esté listo, saco el id de la tabla intermedia
+    useEffect(() => {
+        const fetchPeriods = async () => {
+            if (careerAssignments.length > 0) {
+                const { academic_management_career_id } = careerAssignments[0];  // Desestructuramos directamente
+                await getDataCareerAssignmentPeriods(academic_management_career_id);
+            }
+        }
+        fetchPeriods();
+    }, [careerAssignments]);
 
     useEffect(() => {
         if (careerAssignmentsPeriods.length > 0) {
             const periodOptions = careerAssignmentsPeriods.map(period => ({
                 value: period.id,
-                text: `${period.period}${period.level ? ` (Nivel ${period.level})` : ''}`
-            }))
-            setArray(periodOptions)
+                text: `${period.period} (${new Date(period.initial_date).toLocaleDateString()} - ${new Date(period.end_date).toLocaleDateString()})`
+            }));
+            setArray(periodOptions);
         }
-    }, [careerAssignmentsPeriods])
+    }, [careerAssignmentsPeriods]);
 
     const onSubmit = async (data) => {
-        setResponse(true)
+        if (!data.academic_management_period_id) {
+            customAlert("error", "Debe seleccionar un período académico");
+            return;
+        }
 
-        const formData = new FormData()
+        setResponse(true);
+        const formData = new FormData();
         formData.append("title", data.title)
         formData.append("description", data.description)
-        formData.append("total_score", data.total_score)
-        formData.append("passing_score", data.passing_score)
-        formData.append("date_of_realization", data.date_of_realization)
+        formData.append("total_score", Number(data.total_score))  // Convertir a número
+        formData.append("passing_score", Number(data.passing_score))  // Convertir a número
+        formData.append("date_of_realization", new Date(data.date_of_realization).toISOString().split('T')[0])  // Formatear fecha
         formData.append("type", data.type)
-        formData.append("academic_management_period_id", data.academic_management_period_id)
+        formData.append("status", "inactivo")
+        formData.append("academic_management_period_id", String(data.academic_management_period_id))
 
         try {
             const response = await postApi("evaluations/save", formData)
@@ -100,7 +119,7 @@ export const FormExamn = () => {
             academic_management_period_id: "",
         })
     }
-
+    
     const handleCancel = () => {
         resetForm()
         closeFormModal("registerExamn")
@@ -108,6 +127,7 @@ export const FormExamn = () => {
 
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
+            {/* Tus inputs siguen igual */}
             <ContainerInput>
                 <Input name="title" control={control} type="text" placeholder="Ingrese un título" />
                 <Validate error={errors.title} />

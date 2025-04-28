@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 
 import { useContext, useEffect, useState } from "react"
 import { getApi } from "../services/axiosServices/ApiService"
@@ -50,10 +51,24 @@ export const useFetchCareerAssign = (id) => {
 
 export const useFetchCareerAssignPeriod = (id) => {
     const { careerAssignmentsPeriods, setCareerAssignmentsPeriods } = useContext(CareerAssignContext)
-    const getDataCareerAssignmentPeriods = async () => {
-        const response = await getApi(`careers/findPeriodByIdAssign/${id}`)
-        setCareerAssignmentsPeriods(response)
+    
+    const getDataCareerAssignmentPeriods = async (academic_management_career_id) => {
+        try {
+            if (!academic_management_career_id) {
+                return;
+            }
+            const response = await getApi(`careers/findPeriodByIdAssign/${academic_management_career_id}`);
+            
+            if (Array.isArray(response)) {
+                setCareerAssignmentsPeriods(response);
+            } else {
+                setCareerAssignmentsPeriods([]);
+            }
+        } catch (error) {
+            setCareerAssignmentsPeriods([]);
+        }
     }
+    
     return { careerAssignmentsPeriods, getDataCareerAssignmentPeriods }
 }
 

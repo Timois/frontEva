@@ -30,6 +30,7 @@ export const Examns = () => {
             <th scope="col">Codigo</th>
             <th scope="col">Fecha de realizacion</th>
             <th scope="col">Tipo</th>
+            <th scope="col">Estado</th>
             <th scope="col">Periodo</th>
             <th scope="col">Acciones</th>
           </tr>
@@ -46,6 +47,7 @@ export const Examns = () => {
                 <td>{examn.code}</td>
                 <td>{examn.date_of_realization}</td>
                 <td>{examn.type}</td>
+                <td>{examn.status}</td>
                 <td>{examn.academic_mangement_period_id}</td>
                 <td>
                   <ButtonEdit idEditar={idEditar} onEditClick={() => handleEditClick(examn)} />
