@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
+/* eslint-disable react/prop-types */
+
 import { useContext, useEffect, useState } from "react"
-import { ExamnsContext } from "../../context/ExamnsProvider"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { ExmansSchema } from "../../models/schemas/ExmansSchema"
@@ -8,13 +9,14 @@ import { postApi } from "../../services/axiosServices/ApiService"
 import { closeFormModal, customAlert } from "../../utils/domHelper"
 import { ContainerInput } from "../login/ContainerInput"
 import { Input } from "../login/Input"
-import { Validate } from "./components/Validate"
-import { SelectInput } from "./components/SelectInput"
+import { Validate } from "../forms/components/Validate"
+import { SelectInput } from "../forms/components/SelectInput"
 import { ContainerButton } from "../login/ContainerButton"
 import { Button } from "../login/Button"
-import CancelButton from "./components/CancelButon"
-import { DateInput } from "./components/DateInput"
+import CancelButton from "../forms/components/CancelButon"
+import { DateInput } from "../forms/components/DateInput"
 import { useFetchCareerAssign, useFetchCareerAssignPeriod } from "../../hooks/fetchCareers"
+import { ExamnsContext } from "../../context/ExamnsProvider"
 
 const arrayOption = [
     { value: "ocr", text: "OCR" },
@@ -22,21 +24,21 @@ const arrayOption = [
     { value: "app", text: "APP" }
 ];
 
-export const FormExamn = () => {
+export const EditExamn = ({ data, closeModal }) => {
     const [response, setResponse] = useState(false)
-    const { addExamn } = useContext(ExamnsContext)
+    const { updateExamn } = useContext(ExamnsContext)
     const [array, setArray] = useState([])
 
-    const { control, handleSubmit, reset, formState: { errors }, setError } = useForm({
-        resolver: zodResolver(ExmansSchema)
+    const { control, handleSubmit, reset, setValue, formState: { errors }, setError } = useForm({
+        resolver: zodResolver(ExmansSchema),
     })
+    
     const user = JSON.parse(localStorage.getItem('user'))
     const career_id = user?.career_id
     
     const { careerAssignments, getDataCareerAssignments } = useFetchCareerAssign(career_id)
     const { careerAssignmentsPeriods, getDataCareerAssignmentPeriods } = useFetchCareerAssignPeriod()
 
-    // Obtienes los datos de la carrera asignada
     useEffect(() => {
         const fetchData = async () => {
             if (career_id && !isNaN(career_id)) {
@@ -45,12 +47,10 @@ export const FormExamn = () => {
         }
         fetchData();
     }, [career_id])
-
-    // Cuando careerAssignments esté listo, saco el id de la tabla intermedia
     useEffect(() => {
         const fetchPeriods = async () => {
             if (careerAssignments.length > 0) {
-                const { academic_management_career_id } = careerAssignments[0];  // Desestructuramos directamente
+                const { academic_management_career_id } = careerAssignments[0];
                 await getDataCareerAssignmentPeriods(academic_management_career_id);
             }
         }
@@ -67,64 +67,71 @@ export const FormExamn = () => {
         }
     }, [careerAssignmentsPeriods]);
 
-    const onSubmit = async (data) => {
-        if (!data.academic_management_period_id) {
-            customAlert("error", "Debe seleccionar un período académico");
+    useEffect(() => {
+        if (data) {
+            reset({
+                title: data.title,
+                description: data.description,
+                total_score: String(data.total_score), // Convertir a string
+                passing_score: String(data.passing_score), // Convertir a string
+                date_of_realization: new Date(data.date_of_realization).toISOString().split('T')[0],
+                type: data.type,
+                academic_management_period_id: String(data.academic_management_period_id) // Convertir a string
+            });
+        }
+    }, [data, reset]);
+
+    const onSubmit = async (formData) => {
+        if (!formData.academic_management_period_id) {
+            customAlert("Debe seleccionar un período académico", "error");
             return;
         }
         setResponse(true);
-        const formData = new FormData();
-        formData.append("title", data.title)
-        formData.append("description", data.description)
-        formData.append("total_score", Number(data.total_score))  // Convertir a número
-        formData.append("passing_score", Number(data.passing_score))  // Convertir a número
-        formData.append("date_of_realization", new Date(data.date_of_realization).toISOString().split('T')[0])  // Formatear fecha
-        formData.append("type", data.type)
-        formData.append("status", "inactivo")
-        formData.append("academic_management_period_id", String(data.academic_management_period_id))
- 
+        
+        const dataToSend = {
+            ...formData,
+            total_score: Number(formData.total_score),
+            passing_score: Number(formData.passing_score),
+            academic_management_period_id: Number(formData.academic_management_period_id),
+            status: 'inactivo', // Mantener el estado actual de la evaluación en la dat
+            date_of_realization: formData.date_of_realization 
+                ? new Date(formData.date_of_realization).toISOString().split('T')[0]
+                : null    
+        };
+
         try {
-            const response = await postApi("evaluations/save", formData)
-            if (!response) {
-                throw new Error('No response from server')
-            }
+            const response = await postApi(`evaluations/edit/${data.id}`, dataToSend);
+            console.log('Response:', response); // Para debug
+            
             if (response.status === 422) {
-                for (let key in response.data.errors) {
-                    setError(key, { type: "custom", message: response.data.errors[key][0] })
+                for (const key in response.data.errors) {
+                    setError(key, { type: "custom", message: response.data.errors[key][0] });
                 }
-                return
+                return;
             }
-            customAlert("Examen creado con éxito", "success")
-            closeFormModal("registerExamn")
-            addExamn(response)
-            resetForm()
-        } catch (e) {
-            console.error('Error details:', e) // Para debug
-            customAlert("Error al crear el examen", "error")
+            
+            updateExamn(response.data || response); // Intentar con response.data primero
+            customAlert("Examen actualizado con éxito", "success");
+            closeFormModal("editarExamn");
+        } catch (error) {
+            console.error('Error details:', error); // Para debug
+            if (error.response?.status === 403) {
+                customAlert("No tienes permisos para realizar esta acción", "warning");
+                closeModal("editarExamn");
+            } else {
+                customAlert("Error al actualizar el examen", "error");
+            }
         } finally {
-            setResponse(false)
+            setResponse(false);
         }
-    }
-    const resetForm = () => {
-        reset({
-            title: "",
-            description: "",
-            total_score: "",
-            passing_score: "",
-            date_of_realization: "",
-            type: "",
-            academic_management_period_id: "",
-        })
-    }
-    
+    };
+
     const handleCancel = () => {
-        resetForm()
-        closeFormModal("registerExamn")
-    }
+        closeModal();
+    };
 
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
-            {/* Tus inputs siguen igual */}
             <ContainerInput>
                 <Input name="title" control={control} type="text" placeholder="Ingrese un título" />
                 <Validate error={errors.title} />
@@ -160,15 +167,9 @@ export const FormExamn = () => {
                 <Validate error={errors.academic_management_period_id} />
             </ContainerInput>
 
-            {array.length === 0 && (
-                <div style={{ color: 'orange', fontSize: '14px', marginBottom: '10px' }}>
-                    No se encontraron periodos disponibles para esta carrera.
-                </div>
-            )}
-
             <ContainerButton>
                 <Button type="submit" name="submit" disabled={response}>
-                    {response ? "Cargando..." : "Guardar"}
+                    {response ? "Actualizando..." : "Actualizar"}
                 </Button>
                 <CancelButton disabled={response} onClick={handleCancel} />
             </ContainerButton>

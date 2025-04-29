@@ -2,7 +2,6 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { ExamnsContext } from '../../context/ExamnsProvider'
 import { useFetchExamns } from '../../hooks/fetchExamns'
-import { Button } from 'bootstrap/dist/js/bootstrap.bundle.min'
 import ButtonEdit from './ButtonEdit'
 import ModalEdit from './ModalEdit'
 
@@ -41,27 +40,27 @@ export const Examns = () => {
               <tr key={examn.id}>
                 <th scope="row">{index + 1}</th>
                 <td>{examn.title}</td>
-                <td>{examn.description}</td> 
+                <td>{examn.description}</td>
                 <td>{examn.total_score}</td>
                 <td>{examn.passing_score}</td>
                 <td>{examn.code}</td>
                 <td>{examn.date_of_realization}</td>
                 <td>{examn.type}</td>
                 <td>{examn.status}</td>
-                <td>{examn.academic_mangement_period_id}</td>
+                <td>{examn.period_name || 'No asignado'}</td>
                 <td>
                   <ButtonEdit idEditar={idEditar} onEditClick={() => handleEditClick(examn)} />
                 </td>
               </tr>
             ))
-          ): (
+          ) : (
             <tr>
-              <td colSpan="9">No hay examenes registrados</td>
+              <td colSpan="11">No hay examenes registrados</td>
             </tr>
           )}
         </tbody>
       </table>
-      <ModalEdit examn={selectedExamn} idEditar={idEditar} />
+      <ModalEdit examn={selectedExamn} idEditar={idEditar} title="Editar Evaluacion"/>
     </>
   )
 }

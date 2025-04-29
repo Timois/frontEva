@@ -2,8 +2,9 @@
 /* eslint-disable no-unused-vars */
 import React, { useState } from "react"
 import { Card } from "../../components/login/Card"
+import { EditExamn } from "../../components/editForms/EditExamn"
 
-const ModalEdit = ({ idEditar, data, title }) => {
+const ModalEdit = ({ idEditar, examn, title }) => {
    const [showModal, setShowModal] = useState(false)
     const handleCloseModal = () => setShowModal(false)
   return (
@@ -22,7 +23,7 @@ const ModalEdit = ({ idEditar, data, title }) => {
             <h5 className="modal-title text-center text-success" id="exampleModalLabel">{title}</h5>
           </div>
           <Card className="card align-items-center h-auto gap-3 p-3">
-            
+              <EditExamn data={examn} />
           </Card>
         </div>
       </div>
