@@ -14,7 +14,6 @@ const ButtonEdit = ({ idEditar, onEditClick }) => {
       onClick={onEditClick}
     >
       <FaEdit size={16} /> {/* Agrega el ícono aquí */}
-      Editar {/* Puedes eliminar este texto si solo quieres el ícono */}
     </button>
   );
 };

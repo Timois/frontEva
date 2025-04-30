@@ -22,6 +22,7 @@ import { StudentProvider } from './context/StudentProvider.jsx';
 import { PermissionsProvider } from './context/PermissionsProvider.jsx';
 import { RolesProvider } from './context/RolesProvider.jsx';
 import { ExamnsProvider } from './context/ExamnsProvider.jsx';
+import { QuestionEvaluationProvider } from './context/QuestionEvaluationProvider.jsx';
 
 
 createRoot(document.getElementById('root')).render(
@@ -42,7 +43,9 @@ createRoot(document.getElementById('root')).render(
                               <AnswersProvider>
                                 <ImportExcelQuestionsProvider>
                                   <ExamnsProvider>
-                                    <App />
+                                    <QuestionEvaluationProvider>
+                                      <App />
+                                    </QuestionEvaluationProvider>
                                   </ExamnsProvider>
                                 </ImportExcelQuestionsProvider>
                               </AnswersProvider>
