@@ -3,7 +3,7 @@
 import { FaClipboardList } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
-const ButtonAssignPrueba = ({ examnId }) => {
+const ButtonAssignQuestions = ({ examnId }) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
@@ -22,4 +22,4 @@ const ButtonAssignPrueba = ({ examnId }) => {
   );
 };
 
-export default ButtonAssignPrueba;
+export default ButtonAssignQuestions;

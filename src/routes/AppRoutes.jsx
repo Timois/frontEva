@@ -28,6 +28,7 @@ import PermissionsGuard from "./PermissionsGuard"
 import { IndexAnswer } from "../pages/careers/questions/answers/IndexAnswer"
 import { Answer } from "../pages/careers/questions/Answer"
 import { AssignQuestions } from "../pages/examn management/AssignQuestions"
+import { GeneratePrueba } from "../pages/examn management/GeneratePrueba"
 
 export const AppRoutes = () => {
   return (
@@ -103,8 +104,12 @@ export const AppRoutes = () => {
               <IndexExamns />
             </PermissionsGuard>} />
           <Route path="administracion/examns/:id/assignQuestions" element={
-            <PermissionsGuard requiredPermission={"generar-pruebas-aleatorias"}>
+            <PermissionsGuard requiredPermission={"asignar-preguntas-evaluaciones"}>
               <AssignQuestions />
+            </PermissionsGuard>} /> 
+          <Route path="administracion/examns/:id/prueba" element={
+            <PermissionsGuard requiredPermission={"generar-pruebas-aleatorias"}>
+              <GeneratePrueba /> 
             </PermissionsGuard>} /> 
           <Route path="administracion/results" element={
             <PermissionsGuard requiredPermission={"ver-resultados"}>

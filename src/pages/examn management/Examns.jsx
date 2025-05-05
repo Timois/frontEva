@@ -4,7 +4,7 @@ import { ExamnsContext } from '../../context/ExamnsProvider'
 import { useFetchExamns } from '../../hooks/fetchExamns'
 import ButtonEdit from './ButtonEdit'
 import ModalEdit from './ModalEdit'
-import ButtonAssignPrueba from './ButtonAssignPrueba'
+import ButtonAssignQuestions from './ButtonAssignQuestions'
 
 export const Examns = () => {
   const { examns } = useContext(ExamnsContext)
@@ -51,7 +51,7 @@ export const Examns = () => {
                 <td>{examn.period_name || 'No asignado'}</td>
                 <td>
                   <ButtonEdit idEditar={idEditar} onEditClick={() => handleEditClick(examn)} />
-                  <ButtonAssignPrueba examnId={examn.id}/>
+                  <ButtonAssignQuestions examnId={examn.id}/>
                 </td>
               </tr>
             ))
