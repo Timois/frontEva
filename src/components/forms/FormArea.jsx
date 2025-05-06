@@ -34,7 +34,6 @@ export const FormArea = () => {
             description: "",
         },
     });
-
     const onSubmit = async (data) => {
         setResponse(true);
 
@@ -62,14 +61,10 @@ export const FormArea = () => {
                 }
                 return;
             }
-            if (response.area) {
-                addArea(response.area);
-                customAlert("Área Guardada", "success");
-                closeFormModal("registroArea");
-                resetForm();
-            } else {
-                customAlert("La respuesta no contiene el área creada", "error");
-            }
+            addArea(response);
+            resetForm();
+            closeFormModal("registroArea");
+            customAlert("Área guardada correctamente", "success");
         } catch (error) {
             console.error("Error al guardar área:", error);
             setResponse(false);

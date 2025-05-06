@@ -32,7 +32,7 @@ export const FormExamn = () => {
     })
     const user = JSON.parse(localStorage.getItem('user'))
     const career_id = user?.career_id
-    
+
     const { careerAssignments, getDataCareerAssignments } = useFetchCareerAssign(career_id)
     const { careerAssignmentsPeriods, getDataCareerAssignmentPeriods } = useFetchCareerAssignPeriod()
 
@@ -79,10 +79,12 @@ export const FormExamn = () => {
         formData.append("total_score", Number(data.total_score))  // Convertir a número
         formData.append("passing_score", Number(data.passing_score))  // Convertir a número
         formData.append("date_of_realization", new Date(data.date_of_realization).toISOString().split('T')[0])  // Formatear fecha
+        formData.append("qualified_students", data.qualified_students)
+        formData.append("disqualified_students", data.disqualified_students)
         formData.append("type", data.type)
         formData.append("status", "inactivo")
         formData.append("academic_management_period_id", String(data.academic_management_period_id))
- 
+
         try {
             const response = await postApi("evaluations/save", formData)
             if (!response) {
@@ -112,11 +114,13 @@ export const FormExamn = () => {
             total_score: "",
             passing_score: "",
             date_of_realization: "",
+            qualified_students: "",
+            disqualified_students: "",
             type: "",
             academic_management_period_id: "",
         })
     }
-    
+
     const handleCancel = () => {
         resetForm()
         closeFormModal("registerExamn")
@@ -129,43 +133,43 @@ export const FormExamn = () => {
                 <Input name="title" control={control} type="text" placeholder="Ingrese un título" />
                 <Validate error={errors.title} />
             </ContainerInput>
-
             <ContainerInput>
                 <Input name="description" control={control} type="text" placeholder="Ingrese una descripción" />
                 <Validate error={errors.description} />
             </ContainerInput>
-
             <ContainerInput>
                 <Input name="total_score" control={control} type="number" placeholder="Ingrese la calificación total" />
                 <Validate error={errors.total_score} />
             </ContainerInput>
-
             <ContainerInput>
                 <Input name="passing_score" control={control} type="number" placeholder="Ingrese la calificación mínima" />
                 <Validate error={errors.passing_score} />
             </ContainerInput>
-
             <ContainerInput>
                 <DateInput label="Fecha de realización" name="date_of_realization" control={control} type="date" />
                 <Validate error={errors.date_of_realization} />
             </ContainerInput>
-
             <ContainerInput>
                 <SelectInput label="Seleccione el tipo" name="type" options={arrayOption} control={control} error={errors.type} />
                 <Validate error={errors.type} />
             </ContainerInput>
-
+            <ContainerInput>
+                <Input name="qualified_students" control={control} type="number" placeholder="Ingrese la cantidad de estudiantes habilitados" />
+                <Validate error={errors.qualified_students} />
+            </ContainerInput>
+            <ContainerInput>
+                <Input name="disqualified_students" control={control} type="number" placeholder="Ingrese la cantidad de estudiantes deshabilitados" />
+                <Validate error={errors.disqualified_students} />
+            </ContainerInput>
             <ContainerInput>
                 <SelectInput label="Seleccione el periodo" name="academic_management_period_id" options={array} control={control} error={errors.academic_management_period_id} />
                 <Validate error={errors.academic_management_period_id} />
             </ContainerInput>
-
             {array.length === 0 && (
                 <div style={{ color: 'orange', fontSize: '14px', marginBottom: '10px' }}>
                     No se encontraron periodos disponibles para esta carrera.
                 </div>
             )}
-
             <ContainerButton>
                 <Button type="submit" name="submit" disabled={response}>
                     {response ? "Cargando..." : "Guardar"}

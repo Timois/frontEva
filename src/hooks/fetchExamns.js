@@ -34,6 +34,14 @@ export const useFetchExamns = () => {
       return null
     }
   }
-
-  return { examns, getDataExamns, refreshExamns, fetchDisponibles }
+  const fetchQuestionsAssigned = async (examnId) => {
+    try {
+      const response = await getApi(`question_evaluations/find/${examnId}`)
+      return response 
+    }catch (error) {
+      console.error("Error al obtener preguntas asignadas:", error)
+      return null
+    }
+  }
+  return { examns, getDataExamns, refreshExamns, fetchDisponibles, fetchQuestionsAssigned }
 }

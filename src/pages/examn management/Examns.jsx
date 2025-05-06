@@ -5,6 +5,7 @@ import { useFetchExamns } from '../../hooks/fetchExamns'
 import ButtonEdit from './ButtonEdit'
 import ModalEdit from './ModalEdit'
 import ButtonAssignQuestions from './ButtonAssignQuestions'
+import { ButtonViewQuestionsAssigned } from './ButtonViewQuestionsAssigned'
 
 export const Examns = () => {
   const { examns } = useContext(ExamnsContext)
@@ -31,6 +32,7 @@ export const Examns = () => {
             <th scope="col">Fecha de realizacion</th>
             <th scope="col">Tipo</th>
             <th scope="col">Estado</th>
+            <th scope="col">Estudiantes habilitados</th>
             <th scope="col">Periodo</th>
             <th scope="col">Acciones</th>
           </tr>
@@ -48,10 +50,12 @@ export const Examns = () => {
                 <td>{examn.date_of_realization}</td>
                 <td>{examn.type}</td>
                 <td>{examn.status}</td>
+                <td>{examn.qualified_students}</td>
                 <td>{examn.period_name || 'No asignado'}</td>
                 <td>
                   <ButtonEdit idEditar={idEditar} onEditClick={() => handleEditClick(examn)} />
                   <ButtonAssignQuestions examnId={examn.id}/>
+                  <ButtonViewQuestionsAssigned examnId={examn.id} />
                 </td>
               </tr>
             ))

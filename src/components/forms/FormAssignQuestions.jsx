@@ -54,11 +54,12 @@ export const FormAssignQuestions = ({ data }) => {
             }
             setDisponibles(disponiblesPorArea)
         }
+    
         if (areas.length > 0) {
             loadDisponibles()
         }
     }, [areas])
-
+    
     const { control, handleSubmit, watch, reset, formState: { errors } } = useForm({
         defaultValues: {
             evaluation_id: '',
@@ -82,17 +83,22 @@ export const FormAssignQuestions = ({ data }) => {
             reset(defaultValues)
         }
     }, [areas])
+    
     const areaScores = watch('areas')?.map(area => Number(area.puntajeTotal) || 0) || []
+
     useEffect(() => {
         const total = areaScores.reduce((sum, score) => sum + score, 0)
         setTotalAssignedScore(total)
     }, [areaScores])
+
     const onSubmit = async (formData) => {
         if (totalAssignedScore !== Number(data.total_score)) {
             customAlert(`La suma de puntajes (${totalAssignedScore}) debe ser igual al puntaje total del examen (${data.total_score})`, "error")
             return
         }
+
         const questionsPerArea = {}
+
         formData.areas.forEach(area => {
             const cantidadTotal =
                 Number(area.cantidadFacil || 0) +
@@ -106,6 +112,7 @@ export const FormAssignQuestions = ({ data }) => {
                 }
             }
         })
+
         const payload = {
             evaluation_id: Number(formData.evaluation_id),
             questions_per_area: questionsPerArea
@@ -120,15 +127,17 @@ export const FormAssignQuestions = ({ data }) => {
             setResponse(false)
         }
     }
+
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
             <div className="alert alert-info mb-4">
                 <div className="d-flex justify-content-between align-items-center">
                     <span>ID de Evaluación: {data?.id}</span>
                     <span>Puntaje Total del Examen: {data?.total_score}</span>
-                    <span>Puntaje Asignado: {totalAssignedScore}</span>
+                    <span>Puntaje Asignado: {totalAssignedScore}</span> 
                 </div>
             </div>
+        
             {isLoading.current ? (
                 <div>Cargando áreas...</div>
             ) : (
@@ -170,6 +179,7 @@ export const FormAssignQuestions = ({ data }) => {
                                         )}
                                         <Validate error={errors?.areas?.[index]?.cantidadMedia} />
                                     </ContainerInput>
+
                                     <ContainerInput>
                                         <Input
                                             name={`areas.${index}.cantidadDificil`}
@@ -209,7 +219,6 @@ export const FormAssignQuestions = ({ data }) => {
                     ))}
                 </div>
             )}
-
             <ContainerButton>
                 <Button type="submit" disabled={response || isLoading.current}>
                     {response ? "Guardando..." : "Guardar"}

@@ -9,7 +9,7 @@ export const Input = ({ type, placeholder, name, control }) => {
       name={name}
       control={control}
       render={({ field }) =>
-        <input className={"form-control rounded-0 w-100"} type={type} placeholder={placeholder} aria-describedby="basic-addon1" id={name} {...field} value={field.value || ""} min={1}/>
+        <input className={"form-control rounded-0 w-100"} type={type} placeholder={placeholder} aria-describedby="basic-addon1" id={name} {...field} value={field.value || ""} />
       }
     />
   )
