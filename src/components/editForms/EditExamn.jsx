@@ -76,6 +76,7 @@ export const EditExamn = ({ data, closeModal }) => {
                 passing_score: String(data.passing_score), // Convertir a string
                 date_of_realization: new Date(data.date_of_realization).toISOString().split('T')[0],
                 type: data.type,
+                qualified_students: data.qualified_students,
                 academic_management_period_id: String(data.academic_management_period_id) // Convertir a string
             });
         }
@@ -94,6 +95,7 @@ export const EditExamn = ({ data, closeModal }) => {
             passing_score: Number(formData.passing_score),
             academic_management_period_id: Number(formData.academic_management_period_id),
             status: 'inactivo', // Mantener el estado actual de la evaluación en la dat
+            qualified_students: formData.qualified_students,
             date_of_realization: formData.date_of_realization 
                 ? new Date(formData.date_of_realization).toISOString().split('T')[0]
                 : null    
@@ -161,7 +163,10 @@ export const EditExamn = ({ data, closeModal }) => {
                 <SelectInput label="Seleccione el tipo" name="type" options={arrayOption} control={control} error={errors.type} />
                 <Validate error={errors.type} />
             </ContainerInput>
-
+            <ContainerInput>
+                <Input name="qualified_students" control={control} type="number" placeholder="Ingrese la cantidad de estudiantes habilitados" />
+                <Validate error={errors.qualified_students} />
+            </ContainerInput>
             <ContainerInput>
                 <SelectInput label="Seleccione el periodo" name="academic_management_period_id" options={array} control={control} error={errors.academic_management_period_id} />
                 <Validate error={errors.academic_management_period_id} />

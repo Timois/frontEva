@@ -6,6 +6,10 @@ import ButtonEdit from './ButtonEdit'
 import ModalEdit from './ModalEdit'
 import ButtonAssignQuestions from './ButtonAssignQuestions'
 import { ButtonViewQuestionsAssigned } from './ButtonViewQuestionsAssigned'
+import { ButtonOrderRandomQuestions } from './ButtonOrderRandomQuestions'
+import { ButtonViewStudentsWithTest } from './ButtonViewStudentWithTest'
+import { ModalStudentsWithTest } from './ModalStudentsWithTest'
+
 
 export const Examns = () => {
   const { examns } = useContext(ExamnsContext)
@@ -17,6 +21,7 @@ export const Examns = () => {
   useEffect(() => {
     getDataExamns()
   }, [])
+
   const idEditar = "editarExamn"
   return (
     <>
@@ -32,7 +37,7 @@ export const Examns = () => {
             <th scope="col">Fecha de realizacion</th>
             <th scope="col">Tipo</th>
             <th scope="col">Estado</th>
-            <th scope="col">Estudiantes habilitados</th>
+            <th scope="col">Cantidad de postulantes</th>
             <th scope="col">Periodo</th>
             <th scope="col">Acciones</th>
           </tr>
@@ -54,8 +59,11 @@ export const Examns = () => {
                 <td>{examn.period_name || 'No asignado'}</td>
                 <td>
                   <ButtonEdit idEditar={idEditar} onEditClick={() => handleEditClick(examn)} />
-                  <ButtonAssignQuestions examnId={examn.id}/>
+                  <ButtonAssignQuestions examnId={examn.id} />
                   <ButtonViewQuestionsAssigned examnId={examn.id} />
+                  <ButtonOrderRandomQuestions examnId={examn.id} />
+                  <ButtonViewStudentsWithTest examnId={examn.id} />
+                  <ModalStudentsWithTest examnId={examn.id} />
                 </td>
               </tr>
             ))
@@ -66,7 +74,8 @@ export const Examns = () => {
           )}
         </tbody>
       </table>
-      <ModalEdit examn={selectedExamn} idEditar={idEditar} title="Editar Evaluacion"/>
-    </>
+      <ModalEdit examn={selectedExamn} idEditar={idEditar} title="Editar Evaluacion" />
+      
+      </>
   )
 }

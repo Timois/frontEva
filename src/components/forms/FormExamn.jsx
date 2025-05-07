@@ -158,10 +158,6 @@ export const FormExamn = () => {
                 <Validate error={errors.qualified_students} />
             </ContainerInput>
             <ContainerInput>
-                <Input name="disqualified_students" control={control} type="number" placeholder="Ingrese la cantidad de estudiantes deshabilitados" />
-                <Validate error={errors.disqualified_students} />
-            </ContainerInput>
-            <ContainerInput>
                 <SelectInput label="Seleccione el periodo" name="academic_management_period_id" options={array} control={control} error={errors.academic_management_period_id} />
                 <Validate error={errors.academic_management_period_id} />
             </ContainerInput>
