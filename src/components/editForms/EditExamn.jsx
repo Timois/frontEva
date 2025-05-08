@@ -94,8 +94,8 @@ export const EditExamn = ({ data, closeModal }) => {
             total_score: Number(formData.total_score),
             passing_score: Number(formData.passing_score),
             academic_management_period_id: Number(formData.academic_management_period_id),
-            status: 'inactivo', // Mantener el estado actual de la evaluación en la dat
-            qualified_students: formData.qualified_students,
+            status: data.status, // Use existing status
+            qualified_students: Number(formData.qualified_students), // Ensure it's converted to number
             date_of_realization: formData.date_of_realization 
                 ? new Date(formData.date_of_realization).toISOString().split('T')[0]
                 : null    
@@ -103,7 +103,6 @@ export const EditExamn = ({ data, closeModal }) => {
 
         try {
             const response = await postApi(`evaluations/edit/${data.id}`, dataToSend);
-            console.log('Response:', response); // Para debug
             
             if (response.status === 422) {
                 for (const key in response.data.errors) {
@@ -112,11 +111,16 @@ export const EditExamn = ({ data, closeModal }) => {
                 return;
             }
             
-            updateExamn(response.data || response); // Intentar con response.data primero
+            // Update the local state with the new data
+            updateExamn({
+                ...data,
+                ...response.data || response,
+                qualified_students: Number(formData.qualified_students)
+            });
+            
             customAlert("Examen actualizado con éxito", "success");
             closeFormModal("editarExamn");
         } catch (error) {
-            console.error('Error details:', error); // Para debug
             if (error.response?.status === 403) {
                 customAlert("No tienes permisos para realizar esta acción", "warning");
                 closeModal("editarExamn");
@@ -138,27 +142,22 @@ export const EditExamn = ({ data, closeModal }) => {
                 <Input name="title" control={control} type="text" placeholder="Ingrese un título" />
                 <Validate error={errors.title} />
             </ContainerInput>
-
             <ContainerInput>
                 <Input name="description" control={control} type="text" placeholder="Ingrese una descripción" />
                 <Validate error={errors.description} />
             </ContainerInput>
-
             <ContainerInput>
                 <Input name="total_score" control={control} type="number" placeholder="Ingrese la calificación total" />
                 <Validate error={errors.total_score} />
             </ContainerInput>
-
             <ContainerInput>
                 <Input name="passing_score" control={control} type="number" placeholder="Ingrese la calificación mínima" />
                 <Validate error={errors.passing_score} />
             </ContainerInput>
-
             <ContainerInput>
                 <DateInput label="Fecha de realización" name="date_of_realization" control={control} type="date" />
                 <Validate error={errors.date_of_realization} />
             </ContainerInput>
-
             <ContainerInput>
                 <SelectInput label="Seleccione el tipo" name="type" options={arrayOption} control={control} error={errors.type} />
                 <Validate error={errors.type} />
@@ -171,7 +170,6 @@ export const EditExamn = ({ data, closeModal }) => {
                 <SelectInput label="Seleccione el periodo" name="academic_management_period_id" options={array} control={control} error={errors.academic_management_period_id} />
                 <Validate error={errors.academic_management_period_id} />
             </ContainerInput>
-
             <ContainerButton>
                 <Button type="submit" name="submit" disabled={response}>
                     {response ? "Actualizando..." : "Actualizar"}

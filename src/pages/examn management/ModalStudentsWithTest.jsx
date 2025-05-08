@@ -1,7 +1,8 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useState } from 'react'
 import { getApi } from '../../services/axiosServices/ApiService'
-
+import { ButtonViewTest } from './ButtonViewTest'
+ 
 export const ModalStudentsWithTest = ({ examnId }) => {
   const [students, setStudents] = useState([])
 
@@ -62,6 +63,7 @@ export const ModalStudentsWithTest = ({ examnId }) => {
                 {students.map((item) => (
                   <li key={item.id} className="list-group-item">
                     <strong>{item.student?.name ?? ''} {item.student?.paternal_surname ?? ''} {item.student?.maternal_surname ?? ''}</strong>
+                    <ButtonViewTest  studentTestId={item.id}/>
                   </li>
                 ))}
               </ul>

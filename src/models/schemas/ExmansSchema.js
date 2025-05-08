@@ -32,13 +32,6 @@ export const ExmansSchema = z.object({
             z.number()
            .min(0, "La cantidad mínima permitida es 0")
         ),
-    disqualified_students: z
-      .string()
-      .transform((val) => Number(val))
-      .pipe(
-            z.number()
-          .min(0, "La cantidad mínima permitida es 0")
-        ),    
     academic_management_period_id: z.string({ required_error: "Seleccione una opcion" })
         .regex(/^[0-9]+$/, { message: "Debe ser un id válido" })
 })

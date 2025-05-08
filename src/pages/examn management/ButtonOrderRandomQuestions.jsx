@@ -4,7 +4,7 @@
 
 import Swal from 'sweetalert2'
 import { postApi } from '../../services/axiosServices/ApiService'
-import { FaClipboardList } from 'react-icons/fa'
+import { FaClipboardList, FaRandom } from 'react-icons/fa'
 
 export const ButtonOrderRandomQuestions = ({ examnId }) => {
   const handleRandomize = async () => {
@@ -26,7 +26,7 @@ export const ButtonOrderRandomQuestions = ({ examnId }) => {
       title="Asignar preguntas"
       onClick={handleRandomize}
     >
-      Randomizar Preguntas
+      <FaRandom />
     </button>
   )
 }

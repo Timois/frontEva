@@ -9,6 +9,7 @@ import { ButtonViewQuestionsAssigned } from './ButtonViewQuestionsAssigned'
 import { ButtonOrderRandomQuestions } from './ButtonOrderRandomQuestions'
 import { ButtonViewStudentsWithTest } from './ButtonViewStudentWithTest'
 import { ModalStudentsWithTest } from './ModalStudentsWithTest'
+import { ButtonViewTest } from './ButtonViewTest'
 
 
 export const Examns = () => {

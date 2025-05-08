@@ -13,7 +13,7 @@ const ButtonAssignQuestions = ({ examnId }) => {
   return (
     <button
       type="button"
-      className="btn btn-success btn-sm ms-2"
+      className="btn btn-primary btn-sm ms-2"
       title="Asignar preguntas"
       onClick={handleClick}
     >

@@ -22,8 +22,19 @@ export const useFetchExamns = () => {
     }
   }
   const refreshExamns = async () => {
-    const response = await getApi("evaluations/list")
-    setExamns(response)
+    try {
+      const response = await getApi("evaluations/list")
+      const examnsWithPeriod = await Promise.all(response.map(async (examn) => {
+        const periodResponse = await getApi(`evaluations/findPeriod/${examn.academic_management_period_id}`)
+        return {
+          ...examn,
+          period_name: periodResponse.period?.period
+        }
+      }))
+      setExamns(examnsWithPeriod)
+    } catch (error) {
+      console.error("Error al actualizar exámenes:", error)
+    }
   }
   const fetchDisponibles = async (areaId) => {
     try {
@@ -43,5 +54,14 @@ export const useFetchExamns = () => {
       return null
     }
   }
-  return { examns, getDataExamns, refreshExamns, fetchDisponibles, fetchQuestionsAssigned }
+  const fetchStudenttestStudent = (student_test_id) => {
+   try {
+    const response = getApi(`student_tests/listQuestionsByStudent/${student_test_id}`)
+    return response 
+   }catch (error) {
+    console.error("Error al obtener preguntas asignadas:", error)
+    return null
+   }
+  }
+  return { examns, getDataExamns, refreshExamns, fetchDisponibles, fetchQuestionsAssigned, fetchStudenttestStudent }
 }
