@@ -16,6 +16,7 @@ export const SelectInput = ({ name, options, error, control, label }) => {
                         id={name}
                         className={`form-select w-100 ${error ? 'is-invalid' : ''}`}
                         {...field}
+                        value={field.value ?? ""}
                     >
                         <option value="">
                             {label}

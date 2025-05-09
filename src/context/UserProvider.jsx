@@ -15,7 +15,7 @@ export const UserProvider = ({ children }) => {
     }, []);
 
     const addUser = (usuario) => {
-        setUsers([...users, usuario]);
+        setUsers(prev =>[...prev, usuario]);
     }
 
     const updateUser = (usuario) => {

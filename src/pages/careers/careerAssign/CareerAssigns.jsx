@@ -8,6 +8,7 @@ import { ModalViewManagementPeriod } from "../periodsAsign/ModalViewManagementPe
 import { AssignManagement } from "../AssignManagement"
 import { ModalRegisterManagement } from "../ModalRegisterManagement";
 import CheckPermissions from "../../../routes/CheckPermissions";
+import { useCountdown } from '../../../hooks/useCountdown';
 
 const capitalizeTitle = (text) => {
     if (!text) return "";
@@ -22,55 +23,17 @@ export const CareerAssigns = ({ data }) => {
     const { getData } = useFetchGestion();
     const { gestions } = useContext(GestionContext);
     const [transformedGestions, setTransformedGestions] = useState([]);
-    const [countdowns, setCountdowns] = useState([])
+    const countdowns = useCountdown(data);
 
     useEffect(() => {
         if (gestions.length === 0) {
             getData();
             return;
         }
-        // Mapeo para transformar los datos
         const transformed = gestions.map((gestion) => gestion.year || "Sin información");
         setTransformedGestions(transformed);
     }, [gestions]);
 
-
-    useEffect(() => {
-        const intervalId = setInterval(() => {
-            const updatedCountdowns = data.map((gestion, index) => {
-                const endDate = new Date(gestion.end_date);
-
-                endDate.setHours(23, 59, 59, 999);
-
-                const currentDate = new Date();
-                const timeRemaining = endDate - currentDate;
-
-                if (timeRemaining <= 0) {
-                    return { index, countdown: "Tiempo agotado" };
-                } else {
-                    const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
-                    const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                    const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
-                    const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
-
-                    return {
-                        index,
-                        countdown: `${days}d ${hours}h ${minutes}m ${seconds}s`,
-                    };
-                }
-            });
-
-            setCountdowns((prev) => {
-                const updated = [...prev];
-                updatedCountdowns.forEach(({ index, countdown }) => {
-                    updated[index] = countdown;
-                });
-                return updated;
-            });
-        }, 1000);
-
-        return () => clearInterval(intervalId);
-    }, [data]);
 
     const modalIdManagement = "asignarGestion"
     if (data.length === 0) {
@@ -170,7 +133,6 @@ export const CareerAssigns = ({ data }) => {
                                 <CheckPermissions requiredPermission="ver-periodos-asignados">
                                     <ViewPeriod handleClick={() => {
                                         setModalData(gestion['academic_management_career_id'], "verPeriodo");
-                                        // console.log(gestion);
                                     }} />
                                 </CheckPermissions>
                             </div>

@@ -49,28 +49,27 @@ export const useFetchCareerAssign = (id) => {
     return { careerAssignments, getDataCareerAssignments }
 }
 
-export const useFetchCareerAssignPeriod = (id) => {
-    const { careerAssignmentsPeriods, setCareerAssignmentsPeriods } = useContext(CareerAssignContext)
-    
-    const getDataCareerAssignmentPeriods = async (academic_management_career_id) => {
-        try {
-            if (!academic_management_career_id) {
-                return;
-            }
-            const response = await getApi(`careers/findPeriodByIdAssign/${academic_management_career_id}`);
-            
-            if (Array.isArray(response)) {
-                setCareerAssignmentsPeriods(response);
-            } else {
-                setCareerAssignmentsPeriods([]);
-            }
-        } catch (error) {
-            setCareerAssignmentsPeriods([]);
-        }
-    }
-    
-    return { careerAssignmentsPeriods, getDataCareerAssignmentPeriods }
-}
+export const useFetchCareerAssignPeriod = () => {
+  const { careerAssignmentsPeriods, setCareerAssignmentsPeriods } = useContext(CareerAssignContext);
+
+  const getDataCareerAssignmentPeriods = async (academic_management_career_id) => {
+      try {
+          if (!academic_management_career_id) return;
+
+          const response = await getApi(`careers/findPeriodByIdAssign/${academic_management_career_id}`);
+          if (Array.isArray(response)) {
+              setCareerAssignmentsPeriods(response);
+          } else {
+              setCareerAssignmentsPeriods([]);
+          }
+      } catch (error) {
+          setCareerAssignmentsPeriods([]);
+      }
+  };
+
+  return { careerAssignmentsPeriods, getDataCareerAssignmentPeriods };
+};
+
 
 export const useFetchPeriodAssign = (id) => {
     const { periodAssignments, setPeriodAssignments } = useContext(PeriodAssignContext)

@@ -30,6 +30,7 @@ import { Answer } from "../pages/careers/questions/Answer"
 import { AssignQuestions } from "../pages/examn management/AssignQuestions"
 import { ViewQuestionsAssigned } from "../pages/examn management/ViewQuestionsAssigned"
 import ViewQuestionsAndAnswers from "../pages/examn management/ViewQuestionsAndAnswers"
+import { CareerById } from "../pages/careers/CareerById"
 
 export const AppRoutes = () => {
   return (
@@ -54,8 +55,12 @@ export const AppRoutes = () => {
             <PermissionsGuard requiredPermission={"ver-carreras"}>
               <IndexCareer />
             </PermissionsGuard>} />
+          <Route path="administracion/career" element={
+            <PermissionsGuard requiredPermission={"ver-unidades-por-id"}>
+              <CareerById />
+            </PermissionsGuard>} />  
           <Route path="administracion/careers/:id/assigns" element={
-            <PermissionsGuard requiredPermission={"ver-gestiones-asignadas"}>
+            <PermissionsGuard requiredPermission={"ver-gestiones-asignadas-por-id"}>
               <IndexCareerAssign />
             </PermissionsGuard>} />
           <Route path="administracion/gestion" element={

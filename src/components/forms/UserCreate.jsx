@@ -88,7 +88,7 @@ export const UserCreate = () => {
                 return;
             }
 
-            addUser(response);
+            addUser(response.data);
             customAlert("Usuario creado exitosamente", "success");
             closeFormModal("registerUser");
             reset();

@@ -63,7 +63,7 @@ export const FormRol = () => {
 
         try {
             const response = await postApi("roles/save", formData);
-
+            
             if (response.status === 422) {
                 for (const key in response.data.errors) {
                     setError(key, {
@@ -74,7 +74,7 @@ export const FormRol = () => {
                 return;
             }
 
-            addRol(response);
+            addRol(response.data);
             customAlert("Rol Guardado", "success");
             resetForm();
 
@@ -194,7 +194,7 @@ export const FormRol = () => {
                 <CancelButton
                     disabled={response}
                     onClick={handleCancel}
-                /> 
+                />
             </ContainerButton>
         </form>
     );

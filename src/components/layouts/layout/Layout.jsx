@@ -10,13 +10,11 @@ import { UserContext } from "../../../context/UserProvider";
 import { MdLogout } from "react-icons/md";
 import { FaUserShield, FaQuestionCircle, FaUserGraduate } from "react-icons/fa";
 import { PermissionsContext } from "../../../context/PermissionsProvider";
-import { RolContext } from "../../../context/RolesProvider";
 
 const Layout = ({ children }) => {
   // Contexts
   const { user, storeUser, student, storeStudent } = useContext(UserContext);
   const { permissions, isLoading } = useContext(PermissionsContext);
-  const { userRoles, setUserRoles } = useContext(RolContext);
   
   // Hooks
   const { isSidebarOpen, toggleSidebar, closeSidebar } = useSidebar();
@@ -25,8 +23,6 @@ const Layout = ({ children }) => {
   // Variables
   const isStudent = !!student;
 
-  // Helper functions
-  const hasRole = (role) => userRoles.includes(role.toLowerCase());
   const hasPermission = (perm) => permissions.includes(perm);
 
   const logout = () => {
@@ -35,9 +31,9 @@ const Layout = ({ children }) => {
       storeStudent(null);
       navigate("/estudiantes");
     } else {
+      console.log("aasdad")
       clearStorage();
       storeUser(null);
-      setUserRoles([]);
       navigate("/login");
     }
   };
@@ -68,8 +64,7 @@ const Layout = ({ children }) => {
       <div className="d-flex flex-grow-1 overflow-hidden">
         <Sidebar isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar}>
           <div className="accordion w-100 p-3" id="accordionExample" style={{ backgroundColor: '#82e5ef' }}>
-            {/* ADMIN */}
-            {hasRole('admin') && hasPermission("ver-usuarios") && (
+            {(
               <div className="accordion-item" style={{ backgroundColor: '#fdfefe' }}>
                 <h2 className="accordion-header" id="headingOne">
                   <button
@@ -80,7 +75,7 @@ const Layout = ({ children }) => {
                     aria-expanded="true"
                     aria-controls="collapseOne"
                   >
-                    <FaUserShield className="me-2" /> Administrador
+                    <FaUserShield className="me-2" /> Administracion
                   </button>
                 </h2>
                 <div
@@ -100,6 +95,13 @@ const Layout = ({ children }) => {
                       <MenuButton
                         path={"/administracion/roles"}
                         label={"Roles"}
+                        onClick={closeSidebar}
+                      />
+                    )}
+                    {hasPermission("ver-unidades-por-id") && (
+                      <MenuButton
+                        path={"/administracion/career"}
+                        label={"Carrera"}
                         onClick={closeSidebar}
                       />
                     )}
@@ -136,41 +138,11 @@ const Layout = ({ children }) => {
                 </div>
               </div>
             )}
-
-            {/* DIRECTOR */}
-            {hasRole('director') && (
-              <div className="accordion-item" style={{ backgroundColor: '#fdfefe' }}>
-                <h2 className="accordion-header" id="headingTwo">
-                  <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                    <FaUserGraduate className="me-2" /> Directores
-                  </button>
-                </h2>
-                <div id="collapseTwo" className="accordion-collapse collapse" aria-labelledby="headingTwo">
-                  <div className="accordion-body">
-                    <MenuButton path={"/administracion/home"} label={"Inicio"} onClick={closeSidebar} />
-                    {hasPermission("ver-areas") && (
-                      <MenuButton path={"/administracion/areas"} label={"Areas"} onClick={closeSidebar} />
-                    )}
-                    {hasPermission("ver-postulantes") && (
-                      <MenuButton path={"/administracion/estudiantes"} label={"Estudiantes"} onClick={closeSidebar} />
-                    )}
-                    {hasPermission("ver-preguntas") && (
-                      <MenuButton path={"/administracion/questions"} label={"Preguntas"} onClick={closeSidebar} />
-                    )}
-                    {hasPermission("ver-examenes") && (
-                      <MenuButton path={"/administracion/examns"} label={"Examenes"} onClick={closeSidebar} />
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* DOCENTE */}
-            {hasRole('docente') && (
+            {(
               <div className="accordion-item" style={{ backgroundColor: '#fdfefe' }}>
                 <h2 className="accordion-header" id="headingThree">
                   <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                    <FaQuestionCircle className="me-2 w-auto" /> Docentes
+                    <FaQuestionCircle className="me-2 w-auto" /> Evaluaciones
                   </button>
                 </h2>
                 <div id="collapseThree" className="accordion-collapse collapse" aria-labelledby="headingThree">
@@ -213,7 +185,6 @@ const Layout = ({ children }) => {
 
           </div>
         </Sidebar>
-        
         <div className="pt-4 flex-grow-1 overflow-auto">
           {children}
         </div>

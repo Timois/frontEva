@@ -9,7 +9,7 @@ import CancelButton from '../../../components/forms/components/CancelButon';
 
 export const ModalViewManagementPeriod = ({ ModalId, title }) => {
     const [id, setId] = useState(null);
-    const { getDataCareerAssignmentPeriods } = useFetchCareerAssignPeriod(id);
+    const { getDataCareerAssignmentPeriods } = useFetchCareerAssignPeriod();
     const { careerAssignmentsPeriods } = useContext(CareerAssignContext);
     
     const handleClose = () => {
@@ -20,18 +20,19 @@ export const ModalViewManagementPeriod = ({ ModalId, title }) => {
         }
     };
     useEffect(() => {
-        //wait until the modal gets rendered
         const interval = setInterval(() => {
             const modalElement = document.getElementById(ModalId);
             if (modalElement) {
                 const idAttr = modalElement.getAttribute("data-academic_management_career_id");
                 if (idAttr) {
                     setId(idAttr);
+                    getDataCareerAssignmentPeriods(idAttr); // 👈 Cargar los datos directamente aquí
                     clearInterval(interval);
                 }
             }
         }, 100);
-    }, [setId, ModalId]);
+        return () => clearInterval(interval);
+    }, [ModalId]);
 
     useEffect(() => {
         if (!id) return;
