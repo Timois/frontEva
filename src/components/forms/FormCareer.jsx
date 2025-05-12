@@ -64,7 +64,16 @@ export const FormCareer = () => {
             }
             await refreshUnits();
             getData();
-            customAlert("Carrera Guardada", "success");
+
+            // Mensaje dinámico según el tipo
+            const typeMessages = {
+                mayor: "Unidad Mayor registrada correctamente",
+                facultad: "Facultad registrada correctamente",
+                dependiente: "Unidad Dependiente registrada correctamente",
+                carrera: "Carrera registrada correctamente"
+            };
+            
+            customAlert(typeMessages[data.type] || "Registro exitoso", "success");
             closeFormModal("registroCarrera");
             resetForm();
         } catch (error) {
@@ -72,7 +81,9 @@ export const FormCareer = () => {
                 customAlert("No tienes permisos para realizar esta acción", "error");
                 closeFormModal("registroCarrera");
             } else {
-                customAlert(error.response?.data.errors?.name?.[0] || "Error al guardar la carrera", "error");
+                // Mensaje de error dinámico
+                const errorType = data.type === "carrera" ? "la carrera" : "la unidad académica";
+                customAlert(error.response?.data.errors?.name?.[0] || `Error al guardar ${errorType}`, "error");
             }
         } finally {
             setResponse(false);

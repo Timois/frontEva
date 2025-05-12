@@ -6,10 +6,10 @@ import { Card } from "../../components/login/Card";
 import { FormCareer } from "../../components/forms/FormCareer";
 
 const ModalRegister = ({ modalId, title }) => {
-
   return (
     <div
       className="modal fade"
+      
       id={modalId}
       tabIndex="-1"
       aria-labelledby="exampleModalLabel"

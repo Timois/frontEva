@@ -10,7 +10,6 @@ import { IndexGestion } from "../pages/managements/IndexGestion"
 import { IndexPeriod } from "../pages/periods/IndexPeriod"
 import { NotFound404 } from "../pages/errors/NotFound404"
 import { IndexCareerAssign } from "../pages/careers/careerAssign/IndexCareerAssign"
-import { IndexResults } from "../pages/results management/IndexResults"
 import { IndexExamns } from "../pages/examn management/IndexExamns"
 import { IndexArea } from "../pages/careers/areas/IndexArea"
 import { IndexImports } from "../pages/careers/questions/imports/IndexImports"
@@ -31,7 +30,7 @@ import { AssignQuestions } from "../pages/examn management/AssignQuestions"
 import { ViewQuestionsAssigned } from "../pages/examn management/ViewQuestionsAssigned"
 import ViewQuestionsAndAnswers from "../pages/examn management/ViewQuestionsAndAnswers"
 import { CareerById } from "../pages/careers/CareerById"
-
+import IndexResults from "../pages/results management/IndexResults"
 export const AppRoutes = () => {
   return (
     <Routes
@@ -40,13 +39,15 @@ export const AppRoutes = () => {
       <Route element={<PublicGuard />}>
         <Route path="/" element={<Navigate to={"/login"} />} ></Route>
         <Route path="/login" element={<Login />}></Route>
-        <Route path="estudiantes" element={<StudentLogin />}></Route>
+        <Route path="/estudiantes" element={<StudentLogin />}></Route>
       </Route>
 
       <Route element={<PrivateGuard />}>
         <Route element={<Layout><Outlet /></Layout>}>
           <Route path="access-denied" element={<AccessDenied />} />
           <Route path="administracion/home" element={<Inicio />} />
+          <Route path="estudiantes/home" element={<Inicio />} />
+          <Route path="estudiantes/examns" element={<IndexExamns />} />
           <Route path="administracion/unit" element={
             <PermissionsGuard requiredPermission={"ver-unidades-academicas"}>
               <IndexUnit />
@@ -122,7 +123,7 @@ export const AppRoutes = () => {
             <PermissionsGuard requiredPermission={"ver-preguntas-asignadas"}>
               <ViewQuestionsAndAnswers /> 
             </PermissionsGuard>} /> 
-          <Route path="administracion/results" element={
+          <Route path="administracion/examns/:id/results" element={
             <PermissionsGuard requiredPermission={"ver-resultados"}>
               <IndexResults />
             </PermissionsGuard>} />
