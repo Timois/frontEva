@@ -11,20 +11,26 @@ export const removeTokenStudent = () => {
 };
 
 export const saveStudent = (student) => {
-    if (student) { // Verifica que el valor no sea null ni undefined
-        const dataString = JSON.stringify(student); // Convierte el objeto a JSON
-        window.localStorage.setItem("student", dataString); // Guarda el JSON en localStorage
+   if (student) {
+        const dataString = JSON.stringify(student);
+        window.localStorage.setItem("user", dataString);
     }
 };
 
 export const getStudent = () => {
-    const student = window.localStorage.getItem("student"); // Obtiene el valor del localStorage
-    if (student && student !== "undefined") { // Verifica que el valor no sea null ni "undefined"
-        return JSON.parse(student); // Parsea el JSON
+    const student = window.localStorage.getItem("user");
+    if (student&& student !== 'undefined') {
+        return JSON.parse(student);
     }
-    return null; // Devuelve null si no hay un valor válido
+    return null;
 };
 
 export const removeStudent = () => {
-    window.localStorage.removeItem("student");
+    window.localStorage.removeItem("user");
+};
+
+export const savePermissionsStudent = (permissions) => {
+    if (permissions) {
+        localStorage.setItem("permissions", JSON.stringify(permissions));
+    }
 };

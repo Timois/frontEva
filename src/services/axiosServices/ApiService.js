@@ -26,22 +26,10 @@ const handleTokenExpiration = () => {
   
   isRedirecting = true;
   console.log("Token expirado, redirigiendo...");
-  
-  // Determinar si es un estudiante o administrador
-  const isStudent = !!localStorage.getItem("student");
-  
-  // Limpiar almacenamiento
-  if (isStudent) {
-    clearStorageStudent();
-  } else {
-    clearStorage();
-  }
-  
-  // Redirigir según el tipo de usuario
-  setTimeout(() => {
-    window.location.href = isStudent ? "/estudiantes" : "/login";
-    isRedirecting = false;
-  }, 100);
+
+  // Limpiar el almacenamiento y redirigir a la página de login
+  clearStorage();
+  clearStorageStudent();
 };
 
 // Función para verificar si el token JWT sigue siendo válido

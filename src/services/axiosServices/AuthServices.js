@@ -1,6 +1,6 @@
 import axios from "axios";
 import { savePermissions, saveRolesPermissions, saveToken, saveUser } from "../storage/storageUser"; // Importa saveToken en lugar de saveCredentials
-import { saveStudent, saveTokenStudent } from "../storage/storageStudent";
+import { saveStudent, saveTokenStudent, savePermissionsStudent } from "../storage/storageStudent";
 
 const path = import.meta.env.VITE_AUTH_ENDPOINT; // Endpoint del backend
 
@@ -41,29 +41,28 @@ export const loginSystem = async (values) => {
 
 export const loginStudent = async (values) => {
     try {
+        console.log("Login Student Values:", values);
         const { data } = await axios.post(path + "students/login", values, {
             headers: {
                 'Content-Type': 'application/json',
             },
         });
+        console.log("Login Student Response:", data);
 
         // Guarda el token JWT en el almacenamiento local
-        if (data.access_token) { // Usa access_token en lugar de token
-           
-            saveTokenStudent(data.access_token); // Guarda el token JWT
-        } 
-        // Guarda la información del estudiante (si está incluida en la respuesta)
-        if (data.student) {
-            saveStudent(data.student); // Guarda la información del estudiante
-        } 
-
-        return data; // Devuelve la respuesta del backend
-    } catch (error) {
-        console.error("Error en el login:", error);
-        if (error.response) {
-            return error.response.data;
-        } else {
-            return { message: error.message };
+        if (data.token) {
+            localStorage.setItem("jwt_token", data.token);
+            saveTokenStudent(data.token);
         }
+        if (data.user) {
+            saveStudent(data.user);
+        }
+        if (data.permissions) {
+            savePermissionsStudent(data.permissions);
+        }
+        return data;
+    } catch (error) {
+        console.error("Login Student Error:", error);
+        throw error; // Propagar el error para manejarlo en el componente
     }
 };

@@ -10,37 +10,58 @@ import { UserContext } from "../../../context/UserProvider";
 import { MdLogout } from "react-icons/md";
 import { FaUserShield, FaQuestionCircle, FaUserGraduate } from "react-icons/fa";
 import { PermissionsContext } from "../../../context/PermissionsProvider";
+import { StudentContext } from "../../../context/StudentProvider";
 
 const Layout = ({ children }) => {
   // Contexts
-  const { user, storeUser, student, storeStudent } = useContext(UserContext);
+  const { user, storeUser } = useContext(UserContext);
   const { permissions, isLoading } = useContext(PermissionsContext);
-  
+  const { student, storeStudent } = useContext(StudentContext);
   // Hooks
   const { isSidebarOpen, toggleSidebar, closeSidebar } = useSidebar();
   const navigate = useNavigate();
   
   // Variables
-  const isStudent = !!student;
-
-  const hasPermission = (perm) => permissions.includes(perm);
+  const isStudent = Boolean(student); // Cambiado de !!student a Boolean(student)
 
   const logout = () => {
-    if (student) {
-      clearStorageStudent();
-      storeStudent(null);
-      navigate("/estudiantes");
-    } else {
-      console.log("aasdad")
-      clearStorage();
-      storeUser(null);
-      navigate("/login");
+    try {
+      if (student) {
+        clearStorageStudent();
+        storeStudent(null);
+        navigate("/estudiantes");
+      } else {
+        clearStorage();
+        storeUser(null);
+        navigate("/login");
+      }
+      setTimeout(() => {
+        window.location.reload();
+      }, 100);
+    } catch (error) {
+      console.error("Error during logout:", error);
     }
   };
 
   if (isLoading) {
     return <div className="text-center mt-10">Cargando Layout...</div>;
   }
+  const hasPermission = (permission) => {
+    return permissions.includes(permission);
+  };
+  // Agregar esta función para verificar permisos de administración
+  const hasAnyAdminPermission = () => {
+    const adminPermissions = [
+      "ver-usuarios",
+      "ver-roles",
+      "ver-unidades-por-id",
+      "ver-unidades-academicas",
+      "ver-carreras",
+      "ver-gestiones",
+      "ver-periodos"
+    ];
+    return adminPermissions.some(perm => permissions.includes(perm));
+  };
 
   return (
     <div className="d-flex flex-column vh-100">
@@ -64,7 +85,7 @@ const Layout = ({ children }) => {
       <div className="d-flex flex-grow-1 overflow-hidden">
         <Sidebar isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar}>
           <div className="accordion w-100 p-3" id="accordionExample" style={{ backgroundColor: '#82e5ef' }}>
-            {(
+            {hasAnyAdminPermission() && (
               <div className="accordion-item" style={{ backgroundColor: '#fdfefe' }}>
                 <h2 className="accordion-header" id="headingOne">
                   <button
@@ -165,7 +186,6 @@ const Layout = ({ children }) => {
               </div>
             )}
 
-            {/* ESTUDIANTE */}
             {isStudent && (
               <div className="accordion-item" style={{ backgroundColor: '#fdfefe' }}>
                 <h2 className="accordion-header" id="headingFour">

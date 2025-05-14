@@ -10,7 +10,7 @@ export const Login = () => {
             <div style={{maxWidth: "360px"}}>
                 <Card className={" card align-items-center h-auto gap-3 p-3"}>
                     <Logo />
-                    <FormLogin isStudentLogin={false}/>
+                    <FormLogin/>
                 </Card>
             </div>
 

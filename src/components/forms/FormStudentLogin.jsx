@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
@@ -7,37 +6,43 @@ import { ContainerInput } from "../login/ContainerInput";
 import { ContainerButton } from "../login/ContainerButton";
 import { Input } from "../login/Input";
 import { Validate } from "./components/Validate";
-import { loginSystem } from "../../services/axiosServices/AuthServices";
+import { loginStudent } from "../../services/axiosServices/AuthServices";
 import { useContext, useState } from "react";
-import { UserContext } from "../../context/UserProvider";
-import { LoginSchema } from "../../models/schemas/LoginSchema";
+import { StudentContext } from "../../context/StudentProvider";
+import { StudentLoginSchema } from "../../models/schemas/StudentLoginSchema";
 
-const FormLogin = () => {
-  const { storeUser } = useContext(UserContext);
+const FormStudentLogin = () => {
+  const { storeStudent } = useContext(StudentContext);
   const [response, setResponse] = useState(false);
   const {
     control,
     handleSubmit,
     formState: { errors },
     setError,
-  } = useForm({ resolver: zodResolver(LoginSchema) });
+  } = useForm({ resolver: zodResolver(StudentLoginSchema) });
   const navigate = useNavigate();
 
   const onSubmit = async (data) => {
     setResponse(true);
     try {
-      const response = await loginSystem(data);
+      const response = await loginStudent(data);
       if (response?.token) {
-        storeUser(response.user);
+        storeStudent(response.student);
         localStorage.setItem("jwt_token", response.token);
-        navigate("/administracion/home");
-        window.location.reload();
+        navigate("/estudiantes/home");
+        
       } else {
-        setError("root", { type: "custom", message: "Credenciales incorrectas" });
+        setError("root", { 
+          type: "custom", 
+          message: response?.message || "Credenciales incorrectas" 
+        });
       }
     } catch (error) {
       console.error("Error en el login:", error);
-      setError("root", { type: "custom", message: "Error en el servidor" });
+      setError("root", { 
+        type: "custom", 
+        message: error.response?.data?.message || "Error en el servidor" 
+      });
     } finally {
       setResponse(false);
     }
@@ -47,12 +52,12 @@ const FormLogin = () => {
     <form onSubmit={handleSubmit(onSubmit)}>
       <ContainerInput>
         <Input
-          type="email"
-          placeholder="Ingrese su correo"
-          name="email"
+          type="text"
+          placeholder="Ingrese su CI"
+          name="ci"
           control={control}
         />
-        <Validate error={errors.email} />
+        <Validate error={errors.ci} />
       </ContainerInput>
       <ContainerInput>
         <Input
@@ -73,4 +78,4 @@ const FormLogin = () => {
   );
 };
 
-export default FormLogin;
+export default FormStudentLogin;

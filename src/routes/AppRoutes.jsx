@@ -46,7 +46,7 @@ export const AppRoutes = () => {
         <Route element={<Layout><Outlet /></Layout>}>
           <Route path="access-denied" element={<AccessDenied />} />
           <Route path="administracion/home" element={<Inicio />} />
-          <Route path="estudiantes/home" element={<Inicio />} />
+          <Route path="estudiantes/home" element={<StudentsHome />} />
           <Route path="estudiantes/examns" element={<IndexExamns />} />
           <Route path="administracion/unit" element={
             <PermissionsGuard requiredPermission={"ver-unidades-academicas"}>
