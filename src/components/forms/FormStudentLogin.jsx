@@ -29,7 +29,7 @@ const FormStudentLogin = () => {
       if (response?.token) {
         storeStudent(response.student);
         localStorage.setItem("jwt_token", response.token);
-        navigate("/estudiantes/home");
+        navigate("/estudiantes/exams");
         
       } else {
         setError("root", { 

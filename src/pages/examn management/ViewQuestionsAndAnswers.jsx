@@ -1,22 +1,23 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
 import { useEffect, useState } from 'react';
-import axios from 'axios';  // Importa axios para la petición POST
 import { getApi, postApi } from '../../services/axiosServices/ApiService';
 import { useFetchStudent } from '../../hooks/fetchStudent';
 
+
 const ViewQuestionsAndAnswers = () => {
   const [questionsData, setQuestionsData] = useState(null);
-  const [studentName, setStudentName] = useState('');
   const [evaluationTitle, setEvaluationTitle] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedAnswers, setSelectedAnswers] = useState({});
+  const [alreadyAnswered, setAlreadyAnswered] = useState(false);
+  const [finalScore, setFinalScore] = useState(null);
   const { getTestStudent } = useFetchStudent();
-  
   const student = JSON.parse(localStorage.getItem('user'));
   const ci = student ? student.ci : null;
-
+  const [studentName] = useState(student ? student.nombre_completo : '');
+  
   const handleAnswerSelection = (questionId, answerId) => {
     setSelectedAnswers(prev => ({
       ...prev,
@@ -31,23 +32,31 @@ const ViewQuestionsAndAnswers = () => {
       student_test_id: questionsData.student_test_id,
       answers: Object.entries(selectedAnswers).map(([questionId, answerId]) => ({
         question_id: Number(questionId),
-        answer_id: answerId,
+        answer_id: answerId
       })),
     };
 
     try {
       setLoading(true);
-      // Cambia esta URL a la que corresponda en tu backend Laravel
-      const response = await postApi('student_answers/save', payload);
 
-      alert('Respuestas guardadas correctamente');
-      // Aquí puedes hacer redirección o limpiar estado si quieres
+      const response = await postApi('student_answers/save', payload);
+      const totalScore = Math.floor(response.total_score);
+
+      setFinalScore(totalScore);
+      setAlreadyAnswered(true);
     } catch (error) {
       console.error('Error al guardar respuestas:', error);
-      alert(
-        error?.response?.data?.message || 
-        'Ocurrió un error al enviar las respuestas. Intenta nuevamente.'
-      );
+
+      if (error?.response?.status === 409) {
+        setAlreadyAnswered(true);
+        
+        setFinalScore(null); // O puedes hacer un fetch de la nota si está disponible
+      } else {
+        alert(
+          error?.response?.data?.message ||
+          'Ocurrió un error al enviar las respuestas. Intenta nuevamente.'
+        );
+      }
     } finally {
       setLoading(false);
     }
@@ -64,7 +73,6 @@ const ViewQuestionsAndAnswers = () => {
       }
 
       try {
-        // Obtener el test del estudiante
         const studentId = await getApi(`student_evaluations/list/${ci}`);
         if (!isMounted) return;
 
@@ -73,19 +81,27 @@ const ViewQuestionsAndAnswers = () => {
           return;
         }
 
-        // Obtener las preguntas del test
         const response = await getTestStudent(studentId);
-        console.log('Respuesta del test:', response); 
         if (!isMounted) return;
-        
+
         setQuestionsData(response);
-        setStudentName('');
-      
-        // Obtener el título de la evaluación
+        // Eliminamos esta línea ya que el nombre lo obtenemos del localStorage
+        // setStudentName('');
+
         const evaluationResponse = await getApi(`student_evaluations/find/${response.evaluation_id}`);
         if (!isMounted) return;
-        
+
         setEvaluationTitle(evaluationResponse.title);
+
+        // 🔍 CONSULTAR SI YA RESPONDIÓ
+        const answeredResp = await getApi(`student_answers/list/${response.student_test_id}`);
+        if (!isMounted) return;
+
+        if (answeredResp.answered) {
+          setAlreadyAnswered(true);
+          setFinalScore(Math.round(answeredResp.score));
+        }
+
       } catch (err) {
         if (isMounted) {
           console.error('Error:', err);
@@ -105,6 +121,7 @@ const ViewQuestionsAndAnswers = () => {
     };
   }, [ci]);
 
+
   if (loading) return <p>Cargando preguntas...</p>;
   if (error) return <p>Error: {error}</p>;
   if (!questionsData || !questionsData.questions) {
@@ -112,7 +129,23 @@ const ViewQuestionsAndAnswers = () => {
   }
 
   const API_BASE_URL = import.meta.env.VITE_URL_IMAGES;
-  
+
+  // Mostrar mensaje si ya respondió el examen
+  if (alreadyAnswered) {
+    return (
+      <div className="container mt-4">
+        <div className="alert alert-info text-center">
+          <h4>Ya has respondido esta evaluación.</h4>
+          {finalScore !== null ? (
+            <p>Tu nota final es: <strong>{finalScore}</strong></p>
+          ) : (
+            <p>No puedes volver a enviar tus respuestas.</p>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <form onSubmit={handleSubmit} className="container mt-4">
       <div className="card mb-4">
@@ -120,9 +153,6 @@ const ViewQuestionsAndAnswers = () => {
           <h3 className="mb-0">Detalles de la Prueba</h3>
         </div>
         <div className="card-body">
-          <div className="mb-2">
-            <strong>Número de Prueba:</strong> {questionsData.student_test_id}
-          </div>
           <div className="mb-2">
             <strong>Estudiante:</strong> {studentName}
           </div>
@@ -142,10 +172,10 @@ const ViewQuestionsAndAnswers = () => {
             </div>
             <div className="card-body">
               <p className="fw-bold mb-2">{question.question}</p>
-              
+
               {question.image && (
                 <div className="text-center mb-4">
-                  <img 
+                  <img
                     src={`${API_BASE_URL}${question.image}`}
                     alt="Imagen de la pregunta"
                     className="img-fluid rounded"
@@ -160,11 +190,10 @@ const ViewQuestionsAndAnswers = () => {
                 {question.bank_answers.map((answer) => (
                   <div
                     key={answer.id}
-                    className={`p-3 mb-2 rounded cursor-pointer ${
-                      selectedAnswers[question.id] === answer.id
-                        ? 'bg-primary bg-opacity-10 border border-primary'
-                        : 'bg-light'
-                    }`}
+                    className={`p-3 mb-2 rounded cursor-pointer ${selectedAnswers[question.id] === answer.id
+                      ? 'bg-primary bg-opacity-10 border border-primary'
+                      : 'bg-light'
+                      }`}
                     onClick={() => handleAnswerSelection(question.id, answer.id)}
                     role="button"
                   >
@@ -188,8 +217,8 @@ const ViewQuestionsAndAnswers = () => {
       </div>
 
       <div className="d-grid gap-2 col-6 mx-auto mb-4">
-        <button 
-          type="submit" 
+        <button
+          type="submit"
           className="btn btn-primary btn-lg"
           disabled={loading}
         >

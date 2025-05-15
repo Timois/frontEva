@@ -20,10 +20,10 @@ const Layout = ({ children }) => {
   // Hooks
   const { isSidebarOpen, toggleSidebar, closeSidebar } = useSidebar();
   const navigate = useNavigate();
-  
-  // Variables
-  const isStudent = Boolean(student); // Cambiado de !!student a Boolean(student)
 
+  // Variables
+  const isStudent = Boolean(!student); // Cambiado de !!student a Boolean(student)
+  
   const logout = () => {
     try {
       if (student) {
@@ -62,6 +62,16 @@ const Layout = ({ children }) => {
     ];
     return adminPermissions.some(perm => permissions.includes(perm));
   };
+  // Add this function near the other permission checks
+  const hasAnyEvaluationPermission = () => {
+    const evaluationPermissions = [
+      "ver-areas",
+      "ver-postulantes",
+      "ver-preguntas",
+      "ver-evaluaciones"
+    ];
+    return evaluationPermissions.some(perm => permissions.includes(perm));
+  };
 
   return (
     <div className="d-flex flex-column vh-100">
@@ -83,6 +93,7 @@ const Layout = ({ children }) => {
       </nav>
 
       <div className="d-flex flex-grow-1 overflow-hidden">
+        
         <Sidebar isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar}>
           <div className="accordion w-100 p-3" id="accordionExample" style={{ backgroundColor: '#82e5ef' }}>
             {hasAnyAdminPermission() && (
@@ -159,7 +170,7 @@ const Layout = ({ children }) => {
                 </div>
               </div>
             )}
-            {(
+            {hasAnyEvaluationPermission() && (
               <div className="accordion-item" style={{ backgroundColor: '#fdfefe' }}>
                 <h2 className="accordion-header" id="headingThree">
                   <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
@@ -197,10 +208,9 @@ const Layout = ({ children }) => {
                   <div className="accordion-body">
                     <MenuButton path={"/estudiantes/home"} label={"Inicio"} onClick={closeSidebar} />
                     <MenuButton path={"/estudiantes/examns"} label={"Iniciar Examen"} onClick={closeSidebar} />
-                    <MenuButton path={"/estudiantes/results"} label={"Ver Resultados"} onClick={closeSidebar} />
                   </div>
                 </div>
-              </div>
+              </div>  
             )}
 
           </div>

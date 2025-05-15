@@ -331,9 +331,16 @@ export const FormAssignQuestions = ({ data }) => {
                     ))}
                 </div>
             )}
-
             <ContainerButton>
-                <Button type="submit" text="Asignar" disabled={response} />
+            <button
+                    type={"submit"}
+                    name={"submit"}
+                    disabled={response}
+                    className="btn rounded-0 btn-lg"
+                    style={{ backgroundColor: "#070785", color: "white" }}
+                >
+                    <span>{response ? "Guardando..." : "Guardar"}</span>
+                </button>
                 <CancelButton onClick={handleCancel} />
             </ContainerButton>
         </form>

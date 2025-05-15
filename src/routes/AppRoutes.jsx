@@ -32,6 +32,7 @@ import ViewQuestionsAndAnswers from "../pages/examn management/ViewQuestionsAndA
 import ViewQuestionsForStudent from "../pages/examn management/ViewQuestionsForStudent"
 import { CareerById } from "../pages/careers/CareerById"
 import IndexResults from "../pages/results management/IndexResults"
+import LayoutStudent from "../components/layouts/layout/LayoutStudent"
 export const AppRoutes = () => {
   return (
     <Routes
@@ -59,7 +60,7 @@ export const AppRoutes = () => {
           <Route path="administracion/career" element={
             <PermissionsGuard requiredPermission={"ver-unidades-por-id"}>
               <CareerById />
-            </PermissionsGuard>} />  
+            </PermissionsGuard>} />
           <Route path="administracion/careers/:id/assigns" element={
             <PermissionsGuard requiredPermission={"ver-gestiones-asignadas-por-id"}>
               <IndexCareerAssign />
@@ -114,15 +115,15 @@ export const AppRoutes = () => {
             <PermissionsGuard requiredPermission={"asignar-preguntas-evaluaciones"}>
               <AssignQuestions />
             </PermissionsGuard>} />
-            <Route path="administracion/examns/:id/prueba" element={
+          <Route path="administracion/examns/:id/prueba" element={
             <PermissionsGuard requiredPermission={"ver-preguntas-asignadas"}>
-              <ViewQuestionsForStudent /> 
-            </PermissionsGuard>} /> 
-            <Route path="administracion/examns/:id/questionsAssigned" element={
-              <PermissionsGuard requiredPermission={"ver-preguntas-asignadas"}>
-                <ViewQuestionsAssigned />
-              </PermissionsGuard>
-            } />
+              <ViewQuestionsForStudent />
+            </PermissionsGuard>} />
+          <Route path="administracion/examns/:id/questionsAssigned" element={
+            <PermissionsGuard requiredPermission={"ver-preguntas-asignadas"}>
+              <ViewQuestionsAssigned />
+            </PermissionsGuard>
+          } />
           <Route path="administracion/examns/:id/results" element={
             <PermissionsGuard requiredPermission={"ver-resultados"}>
               <IndexResults />
@@ -143,9 +144,11 @@ export const AppRoutes = () => {
             <PermissionsGuard requiredPermission={"editar-roles"}>
               <EditRole />
             </PermissionsGuard>}></Route>
-          {/* Rutas de estudiantes */}
-          <Route path="estudiantes/examns" element={<ViewQuestionsAndAnswers />} />
-          <Route path="estudiantes/results" element={<IndexResults />} />
+        </Route>
+      </Route>
+      <Route element={<PrivateGuard />}>
+        <Route element={<LayoutStudent><Outlet /></LayoutStudent>}>
+          <Route path="estudiantes/exams" element={<ViewQuestionsAndAnswers />} />
         </Route>
       </Route>
       <Route path="404" element={<NotFound404 />}></Route>

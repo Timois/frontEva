@@ -13,7 +13,7 @@ export const PublicGuard = () => {
     }
     
     if (tokenStudent) {
-        return <Navigate to="/students/home" />;
+        return <Navigate to="/estudiantes/exams" />;
     }
     
     return <Outlet />;

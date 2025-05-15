@@ -15,11 +15,11 @@ export const PrivateGuard = () => {
     }
     
     // Verifica si es una ruta de estudiantes
-    const isStudentRoute = currentPath.startsWith('/students/');
+    const isStudentRoute = currentPath.startsWith('/estudiantes/');
     
     // Verifica si es una ruta de administración
     const isAdminRoute = currentPath.startsWith('/administracion/') || 
-                        (currentPath !== '/students/home' && !isStudentRoute);
+                        (currentPath !== '/estudiantes/examns' && !isStudentRoute);
     
     // Si es una ruta de estudiantes pero el usuario tiene token de admin y no de estudiante
     if (isStudentRoute && token && !tokenStudent) {
@@ -28,7 +28,7 @@ export const PrivateGuard = () => {
     
     // Si es una ruta de admin pero el usuario tiene token de estudiante y no de admin
     if (isAdminRoute && tokenStudent && !token) {
-        return <Navigate to="/students/home" />;
+        return <Navigate to="/estudiantes/exams" />;
     }
     
     // Si todo está correcto, permite el acceso a las rutas protegidas
