@@ -12,7 +12,7 @@ export const StudentProvider = ({ children }) => {
         if (storedStudent) {
             setStudent(storedStudent);
         } 
-    }) 
+    }, []) 
     const storeStudent = (student) => {
         setStudent(student);
         saveStudent(student);

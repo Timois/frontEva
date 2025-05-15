@@ -1,43 +1,109 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom'; 
-import { useFetchExamns } from '../../hooks/fetchExamns';
-import { getApi } from '../../services/axiosServices/ApiService';
+import axios from 'axios';  // Importa axios para la petición POST
+import { getApi, postApi } from '../../services/axiosServices/ApiService';
+import { useFetchStudent } from '../../hooks/fetchStudent';
 
 const ViewQuestionsAndAnswers = () => {
-  const { id: studentTestId } = useParams(); 
   const [questionsData, setQuestionsData] = useState(null);
   const [studentName, setStudentName] = useState('');
   const [evaluationTitle, setEvaluationTitle] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { fetchStudenttestStudent } = useFetchExamns();
+  const [selectedAnswers, setSelectedAnswers] = useState({});
+  const { getTestStudent } = useFetchStudent();
+  
+  const student = JSON.parse(localStorage.getItem('user'));
+  const ci = student ? student.ci : null;
+
+  const handleAnswerSelection = (questionId, answerId) => {
+    setSelectedAnswers(prev => ({
+      ...prev,
+      [questionId]: answerId
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const payload = {
+      student_test_id: questionsData.student_test_id,
+      answers: Object.entries(selectedAnswers).map(([questionId, answerId]) => ({
+        question_id: Number(questionId),
+        answer_id: answerId,
+      })),
+    };
+
+    try {
+      setLoading(true);
+      // Cambia esta URL a la que corresponda en tu backend Laravel
+      const response = await postApi('student_answers/save', payload);
+
+      alert('Respuestas guardadas correctamente');
+      // Aquí puedes hacer redirección o limpiar estado si quieres
+    } catch (error) {
+      console.error('Error al guardar respuestas:', error);
+      alert(
+        error?.response?.data?.message || 
+        'Ocurrió un error al enviar las respuestas. Intenta nuevamente.'
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchAllData = async () => {
+      if (!ci) {
+        setError('No se encontró información del estudiante');
+        setLoading(false);
+        return;
+      }
+
       try {
-        const response = await fetchStudenttestStudent(studentTestId);
+        // Obtener el test del estudiante
+        const studentId = await getApi(`student_evaluations/list/${ci}`);
+        if (!isMounted) return;
+
+        if (!studentId) {
+          setError('No se encontró ninguna evaluación para este estudiante');
+          return;
+        }
+
+        // Obtener las preguntas del test
+        const response = await getTestStudent(studentId);
+        console.log('Respuesta del test:', response); 
+        if (!isMounted) return;
+        
         setQuestionsData(response);
-
-        // Fetch student name
-        const studentResponse = await getApi(`students/find/${response.student_id}`);
-        setStudentName(`${studentResponse.name} ${studentResponse.paternal_surname} ${studentResponse.maternal_surname}`);
-
-        // Fetch evaluation title
-        const evaluationResponse = await getApi(`evaluations/find/${response.evaluation_id}`);
+        setStudentName('');
+      
+        // Obtener el título de la evaluación
+        const evaluationResponse = await getApi(`student_evaluations/find/${response.evaluation_id}`);
+        if (!isMounted) return;
+        
         setEvaluationTitle(evaluationResponse.title);
       } catch (err) {
-        setError(err?.response?.data?.message || 'Error al cargar datos');
+        if (isMounted) {
+          console.error('Error:', err);
+          setError(err?.response?.data?.message || 'Error al cargar datos');
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
-    if (studentTestId) {
-      fetchAllData();
-    }
-  }, [studentTestId]);
+    fetchAllData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [ci]);
 
   if (loading) return <p>Cargando preguntas...</p>;
   if (error) return <p>Error: {error}</p>;
@@ -46,9 +112,9 @@ const ViewQuestionsAndAnswers = () => {
   }
 
   const API_BASE_URL = import.meta.env.VITE_URL_IMAGES;
-
+  
   return (
-    <div className="container mt-4">
+    <form onSubmit={handleSubmit} className="container mt-4">
       <div className="card mb-4">
         <div className="card-header bg-primary text-white">
           <h3 className="mb-0">Detalles de la Prueba</h3>
@@ -94,32 +160,43 @@ const ViewQuestionsAndAnswers = () => {
                 {question.bank_answers.map((answer) => (
                   <div
                     key={answer.id}
-                    className={`p-3 mb-2 rounded ${
-                      answer.is_correct
-                        ? 'bg-success bg-opacity-10 border border-success'
+                    className={`p-3 mb-2 rounded cursor-pointer ${
+                      selectedAnswers[question.id] === answer.id
+                        ? 'bg-primary bg-opacity-10 border border-primary'
                         : 'bg-light'
                     }`}
+                    onClick={() => handleAnswerSelection(question.id, answer.id)}
+                    role="button"
                   >
                     <div className="d-flex align-items-center">
-                      <span className={`me-2 ${answer.is_correct ? 'text-success' : ''}`}>
-                        {answer.is_correct ? '✓' : '○'}
-                      </span>
+                      <input
+                        type="radio"
+                        name={`question-${question.id}`}
+                        value={answer.id}
+                        checked={selectedAnswers[question.id] === answer.id}
+                        onChange={() => handleAnswerSelection(question.id, answer.id)}
+                        className="me-2"
+                      />
                       {answer.answer}
                     </div>
                   </div>
                 ))}
               </div>
-
-              <div className="mt-3">
-                <small className="text-muted">
-                  Tipo de pregunta: {question.question_type} | Tipo de respuesta: {question.type}
-                </small>
-              </div>
             </div>
           </div>
         ))}
       </div>
-    </div>
+
+      <div className="d-grid gap-2 col-6 mx-auto mb-4">
+        <button 
+          type="submit" 
+          className="btn btn-primary btn-lg"
+          disabled={loading}
+        >
+          Enviar Respuestas
+        </button>
+      </div>
+    </form>
   );
 };
 

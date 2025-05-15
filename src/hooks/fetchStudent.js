@@ -17,5 +17,9 @@ export const useFetchStudent = () => {
         setStudents(response);
     };
 
-    return { students, getData, refreshStudents };
+    const getTestStudent = async (studentId) => {
+        const response = await getApi(`student_evaluations/questions/${studentId}`);
+        return response;
+    };
+    return { students, getData, refreshStudents, getTestStudent };
 };

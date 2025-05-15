@@ -186,7 +186,7 @@ const Layout = ({ children }) => {
               </div>
             )}
 
-            {isStudent && (
+            {(
               <div className="accordion-item" style={{ backgroundColor: '#fdfefe' }}>
                 <h2 className="accordion-header" id="headingFour">
                   <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
@@ -195,7 +195,7 @@ const Layout = ({ children }) => {
                 </h2>
                 <div id="collapseFour" className="accordion-collapse collapse" aria-labelledby="headingFour">
                   <div className="accordion-body">
-                    <MenuButton path={"/estudiantes"} label={"Inicio"} onClick={closeSidebar} />
+                    <MenuButton path={"/estudiantes/home"} label={"Inicio"} onClick={closeSidebar} />
                     <MenuButton path={"/estudiantes/examns"} label={"Iniciar Examen"} onClick={closeSidebar} />
                     <MenuButton path={"/estudiantes/results"} label={"Ver Resultados"} onClick={closeSidebar} />
                   </div>

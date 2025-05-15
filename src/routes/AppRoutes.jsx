@@ -47,7 +47,6 @@ export const AppRoutes = () => {
           <Route path="access-denied" element={<AccessDenied />} />
           <Route path="administracion/home" element={<Inicio />} />
           <Route path="estudiantes/home" element={<StudentsHome />} />
-          <Route path="estudiantes/examns" element={<IndexExamns />} />
           <Route path="administracion/unit" element={
             <PermissionsGuard requiredPermission={"ver-unidades-academicas"}>
               <IndexUnit />
@@ -119,10 +118,6 @@ export const AppRoutes = () => {
                 <ViewQuestionsAssigned />
               </PermissionsGuard>
             } />
-          <Route path="administracion/examns/:id/prueba" element={
-            <PermissionsGuard requiredPermission={"ver-preguntas-asignadas"}>
-              <ViewQuestionsAndAnswers /> 
-            </PermissionsGuard>} /> 
           <Route path="administracion/examns/:id/results" element={
             <PermissionsGuard requiredPermission={"ver-resultados"}>
               <IndexResults />
@@ -144,8 +139,7 @@ export const AppRoutes = () => {
               <EditRole />
             </PermissionsGuard>}></Route>
           {/* Rutas de estudiantes */}
-          <Route path="estudiantes/home" element={<StudentsHome />} />
-          <Route path="estudiantes/examns" element={<IndexExamns />} />
+          <Route path="estudiantes/examns" element={<ViewQuestionsAndAnswers />} />
           <Route path="estudiantes/results" element={<IndexResults />} />
         </Route>
       </Route>

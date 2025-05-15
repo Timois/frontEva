@@ -41,14 +41,11 @@ export const loginSystem = async (values) => {
 
 export const loginStudent = async (values) => {
     try {
-        console.log("Login Student Values:", values);
         const { data } = await axios.post(path + "students/login", values, {
             headers: {
                 'Content-Type': 'application/json',
             },
         });
-        console.log("Login Student Response:", data);
-
         // Guarda el token JWT en el almacenamiento local
         if (data.token) {
             localStorage.setItem("jwt_token", data.token);
