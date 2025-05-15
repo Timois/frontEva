@@ -29,6 +29,7 @@ import { Answer } from "../pages/careers/questions/Answer"
 import { AssignQuestions } from "../pages/examn management/AssignQuestions"
 import { ViewQuestionsAssigned } from "../pages/examn management/ViewQuestionsAssigned"
 import ViewQuestionsAndAnswers from "../pages/examn management/ViewQuestionsAndAnswers"
+import ViewQuestionsForStudent from "../pages/examn management/ViewQuestionsForStudent"
 import { CareerById } from "../pages/careers/CareerById"
 import IndexResults from "../pages/results management/IndexResults"
 export const AppRoutes = () => {
@@ -113,6 +114,10 @@ export const AppRoutes = () => {
             <PermissionsGuard requiredPermission={"asignar-preguntas-evaluaciones"}>
               <AssignQuestions />
             </PermissionsGuard>} />
+            <Route path="administracion/examns/:id/prueba" element={
+            <PermissionsGuard requiredPermission={"ver-preguntas-asignadas"}>
+              <ViewQuestionsForStudent /> 
+            </PermissionsGuard>} /> 
             <Route path="administracion/examns/:id/questionsAssigned" element={
               <PermissionsGuard requiredPermission={"ver-preguntas-asignadas"}>
                 <ViewQuestionsAssigned />
