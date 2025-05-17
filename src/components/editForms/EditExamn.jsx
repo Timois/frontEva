@@ -76,6 +76,7 @@ export const EditExamn = ({ data, closeModal }) => {
                 passing_score: String(data.passing_score), // Convertir a string
                 date_of_realization: new Date(data.date_of_realization).toISOString().split('T')[0],
                 type: data.type,
+                time: data.time, // Agregar este campo si lo tienes en tu esquema de zod
                 qualified_students: data.qualified_students,
                 academic_management_period_id: String(data.academic_management_period_id) // Convertir a string
             });
@@ -95,6 +96,7 @@ export const EditExamn = ({ data, closeModal }) => {
             passing_score: Number(formData.passing_score),
             academic_management_period_id: Number(formData.academic_management_period_id),
             status: data.status, // Use existing status
+            time: data.time, // Ensure it's converted to number
             qualified_students: Number(formData.qualified_students), // Ensure it's converted to number
             date_of_realization: formData.date_of_realization 
                 ? new Date(formData.date_of_realization).toISOString().split('T')[0]
@@ -157,6 +159,10 @@ export const EditExamn = ({ data, closeModal }) => {
             <ContainerInput>
                 <DateInput label="Fecha de realización" name="date_of_realization" control={control} type="date" />
                 <Validate error={errors.date_of_realization} />
+            </ContainerInput>
+            <ContainerInput>
+                <Input name="time" control={control} type="number" placeholder="Ingrese el tiempo en minutos" />
+                <Validate error={errors.time} />
             </ContainerInput>
             <ContainerInput>
                 <SelectInput label="Seleccione el tipo" name="type" options={arrayOption} control={control} error={errors.type} />

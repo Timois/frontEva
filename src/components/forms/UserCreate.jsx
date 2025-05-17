@@ -15,6 +15,7 @@ import CancelButton from "./components/CancelButon";
 import { SelectInput } from "./components/SelectInput";
 import { useFetchRol } from "../../hooks/fetchRoles";
 import { SelectMultiple } from "./components/SelectMultiple";
+import { useFetchPersona } from "../../hooks/fetchPersona";
 
 // Lista de roles que no necesitan carrera
 const ROLES_SIN_CARRERA = ["admin", "super-admin", "decano"];
@@ -25,7 +26,7 @@ export const UserCreate = () => {
     const { addUser } = useContext(UserContext);
     const [response, setResponse] = useState(false);
     const [showCareerField, setShowCareerField] = useState(true);
-
+    const { refreshUsers } = useFetchPersona();
     const { control, handleSubmit, reset, watch, setValue, formState: { errors }, setError } = useForm({
         resolver: zodResolver(UserSchema),
         defaultValues: {
@@ -90,6 +91,7 @@ export const UserCreate = () => {
 
             addUser(response.data);
             customAlert("Usuario creado exitosamente", "success");
+            refreshUsers();
             closeFormModal("registerUser");
             reset();
         } catch (error) {

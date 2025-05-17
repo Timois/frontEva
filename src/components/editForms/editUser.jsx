@@ -16,6 +16,7 @@ import { ContainerButton } from "../login/ContainerButton";
 import { Button } from "../login/Button";
 import CancelButton from "../forms/components/CancelButon";
 import { SelectMultiple } from "../forms/components/SelectMultiple";
+import { useFetchPersona } from "../../hooks/fetchPersona";
 
 // Lista de roles que no necesitan carrera
 const ROLES_SIN_CARRERA = ["admin", "super-admin", "decano"];
@@ -26,7 +27,7 @@ export const EditUser = ({ data, closeModal }) => {
   const { careers } = useContext(CareerContext);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showCareerField, setShowCareerField] = useState(true);
-
+  const { refreshUsers} = useFetchPersona();
   const {
     control,
     handleSubmit,
@@ -105,9 +106,9 @@ export const EditUser = ({ data, closeModal }) => {
         }
         return;
       }
-
       updateUser(response.data);
       customAlert("Usuario actualizado exitosamente", "success");
+      refreshUsers();
       closeFormModal("editarUsuario");
     } catch (error) {
       console.error("Error al actualizar usuario:", error);

@@ -29,7 +29,20 @@ const FormStudentLogin = () => {
       if (response?.token) {
         storeStudent(response.student);
         localStorage.setItem("jwt_token", response.token);
-        navigate("/estudiantes/exams");
+        
+        // Agregar confirmación antes de navegar
+        const confirmarExamen = window.confirm("¿Desea iniciar su examen ahora?");
+        if (confirmarExamen) {
+          navigate("/estudiantes/exams");
+        } else {
+          // Si el estudiante no confirma, cerrar sesión
+          localStorage.removeItem("jwt_token");
+          storeStudent(null);
+          setError("root", { 
+            type: "custom", 
+            message: "Puede volver a iniciar sesión cuando esté listo para el examen" 
+          });
+        }
         
       } else {
         setError("root", { 

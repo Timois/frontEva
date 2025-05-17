@@ -12,5 +12,9 @@ export const useFetchPersona = () => {
         }
         return personas
     }
-    return { personas, getData}
+    const refreshUsers = async () => {
+        const response = await getApi("users/list")
+        setPersonas(response)
+    }
+    return { personas, getData, refreshUsers}
 }

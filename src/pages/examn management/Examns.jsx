@@ -37,6 +37,7 @@ export const Examns = () => {
             <th scope="col">Codigo</th>
             <th scope="col">Fecha de realizacion</th>
             <th scope="col">Tipo</th>
+            <th scope="col">Tiempo</th>
             <th scope="col">Estado</th>
             <th scope="col">Cantidad de postulantes</th>
             <th scope="col">Periodo</th>
@@ -55,6 +56,7 @@ export const Examns = () => {
                 <td>{examn.code}</td>
                 <td>{examn.date_of_realization}</td>
                 <td>{examn.type}</td>
+                <td>{examn.time}</td>
                 <td>{examn.status}</td>
                 <td>{examn.qualified_students}</td>
                 <td>{examn.period_name || 'No asignado'}</td>

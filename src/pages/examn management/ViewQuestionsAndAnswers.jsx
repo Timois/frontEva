@@ -17,7 +17,35 @@ const ViewQuestionsAndAnswers = () => {
   const student = JSON.parse(localStorage.getItem('user'));
   const ci = student ? student.ci : null;
   const [studentName] = useState(student ? student.nombre_completo : '');
-  
+  const [timer, setTimer] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(null);
+
+  // Efecto para manejar el temporizador
+  useEffect(() => {
+    if (timer && !alreadyAnswered) {
+      setTimeLeft(timer * 60); // Convertir minutos a segundos
+      
+      const interval = setInterval(() => {
+        setTimeLeft((prevTime) => {
+          if (prevTime <= 1) {
+            clearInterval(interval);
+            handleSubmit({ preventDefault: () => {} }); // Auto-submit cuando se acaba el tiempo
+            return 0;
+          }
+          return prevTime - 1;
+        });
+      }, 1000);
+
+      return () => clearInterval(interval);
+    }
+  }, [timer, alreadyAnswered]);
+
+  // Función para formatear el tiempo
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
   const handleAnswerSelection = (questionId, answerId) => {
     setSelectedAnswers(prev => ({
       ...prev,
@@ -38,7 +66,6 @@ const ViewQuestionsAndAnswers = () => {
 
     try {
       setLoading(true);
-
       const response = await postApi('student_answers/save', payload);
       const totalScore = Math.floor(response.total_score);
 
@@ -49,7 +76,6 @@ const ViewQuestionsAndAnswers = () => {
 
       if (error?.response?.status === 409) {
         setAlreadyAnswered(true);
-        
         setFinalScore(null); // O puedes hacer un fetch de la nota si está disponible
       } else {
         alert(
@@ -92,7 +118,7 @@ const ViewQuestionsAndAnswers = () => {
         if (!isMounted) return;
 
         setEvaluationTitle(evaluationResponse.title);
-
+        setTimer(evaluationResponse.time);
         // 🔍 CONSULTAR SI YA RESPONDIÓ
         const answeredResp = await getApi(`student_answers/list/${response.student_test_id}`);
         if (!isMounted) return;
@@ -150,7 +176,15 @@ const ViewQuestionsAndAnswers = () => {
     <form onSubmit={handleSubmit} className="container mt-4">
       <div className="card mb-4">
         <div className="card-header bg-primary text-white">
-          <h3 className="mb-0">Detalles de la Prueba</h3>
+          <div className="d-flex justify-content-between align-items-center">
+            <h3 className="mb-0">Detalles de la Prueba</h3>
+            {timeLeft !== null && (
+              <div className="bg-light text-dark px-3 py-2 rounded">
+                <strong>Tiempo restante: </strong>
+                {formatTime(timeLeft)}
+              </div>
+            )}
+          </div>
         </div>
         <div className="card-body">
           <div className="mb-2">
@@ -220,9 +254,9 @@ const ViewQuestionsAndAnswers = () => {
         <button
           type="submit"
           className="btn btn-primary btn-lg"
-          disabled={loading}
+          disabled={loading || timeLeft === 0}
         >
-          Enviar Respuestas
+          {timeLeft === 0 ? 'Tiempo Agotado' : 'Enviar Respuestas'}
         </button>
       </div>
     </form>

@@ -30,6 +30,7 @@ export const FormExamn = () => {
     const { control, handleSubmit, reset, formState: { errors }, setError } = useForm({
         resolver: zodResolver(ExmansSchema)
     })
+    
     const user = JSON.parse(localStorage.getItem('user'))
     const career_id = user?.career_id
 
@@ -82,6 +83,7 @@ export const FormExamn = () => {
         formData.append("qualified_students", data.qualified_students)
         formData.append("disqualified_students", data.disqualified_students)
         formData.append("type", data.type)
+        formData.append("time", Number(data.time))
         formData.append("status", "inactivo")
         formData.append("academic_management_period_id", String(data.academic_management_period_id))
 
@@ -117,6 +119,7 @@ export const FormExamn = () => {
             qualified_students: "",
             disqualified_students: "",
             type: "",
+            time: "",
             academic_management_period_id: "",
         })
     }
@@ -148,6 +151,10 @@ export const FormExamn = () => {
             <ContainerInput>
                 <DateInput label="Fecha de realización" name="date_of_realization" control={control} type="date" />
                 <Validate error={errors.date_of_realization} />
+            </ContainerInput>
+            <ContainerInput>
+                <Input name="time" control={control} type="number" placeholder="Ingrese el tiempo en minutos" />
+                <Validate error={errors.time} />
             </ContainerInput>
             <ContainerInput>
                 <SelectInput label="Seleccione el tipo" name="type" options={arrayOption} control={control} error={errors.type} />

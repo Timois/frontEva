@@ -25,6 +25,14 @@ export const ExmansSchema = z.object({
     type: z.enum(["ocr", "web", "app"], { 
         errorMap: () => ({ message: "Seleccione una opcion válida (ocr, web, app)" }) 
     }),
+    time: z
+    .string()
+    .transform((val) => Number(val))
+    .pipe(
+        z.number()
+        .min(30, "El tiempo mínimo permitido es 30 minutos")
+        .max(300, "El tiempo máximo permitido es 300 minutos"),
+    ),
     qualified_students: z
        .string()
        .transform((val) => Number(val))
