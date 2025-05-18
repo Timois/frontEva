@@ -1,25 +1,177 @@
+:root {
+  --sidebar-bg: linear-gradient(180deg, #2c3e50 0%, #3498db 100%);
+  --primary-color: #2c3e50;
+  --accent-color: #3498db;
+}
+
+.custom-sidebar {
+  background: var(--sidebar-bg);
+  color: white;
+}
+
+.accordion-button:not(.collapsed) {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  color: var(--primary-color) !important;
+}
+
+.accordion-button.collapsed {
+  background-color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.accordion-button:focus {
+  box-shadow: none !important;
+}
+
+/* Mejora para los botones del menú */
+.menu-button {
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  margin: 0.25rem 0;
+}
+
+.menu-button:hover {
+  background-color: var(--accent-color) !important;
+  color: white !important;
+  transform: translateX(5px);
+}
+
+/* Transición suave para la sidebar */
 .sidebar {
-    transition: transform 0.3s ease-in-out;
+  transition: all 0.3s ease-in-out;
+}
+
+/* Mejora de scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--accent-color);
+  border-radius: 4px;
+}
+
+.sidebar {
+  transition: transform 0.3s ease-in-out;
 }
 
 .sidebar-open {
-    transform: translateX(0);
+  transform: translateX(0);
 }
 
 .sidebar-closed {
-    transform: translateX(-100%);
+  transform: translateX(-100%);
 }
 
 @media (min-width: 768px) {
-    .sidebar {
-        transform: translateX(0);
-        position: static;
-    }
+  .sidebar {
+    transform: translateX(0);
+    position: static;
+  }
 }
 
 @media (max-width: 767.98px) {
-    .sidebar {
-        position: fixed;
-        width: 100% !important;
-    }
+  .sidebar {
+    position: fixed;
+    width: 100% !important;
+  }
+}
+
+.sidebar {
+  width: 280px;
+  transform: translateX(-100%);
+}
+
+.sidebar-open {
+  transform: translateX(0);
+  animation: sidebarSlideIn 0.3s ease;
+}
+
+.sidebar-closed {
+  transform: translateX(-100%);
+  animation: sidebarSlideOut 0.3s ease;
+}
+
+@keyframes sidebarSlideIn {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes sidebarSlideOut {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+.sidebar {
+  width: 280px;
+  transform: translateX(-100%);
+}
+
+.sidebar-open {
+  transform: translateX(0);
+  animation: sidebarSlideIn 0.3s ease;
+}
+
+.sidebar-closed {
+  transform: translateX(-100%);
+  animation: sidebarSlideOut 0.3s ease;
+}
+
+@keyframes sidebarSlideIn {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes sidebarSlideOut {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+.sidebar-content {
+  scrollbar-width: thin;
+  scrollbar-color: #4a5c6a transparent;
+}
+
+.sidebar-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar-content::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-content::-webkit-scrollbar-thumb {
+  background-color: #4a5c6a;
+  border-radius: 3px;
+}
+
+.hover-white:hover {
+  color: white !important;
+  transition: color 0.2s ease;
+}
+
+.brand-text {
+  font-family: "Segoe UI", sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.5px;
 }

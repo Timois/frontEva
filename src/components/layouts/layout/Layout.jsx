@@ -23,7 +23,7 @@ const Layout = ({ children }) => {
 
   // Variables
   const isStudent = Boolean(!student); // Cambiado de !!student a Boolean(student)
-  
+
   const logout = () => {
     try {
       if (student) {
@@ -75,47 +75,49 @@ const Layout = ({ children }) => {
 
   return (
     <div className="d-flex flex-column vh-100">
-      <nav className="navbar navbar-dark bg-dark">
-        <div className="container-fluid justify-content-end">
-          <span className="navbar-brand">{isStudent ? student?.name : user?.name}</span>
-          <div style={{ width: "100px" }}>
-            <Button
-              name="logout"
-              type="button"
-              onClick={logout}
-              icon={<MdLogout size={20} />}
-            >
-              Cerrar Sesión
-            </Button>
+      {/* Navbar mejorado */}
+      <nav className="navbar navbar-dark bg-primary shadow-sm py-3">
+        <div className="container-fluid">
+          <div className="d-flex align-items-center">
+            <span className="navbar-brand mb-0 h6 ms-3 text-truncate">
+              <FaUserShield className="me-2" />
+              {isStudent ? student?.name : user?.name}
+            </span>
           </div>
-          <SidebarOpenButton onClick={toggleSidebar} />
+
+          <div className="d-flex align-items-center">
+            <button
+              onClick={logout}
+              className="btn btn-link text-light text-decoration-none"
+              title="Cerrar sesión"
+            >
+              <MdLogout size={24} />
+            </button>
+          </div>
         </div>
       </nav>
 
       <div className="d-flex flex-grow-1 overflow-hidden">
-        
-        <Sidebar isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar}>
-          <div className="accordion w-100 p-3" id="accordionExample" style={{ backgroundColor: '#82e5ef' }}>
+        <Sidebar isSidebarOpen={true} toggleSidebar={toggleSidebar}>
+          <div className="accordion w-100 p-2 custom-sidebar">
             {hasAnyAdminPermission() && (
-              <div className="accordion-item" style={{ backgroundColor: '#fdfefe' }}>
+              <div className="accordion-item border-0 mb-2">
                 <h2 className="accordion-header" id="headingOne">
                   <button
-                    className="accordion-button"
+                    className="accordion-button rounded-3 shadow-none bg-light"
                     type="button"
                     data-bs-toggle="collapse"
                     data-bs-target="#collapseOne"
-                    aria-expanded="true"
-                    aria-controls="collapseOne"
                   >
-                    <FaUserShield className="me-2" /> Administracion
+                    <FaUserShield className="me-3 text-primary" />
+                    <span className="fw-medium">Administración</span>
                   </button>
                 </h2>
                 <div
                   id="collapseOne"
                   className="accordion-collapse collapse show"
-                  aria-labelledby="headingOne"
                 >
-                  <div className="accordion-body">
+                  <div className="accordion-body p-0">
                     {hasPermission("ver-usuarios") && (
                       <MenuButton
                         path={"/administracion/users"}
@@ -170,15 +172,17 @@ const Layout = ({ children }) => {
                 </div>
               </div>
             )}
+
             {hasAnyEvaluationPermission() && (
-              <div className="accordion-item" style={{ backgroundColor: '#fdfefe' }}>
+              <div className="accordion-item border-0 mb-2">
                 <h2 className="accordion-header" id="headingThree">
-                  <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                    <FaQuestionCircle className="me-2 w-auto" /> Evaluaciones
+                  <button className="accordion-button rounded-3 shadow-none bg-light collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                    <FaQuestionCircle className="me-3 text-primary" />
+                    <span className="fw-medium">Evaluaciones</span>
                   </button>
                 </h2>
-                <div id="collapseThree" className="accordion-collapse collapse" aria-labelledby="headingThree">
-                  <div className="accordion-body">
+                <div id="collapseThree" className="accordion-collapse collapse">
+                  <div className="accordion-body p-0">
                     <MenuButton path={"/administracion/home"} label={"Inicio"} onClick={closeSidebar} />
                     {hasPermission("ver-areas") && (
                       <MenuButton path={"/administracion/areas"} label={"Areas"} onClick={closeSidebar} />
@@ -196,27 +200,14 @@ const Layout = ({ children }) => {
                 </div>
               </div>
             )}
-
-            {(
-              <div className="accordion-item" style={{ backgroundColor: '#fdfefe' }}>
-                <h2 className="accordion-header" id="headingFour">
-                  <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
-                    <FaUserGraduate className="me-2 w-auto" /> Estudiantes
-                  </button>
-                </h2>
-                <div id="collapseFour" className="accordion-collapse collapse" aria-labelledby="headingFour">
-                  <div className="accordion-body">
-                    <MenuButton path={"/estudiantes/home"} label={"Inicio"} onClick={closeSidebar} />
-                    <MenuButton path={"/estudiantes/examns"} label={"Iniciar Examen"} onClick={closeSidebar} />
-                  </div>
-                </div>
-              </div>  
-            )}
-
           </div>
         </Sidebar>
-        <div className="pt-4 flex-grow-1 overflow-auto">
-          {children}
+
+        {/* Contenido principal */}
+        <div className="flex-grow-1 overflow-auto bg-light p-4">
+          <div className="container-fluid bg-white rounded-3 shadow-sm p-4">
+            {children}
+          </div>
         </div>
       </div>
     </div>
