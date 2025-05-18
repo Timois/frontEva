@@ -30,12 +30,18 @@ export const closeFormModal = (id) => {
  * @param {string} [type='success'] - The type of alert (e.g., 'success', 'error', 'warning', 'info', 'question').
  * @param {string} [position='top-end'] - The position of the alert on the screen (e.g., 'top', 'top-start', 'top-end', 'center', 'center-start', 'center-end', 'bottom', 'bottom-start', 'bottom-end').
  */
-export const customAlert = (message, type = 'success', position = 'top-end') => {
+export const customAlert = (message, type = 'success', position = 'center-end') => {
     Swal.fire({
         timer: 2000,
         showConfirmButton: false,
         title: message,
         icon: type,
-        position: position,
+        willOpen: () => {
+            const popup = Swal.getPopup();
+            popup.style.position = 'absolute';
+            popup.style.top = '-200px';
+            popup.style.left = '40%';
+            popup.style.transform = 'none'; // Disable default centering
+        }
     });
 }
