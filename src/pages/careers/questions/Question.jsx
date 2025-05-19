@@ -2,32 +2,34 @@
 /* eslint-disable no-unused-vars */
 import { useContext, useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { MdArrowBack } from "react-icons/md";
 import { QuestionContext } from "../../../context/QuestionsProvider";
 import { useFetchQuestionsByArea } from "../../../hooks/fetchQuestions";
 import ButtonEdit from "./ButtonEdit";
 import { ModalEdit } from "./ModalEdit";
-import { MdAddPhotoAlternate } from "react-icons/md";
 import { ModalImport } from "./imports/ModalImport";
 import { ButtonImport } from "./imports/ButtonImport";
 import CheckPermissions from "../../../routes/CheckPermissions";
 import { useFetchArea } from "../../../hooks/fetchAreas";
 import ButtonViewAnswers from "./ButtonViewAnswers";
-const urlimages = import.meta.env.VITE_URL_IMAGES;
+import ReactPaginate from "react-paginate";
+import { MdAddPhotoAlternate, MdArrowBack } from "react-icons/md";
+import { FaChevronLeft, FaChevronRight, FaQuestionCircle } from "react-icons/fa";
 
+const urlimages = import.meta.env.VITE_URL_IMAGES;
 
 export const Question = () => {
     const { id } = useParams();
     const { questions, setQuestions } = useContext(QuestionContext);
     const [selectedQuestion, setSelectedQuestion] = useState(null);
     const [modalImage, setModalImage] = useState(null);
-    const [currentPage, setCurrentPage] = useState(1);
+    const [currentPage, setCurrentPage] = useState(0);
     const questionsPerPage = 5;
     const { getData, areas } = useFetchArea();
     const { getDataQuestions } = useFetchQuestionsByArea();
     const navigate = useNavigate();
+    
     // Get area name
-    const areaName = areas?.find(area => String(area.id) === String(id))?.name.toUpperCase();
+    const areaName = areas?.find(area => String(area.id) === String(id))?.name;
 
     useEffect(() => {
         const fetchData = async () => {
@@ -44,15 +46,14 @@ export const Question = () => {
         setSelectedQuestion(question);
     };
 
-    // Pagination logic
-    const indexOfLastQuestion = currentPage * questionsPerPage;
-    const indexOfFirstQuestion = indexOfLastQuestion - questionsPerPage;
-    const currentQuestions = questions.slice(indexOfFirstQuestion, indexOfLastQuestion);
-    const totalPages = Math.ceil(questions.length / questionsPerPage);
+    // Pagination logic (usando el mismo enfoque que en Unidades)
+    const handlePageClick = (data) => {
+        setCurrentPage(data.selected);
+    };
 
-    const changePage = (page) => setCurrentPage(page);
-    const nextPage = () => setCurrentPage((prev) => (prev < totalPages ? prev + 1 : 1));
-    const prevPage = () => setCurrentPage((prev) => (prev > 1 ? prev - 1 : totalPages));
+    const offset = currentPage * questionsPerPage;
+    const currentQuestions = questions.slice(offset, offset + questionsPerPage);
+    const pageCount = Math.ceil(questions.length / questionsPerPage);
 
     const truncateText = (text, maxLength) =>
         text?.length > maxLength ? text.slice(0, maxLength) + "..." : text;
@@ -62,86 +63,111 @@ export const Question = () => {
     const IdImport = "importExcel";
 
     return (
-        <div className="row">
-            <div className="col-15">
-                <button 
-                    className="btn btn-warning mb-3"
-                    onClick={() => navigate('/administracion/questions')}
-                    style={{ marginLeft: '15px' }}
-                >
-                    <MdArrowBack /> Volver
-                </button>
-                
-                <div className="table-responsive">
-                    <div className="d-flex justify-content-between align-items-center my-3">
-                        <h5 className="mb-0 px-4 py-2 rounded" style={{
-                            color: '#2c3e50',
-                            backgroundColor: '#cff193',
-                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-                        }}>{areaName}</h5>
-                        <div className="d-flex gap-2">
-                            {/* <CheckPermissions requiredPermission="crear-preguntas">
-                                <ButtonAdd ModalId={modalId}/>
-                            </CheckPermissions> */}
-                            <CheckPermissions requiredPermission="importar-excel">
-                                <ButtonImport modalIdImp={IdImport} />
-                            </CheckPermissions>
-                        </div>
+        <div className="container-fluid p-4">
+            {/* Botón de volver */}
+            <button 
+                className="btn btn-outline-primary mb-3 d-flex align-items-center"
+                onClick={() => navigate('/administracion/questions')}
+            >
+                <MdArrowBack className="me-1" /> Volver
+            </button>
+            
+            {/* Tarjeta principal */}
+            <div className="card shadow-lg border-0 rounded-3 overflow-hidden">
+                {/* Encabezado */}
+                <div className="card-header bg-primary text-white py-3 rounded-top">
+                    <div className="d-flex justify-content-between align-items-center">
+                        <h3 className="mb-0">
+                            <FaQuestionCircle className="me-2" />
+                            Preguntas {areaName && `- ${areaName.toUpperCase()}`}
+                        </h3>
+                        <CheckPermissions requiredPermission="importar-excel">
+                            <ButtonImport 
+                                modalIdImp={IdImport} 
+                                className="btn btn-light btn-sm" 
+                            />
+                        </CheckPermissions>
                     </div>
-                    <table className="table table-dark table-striped table-bordered border border-warning text-wrap">
-                        <thead>
-                            <tr>
-                                <th scope="col">N°</th>
-                                <th scope="col">Pregunta</th>
-                                <th scope="col">Descripción</th>
-                                <th scope="col">Dificultad</th>
-                                <th scope="col">Imagen</th>
-                                <th scope="col">Tipo</th>
-                                <th scope="col">Respuestas</th>
-                                <th scope="col">Acción</th>
+                </div>
+
+                {/* Tabla */}
+                <div className="table-responsive rounded-3">
+                    <table className="table table-hover align-middle mb-0">
+                        <thead className="bg-light">
+                            <tr className="text-center">
+                                <th scope="col" width="5%" className="fw-medium text-primary">N°</th>
+                                <th scope="col" width="20%" className="fw-medium text-primary">Pregunta</th>
+                                <th scope="col" width="20%" className="fw-medium text-primary">Descripción</th>
+                                <th scope="col" width="10%" className="fw-medium text-primary">Dificultad</th>
+                                <th scope="col" width="10%" className="fw-medium text-primary">Imagen</th>
+                                <th scope="col" width="10%" className="fw-medium text-primary">Tipo</th>
+                                <th scope="col" width="15%" className="fw-medium text-primary">Respuestas</th>
+                                <th scope="col" width="10%" className="fw-medium text-primary">Acción</th>
                             </tr>
                         </thead>
                         <tbody>
                             {currentQuestions.length > 0 ? (
                                 currentQuestions.map((question, index) => (
-                                    <tr key={question.id || index}>
-                                        <td>{indexOfFirstQuestion + index + 1}</td>
-                                        <td className="text-break" style={{ fontSize: "15px" }}>
-                                            {truncateText(question.question, 15)}
+                                    <tr key={question.id || index} className="transition-all">
+                                        <td className="text-center fw-bold text-muted">{offset + index + 1}</td>
+                                        <td className="text-break">
+                                            {truncateText(question.question, 50)}
                                         </td>
-                                        <td className="text-break" style={{ fontSize: "15px" }}>
-                                            {truncateText(question.description, 15)}
+                                        <td className="text-break">
+                                            {truncateText(question.description, 50)}
                                         </td>
-                                        <td className="text-break" style={{ fontSize: "15px" }}>{question.dificulty}</td>
-                                        <td className="justify-content-center">
+                                        <td className="text-center">
+                                            <span className={`badge ${
+                                                question.dificulty === 'Fácil' ? 'bg-success' : 
+                                                question.dificulty === 'Media' ? 'bg-warning' : 'bg-danger'
+                                            } bg-opacity-10 ${
+                                                question.dificulty === 'Fácil' ? 'text-success' : 
+                                                question.dificulty === 'Media' ? 'text-warning' : 'text-danger'
+                                            } py-2 px-3`}>
+                                                {question.dificulty}
+                                            </span>
+                                        </td>
+                                        <td className="text-center">
                                             {question.image ? (
                                                 <button
-                                                    className="btn btn-info btn-sm"
+                                                    className="btn btn-sm btn-outline-info"
                                                     onClick={() => setModalImage(urlimages + question.image)}
                                                 >
                                                     <MdAddPhotoAlternate />
                                                 </button>
                                             ) : (
-                                                <span className="badge badge-secondary" style={{ backgroundColor: "red" }}>Sin Imagen</span>
+                                                <span className="badge bg-secondary bg-opacity-10 text-secondary py-2 px-3">
+                                                    Sin imagen
+                                                </span>
                                             )}
                                         </td>
-                                        <td>{question.type}</td>
-                                        <td>
-                                            <CheckPermissions requiredPermission={"ver-respuestas"}>
-                                                <ButtonViewAnswers questionId={question.id} />
+                                        <td className="text-center text-muted">{question.type}</td>
+                                        <td className="text-center">
+                                            <CheckPermissions requiredPermission="ver-respuestas">
+                                                <ButtonViewAnswers 
+                                                    questionId={question.id} 
+                                                    className="btn btn-sm btn-outline-primary"
+                                                />
                                             </CheckPermissions>
                                         </td>
-                                        <td>
+                                        <td className="text-center">
                                             <CheckPermissions requiredPermission="editar-preguntas">
-                                                <ButtonEdit idEditar={idEditar} onEditClick={() => handleEditClick(question)} />
+                                                <ButtonEdit 
+                                                    idEditar={idEditar} 
+                                                    onEditClick={() => handleEditClick(question)}
+                                                    className="btn btn-sm btn-outline-primary d-flex align-items-center justify-content-center mx-auto"
+                                                />
                                             </CheckPermissions>
                                         </td>
                                     </tr>
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan="8" className="text-center">
-                                        No hay preguntas registradas para esta área.
+                                    <td colSpan="8" className="text-center py-5">
+                                        <div className="d-flex flex-column align-items-center text-muted">
+                                            <FaQuestionCircle className="fs-1 mb-2" />
+                                            No hay preguntas registradas para esta área.
+                                        </div>
                                     </td>
                                 </tr>
                             )}
@@ -149,55 +175,79 @@ export const Question = () => {
                     </table>
                 </div>
 
+                {/* Paginación */}
                 {questions.length > questionsPerPage && (
-                    <div className="d-flex justify-content-center align-items-center mt-3">
-                        <button
-                            className="btn btn-warning mx-1"
-                            onClick={prevPage}
-                        >
-                            ⬅ Anterior
-                        </button>
-
-                        {[...Array(totalPages)].map((_, index) => (
-                            <button
-                                key={index}
-                                className={`btn mx-1 ${currentPage === index + 1 ? "btn-primary" : "btn-outline-warning"}`}
-                                onClick={() => changePage(index + 1)}
-                            >
-                                {index + 1}
-                            </button>
-                        ))}
-
-                        <button
-                            className="btn btn-warning mx-1"
-                            onClick={nextPage}
-                        >
-                            Siguiente ➡
-                        </button>
+                    <div className="card-footer bg-transparent border-0">
+                        <div className="d-flex justify-content-center">
+                            <ReactPaginate
+                                previousLabel={<FaChevronLeft />}
+                                nextLabel={<FaChevronRight />}
+                                breakLabel={"..."}
+                                pageCount={pageCount}
+                                marginPagesDisplayed={2}
+                                pageRangeDisplayed={3}
+                                onPageChange={handlePageClick}
+                                containerClassName={"pagination pagination-sm"}
+                                pageClassName={"page-item"}
+                                pageLinkClassName={"page-link"}
+                                previousClassName={"page-item"}
+                                previousLinkClassName={"page-link"}
+                                nextClassName={"page-item"}
+                                nextLinkClassName={"page-link"}
+                                breakClassName={"page-item"}
+                                breakLinkClassName={"page-link"}
+                                activeClassName={"active"}
+                            />
+                        </div>
                     </div>
                 )}
             </div>
 
+            {/* Modales */}
             <CheckPermissions requiredPermission="editar-preguntas">
-                <ModalEdit idEditar={idEditar} data={selectedQuestion} title="Editar Pregunta" />
+                <ModalEdit 
+                    idEditar={idEditar} 
+                    data={selectedQuestion} 
+                    title="Editar Pregunta" 
+                />
             </CheckPermissions>
+            
             <CheckPermissions requiredPermission="importar-excel">
-                <ModalImport modalIdImp={IdImport} title={"Importar Preguntas"} />
+                <ModalImport 
+                    modalIdImp={IdImport} 
+                    title="Importar Preguntas" 
+                />
             </CheckPermissions>
-            {/* <CheckPermissions requiredPermission="crear-preguntas">
-                <ModalRegister ModalId={modalId} title="Crear Pregunta" />
-            </CheckPermissions> */}
 
+            {/* Modal de imagen */}
             {modalImage && (
                 <div className="modal fade show d-block" tabIndex="-1" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
-                    <div className="modal-dialog">
+                    <div className="modal-dialog modal-dialog-centered">
                         <div className="modal-content">
-                            <div className="modal-header">
-                                <h5 className="modal-title">Pregunta</h5>
-                                <button className="btn-close" onClick={() => setModalImage(null)}></button>
+                            <div className="modal-header bg-primary text-white">
+                                <h5 className="modal-title">Imagen de la pregunta</h5>
+                                <button 
+                                    type="button" 
+                                    className="btn-close btn-close-white" 
+                                    onClick={() => setModalImage(null)}
+                                ></button>
                             </div>
-                            <div className="modal-body text-center">
-                                <img src={modalImage} alt="Vista previa" className="img-fluid" />
+                            <div className="modal-body text-center p-4">
+                                <img 
+                                    src={modalImage} 
+                                    alt="Vista previa" 
+                                    className="img-fluid rounded" 
+                                    style={{ maxHeight: "70vh" }}
+                                />
+                            </div>
+                            <div className="modal-footer">
+                                <button 
+                                    type="button" 
+                                    className="btn btn-secondary" 
+                                    onClick={() => setModalImage(null)}
+                                >
+                                    Cerrar
+                                </button>
                             </div>
                         </div>
                     </div>

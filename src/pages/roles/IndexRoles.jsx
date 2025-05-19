@@ -1,5 +1,6 @@
 
 import CheckPermissions from "../../routes/CheckPermissions";
+import ButtonAdd from "./ButtonAdd";
 import { Roles } from "./Roles"; // Suponiendo que este componente lista los roles
 import { useNavigate } from "react-router-dom"; // Asegúrate de importar useNavigate
 
@@ -15,14 +16,7 @@ export const IndexRoles = () => {
       <div className="d-flex justify-content-center">
         {/* Botón para agregar un nuevo rol, redirige a la vista de creación */}
         <CheckPermissions requiredPermission="crear-roles">
-        <button
-          type="button"
-          className="btn btn-secondary justify-content-end"
-          style={{ backgroundColor: "#5dbf1a", color: "white" }}
-          onClick={handleAddRoleClick} // Redirige al hacer clic
-        >
-          <i className="fas fa-plus me-2"></i> Agregar Rol
-        </button>
+        <ButtonAdd onClick={handleAddRoleClick} />
         </CheckPermissions>
       </div>
 

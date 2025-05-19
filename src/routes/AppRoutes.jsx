@@ -17,7 +17,7 @@ import { IndexQuestions } from "../pages/careers/questions/IndexQuestions"
 import { Question } from "../pages/careers/questions/Question" // Asegúrate de importar el componente Question
 import { IndexUser } from "../pages/users/IndexUser"
 import { StudentLogin } from "../pages/auth/StudentLogin"
-import { StudentsHome } from "../pages/StudentsHome"
+import { InicioDocente } from "../pages/docentes/InicioDocente"
 import { IndexStudents } from "../pages/docentes/IndexStudents"
 import { IndexRoles } from "../pages/roles/IndexRoles"
 import RegisterRol from "../pages/roles/RegisterRol"
@@ -48,7 +48,7 @@ export const AppRoutes = () => {
         <Route element={<Layout><Outlet /></Layout>}>
           <Route path="access-denied" element={<AccessDenied />} />
           <Route path="administracion/home" element={<Inicio />} />
-          <Route path="estudiantes/home" element={<StudentsHome />} />
+          <Route path="administracion/homeDocente" element={<InicioDocente/>} />
           <Route path="administracion/unit" element={
             <PermissionsGuard requiredPermission={"ver-unidades-academicas"}>
               <IndexUnit />

@@ -61,10 +61,10 @@ export const FormArea = () => {
                 }
                 return;
             }
+            customAlert("Área guardada correctamente", "success");
+            closeFormModal("registroArea");
             addArea(response);
             resetForm();
-            closeFormModal("registroArea");
-            customAlert("Área guardada correctamente", "success");
         } catch (error) {
             console.error("Error al guardar área:", error);
             setResponse(false);

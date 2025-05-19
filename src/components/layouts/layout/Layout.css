@@ -148,16 +148,18 @@
 }
 
 .sidebar-content {
+  max-height: calc(100vh - 130px); /* ajusta si header/footer cambian */
+  overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: #4a5c6a transparent;
 }
 
 .sidebar-content::-webkit-scrollbar {
   width: 6px;
 }
 
-.sidebar-content::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.1);
+.sidebar-content::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
 }
 
 .sidebar-content::-webkit-scrollbar-thumb {

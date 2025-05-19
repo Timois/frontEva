@@ -6,6 +6,7 @@ import { useFetchGestion } from '../../hooks/fetchGestion'
 import ButtonEdit from "./ButtonEdit"
 import { ModalEdit } from "./ModalEdit"
 import CheckPermissions from "../../routes/CheckPermissions"
+import { FaCalendarAlt, FaCalendarCheck, FaCalendarDay, FaCalendarTimes } from "react-icons/fa"
 
 export const Gestiones = () => {
   const { gestions, setGestions } = useContext(GestionContext)
@@ -20,60 +21,77 @@ export const Gestiones = () => {
   }, [])
   const idEditar = "editarGestion"
   return (
-    <div className="container-fluid py-4">
-      <div className="card shadow-sm">
-        <div className="card-header bg-dark text-white py-3">
-          <h5 className="card-title mb-0">
-            <i className="fas fa-calendar-alt me-2"></i>
+    <div className="container-fluid p-4">
+      <div className="card shadow-lg border-0 rounded-3 overflow-hidden">
+        <div className="card-header bg-primary text-white py-3 rounded-top">
+          <h3 className="mb-0">
+            <FaCalendarDay className="me-2" />
             Gestión Académica
-          </h5>
+          </h3>
         </div>
-        <div className="card-body">
-          <div className="table-responsive">
-            <table className="table table-hover table-striped align-middle">
-              <thead className="table-dark">
-                <tr className="text-center">
-                  <th scope="col" className="text-center">#</th>
-                  <th scope="col">Año</th>
-                  <th scope="col">Fecha de Inicio</th>
-                  <th scope="col">Fecha de Fin</th>
-                  <th scope="col">Acción</th>
-                </tr>
-              </thead>
-              <tbody>
-                {gestions.length > 0 ? (
-                  gestions.map((gestion, index) => (
-                    <tr key={index} className="text-center">
-                      <td className="fw-bold">{index + 1}</td>
-                      <td>{gestion.year}</td>
-                      <td>{gestion.initial_date}</td>
-                      <td>{gestion.end_date}</td>
-                      <td>
-                        <CheckPermissions requiredPermission="editar-gestiones">
-                          <ButtonEdit 
-                            idEditar={idEditar} 
-                            onEditClick={() => handleEditClick(gestion)}
-                            className="btn btn-primary btn-sm"
-                          />
-                        </CheckPermissions>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="5" className="text-center text-muted py-4">
-                      <i className="fas fa-inbox fa-2x mb-3 d-block"></i>
-                      No hay gestiones registradas.
+
+        <div className="table-responsive rounded-3">
+          <table className="table table-hover align-middle mb-0">
+            <thead className="bg-light">
+              <tr>
+                <th scope="col" width="8%" className="text-center fw-medium text-primary">#</th>
+                <th scope="col" className="fw-medium text-primary">Año</th>
+                <th scope="col" className="fw-medium text-primary">Fecha de Inicio</th>
+                <th scope="col" className="fw-medium text-primary">Fecha de Fin</th>
+                <th scope="col" width="15%" className="text-center fw-medium text-primary">Acción</th>
+              </tr>
+            </thead>
+            <tbody>
+              {gestions.length > 0 ? (
+                gestions.map((gestion, index) => (
+                  <tr key={index} className="transition-all">
+                    <td className="text-center fw-bold text-muted">{index + 1}</td>
+                    <td>
+                      <span className="badge bg-primary bg-opacity-10 text-primary py-2 px-3">
+                        {gestion.year}
+                      </span>
+                    </td>
+                    <td className="text-muted">
+                      <FaCalendarCheck className="me-2 text-primary" />
+                      {gestion.initial_date}
+                    </td>
+                    <td className="text-muted">
+                      <FaCalendarTimes className="me-2 text-primary" />
+                      {gestion.end_date}
+                    </td>
+                    <td className="text-center">
+                      <CheckPermissions requiredPermission="editar-gestiones">
+                        <ButtonEdit
+                          idEditar={idEditar}
+                          onEditClick={() => handleEditClick(gestion)}
+                          className="btn btn-sm btn-outline-primary d-flex align-items-center justify-content-center mx-auto"
+                        >
+                        </ButtonEdit>
+                      </CheckPermissions>
                     </td>
                   </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="5" className="text-center py-5">
+                    <div className="d-flex flex-column align-items-center text-muted">
+                      <FaCalendarAlt className="fs-1 mb-2" />
+                      No hay gestiones académicas registradas.
+                    </div>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
+
       <CheckPermissions requiredPermission="editar-gestiones">
-        <ModalEdit idEditar={idEditar} data={selectedGestion} title="Editar Gestión" />
+        <ModalEdit
+          idEditar={idEditar}
+          data={selectedGestion}
+          title="Editar Gestión Académica"
+        />
       </CheckPermissions>
     </div>
   );

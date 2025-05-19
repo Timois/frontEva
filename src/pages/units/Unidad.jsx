@@ -6,6 +6,7 @@ import { useFetchUnit } from "../../hooks/fetchUnit"
 import ButtonEdit from "./ButtonEdit"
 import { ModalEdit } from "../careers/ModalEdit"
 import CheckPermissions from "../../routes/CheckPermissions"
+import { FaChevronLeft, FaChevronRight, FaUniversity } from "react-icons/fa"
 
 export const Unidad = () => {
   const { units, setUnits } = useContext(UnitContext)
@@ -35,74 +36,80 @@ export const Unidad = () => {
   const idEditar = "editarCarrera"
 
   return (
-    <div className="container-fluid py-4">
-      <div className="card shadow-sm">
-        <div className="card-header bg-dark text-white py-3">
-          <h5 className="card-title mb-0">
-            <i className="fas fa-building me-2"></i>
+    <div className="container-fluid p-4">
+      <div className="card shadow-lg border-0 rounded-3 overflow-hidden">
+        <div className="card-header bg-primary text-white py-3 rounded-top">
+          <h3 className="mb-0">
+            <FaUniversity className="me-2" />
             Unidades Académicas
-          </h5>
+          </h3>
         </div>
-        <div className="card-body">
-          <div className="table-responsive">
-            <table className="table table-hover align-middle">
-              <thead className="table-dark">
-                <tr className="text-center">
-                  <th scope="col" width="5%">N°</th>
-                  <th scope="col" width="40%">Nombre</th>
-                  <th scope="col" width="20%">Sigla</th>
-                  <th scope="col" width="20%">Tipo</th>
-                  <th scope="col" width="15%">Acción</th>
-                </tr>
-              </thead>
-              <tbody>
-                {currentItems.length > 0 ? (
-                  currentItems.map((unit, index) => (
-                    <tr key={index} className="align-middle">
-                      <td className="text-center fw-bold">{offset + index + 1}</td>
-                      <td>
-                        <div className="d-flex align-items-center">
-                          <img 
-                            className="rounded-circle me-3" 
-                            src={unit.logo} 
-                            alt={`Logo de ${unit.name}`} 
-                            width={50} 
-                            height={50} 
-                          />
-                          <span className="fw-semibold">{unit.name}</span>
-                        </div>
-                      </td>
-                      <td className="text-center">{unit.initials}</td>
-                      <td className="text-center">
-                        <span className="badge bg-primary">{unit.type}</span>
-                      </td>
-                      <td className="text-center">
-                        <CheckPermissions requiredPermission="editar-unidades-academicas">
-                          <ButtonEdit
-                            idEditar={idEditar}
-                            onEditClick={() => handleEditClick(unit)}
-                            className="btn btn-primary btn-sm"
-                          />
-                        </CheckPermissions>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="5" className="text-center py-4">
-                      <i className="fas fa-folder-open fa-2x text-muted mb-3 d-block"></i>
-                      <p className="text-muted mb-0">No hay unidades registradas.</p>
+
+        <div className="table-responsive rounded-3">
+          <table className="table table-hover align-middle mb-0">
+            <thead className="bg-light">
+              <tr className="text-center">
+                <th scope="col" width="5%" className="fw-medium text-primary">N°</th>
+                <th scope="col" width="40%" className="fw-medium text-primary">Nombre</th>
+                <th scope="col" width="20%" className="fw-medium text-primary">Sigla</th>
+                <th scope="col" width="20%" className="fw-medium text-primary">Tipo</th>
+                <th scope="col" width="15%" className="fw-medium text-primary">Acción</th>
+              </tr>
+            </thead>
+            <tbody>
+              {currentItems.length > 0 ? (
+                currentItems.map((unit, index) => (
+                  <tr key={index} className="transition-all">
+                    <td className="text-center fw-bold text-muted">{offset + index + 1}</td>
+                    <td>
+                      <div className="d-flex align-items-center">
+                        <img 
+                          className="rounded-circle me-3 shadow-sm" 
+                          src={unit.logo} 
+                          alt={`Logo de ${unit.name}`} 
+                          width={50} 
+                          height={50} 
+                        />
+                        <span className="fw-semibold">{unit.name}</span>
+                      </div>
+                    </td>
+                    <td className="text-center text-muted">{unit.initials}</td>
+                    <td className="text-center">
+                      <span className="badge bg-primary bg-opacity-10 text-primary py-2 px-3">
+                        {unit.type}
+                      </span>
+                    </td>
+                    <td className="text-center">
+                      <CheckPermissions requiredPermission="editar-unidades-academicas">
+                        <ButtonEdit
+                          idEditar={idEditar}
+                          onEditClick={() => handleEditClick(unit)}
+                          className="btn btn-sm btn-outline-primary d-flex align-items-center justify-content-center mx-auto"
+                        >
+                        </ButtonEdit>
+                      </CheckPermissions>
                     </td>
                   </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-          
-          <div className="d-flex justify-content-center mt-4">
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="5" className="text-center py-5">
+                    <div className="d-flex flex-column align-items-center text-muted">
+                      <FaUniversity className="fs-1 mb-2" />
+                      No hay unidades académicas registradas.
+                    </div>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="card-footer bg-transparent border-0">
+          <div className="d-flex justify-content-center">
             <ReactPaginate
-              previousLabel={<i className="fas fa-chevron-left"></i>}
-              nextLabel={<i className="fas fa-chevron-right"></i>}
+              previousLabel={<FaChevronLeft />}
+              nextLabel={<FaChevronRight />}
               breakLabel={"..."}
               pageCount={pageCount}
               marginPagesDisplayed={2}
@@ -124,7 +131,11 @@ export const Unidad = () => {
       </div>
 
       <CheckPermissions requiredPermission="editar-unidades-academicas">
-        <ModalEdit idEditar={idEditar} data={selectedUnit} title="Editar Unidad Académica" />
+        <ModalEdit 
+          idEditar={idEditar} 
+          data={selectedUnit} 
+          title="Editar Unidad Académica" 
+        />
       </CheckPermissions>
     </div>
   );

@@ -24,23 +24,36 @@ const FormLogin = () => {
   const navigate = useNavigate();
 
   const onSubmit = async (data) => {
-    setResponse(true);
-    try {
-      const response = await loginSystem(data);
-      if (response?.token) {
-        storeUser(response.user);
-        localStorage.setItem("jwt_token", response.token);
+     setResponse(true);
+  try {
+    const response = await loginSystem(data);
+    if (response?.token) {
+      const { role } = response.user;
+
+      storeUser(response.user);
+      localStorage.setItem("jwt_token", response.token);
+
+      if (role.includes("admin")) {
         navigate("/administracion/home");
-        window.location.reload();
-      } else {
-        setError("root", { type: "custom", message: "Credenciales incorrectas" });
-      }
-    } catch (error) {
-      console.error("Error en el login:", error);
-      setError("root", { type: "custom", message: "Error en el servidor" });
-    } finally {
-      setResponse(false);
+      } else if (role.includes("docente")) {
+        navigate("/administracion/homeDocente");
+      } 
+      window.location.reload();
+    } else {
+      setError("root", {
+        type: "custom",
+        message: "Credenciales incorrectas",
+      });
     }
+  } catch (error) {
+    console.error("Error en el login:", error);
+    setError("root", {
+      type: "custom",
+      message: "Error en el servidor",
+    });
+  } finally {
+    setResponse(false);
+  }
   };
 
   return (

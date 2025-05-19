@@ -6,6 +6,7 @@ import { ModalEdit } from './ModalEdit';
 import CheckPermissions from '../../../routes/CheckPermissions';
 import { ButtonImport } from '../questions/imports/ButtonImport';
 import { ModalImport } from '../questions/imports/ModalImport';
+import { FaClipboardList } from 'react-icons/fa';
 
 export const Area = () => {
   const { areas } = useContext(AreaContext);
@@ -26,45 +27,74 @@ export const Area = () => {
   const idEditar = "editarArea";
 
   return (
-    <div className="container">
-      <h2 className="text-center text-white mb-4">Áreas Académicas</h2>
-      <div className="row">
-        {areas.length > 0 ? (
-          areas.map((area, index) => (
-            <div key={index} className="col-md-4 mb-4">
-              <div className="card border border-warning text-white bg-dark h-100">
-                <div className="card-header bg-warning bg-opacity-75 text-dark">
-                  <h5 className="card-title mb-0 fw-bold text-center">{area.name}</h5>
-                </div>
-                <div className="card-body d-flex flex-column justify-content-between">
-                  <p className="card-text text-white-50 fs-6 mb-3">{area.description}</p>
-                  <div className="d-flex justify-content-center align-items-center gap-2">
-                    <CheckPermissions requiredPermission="editar-areas">
-                      <ButtonEdit idEditar={idEditar} onEditClick={() => handleEditClick(area)} />
-                    </CheckPermissions>
-                    <CheckPermissions requiredPermission="importar-preguntas">
-                      <ButtonImport 
-                        modalIdImp={`importar-${area.id}`} 
-                        onClick={() => {}} 
-                      />
-                    </CheckPermissions>
+    <div className="container-fluid p-4">
+      <div className="card shadow-lg border-0 rounded-3 overflow-hidden mb-4">
+        <div className="card-header bg-primary text-white py-3 rounded-top">
+          <h3 className="mb-0">
+            <FaClipboardList className="me-2" />
+            Áreas Académicas
+          </h3>
+        </div>
+
+        <div className="card-body">
+          {areas.length > 0 ? (
+            <div className="row g-4">
+              {areas.map((area, index) => (
+                <div key={index} className="col-xl-3 col-lg-4 col-md-6">
+                  <div className="card h-100 border-0 shadow-sm hover-shadow transition-all">
+                    <div className="card-header bg-primary bg-opacity-10 border-0 py-3">
+                      <h5 className="card-title m-0 text-primary fw-semibold text-center">
+                        {area.name}
+                      </h5>
+                    </div>
+                    <div className="card-body d-flex flex-column">
+                      <p className="card-text text-muted flex-grow-1">
+                        {area.description || <span className="text-muted">Sin descripción</span>}
+                      </p>
+                      <div className="d-flex justify-content-center gap-2 mt-3">
+                        <CheckPermissions requiredPermission="editar-areas">
+                          <ButtonEdit
+                            idEditar={idEditar}
+                            onEditClick={() => handleEditClick(area)}
+                            className="btn btn-sm btn-outline-primary d-flex align-items-center"
+                          >
+                          </ButtonEdit>
+                        </CheckPermissions>
+                        <CheckPermissions requiredPermission="importar-preguntas">
+                          <ButtonImport
+                            modalIdImp={`importar-${area.id}`}
+                            className="btn btn-sm btn-outline-success d-flex align-items-center"
+                          >
+                          </ButtonImport>
+                        </CheckPermissions>
+                      </div>
+                    </div>
                   </div>
                 </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-5">
+              <div className="d-flex flex-column align-items-center text-muted">
+                <FaClipboardList className="fs-1 mb-2" />
+                No hay áreas académicas registradas.
               </div>
             </div>
-          ))
-        ) : (
-          <div className="col-12 text-center text-white">
-            <p>No hay Áreas registradas.</p>
-          </div>
-        )}
+          )}
+        </div>
       </div>
+
       <CheckPermissions requiredPermission="editar-areas">
-        <ModalEdit idEditar={idEditar} data={selectedArea} title="Editar Área" />
+        <ModalEdit
+          idEditar={idEditar}
+          data={selectedArea}
+          title="Editar Área Académica"
+        />
       </CheckPermissions>
+
       {areas.map(area => (
         <CheckPermissions key={area.id} requiredPermission="importar-preguntas">
-          <ModalImport 
+          <ModalImport
             modalIdImp={`importar-${area.id}`}
             title={`Importar Preguntas - ${area.name}`}
             areaId={area.id}

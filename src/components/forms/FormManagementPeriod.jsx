@@ -48,7 +48,7 @@ export const FormManagementPeriod = ({ data }) => {
         })
 
         const response = await postApi("academic_management_period/save", formData)
-        console.log(response)
+        
         if (response.status == 422) {
             for (var key in response.data.errors) {
                 setError(key, { type: "custom", message: response.data.errors[key][0] })
