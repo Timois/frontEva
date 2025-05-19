@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react';
 import { getApi, postApi } from '../../services/axiosServices/ApiService';
 import { useFetchStudent } from '../../hooks/fetchStudent';
+import { FaCheck, FaClock, FaQuestionCircle, FaUserGraduate } from 'react-icons/fa';
+import { MdOutlineTimer } from 'react-icons/md';
 
 
 const ViewQuestionsAndAnswers = () => {
@@ -173,74 +175,108 @@ const ViewQuestionsAndAnswers = () => {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="container mt-4">
-      <div className="card mb-4">
-        <div className="card-header bg-primary text-white">
+    <div className="container-fluid p-4">
+      {/* Encabezado de la evaluación */}
+      <div className="card shadow-lg border-0 rounded-3 mb-4 overflow-hidden">
+        <div className="card-header bg-primary text-white py-3 rounded-top">
           <div className="d-flex justify-content-between align-items-center">
-            <h3 className="mb-0">Detalles de la Prueba</h3>
+            <h3 className="mb-0">
+              <FaQuestionCircle className="me-2" />
+              Evaluación: {evaluationTitle}
+            </h3>
             {timeLeft !== null && (
-              <div className="bg-light text-dark px-3 py-2 rounded">
+              <div className="d-flex align-items-center bg-white text-dark px-3 py-2 rounded">
+                <MdOutlineTimer className="me-2 fs-4 text-primary" />
                 <strong>Tiempo restante: </strong>
-                {formatTime(timeLeft)}
+                <span className="ms-2 fw-bold">{formatTime(timeLeft)}</span>
               </div>
             )}
           </div>
         </div>
-        <div className="card-body">
-          <div className="mb-2">
-            <strong>Estudiante:</strong> {studentName}
-          </div>
-          <div className="mb-2">
-            <strong>Evaluación:</strong> {evaluationTitle}
+        <div className="card-body bg-light">
+          <div className="row">
+            <div className="col-md-6">
+              <p className="mb-3">
+                <FaUserGraduate className="me-2 text-primary" />
+                <strong>Estudiante:</strong> 
+                <span className="ms-2">{studentName}</span>
+              </p>
+            </div>
+            <div className="col-md-6">
+              <p className="mb-3">
+                <FaClock className="me-2 text-primary" />
+                <strong>Duración total:</strong> 
+                <span className="ms-2">{timer} minutos</span>
+              </p>
+            </div>
           </div>
         </div>
       </div>
 
+      {/* Lista de preguntas */}
       <div className="questions-container">
         {questionsData.questions.map((question, index) => (
-          <div key={question.id} className="card mb-4">
-            <div className="card-header bg-light">
-              <div className="d-flex justify-content-between align-items-center">
-                <h5 className="mb-0">Pregunta {index + 1}</h5>
-              </div>
+          <div key={question.id} className="card shadow-sm border-0 rounded-3 mb-4 overflow-hidden">
+            <div className="card-header bg-light py-3">
+              <h5 className="mb-0 d-flex align-items-center">
+                <span className="badge bg-primary bg-opacity-10 text-primary me-3 py-2 px-3">
+                  Pregunta {index + 1}
+                </span>
+                <span>{question.question}</span>
+              </h5>
             </div>
+            
             <div className="card-body">
-              <p className="fw-bold mb-2">{question.question}</p>
-
-              {question.image && (
-                <div className="text-center mb-4">
-                  <img
-                    src={`${API_BASE_URL}${question.image}`}
-                    alt="Imagen de la pregunta"
-                    className="img-fluid rounded"
-                    style={{ maxHeight: '300px' }}
-                  />
+              {/* Imagen y descripción */}
+              <div className="row mb-4">
+                {question.image && (
+                  <div className="col-md-4 mb-3 mb-md-0">
+                    <img
+                      src={`${API_BASE_URL}${question.image}`}
+                      alt="Imagen de la pregunta"
+                      className="img-fluid rounded shadow-sm border"
+                      style={{ maxHeight: '200px' }}
+                    />
+                  </div>
+                )}
+                <div className={`${question.image ? 'col-md-8' : 'col-12'}`}>
+                  {question.description && (
+                    <div className="p-3 bg-light rounded-3">
+                      <p className="text-muted mb-0">{question.description}</p>
+                    </div>
+                  )}
                 </div>
-              )}
+              </div>
 
-              <p className="text-muted mb-4">{question.description}</p>
-
+              {/* Respuestas */}
               <div className="answers-container">
+                <h6 className="mb-3 text-muted">Selecciona una respuesta:</h6>
                 {question.bank_answers.map((answer) => (
                   <div
                     key={answer.id}
-                    className={`p-3 mb-2 rounded cursor-pointer ${selectedAnswers[question.id] === answer.id
-                      ? 'bg-primary bg-opacity-10 border border-primary'
-                      : 'bg-light'
-                      }`}
+                    className={`p-3 mb-3 rounded-3 cursor-pointer transition-all ${
+                      selectedAnswers[question.id] === answer.id
+                        ? 'bg-primary bg-opacity-10 border border-primary'
+                        : 'bg-light border'
+                    }`}
                     onClick={() => handleAnswerSelection(question.id, answer.id)}
                     role="button"
                   >
                     <div className="d-flex align-items-center">
-                      <input
-                        type="radio"
-                        name={`question-${question.id}`}
-                        value={answer.id}
-                        checked={selectedAnswers[question.id] === answer.id}
-                        onChange={() => handleAnswerSelection(question.id, answer.id)}
-                        className="me-2"
-                      />
-                      {answer.answer}
+                      <div className={`flex-shrink-0 me-3 ${
+                        selectedAnswers[question.id] === answer.id 
+                          ? 'text-primary' 
+                          : 'text-muted'
+                      }`}>
+                        {selectedAnswers[question.id] === answer.id ? (
+                          <FaCheck className="fs-5" />
+                        ) : (
+                          <span className="fw-bold">{String.fromCharCode(65 + question.bank_answers.indexOf(answer))}.</span>
+                        )}
+                      </div>
+                      <div className="flex-grow-1">
+                        {answer.answer}
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -250,16 +286,48 @@ const ViewQuestionsAndAnswers = () => {
         ))}
       </div>
 
-      <div className="d-grid gap-2 col-6 mx-auto mb-4">
+      {/* Botón de enviar */}
+      <div className="d-flex justify-content-center mb-4">
         <button
           type="submit"
-          className="btn btn-primary btn-lg"
+          className="btn btn-primary px-5 py-3 rounded-pill fw-bold"
           disabled={loading || timeLeft === 0}
+          onClick={handleSubmit}
         >
-          {timeLeft === 0 ? 'Tiempo Agotado' : 'Enviar Respuestas'}
+          {timeLeft === 0 ? (
+            'Tiempo Agotado'
+          ) : loading ? (
+            <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+          ) : (
+            'Enviar Respuestas'
+          )}
         </button>
       </div>
-    </form>
+
+      {/* Vista cuando ya se respondió */}
+      {alreadyAnswered && (
+        <div className="card shadow-lg border-0 rounded-3 overflow-hidden mt-4">
+          <div className="card-header bg-info text-white py-3 rounded-top">
+            <h4 className="mb-0 text-center">
+              <FaCheck className="me-2" />
+              Evaluación Completada
+            </h4>
+          </div>
+          <div className="card-body text-center py-5">
+            <div className="d-flex flex-column align-items-center">
+              <FaCheck className="fs-1 text-success mb-3" />
+              <h5 className="mb-3">Ya has respondido esta evaluación</h5>
+              {finalScore !== null && (
+                <div className="bg-light rounded-3 p-4 d-inline-block">
+                  <p className="mb-1 text-muted">Tu puntuación final es:</p>
+                  <h2 className="text-primary fw-bold mb-0">{finalScore}</h2>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 
