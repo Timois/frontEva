@@ -9,12 +9,9 @@ import { ButtonViewQuestionsAssigned } from './ButtonViewQuestionsAssigned'
 import { ButtonOrderRandomQuestions } from './ButtonOrderRandomQuestions'
 import { ButtonViewStudentsWithTest } from './ButtonViewStudentWithTest'
 import { ModalStudentsWithTest } from './ModalStudentsWithTest'
-import { ButtonViewTest } from './ButtonViewTest'
 import ReactPaginate from 'react-paginate'
 import { FaChevronLeft, FaChevronRight, FaClipboardList, FaRegClock, FaUserGraduate } from 'react-icons/fa'
 import CheckPermissions from '../../routes/CheckPermissions'
-import { MdAssignment, MdOutlineShuffle, MdVisibility } from 'react-icons/md'
-
 
 export const Examns = () => {
   const { examns } = useContext(ExamnsContext)
@@ -59,7 +56,6 @@ export const Examns = () => {
                 <th scope="col" width="12%" className="fw-medium text-primary">Descripción</th>
                 <th scope="col" width="5%" className="fw-medium text-primary">Puntaje</th>
                 <th scope="col" width="5%" className="fw-medium text-primary">Aprobación</th>
-                <th scope="col" width="7%" className="fw-medium text-primary">Código</th>
                 <th scope="col" width="8%" className="fw-medium text-primary">Fecha</th>
                 <th scope="col" width="7%" className="fw-medium text-primary">Tipo</th>
                 <th scope="col" width="7%" className="fw-medium text-primary">
@@ -82,7 +78,6 @@ export const Examns = () => {
                     <td className="text-muted">{examn.description || '-'}</td>
                     <td className="text-center fw-bold">{examn.total_score}</td>
                     <td className="text-center fw-bold text-success">{examn.passing_score}</td>
-                    <td className="text-center">{examn.code}</td>
                     <td className="text-center">{examn.date_of_realization}</td>
                     <td className="text-center">
                       <span className="badge bg-info bg-opacity-10 text-info py-2 px-3">

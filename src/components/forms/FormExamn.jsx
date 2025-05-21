@@ -17,9 +17,7 @@ import { DateInput } from "./components/DateInput"
 import { useFetchCareerAssign, useFetchCareerAssignPeriod } from "../../hooks/fetchCareers"
 
 const arrayOption = [
-    { value: "ocr", text: "OCR" },
-    { value: "web", text: "WEB" },
-    { value: "app", text: "APP" }
+    { value: "web", text: "WEB" }
 ];
 
 export const FormExamn = () => {
@@ -77,11 +75,9 @@ export const FormExamn = () => {
         const formData = new FormData();
         formData.append("title", data.title)
         formData.append("description", data.description)
-        formData.append("total_score", Number(data.total_score))  // Convertir a número
         formData.append("passing_score", Number(data.passing_score))  // Convertir a número
         formData.append("date_of_realization", new Date(data.date_of_realization).toISOString().split('T')[0])  // Formatear fecha
         formData.append("qualified_students", data.qualified_students)
-        formData.append("disqualified_students", data.disqualified_students)
         formData.append("type", data.type)
         formData.append("time", Number(data.time))
         formData.append("status", "inactivo")
@@ -113,7 +109,6 @@ export const FormExamn = () => {
         reset({
             title: "",
             description: "",
-            total_score: "",
             passing_score: "",
             date_of_realization: "",
             qualified_students: "",
@@ -139,10 +134,6 @@ export const FormExamn = () => {
             <ContainerInput>
                 <Input name="description" control={control} type="text" placeholder="Ingrese una descripción" />
                 <Validate error={errors.description} />
-            </ContainerInput>
-            <ContainerInput>
-                <Input name="total_score" control={control} type="number" placeholder="Ingrese la calificación total" />
-                <Validate error={errors.total_score} />
             </ContainerInput>
             <ContainerInput>
                 <Input name="passing_score" control={control} type="number" placeholder="Ingrese la calificación mínima" />

@@ -72,7 +72,6 @@ export const EditExamn = ({ data, closeModal }) => {
             reset({
                 title: data.title,
                 description: data.description,
-                total_score: String(data.total_score), // Convertir a string
                 passing_score: String(data.passing_score), // Convertir a string
                 date_of_realization: new Date(data.date_of_realization).toISOString().split('T')[0],
                 type: data.type,
@@ -92,7 +91,6 @@ export const EditExamn = ({ data, closeModal }) => {
         
         const dataToSend = {
             ...formData,
-            total_score: Number(formData.total_score),
             passing_score: Number(formData.passing_score),
             academic_management_period_id: Number(formData.academic_management_period_id),
             status: data.status, // Use existing status
@@ -149,11 +147,7 @@ export const EditExamn = ({ data, closeModal }) => {
                 <Validate error={errors.description} />
             </ContainerInput>
             <ContainerInput>
-                <Input name="total_score" control={control} type="number" placeholder="Ingrese la calificación total" />
-                <Validate error={errors.total_score} />
-            </ContainerInput>
-            <ContainerInput>
-                <Input name="passing_score" control={control} type="number" placeholder="Ingrese la calificación mínima" />
+                <Input name="passing_score" control={control} type="number" placeholder="Ingrese la calificacion de aprobacion" />
                 <Validate error={errors.passing_score} />
             </ContainerInput>
             <ContainerInput>

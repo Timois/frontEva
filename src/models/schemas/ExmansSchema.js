@@ -3,14 +3,6 @@ import { z } from "zod";
 export const ExmansSchema = z.object({
     title: z.string({ required_error: "El titulo es obligatorio" }),
     description: z.string({ required_error: "La descripcion es obligatoria" }),
-    total_score: z
-        .string()
-        .transform((val) => Number(val))
-        .pipe(
-            z.number()
-            .min(0, "La nota mínima permitida es 0")
-            .max(100, "La nota máxima permitida es 100")
-        ),
     passing_score: z
         .string()
         .transform((val) => Number(val))

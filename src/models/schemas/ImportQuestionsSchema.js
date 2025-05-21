@@ -16,6 +16,9 @@ export const ImportQuestionsSchema = z
       }, {
         message: "El archivo debe ser menor a 20MB",
       }),
+      description: z.string().min(5, {
+        message: "Debe ingresar una descripción",
+      }),
     confirmImport: z.boolean().refine((val) => val === true, {
       message: "Debe confirmar que está seguro de importar las preguntas"
     })

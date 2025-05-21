@@ -9,22 +9,31 @@ import { ModalImport } from '../questions/imports/ModalImport';
 import { FaClipboardList } from 'react-icons/fa';
 import { postApi } from '../../../services/axiosServices/ApiService';
 import { customAlert } from '../../../utils/domHelper';
+import { HiThumbDown, HiThumbUp } from 'react-icons/hi';
 
 export const Area = () => {
   const { areas } = useContext(AreaContext);
   const [selectedArea, setSelectedArea] = useState(null);
-  // Obtener y validar el career_id desde localStorage
+  const [careerId, setCareerId] = useState(null);
+
   const { getData } = useFetchAreasByCareer();
+
   const handleEditClick = (area) => {
     setSelectedArea(area);
   };
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user'));
-    const careerIdFromStorage = user ? user.career_id : null
-    const careerId = Number(careerIdFromStorage); // Asegurar que sea número
-    getData(careerId);
+    const careerIdFromStorage = user ? user.career_id : null;
+    const careerIdNumber = Number(careerIdFromStorage);
+    setCareerId(careerIdNumber);
   }, []);
+  
+  useEffect(() => {
+    if (careerId) {
+      getData(careerId);
+    }
+  }, [careerId]);
 
   const idEditar = "editarArea";
 
@@ -32,18 +41,22 @@ export const Area = () => {
     try {
       const formData = new FormData();
       formData.append('area_id', areaId);
-      
+  
       const response = await postApi(`areas/unsubscribe/${areaId}`, formData);
-      if (response.status === 200) {
-        customAlert("Área dada de baja exitosamente", "success");
-        getData(careerId); // Recargar las áreas
+      if (response) {
+        customAlert("Área actualizada exitosamente", "success");
+        if (careerId) {
+          await getData(careerId); // esto actualiza el estado en el contexto
+        }
+      } else {
+        customAlert("Error al actualizar el estado del área", "error");
       }
     } catch (error) {
-      console.error("Error al dar de baja el área:", error);
-      customAlert("Error al dar de baja el área", "error");
+      console.error("Error:", error);
+      customAlert("Error al cambiar el estado del área", "error");
     }
   };
-
+  
   return (
     <div className="container-fluid p-4">
       <div className="card shadow-lg border-0 rounded-3 overflow-hidden mb-4">
@@ -59,42 +72,55 @@ export const Area = () => {
             <div className="row g-4">
               {areas.map((area, index) => (
                 <div key={index} className="col-xl-3 col-lg-4 col-md-6">
-                  <div className="card h-100 border-0 shadow-sm hover-shadow transition-all">
+                  <div className={`card h-100 border-0 shadow-sm hover-shadow transition-all ${
+                    area.status === "inactivo" ? "bg-danger bg-opacity-10" : ""
+                  }`}>
                     <div className="card-header bg-primary bg-opacity-10 border-0 py-3">
                       <h5 className="card-title m-0 text-primary fw-semibold text-center">
                         {area.name}
                       </h5>
                     </div>
                     <div className="card-body d-flex flex-column">
-                      <p className="card-text text-muted flex-grow-1">
-                        {area.description || <span className="text-muted">Sin descripción</span>}
-                      </p>
+                      <div className="d-flex justify-content-between align-items-start mb-2">
+                        <p className="card-text text-muted flex-grow-1">
+                          {area.description || <span className="text-muted">Sin descripción</span>}
+                        </p>
+                        <span className={`badge ${
+                          area.status === "inactivo" ? "bg-danger" : "bg-success"
+                        } ms-2`}>
+                          {area.status}
+                        </span>
+                      </div>
                       <div className="d-flex justify-content-center gap-2 mt-3">
                         <CheckPermissions requiredPermission="editar-areas">
                           <ButtonEdit
                             idEditar={idEditar}
                             onEditClick={() => handleEditClick(area)}
-                            className="btn btn-sm btn-outline-primary d-flex align-items-center"
-                          >
-                          </ButtonEdit>
+                            className={`btn btn-sm btn-outline-primary d-flex align-items-center ${
+                              area.status === "inactivo" ? "opacity-75" : ""
+                            }`}
+                          />
                         </CheckPermissions>
+
                         <CheckPermissions requiredPermission="importar-preguntas">
                           <ButtonImport
                             modalIdImp={`importar-${area.id}`}
-                            className="btn btn-sm btn-outline-success d-flex align-items-center"
-                          >
-                          </ButtonImport>
+                            className={`btn btn-sm btn-outline-success d-flex align-items-center ${
+                              area.status === "inactivo" ? "opacity-75" : ""
+                            }`}
+                          />
                         </CheckPermissions>
+
                         <CheckPermissions requiredPermission="editar-areas">
                           <button
-                            onClick={() => {
-                              if (window.confirm('¿Está seguro de dar de baja esta área?')) {
-                                handleUnsubscribe(area.id);
-                              }
-                            }}
-                            className="btn btn-sm btn-outline-danger d-flex align-items-center"
+                            onClick={() => handleUnsubscribe(area.id)}
+                            className={`btn btn-sm d-flex align-items-center ${
+                              area.status === "inactivo"
+                                ? "btn-outline-danger"
+                                : "btn-outline-success"
+                            }`}
                           >
-                            Dar de baja
+                            {area.status === "inactivo" ? <HiThumbDown /> : <HiThumbUp />}
                           </button>
                         </CheckPermissions>
                       </div>

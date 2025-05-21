@@ -14,6 +14,8 @@ import { ContainerButton } from "../login/ContainerButton";
 import { Button } from "../login/Button";
 import CancelButton from "./components/CancelButon";
 import { useFetchQuestionsByArea } from "../../hooks/fetchQuestions";   // ← NUEVO
+import { Input } from "../login/Input";
+import { Validate } from "./components/Validate";
 
 export const FileUpload = () => {
   /* ---------- hooks & context ---------- */
@@ -52,6 +54,7 @@ export const FileUpload = () => {
     const formData = new FormData();
     formData.append("area_id", area_id);
     formData.append("status", "completado");
+    formData.append("description", data.description);
     formData.append("file_name", data.file_name[0]);
 
     try {
@@ -67,7 +70,7 @@ export const FileUpload = () => {
           customAlert(`📥 ${message}\n${resumenLinea}`, "success");
           await getDataQuestions(area_id);                                   // ← REFETCH
           closeFormModal("importExcel");
-          reset();
+          resetForm(); 
         } else {
           customAlert("❌ Error: no se encontró el resumen en la respuesta", "error");
         }
@@ -96,7 +99,7 @@ export const FileUpload = () => {
           customAlert(`📥 ${message}\n${resumenLinea}`, "success");
           await getDataQuestions(area_id);                                   // ← REFETCH
           closeFormModal("importExcel");
-          reset();
+          resetForm();
         } else {
           customAlert("❌ Error en la importación", "error");
         }
@@ -108,7 +111,13 @@ export const FileUpload = () => {
       setLoading(false);
     }
   };
-
+  const resetForm = () => {
+    reset({
+      importOption: "",
+      file_name: [],
+      confirmImport: false
+    });
+  };
   /* ============== RENDER ============== */
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -129,7 +138,10 @@ export const FileUpload = () => {
         />
         {errors.importOption && <p style={{ color: "red" }}>{errors.importOption.message}</p>}
       </ContainerInput>
-
+      <ContainerInput>
+        <Input type={"text"} placeholder="Descripción" name="description" control={control} />
+        <Validate error={errors.description} />
+      </ContainerInput>
       {/* ---------- Archivo ---------- */}
       <ContainerInput>
         <Controller

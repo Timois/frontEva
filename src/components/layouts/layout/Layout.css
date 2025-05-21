@@ -4,10 +4,6 @@
   --accent-color: #3498db;
 }
 
-.custom-sidebar {
-  background: var(--sidebar-bg);
-  color: white;
-}
 
 .accordion-button:not(.collapsed) {
   background-color: rgba(255, 255, 255, 0.95) !important;

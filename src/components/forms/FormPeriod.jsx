@@ -14,7 +14,7 @@ import { Button } from '../login/Button'
 import CancelButton from './components/CancelButon'
 import { closeFormModal, customAlert } from '../../utils/domHelper'
 
-const option = [{ value: "1", text: "1" }, { value: "2", text: "2" }, { value: "3", text: "3" }, { value: "4", text: "4" }, { value: "5", text: "5" }]
+const option = [{ value: "1", text: "periodo1" }, { value: "2", text: "periodo2" }, { value: "3", text: "periodo3" }, { value: "4", text: "periodo4" }, { value: "5", text: "periodo5" }]
 export const FormPeriod = () => {
 
     const [response, setResponse] = useState(false)
