@@ -7,6 +7,8 @@ import CheckPermissions from '../../../routes/CheckPermissions';
 import { ButtonImport } from '../questions/imports/ButtonImport';
 import { ModalImport } from '../questions/imports/ModalImport';
 import { FaClipboardList } from 'react-icons/fa';
+import { postApi } from '../../../services/axiosServices/ApiService';
+import { customAlert } from '../../../utils/domHelper';
 
 export const Area = () => {
   const { areas } = useContext(AreaContext);
@@ -25,6 +27,22 @@ export const Area = () => {
   }, []);
 
   const idEditar = "editarArea";
+
+  const handleUnsubscribe = async (areaId) => {
+    try {
+      const formData = new FormData();
+      formData.append('area_id', areaId);
+      
+      const response = await postApi(`areas/unsubscribe/${areaId}`, formData);
+      if (response.status === 200) {
+        customAlert("Área dada de baja exitosamente", "success");
+        getData(careerId); // Recargar las áreas
+      }
+    } catch (error) {
+      console.error("Error al dar de baja el área:", error);
+      customAlert("Error al dar de baja el área", "error");
+    }
+  };
 
   return (
     <div className="container-fluid p-4">
@@ -66,6 +84,18 @@ export const Area = () => {
                             className="btn btn-sm btn-outline-success d-flex align-items-center"
                           >
                           </ButtonImport>
+                        </CheckPermissions>
+                        <CheckPermissions requiredPermission="editar-areas">
+                          <button
+                            onClick={() => {
+                              if (window.confirm('¿Está seguro de dar de baja esta área?')) {
+                                handleUnsubscribe(area.id);
+                              }
+                            }}
+                            className="btn btn-sm btn-outline-danger d-flex align-items-center"
+                          >
+                            Dar de baja
+                          </button>
                         </CheckPermissions>
                       </div>
                     </div>

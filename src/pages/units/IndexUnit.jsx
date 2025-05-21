@@ -20,7 +20,7 @@ export const IndexUnit = () => {
         <Unidad />
       </div>
       <CheckPermissions requiredPermission={"crear-unidades-academicas"}>
-        <ModalRegister modalId={modalId} title="Registrar Carrera" />
+        <ModalRegister modalId={modalId} title="Registrar Unidad Academica" />
       </CheckPermissions>
     </div>
   )
