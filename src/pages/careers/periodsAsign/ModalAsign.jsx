@@ -25,19 +25,15 @@ export const ModalAsign = ({ id }) => {
       ...prevData,
       periods: transformedPeriods,
     }))
-  }, [periods])
+  }, [])
   
   useEffect(() => {
-    if (academic_mangement_careers.length === 0){
-      getData()
-      return
-    }
 
     const transformedAcademicManagementCareers = academic_mangement_careers.map((academic_management_career) => ({
       value: academic_management_career.id,
       text: academic_management_career.id
     }))
-  })
+  }, [])
 
   return (
     <div

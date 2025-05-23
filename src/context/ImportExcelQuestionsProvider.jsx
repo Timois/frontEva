@@ -2,33 +2,25 @@
 /* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
 import React, { createContext, useState } from 'react'
+import { getApi } from '../services/axiosServices/ApiService'
 
 export const ImportExcelQuestionsContext = createContext()
 
-export const ImportExcelQuestionsProvider = ({children}) => {
+export const ImportExcelQuestionsProvider = ({ children }) => {
     const [importExcelQuestions, setImportExcelQuestions] = useState([])
-    const [importType, setImportType] = useState('withoutImages')
 
-    const addImportExcel = (import_excel, type) => {
-        setImportType(type)
-        if (Array.isArray(import_excel)) {
-            setImportExcelQuestions(prevQuestions => [...prevQuestions, ...import_excel])
-        } else {
-            setImportExcelQuestions(prevQuestions => [...prevQuestions, import_excel])
-        }
+    const addImportExcel = (import_excel) => {
+        setImportExcelQuestions(prev => [...prev, import_excel])
     }
-
-    const clearImportExcel = () => {
-        setImportExcelQuestions([])
-        setImportType('withoutImages')
+    const getData = async () => {
+        const response = await getApi("excel_import/list")
+        setImportExcelQuestions(response)
     }
-
     const values = {
         importExcelQuestions,
-        importType,
         addImportExcel,
-        clearImportExcel,
-        setImportExcelQuestions
+        setImportExcelQuestions,
+        getData
     }
 
     return (

@@ -11,7 +11,7 @@ export const ButtonImport = ({ modalIdImp, onClick }) => {
       data-bs-target={`#${modalIdImp}`}
       onClick={onClick}
     >
-      <FaFileImport className="me-2" /> Importar Preguntas
+      <FaFileImport className="me-2" /> Importar
     </button>
   );
 };

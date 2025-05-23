@@ -25,7 +25,7 @@ export const ModalRegisterManagementPeriod = ({ id }) => {
             ...prevData,
             periods: transformedPeriods,
         }));
-    }, [periods]);
+    }, []);
 
     return (
         <div

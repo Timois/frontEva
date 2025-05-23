@@ -33,6 +33,7 @@ import ViewQuestionsForStudent from "../pages/examn management/ViewQuestionsForS
 import { CareerById } from "../pages/careers/CareerById"
 import IndexResults from "../pages/results management/IndexResults"
 import LayoutStudent from "../components/layouts/layout/LayoutStudent"
+import { ImportQuestions } from "../pages/careers/questions/imports/ImportQuestions"
 export const AppRoutes = () => {
   return (
     <Routes
@@ -81,20 +82,20 @@ export const AppRoutes = () => {
             <PermissionsGuard requiredPermission={"ver-areas"}>
               <IndexArea />
             </PermissionsGuard>} />
-          <Route path="administracion/areas/:id/questions" element={
+          <Route path="administracion/areas/:id/imports" element={
             <PermissionsGuard requiredPermission={"ver-preguntas"}>
-              <Question />
+              <ImportQuestions />
             </PermissionsGuard>
           } />
+          <Route path="administracion/areas/:id/imports/:id/questions" element={
+            <PermissionsGuard requiredPermission={"ver-preguntas-por-id"}>
+              <Question />
+            </PermissionsGuard>} />
           <Route path="administracion/questions" element={
             <PermissionsGuard requiredPermission={"ver-preguntas"}>
               <IndexQuestions />
             </PermissionsGuard>
           } />
-          <Route path="administracion/imports" element={
-            <PermissionsGuard requiredPermission={"ver-importaciones"}>
-              <IndexImports />
-            </PermissionsGuard>} />
           <Route path="administracion/questions" element={
             <PermissionsGuard requiredPermission={"ver-preguntas"}>
               <IndexQuestions />

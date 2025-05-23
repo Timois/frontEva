@@ -11,7 +11,6 @@ import { FaCalendarAlt, FaCalendarTimes } from 'react-icons/fa'
 export const Periodos = () => {
   const { periods, setPeriods } = useContext(PeriodContext)
   const [selectedPeriod, setSelectedPeriod] = useState(null)
-
   const handleEditClick = (periodo) => {
     setSelectedPeriod(periodo)
   }

@@ -6,7 +6,7 @@ export const useCountdown = (data) => {
     const calculateTimeRemaining = (endDate) => {
         const end = new Date(endDate);
         end.setHours(23, 59, 59, 999);
-        
+
         const currentDate = new Date();
         const timeRemaining = end - currentDate;
 
@@ -24,28 +24,17 @@ export const useCountdown = (data) => {
 
     useEffect(() => {
         const updateCountdowns = () => {
-            const newCountdowns = data.map((gestion, index) => ({
-                index,
-                countdown: calculateTimeRemaining(gestion.end_date)
-            }));
-
-            setCountdowns(prev => {
-                const updated = [...prev];
-                newCountdowns.forEach(({ index, countdown }) => {
-                    updated[index] = countdown;
-                });
-                return updated;
-            });
+            const newCountdowns = data.map((gestion) =>
+                calculateTimeRemaining(gestion.end_date)
+            );
+            setCountdowns(newCountdowns);
         };
 
-        // Actualización inicial
         updateCountdowns();
-
-        // Actualizar cada segundo
         const intervalId = setInterval(updateCountdowns, 1000);
 
         return () => clearInterval(intervalId);
-    }, [data]);
+    }, [data]); // ✅ data como dependencia segura si no se regenera constantemente
 
     return countdowns;
 };

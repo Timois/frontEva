@@ -46,7 +46,7 @@ export const ViewAreas = ({ areas }) => {
                 </div>
                 <button
                   className="btn btn-outline-primary mt-3 w-100"
-                  onClick={() => navigate(`/administracion/areas/${area.id}/questions`)}
+                  onClick={() => navigate(`/administracion/areas/${area.id}/imports`)}
                 >
                   Importar Preguntas
                 </button>

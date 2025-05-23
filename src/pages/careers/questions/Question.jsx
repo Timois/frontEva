@@ -27,10 +27,10 @@ export const Question = () => {
     const { getData, areas } = useFetchArea();
     const { getDataQuestions } = useFetchQuestionsByArea();
     const navigate = useNavigate();
-    
+        
     // Get area name
     const areaName = areas?.find(area => String(area.id) === String(id))?.name;
-
+    const areaId = areas?.find(area => String(area.id) === String(id))?.id;
     useEffect(() => {
         const fetchData = async () => {
             await getData();
@@ -60,14 +60,14 @@ export const Question = () => {
 
     const modalId = "registerPregunta";
     const idEditar = "editarPregunta";
-    const IdImport = "importExcel";
+    
 
     return (
         <div className="container-fluid p-4">
             {/* Botón de volver */}
             <button 
                 className="btn btn-outline-primary mb-3 d-flex align-items-center"
-                onClick={() => navigate('/administracion/questions')}
+                onClick={() => navigate(`/administracion/areas/${areaId}/imports`)}
             >
                 <MdArrowBack className="me-1" /> Volver
             </button>
@@ -81,12 +81,6 @@ export const Question = () => {
                             <FaQuestionCircle className="me-2" />
                             Preguntas {areaName && `- ${areaName.toUpperCase()}`}
                         </h3>
-                        <CheckPermissions requiredPermission="importar-excel">
-                            <ButtonImport 
-                                modalIdImp={IdImport} 
-                                className="btn btn-light btn-sm" 
-                            />
-                        </CheckPermissions>
                     </div>
                 </div>
 
@@ -212,13 +206,6 @@ export const Question = () => {
                 />
             </CheckPermissions>
             
-            <CheckPermissions requiredPermission="importar-excel">
-                <ModalImport 
-                    modalIdImp={IdImport} 
-                    title="Importar Preguntas" 
-                />
-            </CheckPermissions>
-
             {/* Modal de imagen */}
             {modalImage && (
                 <div className="modal fade show d-block" tabIndex="-1" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>

@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
 
 
@@ -18,7 +19,7 @@ import { closeFormModal, customAlert } from "../../utils/domHelper"
 import { useFetchPeriod } from "../../hooks/fetchPeriod"
 
 
-const option = [{ value: "1", text: "1" }, { value: "2", text: "2" }, { value: "3", text: "3" }, { value: "4", text: "4" }, { value: "5", text: "5" }]
+const option = [{ value: "1", text: "periodo1" }, { value: "2", text: "periodo2" }, { value: "3", text: "periodo3" }, { value: "4", text: "periodo4" }, { value: "5", text: "periodo5" }]
 export const EditPeriod = ({ data, closeModal }) => {
 
     const [response, setResponse] = useState(false)
@@ -43,9 +44,6 @@ export const EditPeriod = ({ data, closeModal }) => {
             const response = await postApi(`periods/edit/${data.id}`, requestData)
             setResponse(false)
 
-            console.log("::Form::", formData)
-            console.log("::RESPONSE::", response)
-
             if (response.status === 422) {
                 for (let key in response.data.errors) {
                     setError(key, { type: "custom", message: response.data.errors[key][0] })
@@ -58,7 +56,6 @@ export const EditPeriod = ({ data, closeModal }) => {
             updatePeriod(response.data)
             reset()
         } catch (error) {
-            console.error("Error al actualizar periodo:", error)
             setResponse(false)
         }
     }

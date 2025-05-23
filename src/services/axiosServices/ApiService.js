@@ -130,3 +130,42 @@ export const postApi = async (url, values) => {
         throw error;
     }
 };
+
+// Función para realizar solicitudes DELETE
+export const deleteApi = async (url, values = null) => {
+    // Si estamos en una ruta pública, no verificar el token
+    if (!isPublicRoute() && !isTokenValid()) {
+        handleTokenExpiration();
+        throw new Error("Token expirado");
+    }
+
+    const token = getToken();
+    
+    try {
+        const config = {
+            headers: {
+                "Content-Type": "application/json"
+            }
+        };
+        
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+
+        // If values are provided, add them as data to the request
+        if (values) {
+            config.data = values;
+        }
+        
+        const { data } = await axios.delete(path + url, config);
+        return data;
+    } catch (error) {
+        console.error("Error en la respuesta:", error);
+
+        if (error.response?.status === 401 || error.response?.status === 403) {
+            //handleTokenExpiration();
+        }
+
+        throw error;
+    }
+};

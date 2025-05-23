@@ -17,12 +17,12 @@ import { useFetchQuestionsByArea } from "../../hooks/fetchQuestions";   // ← N
 import { Input } from "../login/Input";
 import { Validate } from "./components/Validate";
 
+
 export const FileUpload = () => {
   /* ---------- hooks & context ---------- */
   const { id } = useParams();
   const area_id = id;
-
-  const { importExcelQuestions } = useContext(ImportExcelQuestionsContext);
+  const { importExcelQuestions, getData } = useContext(ImportExcelQuestionsContext);
 
   // hook que permitirá volver a consultar las preguntas del área
   const { getDataQuestions } = useFetchQuestionsByArea();                    // ← NUEVO
@@ -67,15 +67,17 @@ export const FileUpload = () => {
           : null;
 
         if (resumenLinea) {
-          customAlert(`📥 ${message}\n${resumenLinea}`, "success");
-          await getDataQuestions(area_id);                                   // ← REFETCH
+          customAlert(`📥 ${message}\n${resumenLinea}`, "success");                                   // ← REFETCH
           closeFormModal("importExcel");
-          resetForm(); 
+          getData();
+          resetForm();
         } else {
           customAlert("❌ Error: no se encontró el resumen en la respuesta", "error");
+          closeFormModal("importExcel");
+          resetForm();
         }
 
-      /* -------------- CON IMÁGENES (ZIP) -------------- */
+        /* -------------- CON IMÁGENES (ZIP) -------------- */
       } else if (data.importOption === "withImages") {
         const { message, success, resumen } = await postApi(
           "excel_import_image/savezip",
@@ -96,17 +98,20 @@ export const FileUpload = () => {
             `No registradas ${preguntas_no_registradas.total}, ` +
             `Duplicadas ${preguntas_duplicadas.total}`;
 
-          customAlert(`📥 ${message}\n${resumenLinea}`, "success");
-          await getDataQuestions(area_id);                                   // ← REFETCH
+          customAlert(`📥 ${message}\n${resumenLinea}`, "success");                              // ← REFETCH
           closeFormModal("importExcel");
           resetForm();
         } else {
           customAlert("❌ Error en la importación", "error");
+          closeFormModal("importExcel");
+          resetForm();
         }
       }
     } catch (err) {
       console.error("Error al importar:", err);
       customAlert(`❌ Error al importar ${data.importOption === "withImages" ? "ZIP" : "Excel"}`, "error");
+      closeFormModal("importExcel");
+      resetForm();
     } finally {
       setLoading(false);
     }
@@ -202,18 +207,6 @@ export const FileUpload = () => {
         </Button>
         <CancelButton />
       </ContainerButton>
-
-      {/* ---------- Resumen local (opcional) ---------- */}
-      {Array.isArray(importExcelQuestions) && importExcelQuestions.length > 0 && (
-        <div style={{ marginTop: "1rem", background: "#f1f1f1", padding: "1rem", borderRadius: "8px" }}>
-          <h4>📊 Resumen de importación</h4>
-          <ul>
-            {importExcelQuestions.map((item, idx) => (
-              <li key={idx}>{item}</li>
-            ))}
-          </ul>
-        </div>
-      )}
     </form>
   );
 };

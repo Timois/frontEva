@@ -39,17 +39,17 @@ createRoot(document.getElementById('root')).render(
                       <CareerAssignProvider>
                         <StudentProvider>
                           <AreaProvider>
-                            <QuestionsProvider>
-                              <AnswersProvider>
-                                <ImportExcelQuestionsProvider>
+                            <ImportExcelQuestionsProvider>
+                              <QuestionsProvider>
+                                <AnswersProvider>
                                   <ExamnsProvider>
                                     <QuestionEvaluationProvider>
                                       <App />
                                     </QuestionEvaluationProvider>
                                   </ExamnsProvider>
-                                </ImportExcelQuestionsProvider>
-                              </AnswersProvider>
-                            </QuestionsProvider>
+                                </AnswersProvider>
+                              </QuestionsProvider>
+                            </ImportExcelQuestionsProvider>
                           </AreaProvider>
                         </StudentProvider>
                       </CareerAssignProvider>
