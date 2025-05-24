@@ -39,6 +39,7 @@ export const useFetchExamns = () => {
   const fetchDisponibles = async (areaId) => {
     try {
       const response = await getApi(`question_evaluations/list?area_id=${areaId}`)
+      setExamns(response)
       return response
     } catch (error) {
       console.error("Error al obtener preguntas disponibles:", error)
@@ -48,20 +49,40 @@ export const useFetchExamns = () => {
   const fetchQuestionsAssigned = async (examnId) => {
     try {
       const response = await getApi(`question_evaluations/find/${examnId}`)
-      return response 
-    }catch (error) {
+      setExamns(response)
+      return response
+    } catch (error) {
       console.error("Error al obtener preguntas asignadas:", error)
       return null
     }
   }
   const fetchStudenttestStudent = (student_test_id) => {
-   try {
-    const response = getApi(`student_tests/listQuestionsByStudent/${student_test_id}`)
-    return response 
-   }catch (error) {
-    console.error("Error al obtener preguntas asignadas:", error)
-    return null
-   }
+    try {
+      const response = getApi(`student_tests/listQuestionsByStudent/${student_test_id}`)
+      setExamns(response)
+      return response
+    } catch (error) {
+      console.error("Error al obtener preguntas asignadas:", error)
+      return null
+    }
   }
-  return { examns, getDataExamns, refreshExamns, fetchDisponibles, fetchQuestionsAssigned, fetchStudenttestStudent }
+  const fetchExamsByCareer = async (careerId) => {
+    try {
+      const response = await getApi(`evaluations/findEvaluationsBYCareer/${careerId}`)
+      setExamns(response)
+      const examnsWithPeriod = await Promise.all(response.map(async (examn) => {
+        const periodResponse = await getApi(`evaluations/findPeriod/${examn.academic_management_period_id}`)
+        return {
+          ...examn,
+          period_name: periodResponse.period?.period
+        }
+      }))
+      setExamns(examnsWithPeriod)
+      return response
+    } catch (error) {
+      console.error("Error al obtener exámenes por carrera:", error)
+      return null
+    }
+  }
+  return { examns, getDataExamns, refreshExamns, fetchDisponibles, fetchQuestionsAssigned, fetchStudenttestStudent, fetchExamsByCareer  }
 }

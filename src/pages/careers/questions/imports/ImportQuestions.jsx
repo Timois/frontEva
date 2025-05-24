@@ -9,15 +9,21 @@ import { FaFileExcel } from 'react-icons/fa'
 import { ModalImport } from './ModalImport'
 import { ButtonViewQuestions } from './ButtonViewQuestions'
 import { ButonDelete } from './ButonDelete'
+import { useParams } from 'react-router-dom'
 
 export const ImportQuestions = () => {
+    const { id } = useParams()
     const { importExcelQuestions, setImportExcelQuestions, getData } = useContext(ImportExcelQuestionsContext)
     useEffect(() => {
-        getData()
-    }, [])
-    useEffect(() => {
-    }, [importExcelQuestions])
-    const idEditar = "editarExcelImport"
+        setImportExcelQuestions([]);
+        if (id) {
+            getData({ area_id: id });
+        }
+        return () => {
+            setImportExcelQuestions([]);
+        };
+    }, [id]);
+    
     const IdImport = "importExcel";
     return (
         <div className="container-fluid p-4">

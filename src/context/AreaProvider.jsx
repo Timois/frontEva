@@ -5,11 +5,11 @@ import React, { createContext, useState } from 'react'
 export const AreaContext = createContext()
 export const AreaProvider = ({ children }) => {
     const [areas, setAreas] = useState([])
-
+    
     const addArea = (area) => {
         setAreas([...areas, area])
     }
-
+    
     const updateArea = (area) => {
         const posicion = areas.findIndex(p => p.id === area.id)
         if (posicion !== -1) {

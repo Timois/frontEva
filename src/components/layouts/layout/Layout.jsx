@@ -166,7 +166,7 @@ const Layout = ({ children }) => {
                       <MenuButton path={"/administracion/estudiantes"} label={"Estudiantes"} onClick={closeSidebar} />
                     )}
                     {hasPermission("ver-preguntas") && (
-                      <MenuButton path={"/administracion/questions"} label={"Preguntas"} onClick={closeSidebar} />
+                      <MenuButton path={"/administracion/areas_questions"} label={"Preguntas"} onClick={closeSidebar} />
                     )}
                     {hasPermission("ver-evaluaciones") && (
                       <MenuButton path={"/administracion/examns"} label={"Examenes"} onClick={closeSidebar} />

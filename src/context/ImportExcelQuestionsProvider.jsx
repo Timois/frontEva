@@ -12,15 +12,32 @@ export const ImportExcelQuestionsProvider = ({ children }) => {
     const addImportExcel = (import_excel) => {
         setImportExcelQuestions(prev => [...prev, import_excel])
     }
-    const getData = async () => {
-        const response = await getApi("excel_import/list")
-        setImportExcelQuestions(response)
+    const getData = async ({ area_id }) => {
+        try {
+            const response = await getApi(`excel_import/list/${area_id}`)
+            if (response) {
+                setImportExcelQuestions([...response])
+            }
+        } catch (error) {
+            console.error("Error al obtener archivos importados:", error)
+        }
+    }
+    const getArea = async (excel_id) => {
+        try {
+            const response = await getApi(`excel_import/findAreaByExcel/${excel_id}`)
+            if (response) {
+                return response
+            }
+        } catch (error) {
+            console.error("Error al obtener archivos importados:", error)
+        }
     }
     const values = {
         importExcelQuestions,
         addImportExcel,
         setImportExcelQuestions,
-        getData
+        getData,
+        getArea
     }
 
     return (

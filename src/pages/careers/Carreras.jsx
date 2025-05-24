@@ -20,14 +20,13 @@ const capitalizeTitle = (text) => {
 
 
 export const Carreras = () => {
-  const { careers, setCareers } = useContext(CareerContext);
   const [selectedCareer, setSelectedCareer] = useState(null);
 
   const handleEditClick = (career) => {
     setSelectedCareer(career);
   };
 
-  const { getDataCareer } = useFetchCareer();
+  const { getDataCareer, careers } = useFetchCareer();
   useEffect(() => {
     getDataCareer();
   }, []);

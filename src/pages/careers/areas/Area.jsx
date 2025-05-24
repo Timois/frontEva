@@ -28,7 +28,7 @@ export const Area = () => {
     const careerIdNumber = Number(careerIdFromStorage);
     setCareerId(careerIdNumber);
   }, []);
-  
+
   useEffect(() => {
     if (careerId) {
       getData(careerId);
@@ -41,7 +41,7 @@ export const Area = () => {
     try {
       const formData = new FormData();
       formData.append('area_id', areaId);
-  
+
       const response = await postApi(`areas/unsubscribe/${areaId}`, formData);
       if (response) {
         customAlert("Área actualizada exitosamente", "success");
@@ -56,7 +56,7 @@ export const Area = () => {
       customAlert("Error al cambiar el estado del área", "error");
     }
   };
-  
+
   return (
     <div className="container-fluid p-4">
       <div className="card shadow-lg border-0 rounded-3 overflow-hidden mb-4">
@@ -72,53 +72,62 @@ export const Area = () => {
             <div className="row g-4">
               {areas.map((area, index) => (
                 <div key={index} className="col-xl-3 col-lg-4 col-md-6">
-                  <div className={`card h-100 border-0 shadow-sm hover-shadow transition-all ${
-                    area.status === "inactivo" ? "bg-danger bg-opacity-10" : ""
-                  }`}>
+                  <div className={`card h-100 border-0 shadow-sm hover-shadow transition-all ${area.status === "inactivo" ? "bg-danger bg-opacity-10" : ""
+                    }`}>
                     <div className="card-header bg-primary bg-opacity-10 border-0 py-3">
                       <h5 className="card-title m-0 text-primary fw-semibold text-center">
                         {area.name}
                       </h5>
                     </div>
                     <div className="card-body d-flex flex-column">
-                      <div className="d-flex justify-content-between align-items-start mb-2">
-                        <p className="card-text text-muted flex-grow-1">
-                          {area.description || <span className="text-muted">Sin descripción</span>}
-                        </p>
-                        <span className={`badge ${
-                          area.status === "inactivo" ? "bg-danger" : "bg-success"
-                        } ms-2`}>
-                          {area.status}
-                        </span>
+                      <div className="mb-3 text-center">
+                        <div
+                          className="card-text text-muted"
+                          style={{
+                            minHeight: "2.5em", // ajusta según la altura esperada de las descripciones
+                          }}
+                        >
+                          {area.description ? (
+                            <p>{area.description}</p>
+                          ) : (
+                            <p className="invisible">Sin descripción</p>
+                          )}
+                        </div>
+                        <div className="mt-2">
+                          <span
+                            className={`badge px-3 py-2 ${area.status === "inactivo" ? "bg-danger" : "bg-success"
+                              }`}
+                          >
+                            {area.status}
+                          </span>
+                        </div>
                       </div>
+
                       <div className="d-flex justify-content-center gap-2 mt-3">
                         <CheckPermissions requiredPermission="editar-areas">
                           <ButtonEdit
                             idEditar={idEditar}
                             onEditClick={() => handleEditClick(area)}
-                            className={`btn btn-sm btn-outline-primary d-flex align-items-center ${
-                              area.status === "inactivo" ? "opacity-75" : ""
-                            }`}
+                            className={`btn btn-sm btn-outline-primary d-flex align-items-center ${area.status === "inactivo" ? "opacity-75" : ""
+                              }`}
                           />
                         </CheckPermissions>
 
                         <CheckPermissions requiredPermission="importar-preguntas">
                           <ButtonImport
                             modalIdImp={`importar-${area.id}`}
-                            className={`btn btn-sm btn-outline-success d-flex align-items-center ${
-                              area.status === "inactivo" ? "opacity-75" : ""
-                            }`}
+                            className={`btn btn-sm btn-outline-success d-flex align-items-center ${area.status === "inactivo" ? "opacity-75" : ""
+                              }`}
                           />
                         </CheckPermissions>
 
                         <CheckPermissions requiredPermission="editar-areas">
                           <button
                             onClick={() => handleUnsubscribe(area.id)}
-                            className={`btn btn-sm d-flex align-items-center ${
-                              area.status === "inactivo"
-                                ? "btn-outline-danger"
-                                : "btn-outline-success"
-                            }`}
+                            className={`btn btn-sm d-flex align-items-center ${area.status === "inactivo"
+                              ? "btn-outline-danger"
+                              : "btn-outline-success"
+                              }`}
                           >
                             {area.status === "inactivo" ? <HiThumbDown /> : <HiThumbUp />}
                           </button>

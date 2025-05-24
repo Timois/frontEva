@@ -69,7 +69,7 @@ export const FileUpload = () => {
         if (resumenLinea) {
           customAlert(`📥 ${message}\n${resumenLinea}`, "success");                                   // ← REFETCH
           closeFormModal("importExcel");
-          getData();
+          getData({ area_id });
           resetForm();
         } else {
           customAlert("❌ Error: no se encontró el resumen en la respuesta", "error");
@@ -100,6 +100,7 @@ export const FileUpload = () => {
 
           customAlert(`📥 ${message}\n${resumenLinea}`, "success");                              // ← REFETCH
           closeFormModal("importExcel");
+          getData({ area_id });
           resetForm();
         } else {
           customAlert("❌ Error en la importación", "error");

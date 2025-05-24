@@ -14,17 +14,18 @@ import { FaChevronLeft, FaChevronRight, FaClipboardList, FaRegClock, FaUserGradu
 import CheckPermissions from '../../routes/CheckPermissions'
 
 export const Examns = () => {
-  const { examns } = useContext(ExamnsContext)
+  const { examns, fetchExamsByCareer} = useFetchExamns()
   const [selectedExamn, setSelectedExamn] = useState(null)
   const handleEditClick = (examn) => {
     setSelectedExamn(examn)
   }
-  const { getDataExamns } = useFetchExamns()
+  const user = JSON.parse(localStorage.getItem('user'));
+  const careerId = user ? user.career_id : null;
   useEffect(() => {
-    getDataExamns()
+    fetchExamsByCareer(careerId)
   }, [])
-
   const idEditar = "editarExamn"
+
   const [currentPage, setCurrentPage] = useState(0);
   const itemsPerPage = 5;
   const offset = currentPage * itemsPerPage;
@@ -57,7 +58,6 @@ export const Examns = () => {
                 <th scope="col" width="5%" className="fw-medium text-primary">Puntaje</th>
                 <th scope="col" width="5%" className="fw-medium text-primary">Aprobación</th>
                 <th scope="col" width="8%" className="fw-medium text-primary">Fecha</th>
-                <th scope="col" width="7%" className="fw-medium text-primary">Tipo</th>
                 <th scope="col" width="7%" className="fw-medium text-primary">
                   <FaRegClock className="me-1" /> Tiempo
                 </th>
@@ -79,11 +79,6 @@ export const Examns = () => {
                     <td className="text-center fw-bold">{examn.total_score}</td>
                     <td className="text-center fw-bold text-success">{examn.passing_score}</td>
                     <td className="text-center">{examn.date_of_realization}</td>
-                    <td className="text-center">
-                      <span className="badge bg-info bg-opacity-10 text-info py-2 px-3">
-                        {examn.type}
-                      </span>
-                    </td>
                     <td className="text-center">{examn.time}</td>
                     <td className="text-center">
                       <span className={`badge ${

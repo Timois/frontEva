@@ -5,10 +5,8 @@ import { getApi } from "../services/axiosServices/ApiService"
 export const useFetchQuestions = () => {
     const { questions, setQuestions } = useContext(QuestionContext)
     const getDataQuestions = async () => {
-        if (questions.length < 1) {
-            const response = await getApi("bank_questions/list")
-            setQuestions(response)
-        }
+        const response = await getApi("bank_questions/list")
+        setQuestions(response)
         return questions
     }
 

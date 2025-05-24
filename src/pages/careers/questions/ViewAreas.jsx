@@ -1,14 +1,21 @@
 /* eslint-disable react/prop-types */
 
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getApi } from "../../../services/axiosServices/ApiService";
 import styles from './AreaCards.module.css';
+import { useFetchAreasByCareer } from "../../../hooks/fetchAreas";
 
-export const ViewAreas = ({ areas }) => {
-  const navigate = useNavigate();
+export const ViewAreas = () => {
   const [questionCounts, setQuestionCounts] = useState({});
-
+  const { areas,getData } = useFetchAreasByCareer();
+  const user = JSON.parse(localStorage.getItem('user'));
+  const careerIdFromStorage = user ? user.career_id : null;
+  const careerId = careerIdFromStorage
+  useEffect(() => {
+    getData(careerId) 
+  },[])
+  
   useEffect(() => {
     const fetchQuestionCounts = async () => {
       try {
@@ -44,12 +51,13 @@ export const ViewAreas = ({ areas }) => {
                     ? `${questionCounts[area.id]} preguntas`
                     : "Cargando..."}
                 </div>
-                <button
+                <Link
+                  to={`${area.id}/imports`}
                   className="btn btn-outline-primary mt-3 w-100"
-                  onClick={() => navigate(`/administracion/areas/${area.id}/imports`)}
                 >
                   Importar Preguntas
-                </button>
+                </Link>
+
               </div>
             </div>
           </div>

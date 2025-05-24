@@ -12,7 +12,6 @@ import { NotFound404 } from "../pages/errors/NotFound404"
 import { IndexCareerAssign } from "../pages/careers/careerAssign/IndexCareerAssign"
 import { IndexExamns } from "../pages/examn management/IndexExamns"
 import { IndexArea } from "../pages/careers/areas/IndexArea"
-import { IndexImports } from "../pages/careers/questions/imports/IndexImports"
 import { IndexQuestions } from "../pages/careers/questions/IndexQuestions"
 import { Question } from "../pages/careers/questions/Question" // Asegúrate de importar el componente Question
 import { IndexUser } from "../pages/users/IndexUser"
@@ -34,6 +33,7 @@ import { CareerById } from "../pages/careers/CareerById"
 import IndexResults from "../pages/results management/IndexResults"
 import LayoutStudent from "../components/layouts/layout/LayoutStudent"
 import { ImportQuestions } from "../pages/careers/questions/imports/ImportQuestions"
+import { ViewAreas } from "../pages/careers/questions/ViewAreas"
 export const AppRoutes = () => {
   return (
     <Routes
@@ -82,20 +82,19 @@ export const AppRoutes = () => {
             <PermissionsGuard requiredPermission={"ver-areas"}>
               <IndexArea />
             </PermissionsGuard>} />
-          <Route path="administracion/areas/:id/imports" element={
+            <Route path="administracion/areas_questions" element={
+            <PermissionsGuard requiredPermission={"ver-areas"}>
+              <ViewAreas />
+            </PermissionsGuard>} />
+          <Route path="administracion/areas_questions/:id/imports" element={
             <PermissionsGuard requiredPermission={"ver-preguntas"}>
               <ImportQuestions />
             </PermissionsGuard>
           } />
-          <Route path="administracion/areas/:id/imports/:id/questions" element={
-            <PermissionsGuard requiredPermission={"ver-preguntas-por-id"}>
+          <Route path="administracion/areas_questions/:id/imports/:id/questions" element={
+            <PermissionsGuard requiredPermission={"ver-preguntas"}>
               <Question />
             </PermissionsGuard>} />
-          <Route path="administracion/questions" element={
-            <PermissionsGuard requiredPermission={"ver-preguntas"}>
-              <IndexQuestions />
-            </PermissionsGuard>
-          } />
           <Route path="administracion/questions" element={
             <PermissionsGuard requiredPermission={"ver-preguntas"}>
               <IndexQuestions />

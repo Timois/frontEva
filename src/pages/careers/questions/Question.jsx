@@ -24,20 +24,19 @@ export const Question = () => {
     const [modalImage, setModalImage] = useState(null);
     const [currentPage, setCurrentPage] = useState(0);
     const questionsPerPage = 5;
-    const { getData, areas } = useFetchArea();
+    const { getDataArea, areas } = useFetchArea();
     const { getDataQuestions } = useFetchQuestionsByArea();
     const navigate = useNavigate();
-        
+
     // Get area name
     const areaName = areas?.find(area => String(area.id) === String(id))?.name;
     const areaId = areas?.find(area => String(area.id) === String(id))?.id;
+    console.log(areas)
     useEffect(() => {
         const fetchData = async () => {
-            await getData();
-            if (id) {
-                const questionsData = await getDataQuestions(id);
-                setQuestions(questionsData);
-            }
+            await getDataArea();
+            const questionsData = await getDataQuestions(id);
+            setQuestions(questionsData);
         };
         fetchData();
     }, [id]);
@@ -60,18 +59,18 @@ export const Question = () => {
 
     const modalId = "registerPregunta";
     const idEditar = "editarPregunta";
-    
+
 
     return (
         <div className="container-fluid p-4">
             {/* Botón de volver */}
-            <button 
+            <button
                 className="btn btn-outline-primary mb-3 d-flex align-items-center"
-                onClick={() => navigate(`/administracion/areas/${areaId}/imports`)}
+                onClick={() => navigate(`/administracion/areas_questions/${areaId}/imports`)}
             >
                 <MdArrowBack className="me-1" /> Volver
             </button>
-            
+
             {/* Tarjeta principal */}
             <div className="card shadow-lg border-0 rounded-3 overflow-hidden">
                 {/* Encabezado */}
@@ -111,13 +110,11 @@ export const Question = () => {
                                             {truncateText(question.description, 50)}
                                         </td>
                                         <td className="text-center">
-                                            <span className={`badge ${
-                                                question.dificulty === 'Fácil' ? 'bg-success' : 
-                                                question.dificulty === 'Media' ? 'bg-warning' : 'bg-danger'
-                                            } bg-opacity-10 ${
-                                                question.dificulty === 'Fácil' ? 'text-success' : 
-                                                question.dificulty === 'Media' ? 'text-warning' : 'text-danger'
-                                            } py-2 px-3`}>
+                                            <span className={`badge ${question.dificulty === 'Fácil' ? 'bg-success' :
+                                                    question.dificulty === 'Media' ? 'bg-warning' : 'bg-danger'
+                                                } bg-opacity-10 ${question.dificulty === 'Fácil' ? 'text-success' :
+                                                    question.dificulty === 'Media' ? 'text-warning' : 'text-danger'
+                                                } py-2 px-3`}>
                                                 {question.dificulty}
                                             </span>
                                         </td>
@@ -138,16 +135,16 @@ export const Question = () => {
                                         <td className="text-center text-muted">{question.type}</td>
                                         <td className="text-center">
                                             <CheckPermissions requiredPermission="ver-respuestas">
-                                                <ButtonViewAnswers 
-                                                    questionId={question.id} 
+                                                <ButtonViewAnswers
+                                                    questionId={question.id}
                                                     className="btn btn-sm btn-outline-primary"
                                                 />
                                             </CheckPermissions>
                                         </td>
                                         <td className="text-center">
                                             <CheckPermissions requiredPermission="editar-preguntas">
-                                                <ButtonEdit 
-                                                    idEditar={idEditar} 
+                                                <ButtonEdit
+                                                    idEditar={idEditar}
                                                     onEditClick={() => handleEditClick(question)}
                                                     className="btn btn-sm btn-outline-primary d-flex align-items-center justify-content-center mx-auto"
                                                 />
@@ -199,13 +196,13 @@ export const Question = () => {
 
             {/* Modales */}
             <CheckPermissions requiredPermission="editar-preguntas">
-                <ModalEdit 
-                    idEditar={idEditar} 
-                    data={selectedQuestion} 
-                    title="Editar Pregunta" 
+                <ModalEdit
+                    idEditar={idEditar}
+                    data={selectedQuestion}
+                    title="Editar Pregunta"
                 />
             </CheckPermissions>
-            
+
             {/* Modal de imagen */}
             {modalImage && (
                 <div className="modal fade show d-block" tabIndex="-1" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
@@ -213,24 +210,24 @@ export const Question = () => {
                         <div className="modal-content">
                             <div className="modal-header bg-primary text-white">
                                 <h5 className="modal-title">Imagen de la pregunta</h5>
-                                <button 
-                                    type="button" 
-                                    className="btn-close btn-close-white" 
+                                <button
+                                    type="button"
+                                    className="btn-close btn-close-white"
                                     onClick={() => setModalImage(null)}
                                 ></button>
                             </div>
                             <div className="modal-body text-center p-4">
-                                <img 
-                                    src={modalImage} 
-                                    alt="Vista previa" 
-                                    className="img-fluid rounded" 
+                                <img
+                                    src={modalImage}
+                                    alt="Vista previa"
+                                    className="img-fluid rounded"
                                     style={{ maxHeight: "70vh" }}
                                 />
                             </div>
                             <div className="modal-footer">
-                                <button 
-                                    type="button" 
-                                    className="btn btn-secondary" 
+                                <button
+                                    type="button"
+                                    className="btn btn-secondary"
                                     onClick={() => setModalImage(null)}
                                 >
                                     Cerrar
