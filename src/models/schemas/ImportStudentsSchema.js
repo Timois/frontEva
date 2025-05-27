@@ -5,5 +5,7 @@ export const ImportStudentsSchema = z.object({
         .instanceof(File, { message: "Debes subir un archivo" }) // Verifica que sea un archivo
         .refine((file) => file?.name?.match(/\.(xlsx|xls|csv)$/i), {
             message: "El archivo debe ser de tipo Excel (.xlsx, .xls, .csv)",
-        })
+        }),
+    academic_management_period_id: z.string({ required_error: "Seleccione una opcion" })
+        .regex(/^[0-9]+$/, { message: "Debe ser un id válido" })
 });

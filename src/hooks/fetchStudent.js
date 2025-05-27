@@ -17,9 +17,14 @@ export const useFetchStudent = () => {
         setStudents(response);
     };
 
-    const getTestStudent = async (studentId) => {
-        const response = await getApi(`student_evaluations/questions/${studentId}`);
-        return response;
+
+    const getStudentsByPeriod = async (careerId) => {
+        const response = await getApi(`students/findByCareerId/${careerId}`);
+        setStudents(response);
     };
-    return { students, getData, refreshStudents, getTestStudent };
+    const getTestStudent = async (studentId) => {
+        const response = await getApi(`students/findByPeriodId/${studentId}`);
+        setStudents(response);
+    };
+    return { students, getData, refreshStudents, getTestStudent, getStudentsByPeriod };
 };

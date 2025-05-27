@@ -18,7 +18,18 @@ export const StudentProvider = ({ children }) => {
         saveStudent(student);
     };
 
-    const values = { students, storeStudent, setStudents , student, setStudent};
+    const addStudent = (student) => {
+        setStudents(prev => [...prev, student]);
+    };
+    const updateStudent = (student) => {
+        const posicion = students.findIndex((item) => item.id === student.id);
+        if (posicion !== -1) {
+            const lista = [...students];
+            lista[posicion] = {...lista[posicion], ...student};
+            setStudents(lista);
+        }
+    }
+    const values = { students, storeStudent, setStudents , student, setStudent, addStudent, updateStudent};
     return (
         <StudentContext.Provider value={values}>
             {children}

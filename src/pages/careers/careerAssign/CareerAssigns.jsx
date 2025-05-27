@@ -1,8 +1,5 @@
 
 import PropTypes from "prop-types";
-import { useFetchGestion } from "../../../hooks/fetchGestion";
-import { useContext, useEffect, useState } from "react";
-import { GestionContext } from "../../../context/GestionProvider";
 import { ViewPeriod } from "../periodsAsign/ViewPeriod";
 import { ModalViewManagementPeriod } from "../periodsAsign/ModalViewManagementPeriod";
 import { AssignManagement } from "../AssignManagement"

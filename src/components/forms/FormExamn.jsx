@@ -60,7 +60,7 @@ export const FormExamn = () => {
         if (careerAssignmentsPeriods.length > 0) {
             const periodOptions = careerAssignmentsPeriods.map(period => ({
                 value: period.id,
-                text: `${period.period} (${new Date(period.initial_date).toLocaleDateString()} - ${new Date(period.end_date).toLocaleDateString()})`
+                text: `${period.period}`
             }));
             setArray(periodOptions);
         }
@@ -126,7 +126,6 @@ export const FormExamn = () => {
 
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
-            {/* Tus inputs siguen igual */}
             <ContainerInput>
                 <Input name="title" control={control} type="text" placeholder="Ingrese un título" />
                 <Validate error={errors.title} />

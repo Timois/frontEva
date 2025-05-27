@@ -12,12 +12,14 @@ import { ImputStudents } from "./components/ImputStudents";
 import CancelButton from "./components/CancelButon";
 import { useFetchStudent } from "../../hooks/fetchStudent";
 import { useFetchCareerAssign, useFetchCareerAssignPeriod } from "../../hooks/fetchcareers";
+import { SelectInput } from "./components/SelectInput";
+import { Validate } from "./components/Validate";
 
 export const FormImportStudents = () => {
     const [response, setResponse] = useState(false);
     const { refreshStudents } = useFetchStudent();
     const [array, setArray] = useState([])
-    const {
+    const {control,
         handleSubmit,
         reset,
         setValue,
@@ -57,7 +59,7 @@ export const FormImportStudents = () => {
         if (careerAssignmentsPeriods.length > 0) {
             const periodOptions = careerAssignmentsPeriods.map(period => ({
                 value: period.id,
-                text: `${period.period} (${new Date(period.initial_date).toLocaleDateString()} - ${new Date(period.end_date).toLocaleDateString()})`
+                text: `${period.period}`
             }));
             setArray(periodOptions);
         }
@@ -95,7 +97,6 @@ export const FormImportStudents = () => {
 
             // 🔄 Refrescar la lista de estudiantes
             await refreshStudents();
-
             closeFormModal("importarEstudiantes");
             resetForm();
         } catch (error) {
@@ -142,6 +143,10 @@ export const FormImportStudents = () => {
                 {errors.file && (
                     <span className="text-danger">{errors.file.message}</span>
                 )}
+            </ContainerInput>
+            <ContainerInput>
+                <SelectInput label="Seleccione el periodo" name="academic_management_period_id" options={array} control={control} error={errors.academic_management_period_id} />
+                <Validate error={errors.academic_management_period_id} />
             </ContainerInput>
             <ContainerButton>
                 <Button type="submit" name="submit" disabled={response}>

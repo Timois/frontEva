@@ -7,12 +7,13 @@ import { FaChevronLeft, FaChevronRight, FaPhone, FaUserGraduate, FaUserSlash } f
 
 export const StudentsList = () => {
   const { students, setStudents } = useContext(StudentContext);
-  const { getData } = useFetchStudent();
+  const { getStudentsByPeriod } = useFetchStudent();
   const [currentPage, setCurrentPage] = useState(0);
   const itemsPerPage = 5;
-
+  const user = JSON.parse(localStorage.getItem('user'));
+  const careerId = user ? user.career_id : null;
   useEffect(() => {
-    getData();
+    getStudentsByPeriod(careerId);
   }, []);
 
   const totalPages = Math.ceil(students.length / itemsPerPage) || 1;
@@ -44,6 +45,7 @@ export const StudentsList = () => {
               <th scope="col" className="fw-medium text-primary">Apellido Materno</th>
               <th scope="col" className="fw-medium text-primary">Teléfono</th>
               <th scope="col" className="fw-medium text-primary">Fecha Nacimiento</th>
+              <th scope='col' className="fw-medium text-primary">Periodo</th>
             </tr>
           </thead>
           <tbody>
@@ -64,11 +66,22 @@ export const StudentsList = () => {
                     )}
                   </td>
                   <td>{student.birthdate}</td>
+                  <td className="text-center">
+                      {student.registered_period ? (
+                        <span className="badge bg-primary bg-opacity-10 text-primary py-2 px-3">
+                          {student.registered_period}
+                        </span>
+                      ) : (
+                        <span className="badge bg-secondary bg-opacity-10 text-secondary py-2 px-3">
+                          No asignado
+                        </span>
+                      )}
+                    </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="7" className="text-center py-5">
+                <td colSpan="8" className="text-center py-5">
                   <div className="d-flex flex-column align-items-center text-muted">
                     <FaUserSlash className="fs-1 mb-2" />
                     No hay estudiantes registrados.
