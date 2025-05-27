@@ -101,7 +101,7 @@ export const User = () => {
                                             </div>
                                         </td>
                                         <td>
-                                            <span className={`badge ${persona.status === 'active'
+                                            <span className={`badge ${persona.status === 'activo'
                                                 ? 'bg-success bg-opacity-10 text-success'
                                                 : 'bg-danger bg-opacity-10 text-danger'} rounded-pill`}
                                             >
@@ -140,7 +140,7 @@ export const User = () => {
             <CheckPermissions requiredPermission="asignar-carreras-a-usuarios">
                 <ModalAsign
                     modalId={modalAsign}
-                    title={<><FaLink className="me-2" />Asignar carrera</>}
+                    title={"Asignar carrera"}
                     data={selectedPersona}
                 />
             </CheckPermissions>

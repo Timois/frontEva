@@ -1,4 +1,5 @@
-import { useState } from "react";
+/* eslint-disable no-unused-vars */
+import { useEffect, useState } from "react";
 import { postApi } from "../../services/axiosServices/ApiService";
 import { closeFormModal, customAlert } from "../../utils/domHelper";
 import { useForm } from "react-hook-form";
@@ -10,11 +11,12 @@ import { Button } from "../login/Button";
 import { ImputStudents } from "./components/ImputStudents";
 import CancelButton from "./components/CancelButon";
 import { useFetchStudent } from "../../hooks/fetchStudent";
+import { useFetchCareerAssign, useFetchCareerAssignPeriod } from "../../hooks/fetchcareers";
 
 export const FormImportStudents = () => {
     const [response, setResponse] = useState(false);
     const { refreshStudents } = useFetchStudent();
-
+    const [array, setArray] = useState([])
     const {
         handleSubmit,
         reset,
@@ -24,7 +26,42 @@ export const FormImportStudents = () => {
     } = useForm({
         resolver: zodResolver(ImportStudentsSchema),
     });
+    const user = JSON.parse(localStorage.getItem('user'))
+    const career_id = user?.career_id
 
+    const { careerAssignments, getDataCareerAssignments } = useFetchCareerAssign(career_id)
+    const { careerAssignmentsPeriods, getDataCareerAssignmentPeriods } = useFetchCareerAssignPeriod()
+
+    // Obtienes los datos de la carrera asignada
+    useEffect(() => {
+        const fetchData = async () => {
+            if (career_id && !isNaN(career_id)) {
+                await getDataCareerAssignments();
+            }
+        }
+        fetchData();
+    }, [career_id])
+
+    // Cuando careerAssignments esté listo, saco el id de la tabla intermedia
+    useEffect(() => {
+        const fetchPeriods = async () => {
+            if (careerAssignments.length > 0) {
+                const { academic_management_career_id } = careerAssignments[0];  // Desestructuramos directamente
+                await getDataCareerAssignmentPeriods(academic_management_career_id);
+            }
+        }
+        fetchPeriods();
+    }, [careerAssignments]);
+
+    useEffect(() => {
+        if (careerAssignmentsPeriods.length > 0) {
+            const periodOptions = careerAssignmentsPeriods.map(period => ({
+                value: period.id,
+                text: `${period.period} (${new Date(period.initial_date).toLocaleDateString()} - ${new Date(period.end_date).toLocaleDateString()})`
+            }));
+            setArray(periodOptions);
+        }
+    }, [careerAssignmentsPeriods]);
     const onSubmit = async (data) => {
         setResponse(true);
 
@@ -39,7 +76,7 @@ export const FormImportStudents = () => {
 
         const formData = new FormData();
         formData.append("file", data.file);
-
+        formData.append("academic_management_period_id", data.academic_management_period_id);
         try {
             const response = await postApi("students/import", formData);
             setResponse(false);
@@ -60,14 +97,19 @@ export const FormImportStudents = () => {
             await refreshStudents();
 
             closeFormModal("importarEstudiantes");
-            reset();
+            resetForm();
         } catch (error) {
             setResponse(false);
             customAlert("Error al importar los estudiantes", "error");
             console.error("Error en la importación:", error);
         }
     };
-
+    const resetForm = () =>{
+        reset(
+            "file",
+            "academic_management_period_id"
+        );
+    }
     const handleCancel = () => {
         closeFormModal("importarEstudiantes");
     };

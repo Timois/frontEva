@@ -1,32 +1,15 @@
-import { useContext, useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Card } from "../../components/login/Card";
 import PropTypes from 'prop-types';
-import { PeriodContext } from "../../context/PeriodProvider";
 import { FormManagementPeriod } from "../../components/forms/FormManagementPeriod";
 import { useFetchPeriod } from "../../hooks/fetchPeriod";
 
 export const ModalRegisterManagementPeriod = ({ id }) => {
-    const { periods } = useContext(PeriodContext);
-    const [data, setData] = useState([]);
     const { getData } = useFetchPeriod();
-
     useEffect(() => {
-        if (periods.length === 0) {
-            getData();
-            return;
-        }
-
-        const transformedPeriods = periods.map((career) => ({
-            value: career.id,
-            text: career.period,
-        }));
-
-        setData((prevData) => ({
-            ...prevData,
-            periods: transformedPeriods,
-        }));
+        getData();
     }, []);
-
+    
     return (
         <div
             className="modal fade"
@@ -41,7 +24,7 @@ export const ModalRegisterManagementPeriod = ({ id }) => {
             <div className="modal-dialog">
                 <div className="modal-content">
                     <Card className="card align-items-center h-auto gap-3 p-3">
-                        {data.periods && <FormManagementPeriod data={data} />}
+                        { <FormManagementPeriod  />}
                     </Card>
                 </div>
             </div>

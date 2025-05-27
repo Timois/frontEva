@@ -11,8 +11,22 @@ import { postApi } from "../../services/axiosServices/ApiService"
 import { useParams } from "react-router-dom"
 import { AcademicManagementCareerPeriodSchema } from "../../models/schemas/AcademicManagementCareerPeriodSchema"
 import { DateInput } from "./components/DateInput"
+import { useContext, useEffect, useState } from "react"
+import { PeriodContext } from "../../context/PeriodProvider"
+import { Validate } from "./components/Validate"
+export const FormManagementPeriod = () => {
+    // console.log("::ESTOY AQUI::", data)
+    const { periods } = useContext(PeriodContext);
+    const [data, setData] = useState([]);
+    useEffect(() => {
+        const periodOptions = periods.map((period) => ({
+            value: period.id,
+            text: period.period
+        }));
+        setData({ periods: periodOptions });
+    }, [periods]);
 
-export const FormManagementPeriod = ({ data }) => {
+    const [response, setResponse] = useState(false)
     const { control, handleSubmit, reset, formState: { errors }, setError } = useForm({
         resolver: zodResolver(AcademicManagementCareerPeriodSchema)
     })
@@ -26,6 +40,7 @@ export const FormManagementPeriod = ({ data }) => {
     };
 
     const onSubmit = async (data) => {
+        setResponse(true)
         const initialDateTime = `${data.initial_date} ${data.initial_time}:00`;
         const endDateTime = `${data.end_date} ${data.end_time}:00`;
 
@@ -43,35 +58,54 @@ export const FormManagementPeriod = ({ data }) => {
         formData.append("end_date", endDateTime);
         formData.append("academic_management_career_id", academicManagementCareerId);
 
-        reset({
-            period_id: ""
-        })
+        try {
+            const response = await postApi("academic_management_period/save", formData)
 
-        const response = await postApi("academic_management_period/save", formData)
-        
-        if (response.status == 422) {
-            for (var key in response.data.errors) {
-                setError(key, { type: "custom", message: response.data.errors[key][0] })
+            if (response.status == 422) {
+                for (var key in response.data.errors) {
+                    setError(key, { type: "custom", message: response.data.errors[key][0] })
+                }
+                return null
             }
-            return null
+            customAlert("Periodo Registrado", "success")
+            resetForm()
+            closeFormModal("asignarPeriodo")
+        } catch (error) {
+            if(error.response.status == 403){
+                customAlert("No tienes permisos para realizar esta acción", "error")
+                closeFormModal("asignarPeriodo")
+            }else{
+                customAlert(error.response?.data?.errors?.message || "Error al registrar el periodo", "error") 
+                closeFormModal("asignarPeriodo")
+            }
+        }finally{
+           setResponse(false) 
         }
-
-        customAlert("Periodo Registrado", "success")
-        closeFormModal("asignarPeriodo")
     };
-
+    const resetForm = () => {
+        reset(
+            "period_id",
+            "initial_date",
+            "initial_time",
+            "end_date",
+            "end_time"
+        )
+    }
     const onError = (errors, e) => console.log(errors, e)
-
+    const handleCancel = () => {
+        closeFormModal("asignarPeriodo")
+    }
     return (
         <form onSubmit={handleSubmit(onSubmit, onError)}>
             <ContainerInput>
                 <SelectInput
                     label="Seleccione un periodo"
                     name="period_id"
-                    options={data?.periods}
+                    options={data.periods}
                     control={control}
-                    errors={errors.periods}
+                    errors={data.errors}
                 />
+                <Validate error={errors.period_id} />
             </ContainerInput>
             <ContainerInput>
                 <div style={{ display: "flex", gap: "10px" }}>
@@ -86,13 +120,13 @@ export const FormManagementPeriod = ({ data }) => {
                 </div>
             </ContainerInput>
             <ContainerButton>
-                <Button type="submit" name="submit">Guardar</Button>
-                <CancelButton />
+                <Button type="submit" name="submit" disabled={response}> Guardar</Button>
+                <CancelButton disabled={response} onClick={handleCancel}/>
             </ContainerButton>
         </form>
     )
 }
 
 FormManagementPeriod.propTypes = {
-    data: PropTypes.object.isRequired
+    // data: PropTypes.array.isRequired    
 };
