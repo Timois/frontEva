@@ -80,9 +80,7 @@ export const FormImportStudents = () => {
         formData.append("file", data.file);
         formData.append("academic_management_period_id", data.academic_management_period_id);
         try {
-            const response = await postApi("students/import", formData);
-            setResponse(false);
-
+            const response = await postApi("students/import", formData)
             if (response.status === 422) {
                 for (let key in response.data.errors) {
                     setError(key, {
@@ -96,7 +94,7 @@ export const FormImportStudents = () => {
             customAlert("Estudiantes importados correctamente", "success");
 
             // 🔄 Refrescar la lista de estudiantes
-            await refreshStudents();
+            await refreshStudents(career_id);
             closeFormModal("importarEstudiantes");
             resetForm();
         } catch (error) {

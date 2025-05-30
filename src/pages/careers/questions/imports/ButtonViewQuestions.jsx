@@ -6,7 +6,7 @@ export const ButtonViewQuestions = ({idExcel}) => {
 
     return (
         <Link 
-        to={`${idExcel}/questions`} 
+        to={`/administracion/imports/${idExcel}/questions`} 
         className="btn btn-sm btn-outline-info d-flex align-items-center p-2 m-2">
             <FaEye />
             Ver preguntas

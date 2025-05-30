@@ -54,9 +54,9 @@ export const StudentsList = () => {
                 <tr key={student.ci} className="transition-all">
                   <td className="text-center text-muted">{startIndex + index + 1}</td>
                   <td className="fw-semibold">{student.ci}</td>
-                  <td>{student.name}</td>
-                  <td>{student.paternal_surname}</td>
-                  <td>{student.maternal_surname}</td>
+                  <td className='text-capitalize'>{student.name}</td>
+                  <td className='text-capitalize'>{student.paternal_surname}</td>
+                  <td className='text-capitalize'>{student.maternal_surname}</td>
                   <td>
                     {student.phone_number && (
                       <a href={`tel:${student.phone_number}`} className="text-decoration-none">
@@ -92,7 +92,6 @@ export const StudentsList = () => {
           </tbody>
         </table>
       </div>
-
       <div className="card-footer bg-transparent border-0">
         <div className="d-flex justify-content-center">
           <ReactPaginate

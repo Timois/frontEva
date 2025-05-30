@@ -75,7 +75,7 @@ export const Area = () => {
                   <div className={`card h-100 border-0 shadow-sm hover-shadow transition-all ${area.status === "inactivo" ? "bg-danger bg-opacity-10" : ""
                     }`}>
                     <div className="card-header bg-primary bg-opacity-10 border-0 py-3">
-                      <h5 className="card-title m-0 text-primary fw-semibold text-center">
+                      <h5 className="card-title m-0 text-primary fw-semibold text-center text-capitalize">
                         {area.name}
                       </h5>
                     </div>

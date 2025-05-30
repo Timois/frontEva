@@ -78,7 +78,7 @@ export const FormExamn = () => {
         formData.append("passing_score", Number(data.passing_score))  // Convertir a número
         formData.append("date_of_realization", new Date(data.date_of_realization).toISOString().split('T')[0])  // Formatear fecha
         formData.append("qualified_students", data.qualified_students)
-        formData.append("type", data.type)
+        formData.append("type", "web")
         formData.append("time", Number(data.time))
         formData.append("status", "inactivo")
         formData.append("academic_management_period_id", String(data.academic_management_period_id))
@@ -145,10 +145,6 @@ export const FormExamn = () => {
             <ContainerInput>
                 <Input name="time" control={control} type="number" placeholder="Ingrese el tiempo en minutos" />
                 <Validate error={errors.time} />
-            </ContainerInput>
-            <ContainerInput>
-                <SelectInput label="Seleccione el tipo" name="type" options={arrayOption} control={control} error={errors.type} />
-                <Validate error={errors.type} />
             </ContainerInput>
             <ContainerInput>
                 <Input name="qualified_students" control={control} type="number" placeholder="Ingrese la cantidad de estudiantes habilitados" />

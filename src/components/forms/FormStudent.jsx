@@ -91,6 +91,7 @@ export const FormStudent = () => {
         customAlert("No tienes permisos para crear un estudiante", "error");
       } else {
         customAlert(error.response?.data?.message || "Error al crear el estudiante", "error");
+        resetForm();
         closeFormModal("registerStudent")
       }
     } finally {

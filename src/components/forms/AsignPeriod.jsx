@@ -2,7 +2,7 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 import { zodResolver } from '@hookform/resolvers/zod'
-import React from 'react'
+import React, { useState } from 'react'
 import { AcademicManagementPeriodSchema } from '../../models/schemas/AcademicManagementPeriodSchema'
 import { useForm } from 'react-hook-form'
 import { postApi } from '../../services/axiosServices/ApiService'
@@ -17,17 +17,43 @@ import { Validate } from './components/Validate'
 import { DateInput } from '../forms/components/DateInput'
 // eslint-disable-next-line react/prop-types
 export const AsignPeriod = ({ data }) => {
+  const [response, setResponse] = useState(false)
   const { control, handleSubmit, reset, formState: { errors }, setError } = useForm({
     resolver: zodResolver(AcademicManagementPeriodSchema)
   })
   const onSubmit = async (data) => {
+    setResponse(true)
     const formData = new FormData()
     formData.append("initial_date", data.initial_date)
     formData.append("end_date", data.end_date)
     formData.append("status", data.status)
     formData.append("academic_management_career_id", data.academic_management_career_id)
     formData.append("period_id", data.career_id)
+    try {
+      const response = await postApi("academic_management_period/saveAssign", formData)
 
+      if (response.status == 422) {
+        for (var key in response.data.errors) {
+          setError(key, { type: "custom", message: response.data.errors[key][0] })
+        }
+        return null
+      }
+      customAlert("Periodo Asignado", "success")
+      closeFormModal("asignarPeriodo")
+      resetForm()
+    } catch (error) {
+      if (error.response.status === 403) {
+        customAlert("No tienes permisos para crear un periodo", "error")
+      } else {
+        customAlert(error.response?.data?.message || "Error al crear el periodo", "error")
+        resetForm()
+        closeFormModal("asignarPeriodo")
+      }
+    } finally {
+      setResponse(false)
+    }
+  }
+  const resetForm = () => {
     reset({
       initial_date: "",
       end_date: "",
@@ -35,18 +61,11 @@ export const AsignPeriod = ({ data }) => {
       academic_management_career_id: "",
       period_id: ""
     })
-    const response = await postApi("academic_management_period/saveAssign", formData)
-
-    if (response.status == 422) {
-      for (var key in response.data.errors) {
-        setError(key, { type: "custom", message: response.data.errors[key][0] })
-      }
-      return null
-    }
-    customAlert("Periodo Asignado", "success")
-    closeFormModal("asignarPeriodo")
   }
-  const onError = (errors, e) => console.log(errors, e)
+  const handleCancel = () => {
+    closeFormModal("asignarPeriodo")
+    reset()
+  }
   return (
     <form onSubmit={handleSubmit(onSubmit, onError)}>
       <ContainerInput>
@@ -80,8 +99,8 @@ export const AsignPeriod = ({ data }) => {
         />
       </ContainerInput>
       <ContainerButton>
-        <Button type="submit" name="submit">Guardar</Button>
-        <CancelButton />
+        <Button type="submit" name="submit" disabled={response}>Guardar</Button>
+        <CancelButton disabled={response} onClick={handleCancel}/>
       </ContainerButton>
     </form>
   )

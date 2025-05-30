@@ -1,6 +1,5 @@
 /* eslint-disable no-unused-vars */
-import React, { useContext, useEffect, useState } from 'react'
-import { ExamnsContext } from '../../context/ExamnsProvider'
+import React, { useEffect, useState } from 'react'
 import { useFetchExamns } from '../../hooks/fetchExamns'
 import ButtonEdit from './ButtonEdit'
 import ModalEdit from './ModalEdit'
@@ -12,34 +11,39 @@ import { ModalStudentsWithTest } from './ModalStudentsWithTest'
 import ReactPaginate from 'react-paginate'
 import { FaChevronLeft, FaChevronRight, FaClipboardList, FaRegClock, FaUserGraduate } from 'react-icons/fa'
 import CheckPermissions from '../../routes/CheckPermissions'
+import { ButtonImport } from '../docentes/ButtonImport'
+import { ModalImport } from '../docentes/ModalImport'
+import ButtonAdd from '../docentes/ButtonAdd'
+import ModalRegister from '../docentes/ModalRegister'
 
 export const Examns = () => {
-  const { examns, fetchExamsByCareer} = useFetchExamns()
+  const { examns, fetchExamsByCareer } = useFetchExamns()
   const [selectedExamn, setSelectedExamn] = useState(null)
-  const handleEditClick = (examn) => {
-    setSelectedExamn(examn)
-  }
-  const user = JSON.parse(localStorage.getItem('user'));
-  const careerId = user ? user.career_id : null;
+  const handleEditClick = (examn) => setSelectedExamn(examn)
+
+  const user = JSON.parse(localStorage.getItem('user'))
+  const careerId = user ? user.career_id : null
+
   useEffect(() => {
     fetchExamsByCareer(careerId)
   }, [])
+
   const idEditar = "editarExamn"
 
-  const [currentPage, setCurrentPage] = useState(0);
-  const itemsPerPage = 5;
-  const offset = currentPage * itemsPerPage;
-  const currentItems = examns.slice(offset, offset + itemsPerPage);
-  const pageCount = Math.ceil(examns.length / itemsPerPage);
+  const [currentPage, setCurrentPage] = useState(0)
+  const itemsPerPage = 5
+  const offset = currentPage * itemsPerPage
+  const currentItems = examns.slice(offset, offset + itemsPerPage)
+  const pageCount = Math.ceil(examns.length / itemsPerPage)
 
   const handlePageClick = (data) => {
-    setCurrentPage(data.selected);
-  };
-
+    setCurrentPage(data.selected)
+  }
+const modalImport = "importarEstudiantes"
+const modalRegister = "registerStudent"
   return (
     <div className="container-fluid p-4">
       <div className="card shadow-lg border-0 rounded-3 overflow-hidden">
-        {/* Encabezado */}
         <div className="card-header bg-primary text-white py-3 rounded-top">
           <h3 className="mb-0">
             <FaClipboardList className="me-2" />
@@ -47,95 +51,81 @@ export const Examns = () => {
           </h3>
         </div>
 
-        {/* Tabla */}
-        <div className="table-responsive rounded-3">
-          <table className="table table-hover align-middle mb-0">
-            <thead className="bg-light">
-              <tr className="text-center">
-                <th scope="col" width="3%" className="fw-medium text-primary">N°</th>
-                <th scope="col" width="15%" className="fw-medium text-primary">Título</th>
-                <th scope="col" width="12%" className="fw-medium text-primary">Descripción</th>
-                <th scope="col" width="5%" className="fw-medium text-primary">Puntaje</th>
-                <th scope="col" width="5%" className="fw-medium text-primary">Aprobación</th>
-                <th scope="col" width="8%" className="fw-medium text-primary">Fecha</th>
-                <th scope="col" width="7%" className="fw-medium text-primary">
-                  <FaRegClock className="me-1" /> Tiempo
-                </th>
-                <th scope="col" width="7%" className="fw-medium text-primary">Estado</th>
-                <th scope="col" width="7%" className="fw-medium text-primary">
-                  <FaUserGraduate className="me-1" /> Postulantes
-                </th>
-                <th scope="col" width="7%" className="fw-medium text-primary">Periodo</th>
-                <th scope="col" width="10%" className="fw-medium text-primary">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {currentItems.length > 0 ? (
-                currentItems.map((examn, index) => (
-                  <tr key={examn.id} className="transition-all">
-                    <td className="text-center fw-bold text-muted">{offset + index + 1}</td>
-                    <td className="fw-semibold">{examn.title}</td>
-                    <td className="text-muted">{examn.description || '-'}</td>
-                    <td className="text-center fw-bold">{examn.total_score}</td>
-                    <td className="text-center fw-bold text-success">{examn.passing_score}</td>
-                    <td className="text-center">{examn.date_of_realization}</td>
-                    <td className="text-center">{examn.time}</td>
-                    <td className="text-center">
-                      <span className={`badge ${
-                        examn.status === 'Activo' ? 'bg-success' : 'bg-secondary'
-                      } bg-opacity-10 ${
-                        examn.status === 'Activo' ? 'text-success' : 'text-secondary'
-                      } py-2 px-3`}>
-                        {examn.status}
-                      </span>
-                    </td>
-                    <td className="text-center fw-bold">{examn.qualified_students || 0}</td>
-                    <td className="text-center">
-                      {examn.period_name ? (
-                        <span className="badge bg-primary bg-opacity-10 text-primary py-2 px-3">
-                          {examn.period_name}
-                        </span>
-                      ) : (
-                        <span className="badge bg-secondary bg-opacity-10 text-secondary py-2 px-3">
-                          No asignado
-                        </span>
-                      )}
-                    </td>
-                    <td className="text-center">
-                      <div className="d-flex flex-wrap justify-content-center gap-1">
+        <div className="p-4">
+          {currentItems.length > 0 ? (
+            <div className="row g-4">
+              {currentItems.map((examn, index) => (
+                <div className="col-md-6 col-lg-4" key={examn.id}>
+                  <div className="card border-0 shadow-sm h-100">
+                    <div className="card-body d-flex flex-column border border-secondary rounded">
+                      <h5 className="card-title fw-bold text-primary">{examn.title}</h5>
+                      <p className="card-text text-muted">{examn.description || 'Sin descripción'}</p>
+
+                      <ul className="list-group list-group-flush mb-3">
+                        <li className="list-group-item d-flex justify-content-between">
+                          <strong>Puntaje:</strong> {examn.total_score}
+                        </li>
+                        <li className="list-group-item d-flex justify-content-between">
+                          <strong>Aprobación:</strong> {examn.passing_score}
+                        </li>
+                        <li className="list-group-item d-flex justify-content-between">
+                          <strong>Fecha:</strong> {examn.date_of_realization}
+                        </li>
+                        <li className="list-group-item d-flex justify-content-between">
+                          <strong><FaRegClock className="me-1" />Tiempo:</strong> {examn.time}
+                        </li>
+                        <li className="list-group-item d-flex justify-content-between">
+                          <strong>Estado:</strong>
+                          <span className={`badge ${
+                            examn.status === 'Activo' ? 'bg-success' : 'bg-secondary'
+                          } bg-opacity-10 text-${examn.status === 'Activo' ? 'success' : 'secondary'}`}>
+                            {examn.status}
+                          </span>
+                        </li>
+                        <li className="list-group-item d-flex justify-content-between">
+                          <strong><FaUserGraduate className="me-1" />Postulantes:</strong> {examn.qualified_students || 0}
+                        </li>
+                        <li className="list-group-item d-flex justify-content-between">
+                          <strong>Periodo:</strong>
+                          <span className={`badge ${
+                            examn.period_name ? 'bg-primary text-primary' : 'bg-secondary text-secondary'
+                          } bg-opacity-10`}>
+                            {examn.period_name || 'No asignado'}
+                          </span>
+                        </li>
+                      </ul>
+
+                      <div className="mt-auto d-flex flex-wrap gap-1 justify-content-center">
                         <CheckPermissions requiredPermission="editar-evaluaciones">
-                          <ButtonEdit 
-                            idEditar={idEditar} 
-                            onEditClick={() => handleEditClick(examn)}
-                          />
+                          <ButtonEdit idEditar={idEditar} onEditClick={() => handleEditClick(examn)} />
                         </CheckPermissions>
                         <CheckPermissions requiredPermission="asignar-cantidad-preguntas">
-                          <ButtonAssignQuestions examnId={examn.id}/>
+                          <ButtonAssignQuestions examnId={examn.id} />
                         </CheckPermissions>
                         <CheckPermissions requiredPermission="ver-preguntas-asignadas">
-                          <ButtonViewQuestionsAssigned examnId={examn.id}/>
+                          <ButtonViewQuestionsAssigned examnId={examn.id} />
                         </CheckPermissions>
                         <CheckPermissions requiredPermission="ver-postulantes-por-evaluacion">
-                          <ButtonOrderRandomQuestions examnId={examn.id}/>
+                          <ButtonOrderRandomQuestions examnId={examn.id} />
                         </CheckPermissions>
-                          <ButtonViewStudentsWithTest examnId={examn.id} />
+                        <ButtonViewStudentsWithTest examnId={examn.id} />
                         <ModalStudentsWithTest examnId={examn.id} />
+                        <ButtonImport modalId={modalImport} />
+                        <ButtonAdd modalIdP={modalRegister}/>
+                        <ModalImport ModalId={modalImport} title={"Importar Estudiantes"} />
+                        <ModalRegister modalId={modalRegister} title={"Registrar Estudiantes"} />
                       </div>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="13" className="text-center py-5">
-                    <div className="d-flex flex-column align-items-center text-muted">
-                      <FaClipboardList className="fs-1 mb-2" />
-                      No hay evaluaciones registradas
                     </div>
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center text-muted py-5">
+              <FaClipboardList className="fs-1 mb-2" />
+              <p>No hay evaluaciones registradas</p>
+            </div>
+          )}
         </div>
 
         {/* Paginación */}
@@ -166,12 +156,9 @@ export const Examns = () => {
 
       {/* Modal de edición */}
       <CheckPermissions requiredPermission="editar-evaluaciones">
-        <ModalEdit 
-          examn={selectedExamn} 
-          idEditar={idEditar} 
-          title="Editar Evaluación" 
-        />
+        <ModalEdit examn={selectedExamn} idEditar={idEditar} title="Editar Evaluación" />
       </CheckPermissions>
     </div>
-  );
+  )
 }
+  

@@ -18,9 +18,9 @@ import { PermissionsContext } from "../../../context/PermissionsProvider";
 const Layout = ({ children }) => {
   const { user, storeUser } = useContext(UserContext);
   const { permissions, isLoading } = useContext(PermissionsContext);
-  const { isSidebarOpen, toggleSidebar, closeSidebar } = useSidebar();
+  const {toggleSidebar, closeSidebar } = useSidebar();
   const navigate = useNavigate();
-
+  
   const logout = () => {
     try {
       clearStorage();
@@ -162,14 +162,8 @@ const Layout = ({ children }) => {
                     {hasPermission("ver-areas") && (
                       <MenuButton path={"/administracion/areas"} label={"Areas"} onClick={closeSidebar} />
                     )}
-                    {hasPermission("ver-postulantes") && (
-                      <MenuButton path={"/administracion/estudiantes"} label={"Estudiantes"} onClick={closeSidebar} />
-                    )}
-                    {hasPermission("ver-preguntas") && (
-                      <MenuButton path={"/administracion/areas_questions"} label={"Preguntas"} onClick={closeSidebar} />
-                    )}
-                    {hasPermission("ver-evaluaciones") && (
-                      <MenuButton path={"/administracion/examns"} label={"Examenes"} onClick={closeSidebar} />
+                    {hasPermission("ver-periodos-asignados") && (
+                      <MenuButton path={"/administracion/periodsByCareer"} label={"Periodos"} onClick={closeSidebar} />
                     )}
                   </div>
                 </div>

@@ -1,22 +1,17 @@
 /* eslint-disable react/prop-types */
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { MdRemoveRedEye } from 'react-icons/md';
 
 const ButtonViewAnswers = ({ questionId }) => {
-    const navigate = useNavigate();
-
-    const handleViewAnswers = () => {
-        navigate(`/administracion/questions/${questionId}/answers`);
-    };
 
     return (
-        <button
+        <Link
+            to={`/administracion/questions/${questionId}/answers`}
             className="btn btn-info btn-sm"
-            onClick={handleViewAnswers}
             title="Ver Respuestas"
         >
             <MdRemoveRedEye /> Ver Respuestas
-        </button>
+        </Link>
     );
 };
 

@@ -15,7 +15,12 @@ export const useFetchPeriod = () => {
         const response = await getApi("periods/list");
         setPeriods(response);
     };
-    return { periods, getData, refreshPeriods }
+
+    const getPeriodsByCareerId = async (careerId) => {
+        const response = await getApi(`careers/listPeriodsByCareerId/${careerId}`)
+        setPeriods(response);
+    }
+    return { periods, getData, refreshPeriods, getPeriodsByCareerId }
 
 }
 

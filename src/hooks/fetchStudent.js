@@ -12,8 +12,8 @@ export const useFetchStudent = () => {
         return students;
     };
 
-    const refreshStudents = async () => {
-        const response = await getApi("students/list");
+    const refreshStudents = async (careerId) => {
+        const response = await getApi(`students/findByCareerId/${careerId}`);
         setStudents(response);
     };
 

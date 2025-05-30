@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 import { useContext, useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { QuestionContext } from "../../../context/QuestionsProvider";
 import { useFetchQuestionsByArea } from "../../../hooks/fetchQuestions";
 import ButtonEdit from "./ButtonEdit";
@@ -26,12 +26,10 @@ export const Question = () => {
     const questionsPerPage = 5;
     const { getDataArea, areas } = useFetchArea();
     const { getDataQuestions } = useFetchQuestionsByArea();
-    const navigate = useNavigate();
 
-    // Get area name
     const areaName = areas?.find(area => String(area.id) === String(id))?.name;
     const areaId = areas?.find(area => String(area.id) === String(id))?.id;
-    console.log(areas)
+    
     useEffect(() => {
         const fetchData = async () => {
             await getDataArea();
@@ -45,7 +43,6 @@ export const Question = () => {
         setSelectedQuestion(question);
     };
 
-    // Pagination logic (usando el mismo enfoque que en Unidades)
     const handlePageClick = (data) => {
         setCurrentPage(data.selected);
     };
@@ -63,17 +60,13 @@ export const Question = () => {
 
     return (
         <div className="container-fluid p-4">
-            {/* Botón de volver */}
-            <button
-                className="btn btn-outline-primary mb-3 d-flex align-items-center"
-                onClick={() => navigate(`/administracion/areas_questions/${areaId}/imports`)}
+            <Link
+                to={`/administracion/areas/${areaId}/imports`}
+                className="btn btn-outline-primary mb-3 w-auto d-inline-flex align-items-center px-3 py-2"
             >
                 <MdArrowBack className="me-1" /> Volver
-            </button>
-
-            {/* Tarjeta principal */}
+            </Link>
             <div className="card shadow-lg border-0 rounded-3 overflow-hidden">
-                {/* Encabezado */}
                 <div className="card-header bg-primary text-white py-3 rounded-top">
                     <div className="d-flex justify-content-between align-items-center">
                         <h3 className="mb-0">

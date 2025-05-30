@@ -66,9 +66,12 @@ export const FormArea = () => {
             addArea(response);
             resetForm();
         } catch (error) {
-            console.error("Error al guardar área:", error);
-            setResponse(false);
-            customAlert("Error al guardar el área", "error");
+            if (error.response.status === 403) {
+                customAlert("No tienes permisos para crear un área", "error");
+            } else {
+                customAlert(error.response?.data?.message || "Error al crear el área", "error");
+                resetForm();
+                closeFormModal("registroArea");}
         }
     };
 
