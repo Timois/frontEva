@@ -77,7 +77,6 @@ export const FormExamn = () => {
         formData.append("description", data.description)
         formData.append("passing_score", Number(data.passing_score))  // Convertir a número
         formData.append("date_of_realization", new Date(data.date_of_realization).toISOString().split('T')[0])  // Formatear fecha
-        formData.append("qualified_students", data.qualified_students)
         formData.append("type", "web")
         formData.append("time", Number(data.time))
         formData.append("status", "inactivo")
@@ -111,8 +110,6 @@ export const FormExamn = () => {
             description: "",
             passing_score: "",
             date_of_realization: "",
-            qualified_students: "",
-            disqualified_students: "",
             type: "",
             time: "",
             academic_management_period_id: "",
@@ -147,10 +144,6 @@ export const FormExamn = () => {
                 <Validate error={errors.time} />
             </ContainerInput>
             <ContainerInput>
-                <Input name="qualified_students" control={control} type="number" placeholder="Ingrese la cantidad de estudiantes habilitados" />
-                <Validate error={errors.qualified_students} />
-            </ContainerInput>
-            <ContainerInput>
                 <SelectInput label="Seleccione el periodo" name="academic_management_period_id" options={array} control={control} error={errors.academic_management_period_id} />
                 <Validate error={errors.academic_management_period_id} />
             </ContainerInput>
@@ -161,7 +154,7 @@ export const FormExamn = () => {
             )}
             <ContainerButton>
                 <Button type="submit" name="submit" disabled={response}>
-                    {response ? "Cargando..." : "Guardar"}
+                    <span>{response ? "Cargando..." : "Guardar"}</span>
                 </Button>
                 <CancelButton disabled={response} onClick={handleCancel} />
             </ContainerButton>

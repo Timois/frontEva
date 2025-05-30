@@ -5,6 +5,7 @@ import ButtonAdd from './ButtonAdd'
 import { Area } from './Area'
 import ModalRegister from './ModalRegister'
 import CheckPermissions from '../../../routes/CheckPermissions'
+import { ViewAreas } from '../questions/ViewAreas'
 
 
 export const IndexArea = () => {
@@ -17,7 +18,7 @@ export const IndexArea = () => {
         </div>
       </CheckPermissions>
       <div className=''>
-        <Area />
+        <ViewAreas />
       </div>
       <CheckPermissions requiredPermission="crear-areas">
         <ModalRegister modalId={modalId} title="Registrar Area" />

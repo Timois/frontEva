@@ -83,9 +83,6 @@ const modalRegister = "registerStudent"
                           </span>
                         </li>
                         <li className="list-group-item d-flex justify-content-between">
-                          <strong><FaUserGraduate className="me-1" />Postulantes:</strong> {examn.qualified_students || 0}
-                        </li>
-                        <li className="list-group-item d-flex justify-content-between">
                           <strong>Periodo:</strong>
                           <span className={`badge ${
                             examn.period_name ? 'bg-primary text-primary' : 'bg-secondary text-secondary'

@@ -74,9 +74,7 @@ export const AssignCareer = ({ data, personaId }) => {
             message: error.response.data.errors.career_id[0],
           });
         }
-    
         setResponse(false);
-        return;
       }
     
       customAlert("Error al asignar carrera", "error");
@@ -84,7 +82,7 @@ export const AssignCareer = ({ data, personaId }) => {
       setResponse(false);
     }
   };
-
+  
   const handleCancel = () => {
     closeFormModal("asignarCarrera");
     reset();

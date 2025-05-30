@@ -27,7 +27,7 @@ export const FormPeriod = () => {
         const formData = new FormData()
         formData.append("period", data.period)
         formData.append("level", data.level)
-
+        try {
         const response = await postApi("periods/save", formData)
         setResponse(false)
         if (response.status == 422) {
@@ -37,12 +37,22 @@ export const FormPeriod = () => {
             return null
         }
         customAlert("Periodo Guardado", "success");
-
         closeFormModal("registerPeriod");
-
         addPeriod(response)
         resetForm()
+        } catch (error) {
+            if (error.response?.status == 403) {
+                customAlert("No tienes permisos para realizar esta acción", "error");
+                closeFormModal("registerPeriod");
+            } else{
+                customAlert(error.response?.data?.errors?.message || "Error al registrar el periodo", "error");
+                closeFormModal("registerPeriod");
+            }
+        }finally{
+            setResponse(false)
+        }
     }
+
     const resetForm = () => {
         reset({ period: '', level: '' });
         setPreview(null);  // Limpiar la vista previa de la imagen

@@ -30,8 +30,8 @@ import { CareerById } from "../pages/careers/CareerById"
 import IndexResults from "../pages/results management/IndexResults"
 import LayoutStudent from "../components/layouts/layout/LayoutStudent"
 import { ImportQuestions } from "../pages/careers/questions/imports/ImportQuestions"
-import { ViewAreas } from "../pages/careers/questions/ViewAreas"
 import { CareerPeriodsList } from "../pages/careers/periodsAsign/CareerPeriodsList"
+import { IndexArea } from "../pages/careers/areas/IndexArea"
 export const AppRoutes = () => {
   return (
     <Routes
@@ -78,7 +78,7 @@ export const AppRoutes = () => {
             </PermissionsGuard>} />
           <Route path="administracion/areas" element={
             <PermissionsGuard requiredPermission={"ver-areas"}>
-              <ViewAreas />
+              <IndexArea />
             </PermissionsGuard>} />
           <Route path="administracion/areas/:id/imports" element={
             <PermissionsGuard requiredPermission={"ver-preguntas"}>

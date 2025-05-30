@@ -14,9 +14,6 @@ export const ExmansSchema = z.object({
     date_of_realization: z
         .string()
         .transform((val) => new Date(val)),
-    type: z.enum(["ocr", "web", "app"], { 
-        errorMap: () => ({ message: "Seleccione una opcion válida (ocr, web, app)" }) 
-    }),
     time: z
     .string()
     .transform((val) => Number(val))
@@ -25,13 +22,6 @@ export const ExmansSchema = z.object({
         .min(30, "El tiempo mínimo permitido es 30 minutos")
         .max(300, "El tiempo máximo permitido es 300 minutos"),
     ),
-    qualified_students: z
-       .string()
-       .transform((val) => Number(val))
-       .pipe(
-            z.number()
-           .min(0, "La cantidad mínima permitida es 0")
-        ),
     academic_management_period_id: z.string({ required_error: "Seleccione una opcion" })
         .regex(/^[0-9]+$/, { message: "Debe ser un id válido" })
 })

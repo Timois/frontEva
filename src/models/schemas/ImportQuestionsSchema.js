@@ -21,7 +21,9 @@ export const ImportQuestionsSchema = z
     }),
     confirmImport: z.boolean().refine((val) => val === true, {
       message: "Debe confirmar que está seguro de importar las preguntas"
-    })
+    }),
+    academic_management_period_id: z.string({ required_error: "Seleccione una opcion" })
+        .regex(/^[0-9]+$/, { message: "Debe ser un id válido" })
   })
   .superRefine((data, ctx) => {
     if (!data.file_name || !data.file_name[0]) return;

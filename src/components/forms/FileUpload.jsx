@@ -8,7 +8,7 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ImportQuestionsSchema } from "../../models/schemas/ImportQuestionsSchema";
 import { useParams } from "react-router-dom";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { ContainerInput } from "../login/ContainerInput";
 import { ContainerButton } from "../login/ContainerButton";
 import { Button } from "../login/Button";
@@ -16,6 +16,8 @@ import CancelButton from "./components/CancelButon";
 import { useFetchQuestionsByArea } from "../../hooks/fetchQuestions";   // ← NUEVO
 import { Input } from "../login/Input";
 import { Validate } from "./components/Validate";
+import { useFetchCareerAssign, useFetchCareerAssignPeriod } from "../../hooks/fetchCareers";
+import { SelectInput } from "./components/SelectInput";
 
 
 export const FileUpload = () => {
@@ -23,7 +25,7 @@ export const FileUpload = () => {
   const { id } = useParams();
   const area_id = id;
   const { importExcelQuestions, getData } = useContext(ImportExcelQuestionsContext);
-
+  const [array, setArray] = useState([]);
   // hook que permitirá volver a consultar las preguntas del área
   const { getDataQuestions } = useFetchQuestionsByArea();                    // ← NUEVO
 
@@ -39,7 +41,42 @@ export const FileUpload = () => {
     resolver: zodResolver(ImportQuestionsSchema),
     defaultValues: { confirmImport: false }
   });
+  const user = JSON.parse(localStorage.getItem('user'))
+  const career_id = user?.career_id
 
+  const { careerAssignments, getDataCareerAssignments } = useFetchCareerAssign(career_id)
+  const { careerAssignmentsPeriods, getDataCareerAssignmentPeriods } = useFetchCareerAssignPeriod()
+
+  // Obtienes los datos de la carrera asignada
+  useEffect(() => {
+    const fetchData = async () => {
+      if (career_id && !isNaN(career_id)) {
+        await getDataCareerAssignments();
+      }
+    }
+    fetchData();
+  }, [career_id])
+
+  // Cuando careerAssignments esté listo, saco el id de la tabla intermedia
+  useEffect(() => {
+    const fetchPeriods = async () => {
+      if (careerAssignments.length > 0) {
+        const { academic_management_career_id } = careerAssignments[0];  // Desestructuramos directamente
+        await getDataCareerAssignmentPeriods(academic_management_career_id);
+      }
+    }
+    fetchPeriods();
+  }, [careerAssignments]);
+
+  useEffect(() => {
+    if (careerAssignmentsPeriods.length > 0) {
+      const periodOptions = careerAssignmentsPeriods.map(period => ({
+        value: period.id,
+        text: `${period.period}`
+      }));
+      setArray(periodOptions);
+    }
+  }, [careerAssignmentsPeriods]);
   const importOption = watch("importOption");
 
   /* ============== SUBMIT ============== */
@@ -48,7 +85,10 @@ export const FileUpload = () => {
       customAlert("❌ Debe confirmar que está seguro de importar las preguntas", "error");
       return;
     }
-
+    if (!data.academic_management_period_id) {
+      customAlert("error", "Debe seleccionar un período académico");
+      return;
+    }
     setLoading(true);
 
     const formData = new FormData();
@@ -56,6 +96,7 @@ export const FileUpload = () => {
     formData.append("status", "completado");
     formData.append("description", data.description);
     formData.append("file_name", data.file_name[0]);
+    formData.append("academic_management_period_id", String(data.academic_management_period_id))
 
     try {
       /* -------------- SIN IMÁGENES (Excel) -------------- */
@@ -121,7 +162,9 @@ export const FileUpload = () => {
     reset({
       importOption: "",
       file_name: [],
-      confirmImport: false
+      confirmImport: false,
+      description: "",
+      academic_management_period_id: ""
     });
   };
   /* ============== RENDER ============== */
@@ -148,7 +191,6 @@ export const FileUpload = () => {
         <Input type={"text"} placeholder="Descripción" name="description" control={control} />
         <Validate error={errors.description} />
       </ContainerInput>
-      {/* ---------- Archivo ---------- */}
       <ContainerInput>
         <Controller
           name="file_name"
@@ -165,8 +207,6 @@ export const FileUpload = () => {
           )}
         />
       </ContainerInput>
-
-      {/* ---------- Confirmación ---------- */}
       <ContainerInput>
         <div className="form-check mt-3">
           <Controller
@@ -200,8 +240,10 @@ export const FileUpload = () => {
           </div>
         )}
       </ContainerInput>
-
-      {/* ---------- Botones ---------- */}
+      <ContainerInput>
+        <SelectInput label="Seleccione el periodo" name="academic_management_period_id" options={array} control={control} error={errors.academic_management_period_id} />
+        <Validate error={errors.academic_management_period_id} />
+      </ContainerInput>
       <ContainerButton>
         <Button type="submit" disabled={loading}>
           {loading ? "Importando..." : "Importar"}
