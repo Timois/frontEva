@@ -32,6 +32,7 @@ import LayoutStudent from "../components/layouts/layout/LayoutStudent"
 import { ImportQuestions } from "../pages/careers/questions/imports/ImportQuestions"
 import { CareerPeriodsList } from "../pages/careers/periodsAsign/CareerPeriodsList"
 import { IndexArea } from "../pages/careers/areas/IndexArea"
+import { IndexStudents } from "../pages/docentes/IndexStudents"
 export const AppRoutes = () => {
   return (
     <Routes
@@ -104,6 +105,10 @@ export const AppRoutes = () => {
           <Route path="administracion/examns/:id/assignQuestions" element={
             <PermissionsGuard requiredPermission={"asignar-preguntas-evaluaciones"}>
               <AssignQuestions />
+            </PermissionsGuard>} />
+          <Route path="administracion/examns/:id/students" element={
+            <PermissionsGuard requiredPermission={"ver-postulantes"}>
+              <IndexStudents />
             </PermissionsGuard>} />
           <Route path="administracion/examns/:id/prueba" element={
             <PermissionsGuard requiredPermission={"ver-preguntas-asignadas"}>

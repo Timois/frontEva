@@ -15,6 +15,7 @@ import { ButtonImport } from '../docentes/ButtonImport'
 import { ModalImport } from '../docentes/ModalImport'
 import ButtonAdd from '../docentes/ButtonAdd'
 import ModalRegister from '../docentes/ModalRegister'
+import { ButtonViewStudents } from '../docentes/ButtonViewStudents'
 
 export const Examns = () => {
   const { examns, fetchExamsByCareer } = useFetchExamns()
@@ -33,14 +34,15 @@ export const Examns = () => {
   const [currentPage, setCurrentPage] = useState(0)
   const itemsPerPage = 5
   const offset = currentPage * itemsPerPage
+
   const currentItems = examns.slice(offset, offset + itemsPerPage)
   const pageCount = Math.ceil(examns.length / itemsPerPage)
 
   const handlePageClick = (data) => {
     setCurrentPage(data.selected)
   }
-const modalImport = "importarEstudiantes"
-const modalRegister = "registerStudent"
+  const modalImport = "importarEstudiantes"
+  const modalRegister = "registerStudent"
   return (
     <div className="container-fluid p-4">
       <div className="card shadow-lg border-0 rounded-3 overflow-hidden">
@@ -76,17 +78,15 @@ const modalRegister = "registerStudent"
                         </li>
                         <li className="list-group-item d-flex justify-content-between">
                           <strong>Estado:</strong>
-                          <span className={`badge ${
-                            examn.status === 'Activo' ? 'bg-success' : 'bg-secondary'
-                          } bg-opacity-10 text-${examn.status === 'Activo' ? 'success' : 'secondary'}`}>
+                          <span className={`badge ${examn.status === 'Activo' ? 'bg-success' : 'bg-secondary'
+                            } bg-opacity-10 text-${examn.status === 'Activo' ? 'success' : 'secondary'}`}>
                             {examn.status}
                           </span>
                         </li>
                         <li className="list-group-item d-flex justify-content-between">
                           <strong>Periodo:</strong>
-                          <span className={`badge ${
-                            examn.period_name ? 'bg-primary text-primary' : 'bg-secondary text-secondary'
-                          } bg-opacity-10`}>
+                          <span className={`badge ${examn.period_name ? 'bg-primary text-primary' : 'bg-secondary text-secondary'
+                            } bg-opacity-10`}>
                             {examn.period_name || 'No asignado'}
                           </span>
                         </li>
@@ -107,10 +107,11 @@ const modalRegister = "registerStudent"
                         </CheckPermissions>
                         <ButtonViewStudentsWithTest examnId={examn.id} />
                         <ModalStudentsWithTest examnId={examn.id} />
-                        <ButtonImport modalId={modalImport} />
-                        <ButtonAdd modalIdP={modalRegister}/>
-                        <ModalImport ModalId={modalImport} title={"Importar Estudiantes"} />
-                        <ModalRegister modalId={modalRegister} title={"Registrar Estudiantes"} />
+                        <ButtonImport modalId={`importarEstudiantes-${examn.id}`} />
+                        <ButtonAdd modalIdP={modalRegister} />
+                        <ModalImport ModalId={`importarEstudiantes-${examn.id}`} title={"Importar Estudiantes"} examnID={examn.id} />
+                        <ModalRegister modalId={modalRegister} title={"Registrar Estudiantes"} examId={examn.id} />
+                        <ButtonViewStudents examnId={examn.id} />
                       </div>
                     </div>
                   </div>
@@ -158,4 +159,3 @@ const modalRegister = "registerStudent"
     </div>
   )
 }
-  

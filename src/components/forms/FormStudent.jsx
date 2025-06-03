@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { useContext, useEffect, useState } from "react";
 import { StudentContext } from "../../context/StudentProvider";
 import { useForm } from "react-hook-form";
@@ -12,58 +13,18 @@ import { ContainerButton } from "../login/ContainerButton";
 import { Button } from "../login/Button";
 import CancelButton from "./components/CancelButon";
 import { DateInput } from "./components/DateInput";
-import { useFetchCareerAssign, useFetchCareerAssignPeriod } from "../../hooks/fetchCareers";
-import { SelectInput } from "./components/SelectInput";
+import { useFetchExamns } from "../../hooks/fetchExamns";
 
 
-export const FormStudent = () => {
+export const FormStudent = ({examnID}) => {
   const { addStudent } = useContext(StudentContext);
   const [response, setResponse] = useState(false);
-  const [array, setArray] = useState([])
+  const { getExamnById } = useFetchExamns();
+  const [title, setTitle] = useState("")
   const { control, handleSubmit, reset, formState: { errors }, setError } = useForm({
     resolver: zodResolver(StudentSchema)
   });
-  const user = JSON.parse(localStorage.getItem('user'));
-  const career_id = user ? user.career_id : null;
-
-  const { careerAssignments, getDataCareerAssignments } = useFetchCareerAssign(career_id)
-  const { careerAssignmentsPeriods, getDataCareerAssignmentPeriods } = useFetchCareerAssignPeriod()
-
-  // Obtienes los datos de la carrera asignada
-  useEffect(() => {
-    const fetchData = async () => {
-      if (career_id && !isNaN(career_id)) {
-        await getDataCareerAssignments();
-      }
-    }
-    fetchData();
-  }, [career_id])
-
-  // Cuando careerAssignments esté listo, saco el id de la tabla intermedia
-  useEffect(() => {
-    const fetchPeriods = async () => {
-      if (careerAssignments.length > 0) {
-        const { academic_management_career_id } = careerAssignments[0];  // Desestructuramos directamente
-        await getDataCareerAssignmentPeriods(academic_management_career_id);
-      }
-    }
-    fetchPeriods();
-  }, [careerAssignments]);
-
-  useEffect(() => {
-    if (careerAssignmentsPeriods.length > 0) {
-      const periodOptions = careerAssignmentsPeriods.map(period => ({
-        value: period.id,
-        text: `${period.period}`
-      }));
-      setArray(periodOptions);
-    }
-  }, [careerAssignmentsPeriods]);
   const onSubmit = async (data) => {
-    if (!data.academic_management_period_id) {
-      customAlert("error", "Debe seleccionar un período académico");
-      return;
-    }
     setResponse(true);
     try {
       const formData = new FormData();
@@ -73,8 +34,7 @@ export const FormStudent = () => {
       formData.append("maternal_surname", data.maternal_surname);
       formData.append("phone_number", data.phone_number);
       formData.append("birthdate", data.birthdate);
-      formData.append("academic_management_period_id", String(data.academic_management_period_id));
-
+      formData.append("evaluation_id", examnID);
       const response = await postApi("students/save", formData);
 
       if (response.status === 422) {
@@ -114,8 +74,20 @@ export const FormStudent = () => {
     resetForm();
     closeFormModal("registerStudent")
   }
+  useEffect(() => {
+    const fetchTitle = async () => {
+        const examTitle = await getExamnById(examnID)
+        setTitle(examTitle)
+    }
+    if (examnID) {
+        fetchTitle()
+    }
+}, [examnID])
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
+      <ContainerInput>
+        <strong>Evaluation: {title}</strong>
+      </ContainerInput>  
       <ContainerInput>
         <Input type="text" placeholder="Ingrese el numero de ci" name="ci" control={control} />
         <Validate error={errors.ci} />
@@ -147,10 +119,6 @@ export const FormStudent = () => {
       <ContainerInput>
         <DateInput type="date" name="birthdate" control={control} label="Fecha de Nacimiento" />
         <Validate error={errors.birthdate} />
-      </ContainerInput>
-      <ContainerInput>
-        <SelectInput label="Seleccione el periodo" name="academic_management_period_id" options={array} control={control} error={errors.academic_management_period_id} />
-        <Validate error={errors.academic_management_period_id} />
       </ContainerInput>
       <ContainerButton>
         <Button type="submit" disabled={response}>

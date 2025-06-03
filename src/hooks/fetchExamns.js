@@ -84,5 +84,10 @@ export const useFetchExamns = () => {
       return null
     }
   }
-  return { examns, getDataExamns, refreshExamns, fetchDisponibles, fetchQuestionsAssigned, fetchStudenttestStudent, fetchExamsByCareer  }
+  const getExamnById = async (examnId) => {
+    const response = await getApi(`evaluations/find/${examnId}`)
+    return response.title
+  }
+  return { examns, getDataExamns, refreshExamns, fetchDisponibles, fetchQuestionsAssigned, 
+    fetchStudenttestStudent, fetchExamsByCareer, getExamnById}
 }

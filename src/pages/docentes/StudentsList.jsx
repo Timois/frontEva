@@ -4,16 +4,17 @@ import { StudentContext } from '../../context/StudentProvider';
 import { useFetchStudent } from '../../hooks/fetchStudent';
 import ReactPaginate from 'react-paginate';
 import { FaChevronLeft, FaChevronRight, FaPhone, FaUserGraduate, FaUserSlash } from 'react-icons/fa';
+import { useParams } from 'react-router-dom';
 
 export const StudentsList = () => {
+  const {id} = useParams();
+  const examnId = id;
   const { students, setStudents } = useContext(StudentContext);
-  const { getStudentsByPeriod } = useFetchStudent();
+  const { getStudentsByIdExmans } = useFetchStudent();
   const [currentPage, setCurrentPage] = useState(0);
   const itemsPerPage = 5;
-  const user = JSON.parse(localStorage.getItem('user'));
-  const careerId = user ? user.career_id : null;
   useEffect(() => {
-    getStudentsByPeriod(careerId);
+    getStudentsByIdExmans(examnId);
   }, []);
 
   const totalPages = Math.ceil(students.length / itemsPerPage) || 1;
@@ -45,7 +46,6 @@ export const StudentsList = () => {
               <th scope="col" className="fw-medium text-primary">Apellido Materno</th>
               <th scope="col" className="fw-medium text-primary">Teléfono</th>
               <th scope="col" className="fw-medium text-primary">Fecha Nacimiento</th>
-              <th scope='col' className="fw-medium text-primary">Periodo</th>
             </tr>
           </thead>
           <tbody>
@@ -66,17 +66,6 @@ export const StudentsList = () => {
                     )}
                   </td>
                   <td>{student.birthdate}</td>
-                  <td className="text-center">
-                      {student.registered_period ? (
-                        <span className="badge bg-primary bg-opacity-10 text-primary py-2 px-3">
-                          {student.registered_period}
-                        </span>
-                      ) : (
-                        <span className="badge bg-secondary bg-opacity-10 text-secondary py-2 px-3">
-                          No asignado
-                        </span>
-                      )}
-                    </td>
                 </tr>
               ))
             ) : (

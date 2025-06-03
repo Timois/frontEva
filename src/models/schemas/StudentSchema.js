@@ -15,8 +15,6 @@ export const StudentSchema = z.object({
         (value) => !isNaN(new Date(value).getTime()),
         { message: "La fecha de fin debe ser válida" }
     ),
-    academic_management_period_id: z.string({ required_error: "Seleccione una opcion" })
-        .regex(/^[0-9]+$/, { message: "Debe ser un id válido" })
 }).refine(
     (data) =>
         (data.paternal_surname && data.paternal_surname.trim()) ||

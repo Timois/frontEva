@@ -1,6 +1,7 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
-import { useEffect, useState } from "react";
-import { postApi } from "../../services/axiosServices/ApiService";
+import { useContext, useEffect, useState } from "react";
+import { postApi, getApi } from "../../services/axiosServices/ApiService";
 import { closeFormModal, customAlert } from "../../utils/domHelper";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,15 +12,14 @@ import { Button } from "../login/Button";
 import { ImputStudents } from "./components/ImputStudents";
 import CancelButton from "./components/CancelButon";
 import { useFetchStudent } from "../../hooks/fetchStudent";
-import { useFetchCareerAssign, useFetchCareerAssignPeriod } from "../../hooks/fetchcareers";
-import { SelectInput } from "./components/SelectInput";
-import { Validate } from "./components/Validate";
+import { useFetchExamns } from "../../hooks/fetchExamns";
 
-export const FormImportStudents = () => {
+export const FormImportStudents = ({ examID, modalId }) => {
     const [response, setResponse] = useState(false);
-    const { refreshStudents } = useFetchStudent();
-    const [array, setArray] = useState([])
-    const {control,
+    const { getExamnById } = useFetchExamns();
+    const [title, setTitle] = useState("")
+
+    const { control,
         handleSubmit,
         reset,
         setValue,
@@ -28,42 +28,7 @@ export const FormImportStudents = () => {
     } = useForm({
         resolver: zodResolver(ImportStudentsSchema),
     });
-    const user = JSON.parse(localStorage.getItem('user'))
-    const career_id = user?.career_id
 
-    const { careerAssignments, getDataCareerAssignments } = useFetchCareerAssign(career_id)
-    const { careerAssignmentsPeriods, getDataCareerAssignmentPeriods } = useFetchCareerAssignPeriod()
-
-    // Obtienes los datos de la carrera asignada
-    useEffect(() => {
-        const fetchData = async () => {
-            if (career_id && !isNaN(career_id)) {
-                await getDataCareerAssignments();
-            }
-        }
-        fetchData();
-    }, [career_id])
-
-    // Cuando careerAssignments esté listo, saco el id de la tabla intermedia
-    useEffect(() => {
-        const fetchPeriods = async () => {
-            if (careerAssignments.length > 0) {
-                const { academic_management_career_id } = careerAssignments[0];  // Desestructuramos directamente
-                await getDataCareerAssignmentPeriods(academic_management_career_id);
-            }
-        }
-        fetchPeriods();
-    }, [careerAssignments]);
-
-    useEffect(() => {
-        if (careerAssignmentsPeriods.length > 0) {
-            const periodOptions = careerAssignmentsPeriods.map(period => ({
-                value: period.id,
-                text: `${period.period}`
-            }));
-            setArray(periodOptions);
-        }
-    }, [careerAssignmentsPeriods]);
     const onSubmit = async (data) => {
         setResponse(true);
 
@@ -78,39 +43,47 @@ export const FormImportStudents = () => {
 
         const formData = new FormData();
         formData.append("file", data.file);
-        formData.append("academic_management_period_id", data.academic_management_period_id);
+        formData.append("evaluation_id", examID);
         try {
             const response = await postApi("students/import", formData)
-            if (response.status === 422) {
-                for (let key in response.data.errors) {
-                    setError(key, {
-                        type: "custom",
-                        message: response.data.errors[key][0],
-                    });
-                }
+            if (response) {
+                const resumen = response.resumen;
+
+                const resumenMensaje = `✅ Importación completada:
+            
+            • Total de filas: ${resumen.total_filas}
+            • Éxitos: ${resumen.exitosos}
+            • Errores: ${resumen.errores}`;
+
+                customAlert(resumenMensaje, "success");
+
+                resetForm();
+                closeFormModal(modalId);
+                setResponse(false);
                 return;
             }
-
-            customAlert("Estudiantes importados correctamente", "success");
-
-            // 🔄 Refrescar la lista de estudiantes
-            await refreshStudents(career_id);
-            closeFormModal("importarEstudiantes");
-            resetForm();
         } catch (error) {
+            console.error('Error completo:', error);
+            if (error.response && error.response.status === 403) {
+                customAlert("No tienes permisos para importar estudiantes", "error");
+            } else if (error.response && error.response.data && error.response.data.message) {
+                customAlert(error.response.data.message, "error");
+            } else {
+                customAlert("Error al importar estudiantes. Por favor, verifica el formato del archivo.", "error");
+            }
+            resetForm();
+            closeFormModal(modalId);
             setResponse(false);
-            customAlert("Error al importar los estudiantes", "error");
-            console.error("Error en la importación:", error);
         }
     };
-    const resetForm = () =>{
+    const resetForm = () => {
         reset(
             "file",
-            "academic_management_period_id"
+            "evaluation_id"
         );
     }
     const handleCancel = () => {
-        closeFormModal("importarEstudiantes");
+        closeFormModal(modalId);
     };
 
     const handleFile = (file) => {
@@ -130,21 +103,26 @@ export const FormImportStudents = () => {
             });
         }
     };
+    useEffect(() => {
+        const fetchTitle = async () => {
+            const examTitle = await getExamnById(examID)
+            setTitle(examTitle)
+        }
+        if (examID) {
+            fetchTitle()
+        }
+    }, [examID])
 
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
             <ContainerInput>
-                <h3 className="h5 mb-3">Importar Estudiantes</h3>
+                <strong>Evaluación: {title} </strong>
             </ContainerInput>
             <ContainerInput>
                 <ImputStudents onChange={handleFile} />
                 {errors.file && (
                     <span className="text-danger">{errors.file.message}</span>
                 )}
-            </ContainerInput>
-            <ContainerInput>
-                <SelectInput label="Seleccione el periodo" name="academic_management_period_id" options={array} control={control} error={errors.academic_management_period_id} />
-                <Validate error={errors.academic_management_period_id} />
             </ContainerInput>
             <ContainerButton>
                 <Button type="submit" name="submit" disabled={response}>

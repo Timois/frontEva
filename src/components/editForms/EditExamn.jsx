@@ -18,11 +18,6 @@ import { DateInput } from "../forms/components/DateInput"
 import { useFetchCareerAssign, useFetchCareerAssignPeriod } from "../../hooks/fetchCareers"
 import { ExamnsContext } from "../../context/ExamnsProvider"
 
-const arrayOption = [
-    { value: "ocr", text: "OCR" },
-    { value: "web", text: "WEB" },
-    { value: "app", text: "APP" }
-];
 
 export const EditExamn = ({ data, closeModal }) => {
     const [response, setResponse] = useState(false)
@@ -76,7 +71,6 @@ export const EditExamn = ({ data, closeModal }) => {
                 date_of_realization: new Date(data.date_of_realization).toISOString().split('T')[0],
                 type: data.type,
                 time: data.time, // Agregar este campo si lo tienes en tu esquema de zod
-                qualified_students: data.qualified_students,
                 academic_management_period_id: String(data.academic_management_period_id) // Convertir a string
             });
         }
@@ -95,10 +89,10 @@ export const EditExamn = ({ data, closeModal }) => {
             academic_management_period_id: Number(formData.academic_management_period_id),
             status: data.status, // Use existing status
             time: data.time, // Ensure it's converted to number
-            qualified_students: Number(formData.qualified_students), // Ensure it's converted to number
             date_of_realization: formData.date_of_realization 
                 ? new Date(formData.date_of_realization).toISOString().split('T')[0]
-                : null    
+                : null,
+            type: "web"
         };
 
         try {
@@ -147,7 +141,7 @@ export const EditExamn = ({ data, closeModal }) => {
                 <Validate error={errors.description} />
             </ContainerInput>
             <ContainerInput>
-                <Input name="passing_score" control={control} type="number" placeholder="Ingrese la calificacion de aprobacion" />
+                <Input name="passing_score" control={control} type="number" placeholder="Ingrese la calificación mínima" />
                 <Validate error={errors.passing_score} />
             </ContainerInput>
             <ContainerInput>
@@ -159,20 +153,17 @@ export const EditExamn = ({ data, closeModal }) => {
                 <Validate error={errors.time} />
             </ContainerInput>
             <ContainerInput>
-                <SelectInput label="Seleccione el tipo" name="type" options={arrayOption} control={control} error={errors.type} />
-                <Validate error={errors.type} />
-            </ContainerInput>
-            <ContainerInput>
-                <Input name="qualified_students" control={control} type="number" placeholder="Ingrese la cantidad de estudiantes habilitados" />
-                <Validate error={errors.qualified_students} />
-            </ContainerInput>
-            <ContainerInput>
                 <SelectInput label="Seleccione el periodo" name="academic_management_period_id" options={array} control={control} error={errors.academic_management_period_id} />
                 <Validate error={errors.academic_management_period_id} />
             </ContainerInput>
+            {array.length === 0 && (
+                <div style={{ color: 'orange', fontSize: '14px', marginBottom: '10px' }}>
+                    No se encontraron periodos disponibles para esta carrera.
+                </div>
+            )}
             <ContainerButton>
                 <Button type="submit" name="submit" disabled={response}>
-                    {response ? "Actualizando..." : "Actualizar"}
+                    <span>{response ? "Cargando..." : "Guardar"}</span>
                 </Button>
                 <CancelButton disabled={response} onClick={handleCancel} />
             </ContainerButton>

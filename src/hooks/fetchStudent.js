@@ -11,20 +11,10 @@ export const useFetchStudent = () => {
         }
         return students;
     };
-
-    const refreshStudents = async (careerId) => {
-        const response = await getApi(`students/findByCareerId/${careerId}`);
+    const getStudentsByIdExmans = async (exmanId) => {
+        const response = await getApi(`student_tests/list/${exmanId}`);
         setStudents(response);
-    };
-
-
-    const getStudentsByPeriod = async (careerId) => {
-        const response = await getApi(`students/findByCareerId/${careerId}`);
-        setStudents(response);
-    };
-    const getTestStudent = async (studentId) => {
-        const response = await getApi(`students/findByPeriodId/${studentId}`);
-        setStudents(response);
-    };
-    return { students, getData, refreshStudents, getTestStudent, getStudentsByPeriod };
+    }
+    
+    return { students, getData, getStudentsByIdExmans };
 };
