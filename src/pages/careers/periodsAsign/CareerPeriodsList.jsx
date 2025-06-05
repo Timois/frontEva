@@ -13,12 +13,12 @@ export const CareerPeriodsList = () => {
     useEffect(() => {
         getPeriodsByCareerId(career_id)
     }, [career_id]);
-
+    
     const getTitleByPeriodType = () => {
         if (periods && periods.length > 0) {
-            return periods[0].period === 'semestre' ? 'Sistema Semestral' : 'Sistema Anual';
+            return periods[0].period === 'semestre1' ? <h1>Sistema Semestral</h1> : <h1>Sistema Anual</h1>;
         }
-        return 'Sistema de Períodos';
+        return <h1>Sistema de Períodos</h1>;
     };
 
     return (

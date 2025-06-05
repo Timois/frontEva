@@ -4,7 +4,7 @@ import {  saveStudent, getStudent } from "../services/storage/storageStudent";
 
 export const StudentContext = createContext();
 
-export const StudentProvider = ({ children }) => {
+export const StudentProvider = ({ children }) => {  
     const [students, setStudents] = useState([]);
     const [student, setStudent] = useState(getStudent());
     useEffect(() => {

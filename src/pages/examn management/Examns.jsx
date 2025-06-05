@@ -16,26 +16,29 @@ import { ModalImport } from '../docentes/ModalImport'
 import ButtonAdd from '../docentes/ButtonAdd'
 import ModalRegister from '../docentes/ModalRegister'
 import { ButtonViewStudents } from '../docentes/ButtonViewStudents'
+import { useParams } from 'react-router-dom'
 
 export const Examns = () => {
   const { examns, fetchExamsByCareer } = useFetchExamns()
   const [selectedExamn, setSelectedExamn] = useState(null)
   const handleEditClick = (examn) => setSelectedExamn(examn)
-
+  const {id} = useParams()
   const user = JSON.parse(localStorage.getItem('user'))
   const careerId = user ? user.career_id : null
-
+  
   useEffect(() => {
     fetchExamsByCareer(careerId)
   }, [])
-
+  const filteredExamns = examns.filter(
+    (examn) => examn.academic_management_period_id === parseInt(id)
+  )
   const idEditar = "editarExamn"
 
   const [currentPage, setCurrentPage] = useState(0)
   const itemsPerPage = 5
   const offset = currentPage * itemsPerPage
 
-  const currentItems = examns.slice(offset, offset + itemsPerPage)
+  const currentItems = filteredExamns.slice(offset, offset + itemsPerPage)
   const pageCount = Math.ceil(examns.length / itemsPerPage)
 
   const handlePageClick = (data) => {
@@ -121,7 +124,7 @@ export const Examns = () => {
           ) : (
             <div className="text-center text-muted py-5">
               <FaClipboardList className="fs-1 mb-2" />
-              <p>No hay evaluaciones registradas</p>
+              <p>No hay evaluaciones registradas en este Periodo</p>
             </div>
           )}
         </div>
