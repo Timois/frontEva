@@ -102,12 +102,12 @@ export const Examns = () => {
                         <CheckPermissions requiredPermission="asignar-cantidad-preguntas">
                           <ButtonAssignQuestions examnId={examn.id} />
                         </CheckPermissions>
-                        <CheckPermissions requiredPermission="ver-preguntas-asignadas">
+                        {/* <CheckPermissions requiredPermission="ver-preguntas-asignadas">
                           <ButtonViewQuestionsAssigned examnId={examn.id} />
                         </CheckPermissions>
                         <CheckPermissions requiredPermission="ver-postulantes-por-evaluacion">
                           <ButtonOrderRandomQuestions examnId={examn.id} />
-                        </CheckPermissions>
+                        </CheckPermissions> */}
                         <ButtonViewStudentsWithTest examnId={examn.id} />
                         <ModalStudentsWithTest examnId={examn.id} />
                         <ButtonImport modalId={`importarEstudiantes-${examn.id}`} />

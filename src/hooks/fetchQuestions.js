@@ -28,3 +28,19 @@ export const useFetchQuestionsByArea = () => {
     }
     return { questions, getDataQuestions }
 }
+
+export const useFetchDisponibleQuestions = () => {
+    const { questions, setQuestions } = useContext(QuestionContext)
+
+    const fetchDisponibles = async (areaId) => {
+        try {
+            const response = await getApi(`question_evaluations/list?area_id=${areaId}`)
+            setQuestions(response)
+            return response
+        } catch (error) {
+            console.error("Error al obtener preguntas disponibles:", error)
+            return null
+        }
+    }
+    return { questions, fetchDisponibles }
+}

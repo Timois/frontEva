@@ -11,7 +11,7 @@ export const ButtonViewStudentsWithTest = ({ examnId }) => {
       data-bs-toggle="modal"
       data-bs-target={`#modalEstudiantes-${examnId}`}
     >
-      <FaUsers />
+      <FaUsers /> Crear Grupos
     </button>
   )
 }

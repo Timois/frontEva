@@ -9,14 +9,16 @@ import { ContainerButton } from "../login/ContainerButton";
 import CancelButton from "./components/CancelButon";
 import { closeFormModal, customAlert } from "../../utils/domHelper";
 import { useFetchAreasActive } from "../../hooks/fetchAreas";
-import { postApi } from "../../services/axiosServices/ApiService";
-import { useFetchExamns } from "../../hooks/fetchExamns";
-import { useNavigate } from "react-router-dom";
+import { getApi, postApi } from "../../services/axiosServices/ApiService";
+import { useNavigate, useParams } from "react-router-dom";
+import { useFetchDisponibleQuestions } from "../../hooks/fetchQuestions";
 
 export const FormAssignQuestions = ({ data }) => {
+  const { id } = useParams();
   const [response, setResponse] = useState(false);
   const [totalAssignedScore, setTotalAssignedScore] = useState(0);
   const { areas, getDataAreas } = useFetchAreasActive();
+  const { fetchDisponibles } = useFetchDisponibleQuestions()
   const isLoading = useRef(false);
   const navigate = useNavigate();
   const [percentages, setPercentages] = useState({
@@ -25,9 +27,9 @@ export const FormAssignQuestions = ({ data }) => {
     dificil: 0,
   });
   const [calculatedScores, setCalculatedScores] = useState({});
-  const { fetchDisponibles } = useFetchExamns();
   const [disponibles, setDisponibles] = useState([]);
-  const [modo, setModo] = useState("ponderar"); // Estado para alternar modos
+  const [modo, setModo] = useState(1); // Estado para alternar modos
+  const [asignado, setAsignado] = useState(false);
 
   useEffect(() => {
     const loadAreas = async () => {
@@ -36,7 +38,7 @@ export const FormAssignQuestions = ({ data }) => {
       const careerIdFromStorage = user ? user.career_id : null;
       if (careerIdFromStorage) {
         try {
-          isLoading.current = true;
+          isLoading.current = 1;
           await getDataAreas(careerIdFromStorage);
         } finally {
           isLoading.current = false;
@@ -45,6 +47,28 @@ export const FormAssignQuestions = ({ data }) => {
     };
     loadAreas();
   }, []);
+
+  useEffect(() => {
+    const verificarAsignacion = async () => {
+      try {
+        const res = await getApi(`question_evaluations/verifiAssignedQuestions/${id}`);
+        if (res && res.status) {
+          setAsignado(true);
+        } else {
+          setAsignado(false);
+        }
+      } catch (error) {
+        console.error("Error verificando asignación:", error);
+        setAsignado(false); // En caso de error, mejor dejarlo en false
+      }
+    };
+
+    if (id) {
+      verificarAsignacion();
+    }
+  }, [id]);
+
+
 
   useEffect(() => {
     const loadDisponibles = async () => {
@@ -160,7 +184,7 @@ export const FormAssignQuestions = ({ data }) => {
   const watchedAreas = watch("areas");
 
   useEffect(() => {
-    if (watchedAreas?.length > 0 && modo === "ponderar") {
+    if (watchedAreas?.length > 0 && modo === 1) {
       watchedAreas.forEach((_, index) => {
         recalculateScores(index);
       });
@@ -176,51 +200,49 @@ export const FormAssignQuestions = ({ data }) => {
       return;
     }
 
-    const questionsPerArea = {};
-    formData.areas.forEach((area) => {
-      if (modo === "ponderar") {
-        const cantidadTotal =
-          Number(area.cantidadFacil || 0) +
-          Number(area.cantidadMedia || 0) +
-          Number(area.cantidadDificil || 0);
+    const questionsPerArea = [];
 
-        if (cantidadTotal > 0) {
-          questionsPerArea[area.area_id] = {
-            quantity: cantidadTotal,
-            score: Number(area.puntajeTotal),
-            porcentajes: {
-              facil: Number(area.porcentajeFacil),
-              media: Number(area.porcentajeMedia),
-              dificil: Number(area.porcentajeDificil),
-            },
-          };
-        }
-      } else {
-        const cantidadTotal = Number(area.cantidadTotal || 0);
-        if (cantidadTotal > 0) {
-          questionsPerArea[area.area_id] = {
-            quantity: cantidadTotal,
-            score: Number(area.puntajeTotal),
-          };
-        }
+    formData.areas.forEach((area) => {
+      const cantidadTotal = modo
+        ? Number(area.cantidadFacil || 0) +
+        Number(area.cantidadMedia || 0) +
+        Number(area.cantidadDificil || 0)
+        : Number(area.cantidadTotal || 0);
+
+      if (cantidadTotal > 0) {
+        questionsPerArea.push({
+          id: area.area_id,
+          cantidadTotal,
+          nota: Number(area.puntajeTotal),
+        });
       }
     });
 
     const payload = {
       evaluation_id: Number(formData.evaluation_id),
+      ponderar: modo,
       areas: questionsPerArea,
     };
 
-    setResponse(true);
+    setResponse(1);
     try {
-      await postApi("question_evaluations/assign", payload);
+      await postApi("question_evaluations/assignQuestion", payload);
       customAlert("Asignación realizada con éxito", "success");
-      navigate("/administracion/examns");
+      navigate(`/administracion/periodsByCareer/${id}/examns`);
     } catch (error) {
-      customAlert("Error al realizar la asignación", "error");
+      if (
+        error.response &&
+        error.response.status === 409 &&
+        error.response.data?.message?.includes("ya tiene preguntas asignadas")
+      ) {
+        customAlert("Esta evaluación ya tiene preguntas asignadas. No se puede volver a asignar.", "warning");
+      } else {
+        customAlert("Error al realizar la asignación", "error");
+      }
     } finally {
       setResponse(false);
     }
+
   };
 
   const calculateScoresByDifficulty = (
@@ -271,31 +293,40 @@ export const FormAssignQuestions = ({ data }) => {
   const handleCancel = () => {
     closeFormModal();
     resetForm();
-    navigate("/administracion/examns");
+    navigate(`/administracion/periodsByCareer/${id}/examns`);
   };
-
-  return (
+  return asignado ? (
+    <div className="container-fluid p-4">
+      <div className="card shadow-lg border-0 rounded-3 overflow-hidden">
+        <div className="card-header bg-success text-white py-3 rounded-top">
+          <h3 className="mb-0">La evaluación ya tiene preguntas asignadas</h3>
+        </div>
+        <div className="card-body p-4">
+          <p>Las preguntas ya fueron asignadas a esta evaluación. No es posible volver a asignarlas desde aquí.</p>
+        </div>
+      </div>
+    </div>
+  ) : (
     <div className="container-fluid p-4">
       <div className="card shadow-lg border-0 rounded-3 overflow-hidden">
         <div className="card-header bg-primary text-white py-3 rounded-top">
           <h3 className="mb-0">
-            {modo === "ponderar" ? "Ponderar Preguntas" : "No Ponderar Preguntas"}
+            {modo === 1 ? "Ponderar Preguntas" : "No Ponderar Preguntas"}
           </h3>
         </div>
         <div className="card-body p-4">
-          {/* Botones para alternar modos */}
           <div className="d-flex gap-2 mb-4">
             <button
               type="button"
-              className={`btn ${modo === "ponderar" ? "btn-primary" : "btn-outline-primary"} btn-sm`}
-              onClick={() => setModo("ponderar")}
+              className={`btn ${modo === 1 ? "btn-primary" : "btn-outline-primary"} btn-sm`}
+              onClick={() => setModo(1)}
             >
               Ponderar
             </button>
             <button
               type="button"
-              className={`btn ${modo === "noPonderar" ? "btn-primary" : "btn-outline-primary"} btn-sm`}
-              onClick={() => setModo("noPonderar")}
+              className={`btn ${modo === 0 ? "btn-primary" : "btn-outline-primary"} btn-sm`}
+              onClick={() => setModo(0)}
             >
               No Ponderar
             </button>
@@ -332,12 +363,12 @@ export const FormAssignQuestions = ({ data }) => {
                             type="number"
                             placeholder="Puntaje total del área"
                             control={control}
-                            onChange={() => modo === "ponderar" && recalculateScores(index)}
+                            onChange={() => modo === 1 && recalculateScores(index)}
                           />
                           <Validate error={errors?.areas?.[index]?.puntajeTotal} />
                         </ContainerInput>
 
-                        {modo === "ponderar" ? (
+                        {modo === 1 ? (
                           <>
                             <div className="mb-2">
                               <label>Distribución de porcentajes:</label>
@@ -406,16 +437,22 @@ export const FormAssignQuestions = ({ data }) => {
                             )}
                           </>
                         ) : (
-                          <div className="mb-2">
-                            <label>Cantidad Total de Preguntas:</label>
-                            <Input
-                              name={`areas.${index}.cantidadTotal`}
-                              type="number"
-                              placeholder="Cantidad total"
-                              control={control}
-                            />
-                            <Validate error={errors?.areas?.[index]?.cantidadTotal} />
-                          </div>
+                          <>
+                            <div className="mb-2">
+                              <label>Cantidad Total de Preguntas:</label>
+                              <Input
+                                name={`areas.${index}.cantidadTotal`}
+                                type="number"
+                                placeholder="Cantidad total"
+                                control={control}
+                              />
+                              <Validate error={errors?.areas?.[index]?.cantidadTotal} />
+                            </div>
+                            <div className="mb-2">
+                              <label>Disponibilidad de preguntas:</label>
+                              <p>{disponibles?.[area.id]?.total}</p>
+                            </div>
+                          </>
                         )}
                       </div>
                     </div>

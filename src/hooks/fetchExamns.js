@@ -36,16 +36,7 @@ export const useFetchExamns = () => {
       console.error("Error al actualizar exámenes:", error)
     }
   }
-  const fetchDisponibles = async (areaId) => {
-    try {
-      const response = await getApi(`question_evaluations/list?area_id=${areaId}`)
-      setExamns(response)
-      return response
-    } catch (error) {
-      console.error("Error al obtener preguntas disponibles:", error)
-      return null
-    }
-  }
+  
   const fetchQuestionsAssigned = async (examnId) => {
     try {
       const response = await getApi(`question_evaluations/find/${examnId}`)
@@ -88,6 +79,6 @@ export const useFetchExamns = () => {
     const response = await getApi(`evaluations/find/${examnId}`)
     return response.title
   }
-  return { examns, getDataExamns, refreshExamns, fetchDisponibles, fetchQuestionsAssigned, 
+  return { examns, getDataExamns, refreshExamns, fetchQuestionsAssigned, 
     fetchStudenttestStudent, fetchExamsByCareer, getExamnById}
 }

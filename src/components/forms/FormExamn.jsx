@@ -97,9 +97,16 @@ export const FormExamn = () => {
             closeFormModal("registerExamn")
             addExamn(response)
             resetForm()
-        } catch (e) {
-            console.error('Error details:', e) // Para debug
-            customAlert("Error al crear el examen", "error")
+        } catch (error) {
+            if(response.status === 403){
+                customAlert("No tienes permisos para realizar esta acción", "error")
+                closeFormModal("registerExamn")
+                resetForm()
+            }else{
+                customAlert(error.response?.data.errors?.message ||"Error al crear el examen", "error")
+                closeFormModal("registerExamn")
+                resetForm()
+            }
         } finally {
             setResponse(false)
         }
