@@ -4,10 +4,7 @@ import { useFetchExamns } from '../../hooks/fetchExamns'
 import ButtonEdit from './ButtonEdit'
 import ModalEdit from './ModalEdit'
 import ButtonAssignQuestions from './ButtonAssignQuestions'
-import { ButtonViewQuestionsAssigned } from './ButtonViewQuestionsAssigned'
-import { ButtonOrderRandomQuestions } from './ButtonOrderRandomQuestions'
-import { ButtonViewStudentsWithTest } from './ButtonViewStudentWithTest'
-import { ModalStudentsWithTest } from './ModalStudentsWithTest'
+import { ButtonViewGroups } from './ButtonViewGroups'
 import ReactPaginate from 'react-paginate'
 import { FaChevronLeft, FaChevronRight, FaClipboardList, FaRegClock, FaUserGraduate } from 'react-icons/fa'
 import CheckPermissions from '../../routes/CheckPermissions'
@@ -108,8 +105,7 @@ export const Examns = () => {
                         <CheckPermissions requiredPermission="ver-postulantes-por-evaluacion">
                           <ButtonOrderRandomQuestions examnId={examn.id} />
                         </CheckPermissions> */}
-                        <ButtonViewStudentsWithTest examnId={examn.id} />
-                        <ModalStudentsWithTest examnId={examn.id} />
+                        <ButtonViewGroups examnId={examn.id} />
                         <ButtonImport modalId={`importarEstudiantes-${examn.id}`} />
                         <ButtonAdd modalIdP={modalRegister} />
                         <ModalImport ModalId={`importarEstudiantes-${examn.id}`} title={"Importar Estudiantes"} examnID={examn.id} />

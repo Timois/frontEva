@@ -3,7 +3,6 @@ import { SelectInput } from "./components/SelectInput"
 import { Button } from "../login/Button"
 import { ContainerButton } from "../login/ContainerButton"
 import { ContainerInput } from "../login/ContainerInput"
-import PropTypes from 'prop-types'
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { closeFormModal, customAlert } from "../../utils/domHelper"

@@ -23,6 +23,7 @@ import { PermissionsProvider } from './context/PermissionsProvider.jsx';
 import { RolesProvider } from './context/RolesProvider.jsx';
 import { ExamnsProvider } from './context/ExamnsProvider.jsx';
 import { QuestionEvaluationProvider } from './context/QuestionEvaluationProvider.jsx';
+import { GroupsProvider } from './context/GroupsProvider.jsx';
 
 
 createRoot(document.getElementById('root')).render(
@@ -37,21 +38,23 @@ createRoot(document.getElementById('root')).render(
                   <PeriodProvider>
                     <ExtensionGestionProvider>
                       <CareerAssignProvider>
-                        <StudentProvider>
-                          <AreaProvider>
-                            <ImportExcelQuestionsProvider>
-                              <QuestionsProvider>
-                                <AnswersProvider>
-                                  <ExamnsProvider>
-                                    <QuestionEvaluationProvider>
-                                      <App />
-                                    </QuestionEvaluationProvider>
-                                  </ExamnsProvider>
-                                </AnswersProvider>
-                              </QuestionsProvider>
-                            </ImportExcelQuestionsProvider>
-                          </AreaProvider>
-                        </StudentProvider>
+                        <AreaProvider>
+                          <ImportExcelQuestionsProvider>
+                            <QuestionsProvider>
+                              <AnswersProvider>
+                                <ExamnsProvider>
+                                  <StudentProvider>
+                                    <GroupsProvider>
+                                      <QuestionEvaluationProvider>
+                                        <App />
+                                      </QuestionEvaluationProvider>
+                                    </GroupsProvider>
+                                  </StudentProvider>
+                                </ExamnsProvider>
+                              </AnswersProvider>
+                            </QuestionsProvider>
+                          </ImportExcelQuestionsProvider>
+                        </AreaProvider>
                       </CareerAssignProvider>
                     </ExtensionGestionProvider>
                   </PeriodProvider>
@@ -62,6 +65,6 @@ createRoot(document.getElementById('root')).render(
         </UserProvider>
       </RolesProvider>
     </PermissionsProvider>
-  </BrowserRouter>
+  </BrowserRouter >
 
 )
