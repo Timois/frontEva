@@ -59,7 +59,7 @@ export const EditArea = ({ data, closeModal }) => {
         }
         return;
       }
-      console.log("Respuesta al editar área:", response);
+      
       if (response) {
         updateArea(response);
         customAlert("Área Editada", "success");

@@ -34,6 +34,7 @@ import { CareerPeriodsList } from "../pages/careers/periodsAsign/CareerPeriodsLi
 import { IndexArea } from "../pages/careers/areas/IndexArea"
 import { IndexStudents } from "../pages/docentes/IndexStudents"
 import { Groups } from "../pages/groups/Groups"
+import { IndexLabs } from "../pages/labs/IndexLabs"
 export const AppRoutes = () => {
   return (
     <Routes
@@ -111,6 +112,10 @@ export const AppRoutes = () => {
             <PermissionsGuard requiredPermission={"ver-postulantes"}>
               <IndexStudents />
             </PermissionsGuard>} />
+          <Route path="administracion/laboratories" element={
+            <PermissionsGuard requiredPermission={"ver-laboratorios"}>
+              <IndexLabs />
+            </PermissionsGuard>} />  
           <Route path="administracion/examns/:id/groups" element={
             <PermissionsGuard requiredPermission={"ver-grupos-por-evaluacion"}>
               <Groups />

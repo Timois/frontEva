@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { useContext, useState } from "react"
 import { GroupContext } from "../../context/GroupsProvider"
 import { useForm } from "react-hook-form"
@@ -16,7 +17,7 @@ import { DateInput } from "./components/DateInput"
 export const FormGroup = ({ evaluationId }) => {
     const [response, setResponse] = useState(false)
     const { addGroup } = useContext(GroupContext)
-    const { control, handleSubmit, reset, formState: { errors } } = useForm({
+    const { control, handleSubmit, reset, formState: { errors }, setError } = useForm({
         resolver: zodResolver(GroupSchema)
     })
     const onSubmit = async (data) => {
@@ -70,11 +71,11 @@ export const FormGroup = ({ evaluationId }) => {
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
             <ContainerInput>
-                <Input name="name" label="Ingrese el Nombre del grupo" control={control} errors={errors} />
+                <Input name="name" placeholder="Ingrese el Nombre del grupo" control={control} errors={errors} />
                 <Validate errors={errors.name} />
             </ContainerInput>
             <ContainerInput>
-                <Input name="description" label="Ingrese la descripción del grupo" control={control} errors={errors} />
+                <Input name="description" placeholder="Ingrese la descripción del grupo" control={control} errors={errors} />
                 <Validate errors={errors.description} />
             </ContainerInput>
             <ContainerInput>

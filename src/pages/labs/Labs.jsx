@@ -1,26 +1,30 @@
 import { useEffect, useState } from "react"
-import { fetchGroupByEvaluation } from "../../hooks/fetchGroup"
-import { useParams } from "react-router-dom"
-import { FaObjectGroup } from "react-icons/fa"
+import { fetchLabs } from "../../hooks/fetchLabs"
+import { FaLaptopCode } from "react-icons/fa"
 import ButtonEdit from "./ButtonEdit"
 import ModalEdit from "./ModalEdit"
-export const Groups = () => {
-    const { id } = useParams()
-    const evaluationId = id
-    const [selectedGroup, setSelectedGroup] = useState(null)
-    const handleEditClick = (group) => setSelectedGroup(group)
-    const { groups, getDataGroupEvaluation } = fetchGroupByEvaluation()
+
+
+export const Labs = () => {
+    const [selectedLab, setSelectedLab] = useState(null)
+    const { labs, getDataLabs } = fetchLabs()
+    
     useEffect(() => {
-        getDataGroupEvaluation(evaluationId)
-    }, [evaluationId])
-    const idEditar = "editGroup"
+        getDataLabs()
+    }, [])
+
+    const handleEditClick = (data) => {
+        setSelectedLab(data)
+    }
+
+    const idEditar = 'editLab'
     return (
         <div className="container-fluid p-4">
             <div className="card shadow-lg border-0 rounded-3 overflow-hidden">
                 <div className="card-header bg-primary text-white py-3 rounded-top">
                     <h3 className="mb-0">
-                        <FaObjectGroup className="me-2" />
-                        Gestión de Grupos
+                        <FaLaptopCode className="me-2" />
+                        Gestión de Laboratorios
                     </h3>
                 </div>
 
@@ -30,25 +34,23 @@ export const Groups = () => {
                             <tr>
                                 <th scope="col" width="10%" className="text-center fw-medium text-primary">N°</th>
                                 <th scope="col" className="fw-medium text-primary">Nombre</th>
-                                <th scope="col" className="fw-medium text-primary">Descripcion</th>
-                                <th scope="col" className="fw-medium text-primary">Hora de Inicio</th>
-                                <th scope="col" className="fw-medium text-primary">Hora de Fin</th>
+                                <th scope="col" className="fw-medium text-primary">Ubicacion</th>
+                                <th scope="col" className="fw-medium text-primary">Cantidad de equipos</th>
                                 <th scope="col" width="20%" className="text-center fw-medium text-primary">Acción</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {groups.length > 0 ? (
-                                groups.map((group, index) => (
+                            {labs.length > 0 ? (
+                                labs.map((lab, index) => (
                                     <tr key={index} className="transition-all">
                                         <td className="text-center text-muted">{index + 1}</td>
-                                        <td className="fw-semibold">{group.name}</td>
-                                        <td className="fw-semibold">{group.description}</td>
-                                        <td className="fw-semibold">{group.start_time}</td>
-                                        <td className="fw-semibold">{group.end_time}</td>
+                                        <td className="fw-semibold text-uppercase">{lab.name}</td>
+                                        <td className="fw-semibold text-capitalize">{lab.location}</td>
+                                        <td className="fw-semibold">{lab.equipment_count}</td>
                                         <td className="text-center">
                                             <ButtonEdit
                                                 idEditar={idEditar}
-                                                onEditClick={() => handleEditClick(group)}
+                                                onEditClick={() => handleEditClick(lab)}
                                                 className="btn btn-sm btn-outline-primary d-flex align-items-center justify-content-center mx-auto"
                                             >
                                             </ButtonEdit>
@@ -59,8 +61,8 @@ export const Groups = () => {
                                 <tr>
                                     <td colSpan="6" className="text-center py-5">
                                         <div className="d-flex flex-column align-items-center text-muted">
-                                            <FaObjectGroup className="fs-1 mb-2" />
-                                            No hay grupos registrados.
+                                            <FaLaptopCode className="fs-1 mb-2" />
+                                            No hay laboratorios registrados.
                                         </div>
                                     </td>
                                 </tr>
@@ -71,8 +73,8 @@ export const Groups = () => {
             </div>
             <ModalEdit
                 idEditar={idEditar}
-                examn={selectedGroup}
-                title="Editar Periodo"
+                data={selectedLab}
+                title="Editar Laboratorio"
             />
         </div>
     )

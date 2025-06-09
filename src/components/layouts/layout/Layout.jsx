@@ -165,6 +165,9 @@ const Layout = ({ children }) => {
                     {hasPermission("ver-periodos-asignados") && (
                       <MenuButton path={"/administracion/periodsByCareer"} label={"Periodos"} onClick={closeSidebar} />
                     )}
+                    {hasPermission("ver-laboratorios") && (
+                      <MenuButton path={"/administracion/laboratories"} label={"Ambientes"} onClick={closeSidebar} />
+                    )}
                   </div>
                 </div>
               </div>

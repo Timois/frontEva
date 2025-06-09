@@ -9,8 +9,22 @@ export const Input = ({ type, placeholder, name, control }) => {
       name={name}
       control={control}
       render={({ field }) =>
-        <input className={"form-control rounded-0 w-100"} type={type} placeholder={placeholder} aria-describedby="basic-addon1" id={name} {...field} value={field.value || ""} />
+        <input
+          className={"form-control rounded-0 w-100"}
+          type={type}
+          placeholder={placeholder}
+          aria-describedby="basic-addon1"
+          id={name}
+          min={type === 'number' ? 0 : undefined}
+          {...field}
+          value={field.value ?? ""}
+          onChange={(e) => {
+            const value = type === 'number' ? e.target.valueAsNumber : e.target.value;
+            field.onChange(value);
+          }}
+        />
       }
     />
+
   )
 }
