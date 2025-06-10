@@ -3,8 +3,9 @@
 import React, { useState } from "react"
 import { Card } from "../../components/login/Card"
 import { EditExamn } from "../../components/editForms/EditExamn"
+import { EditGroup } from "../../components/editForms/EditGroup"
 
-const ModalEdit = ({ idEditar, examn, title }) => {
+const ModalEdit = ({ idEditar, data, title }) => {
    const [showModal, setShowModal] = useState(false)
     const handleCloseModal = () => setShowModal(false)
   return (
@@ -23,7 +24,7 @@ const ModalEdit = ({ idEditar, examn, title }) => {
             <h5 className="modal-title text-center text-success" id="exampleModalLabel">{title}</h5>
           </div>
           <Card className="card align-items-center h-auto gap-3 p-3">
-              
+              <EditGroup examn={data} />
           </Card>
         </div>
       </div>

@@ -33,8 +33,8 @@ import { ImportQuestions } from "../pages/careers/questions/imports/ImportQuesti
 import { CareerPeriodsList } from "../pages/careers/periodsAsign/CareerPeriodsList"
 import { IndexArea } from "../pages/careers/areas/IndexArea"
 import { IndexStudents } from "../pages/docentes/IndexStudents"
-import { Groups } from "../pages/groups/Groups"
 import { IndexLabs } from "../pages/labs/IndexLabs"
+import { IndexGroups } from "../pages/groups/IndexGroups"
 export const AppRoutes = () => {
   return (
     <Routes
@@ -118,7 +118,7 @@ export const AppRoutes = () => {
             </PermissionsGuard>} />  
           <Route path="administracion/examns/:id/groups" element={
             <PermissionsGuard requiredPermission={"ver-grupos-por-evaluacion"}>
-              <Groups />
+              <IndexGroups />
             </PermissionsGuard>} />
           <Route path="administracion/examns/:id/prueba" element={
             <PermissionsGuard requiredPermission={"ver-preguntas-asignadas"}>

@@ -2,6 +2,7 @@ import { z } from "zod";
 
 export const GroupSchema = z.object({
     evaluation_id: z.number({ required_error: "La evaluación es obligatoria" }).int().positive(),
+    laboratory_id: z.number({ required_error: "El laboratorio es obligatorio" }).int().positive(),
     name: z
         .string({ required_error: "El nombre es obligatorio" })
         .max(20, "El nombre no puede tener más de 20 caracteres"),

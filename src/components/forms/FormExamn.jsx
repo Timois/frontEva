@@ -28,7 +28,7 @@ export const FormExamn = () => {
     const { control, handleSubmit, reset, formState: { errors }, setError } = useForm({
         resolver: zodResolver(ExmansSchema)
     })
-    
+   
     const user = JSON.parse(localStorage.getItem('user'))
     const career_id = user?.career_id
 

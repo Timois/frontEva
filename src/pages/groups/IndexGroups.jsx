@@ -1,23 +1,19 @@
 
-import CheckPermissions from "../../routes/CheckPermissions"
-import ButtonAdd from "../ButtonAdd"
-import ModalRegister from "../ModalRegister"
+
+import ButtonAdd from "./ButtonAdd"
 import { Groups } from "./Groups"
+import ModalRegister from "./ModalRegister"
 export const IndexGroups = () => {
     const modalRegister = "registerGroup"
     return (
         <div className='m-3 p-3'>
-            <div>
-                <CheckPermissions permission="crear-grupos">
-                    <ButtonAdd modalId={modalRegister} />
-                </CheckPermissions>
+            <div className="d-flex justify-content-center">
+                <ButtonAdd modalId={modalRegister} />
             </div>
-            <div className='w-100 d-flex justify-content-center'>
+            <div className='w-100'>
                 <Groups />
             </div>
-            <CheckPermissions permission="crear-grupos" >
-                <ModalRegister modalId={modalRegister} title="Registrar Grupo" />
-            </CheckPermissions>
-        </div >
+            <ModalRegister modalId={modalRegister} title="Registrar Grupo" />
+        </div>
     )
 }

@@ -40,6 +40,7 @@ export const FormLabs = () => {
             customAlert("Laboratorio registrado correctamente", "success")
             closeFormModal("registerLab")
             addLab(response)
+            resetForm()
         } catch (error) {
             if (error.response.status === 403) {
                 customAlert("No tienes permiso para registrar laboratorios", "error")

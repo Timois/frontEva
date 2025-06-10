@@ -25,7 +25,6 @@ export const fetchGroupByEvaluation = () => {
     const getDataGroupEvaluation = async (evaluationId) => {
         try {
             const response = await getApi(`groups/listByEvaluation/${evaluationId}`)
-            console.log(response)
             setGroups(response)
         }catch (error) {
             console.error("Error fetching groups:", error)

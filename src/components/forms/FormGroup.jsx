@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useContext, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import { GroupContext } from "../../context/GroupsProvider"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -13,13 +13,30 @@ import { ContainerButton } from "../login/ContainerButton"
 import { Button } from "../login/Button"
 import CancelButton from "./components/CancelButon"
 import { DateInput } from "./components/DateInput"
+import { fetchLabs } from "../../hooks/fetchLabs"
+import { SelectInput } from "./components/SelectInput"
 
 export const FormGroup = ({ evaluationId }) => {
     const [response, setResponse] = useState(false)
     const { addGroup } = useContext(GroupContext)
+    const {labs, getDataLabs} = fetchLabs()
+    const [array, setArray] = useState([])
     const { control, handleSubmit, reset, formState: { errors }, setError } = useForm({
         resolver: zodResolver(GroupSchema)
     })
+    useEffect(() => {
+        getDataLabs()
+    }, [])
+
+    useEffect(() => {
+        if (labs.length > 0) {
+            const array = labs.map((lab) => {
+                return { value: lab.id, text: `${lab.name} - ${lab.location}` }
+            })
+            setArray(array)
+        }
+    }, [labs])
+    
     const onSubmit = async (data) => {
         setResponse(true)
         const formData = new FormData()
@@ -28,6 +45,7 @@ export const FormGroup = ({ evaluationId }) => {
         formData.append('evaluation_id', evaluationId)
         formData.append('start_time', data.start_time)
         formData.append('end_time', data.end_time)
+        formData.append('lab_id', data.lab_id)
         try {
             const response = await postApi("groups/save", formData)
             if (!response) {
@@ -80,17 +98,19 @@ export const FormGroup = ({ evaluationId }) => {
             </ContainerInput>
             <ContainerInput>
                 <div style={{ display: "flex", gap: "10px" }}>
-                    <DateInput label={"Fecha de inicio"} name={"initial_date"} control={control} type={"date"} />
                     <DateInput label={"Hora de inicio"} name={"initial_time"} control={control} type={"time"} />
                 </div>
                 <Validate errors={errors.initial_date} />
             </ContainerInput>
             <ContainerInput>
                 <div style={{ display: "flex", gap: "10px" }}>
-                    <DateInput label={"Fecha de Fin"} name={"end_date"} control={control} type={"date"} />
                     <DateInput label={"Hora de Fin"} name={"end_time"} control={control} type={"time"} />
                 </div>
                 <Validate errors={errors.end_date} />
+            </ContainerInput>
+            <ContainerInput>
+                <SelectInput label="Seleccione un Ambiente" name="laboratory_id" options={array} control={control}/> 
+                <Validate errors={errors.lab_id} />
             </ContainerInput>
             <ContainerButton>
             <Button type="submit" name="submit" disabled={response}>
