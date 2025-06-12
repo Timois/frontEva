@@ -26,21 +26,9 @@ export const Examns = () => {
   useEffect(() => {
     fetchExamsByCareer(careerId)
   }, [])
-  const filteredExamns = examns.filter(
-    (examn) => examn.academic_management_period_id === parseInt(id)
-  )
+  
+
   const idEditar = "editarExamn"
-
-  const [currentPage, setCurrentPage] = useState(0)
-  const itemsPerPage = 5
-  const offset = currentPage * itemsPerPage
-
-  const currentItems = filteredExamns.slice(offset, offset + itemsPerPage)
-  const pageCount = Math.ceil(examns.length / itemsPerPage)
-
-  const handlePageClick = (data) => {
-    setCurrentPage(data.selected)
-  }
   const modalImport = "importarEstudiantes"
   const modalRegister = "registerStudent"
   return (
@@ -54,9 +42,9 @@ export const Examns = () => {
         </div>
 
         <div className="p-4">
-          {currentItems.length > 0 ? (
+          {examns.length > 0 ? (
             <div className="row g-4">
-              {currentItems.map((examn, index) => (
+              {examns.map((examn, index) => (
                 <div className="col-md-6 col-lg-4" key={examn.id}>
                   <div className="card border-0 shadow-sm h-100">
                     <div className="card-body d-flex flex-column border border-secondary rounded">
@@ -124,34 +112,7 @@ export const Examns = () => {
             </div>
           )}
         </div>
-
-        {/* Paginación */}
-        <div className="card-footer bg-transparent border-0">
-          <div className="d-flex justify-content-center">
-            <ReactPaginate
-              previousLabel={<FaChevronLeft />}
-              nextLabel={<FaChevronRight />}
-              breakLabel={"..."}
-              pageCount={pageCount}
-              marginPagesDisplayed={2}
-              pageRangeDisplayed={3}
-              onPageChange={handlePageClick}
-              containerClassName={"pagination pagination-sm"}
-              pageClassName={"page-item"}
-              pageLinkClassName={"page-link"}
-              previousClassName={"page-item"}
-              previousLinkClassName={"page-link"}
-              nextClassName={"page-item"}
-              nextLinkClassName={"page-link"}
-              breakClassName={"page-item"}
-              breakLinkClassName={"page-link"}
-              activeClassName={"active"}
-            />
-          </div>
-        </div>
       </div>
-
-      {/* Modal de edición */}
       <CheckPermissions requiredPermission="editar-evaluaciones">
         <ModalEdit examn={selectedExamn} idEditar={idEditar} title="Editar Evaluación" />
       </CheckPermissions>

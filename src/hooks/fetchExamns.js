@@ -82,3 +82,16 @@ export const useFetchExamns = () => {
   return { examns, getDataExamns, refreshExamns, fetchQuestionsAssigned, 
     fetchStudenttestStudent, fetchExamsByCareer, getExamnById}
 }
+
+export const fetchEvaluationById = () => {
+  const {examns, setExamns} = useContext(ExamnsContext)
+  const getDataExamns = async (examnId) => {
+    try {
+      const response = await getApi(`evaluations/find/${examnId}`)
+      setExamns(response)
+    } catch (error) {
+      console.error("Error fetching examns:", error)
+    }
+  }
+  return {examns, getDataExamns}
+}

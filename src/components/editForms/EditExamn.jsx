@@ -17,13 +17,15 @@ import CancelButton from "../forms/components/CancelButon"
 import { DateInput } from "../forms/components/DateInput"
 import { useFetchCareerAssign, useFetchCareerAssignPeriod } from "../../hooks/fetchCareers"
 import { ExamnsContext } from "../../context/ExamnsProvider"
+import { useParams } from "react-router-dom"
 
 
 export const EditExamn = ({ data, closeModal }) => {
     const [response, setResponse] = useState(false)
     const { updateExamn } = useContext(ExamnsContext)
     const [array, setArray] = useState([])
-
+    const [selectedPeriod, setSelectedPeriod] = useState(null)
+    const {id: periodId} = useParams()
     const { control, handleSubmit, reset, setValue, formState: { errors }, setError } = useForm({
         resolver: zodResolver(ExmansSchema),
     })
@@ -54,13 +56,13 @@ export const EditExamn = ({ data, closeModal }) => {
 
     useEffect(() => {
         if (careerAssignmentsPeriods.length > 0) {
-            const periodOptions = careerAssignmentsPeriods.map(period => ({
-                value: period.id,
-                text: `${period.period} (${new Date(period.initial_date).toLocaleDateString()} - ${new Date(period.end_date).toLocaleDateString()})`
-            }));
-            setArray(periodOptions);
+            const foundPeriod = careerAssignmentsPeriods.find(p => p.id === parseInt(periodId));
+            if (foundPeriod) {
+                setSelectedPeriod(foundPeriod); // ✅ Guardar período seleccionado
+                setValue("academic_management_period_id", foundPeriod.id); // ✅ Preasignar al formulario
+            }
         }
-    }, [careerAssignmentsPeriods]);
+    }, [careerAssignmentsPeriods, periodId, setValue]);
 
     useEffect(() => {
         if (data) {
@@ -133,7 +135,7 @@ export const EditExamn = ({ data, closeModal }) => {
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
             <ContainerInput>
-                <Input name="title" control={control} type="text" placeholder="Ingrese un título" />
+                <Input name="title" control={control} type="text" placeholder="Ingrese un título"/>
                 <Validate error={errors.title} />
             </ContainerInput>
             <ContainerInput>
@@ -153,7 +155,10 @@ export const EditExamn = ({ data, closeModal }) => {
                 <Validate error={errors.time} />
             </ContainerInput>
             <ContainerInput>
-                <SelectInput label="Seleccione el periodo" name="academic_management_period_id" options={array} control={control} error={errors.academic_management_period_id} />
+                <label className="font-medium text-sm text-gray-700 mb-1">Período académico</label>
+                <div className="border border-gray-300 rounded-md p-2 bg-gray-100 text-gray-700">
+                    {selectedPeriod ? selectedPeriod.period : "Cargando período..."}
+                </div>
                 <Validate error={errors.academic_management_period_id} />
             </ContainerInput>
             {array.length === 0 && (

@@ -1,25 +1,27 @@
 import { z } from "zod";
 
 export const GroupSchema = z.object({
-    evaluation_id: z.number({ required_error: "La evaluación es obligatoria" }).int().positive(),
-    laboratory_id: z.number({ required_error: "El laboratorio es obligatorio" }).int().positive(),
+    laboratory_id: z
+        .string({ required_error: "El laboratorio es obligatorio" })
+        .transform((val) => parseInt(val, 10))
+        .pipe(z.number().int().positive("El laboratorio debe ser un número positivo")),
+
     name: z
         .string({ required_error: "El nombre es obligatorio" })
         .max(20, "El nombre no puede tener más de 20 caracteres"),
+
     description: z
         .string()
         .max(255, "La descripción no puede tener más de 255 caracteres"),
+
     start_time: z
         .string({ required_error: "La hora de inicio es obligatoria" })
-        .regex(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/, "La hora de inicio debe tener el formato YYYY-MM-DD HH:mm"),
+        .regex(/^\d{1,2}:\d{1,2}$/, "La hora de inicio debe tener el formato H:m (por ejemplo, 8:5 o 14:30)"),
+
     end_time: z
-        .string({ required_error: "La hora de finalización es obligatoria" })
-        .regex(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/, "La hora de finalización debe tener el formato YYYY-MM-DD HH:mm"),
-}).refine((data) => {
-    const start = new Date(data.start_time.replace(" ", "T"));
-    const end = new Date(data.end_time.replace(" ", "T"));
-    return end > start;
-}, {
-    message: "La hora de finalización debe ser posterior a la hora de inicio",
-    path: ["end_time"], // se muestra en el campo end_time
-});
+       .string({ required_error: "La hora de fin es obligatoria" })
+       .regex(/^\d{1,2}:\d{1,2}$/, "La hora de fin debe tener el formato H:m (por ejemplo, 8:5 o 14:30)"),
+    order_type: z.enum(["id_asc", "alphabetical"], {
+        required_error: "Debe seleccionar un tipo de orden",
+    }),
+})

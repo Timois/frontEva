@@ -51,7 +51,7 @@ createRoot(document.getElementById('root')).render(
                                           <App />
                                         </QuestionEvaluationProvider>
                                       </GroupsProvider>
-                                    </LabsProvider>
+                                    </LabsProvider> 
                                   </StudentProvider>
                                 </ExamnsProvider>
                               </AnswersProvider>

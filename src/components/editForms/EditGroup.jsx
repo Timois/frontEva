@@ -15,8 +15,10 @@ import { DateInput } from "../forms/components/DateInput"
 import { Input } from "../login/Input"
 import { updateApi } from "../../services/axiosServices/ApiService"
 import { closeFormModal, customAlert } from "../../utils/domHelper"
+import { useParams } from "react-router-dom"
 
 export const EditGroup = ({data}) => {
+    const {id} = useParams()
     const { updateGroup } = useContext(GroupContext)
     const [response, setResponse] = useState(false)
     const [array, setArray] = useState([])
@@ -24,7 +26,7 @@ export const EditGroup = ({data}) => {
     const { control, handleSubmit, reset, setValue, formState: { errors }, setError } = useForm({
         resolver: zodResolver(GroupSchema),
     })
-
+    
     const { labs, getDataLabs } = fetchLabs()
     useEffect(() => {
         getDataLabs()
@@ -44,10 +46,11 @@ export const EditGroup = ({data}) => {
             setValue("description", data.description)
             setValue("initial_time", data.initial_time)
             setValue("end_time", data.end_time)
-            setValue("lab_id", data.lab_id)
+            setValue("laborotory_id", data.laboratory_id)
             setGroupId(data.id)
         }
     }, [data, setValue])
+    const evaluation_id = id
     const onSubmit = async (data) => {
         setResponse(true)
         const requestData = new FormData()
@@ -55,8 +58,8 @@ export const EditGroup = ({data}) => {
         requestData.append("description", data.description)
         requestData.append("initial_time", data.initial_time)
         requestData.append("end_time", data.end_time)
-        requestData.append("lab_id", data.lab_id)
-        
+        requestData.append("laboratory_id", data.laboratory_id)
+        requestData.append("evaluation_id", evaluation_id)
         try {
             const response = await updateApi(`groups/edit/${groupId}`, requestData)
             setResponse(false)
@@ -70,7 +73,7 @@ export const EditGroup = ({data}) => {
             if(response){
                 updateGroup(response)
                 customAlert("Grupo actualizado correctamente", "success")
-                closeFormModal("editarGrupo")
+                closeFormModal("editGroup")
                 reset()
             }else{
                 customAlert("Error al actualizar el grupo", "error")
@@ -78,11 +81,11 @@ export const EditGroup = ({data}) => {
         }catch(error){
             if(error.response.status === 403){
                 customAlert("No tienes permisos para realizar esta acción", "error")
-                closeFormModal("editarGrupo")
+                closeFormModal("editGroup")
                 reset()
             }else{
                 customAlert(error.response?.data.errors?.message ||"Error al actualizar el grupo", "error")
-                closeFormModal("editarGrupo")
+                closeFormModal("editGroup")
             }
         }finally{
             setResponse(false)
@@ -90,7 +93,7 @@ export const EditGroup = ({data}) => {
     }
 
     const handleCancel = () => {
-        closeFormModal("editarGrupo")
+        closeFormModal("editGroup")
         reset()
     }
 
@@ -118,7 +121,7 @@ export const EditGroup = ({data}) => {
             </ContainerInput>
             <ContainerInput>
                 <SelectInput label="Seleccione un Ambiente" name="laboratory_id" options={array} control={control} />
-                <Validate errors={errors.lab_id} />
+                <Validate errors={errors.laboratory_id} />
             </ContainerInput>
             <ContainerButton>
                 <Button type="submit" name="submit" disabled={response}>

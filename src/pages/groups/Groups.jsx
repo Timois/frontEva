@@ -1,40 +1,72 @@
-import { useEffect, useState } from "react"
-import { fetchGroupByEvaluation } from "../../hooks/fetchGroup"
-import { useParams } from "react-router-dom"
-import { FaObjectGroup } from "react-icons/fa"
-import ButtonEdit from "./ButtonEdit"
-import ModalEdit from "./ModalEdit"
-import { ModalViewStudents } from "./ModalViewStudents"
+/* eslint-disable no-unused-vars */
+import { useEffect, useState, useMemo } from "react";
+import { fetchGroupByEvaluation } from "../../hooks/fetchGroup";
+import { useParams } from "react-router-dom";
+import { FaObjectGroup } from "react-icons/fa";
+import ButtonEdit from "./ButtonEdit";
+import ModalEdit from "./ModalEdit";
+import { ModalViewStudents } from "./ModalViewStudents";
+import { fetchEvaluationById } from "../../hooks/fetchExamns";
+
 export const Groups = () => {
     const { id } = useParams();
     const evaluationId = id;
+    const { examns, getDataExamns } = fetchEvaluationById();
     const [selectedGroup, setSelectedGroup] = useState(null);
-    const handleEditClick = (group) => setSelectedGroup(group);
-    const { groups, getDataGroupEvaluation } = fetchGroupByEvaluation();
+    const { groups, totalStudents, getDataGroupEvaluation } = fetchGroupByEvaluation();
     const [selectedGroupStudents, setSelectedGroupStudents] = useState([]);
     const [showStudentsModal, setShowStudentsModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
+
+    // ✔️ Manejo seguro de assignedStudents
+    const assignedStudents = useMemo(() => {
+        return groups.reduce(
+            (acc, group) => acc + (Array.isArray(group.students) ? group.students.length : 0),
+            0
+        );
+    }, [groups]);
+
+    // ✔️ Manejo seguro de totalStudents
+    const unassignedStudents = typeof totalStudents === "number"
+        ? totalStudents - assignedStudents
+        : 0;
+
+    const handleEditClick = (data) => {
+        setSelectedGroup(data);
+        setShowEditModal(true);
+    };
 
     useEffect(() => {
         getDataGroupEvaluation(evaluationId);
     }, [evaluationId]);
-    
+
+    useEffect(() => {
+        getDataExamns(evaluationId);
+    }, [evaluationId]);
+
     const handleViewStudents = (group) => {
-        setSelectedGroupStudents(group.students);
+        setSelectedGroupStudents(group.students || []);
         setShowStudentsModal(true);
     };
 
     const idEditar = "editGroup";
 
-    const examDate = groups.length > 0 ? groups[0].start_time.split(" ")[0] : null;
+    const examDate = examns?.date_of_realization;
 
     return (
         <div className="container-fluid p-4">
             <div className="card shadow-lg border-0 rounded-3 overflow-hidden">
                 <div className="card-header bg-primary text-white py-3 rounded-top">
-                    <h3 className="mb-0">
-                        <FaObjectGroup className="me-2" />
-                        Gestión de Grupos
-                    </h3>
+                    <h4 className="mb-0 d-flex align-items-center justify-content-between">
+                        <span>
+                            <FaObjectGroup className="me-2" />
+                            Gestión de Grupos del {examns.title}
+                        </span>
+                        <div className="text-end">
+                            <div>Total de estudiantes: {totalStudents}</div>
+                            <div>Sin asignar: {unassignedStudents}</div>
+                        </div>
+                    </h4>
                     {examDate && (
                         <p className="mt-2 mb-0 text-white fw-semibold">
                             Fecha del examen: {examDate}
@@ -52,6 +84,7 @@ export const Groups = () => {
                                 <th scope="col" className="fw-medium text-primary">Horario</th>
                                 <th scope="col" className="fw-medium text-primary">Estudiantes</th>
                                 <th scope="col" className="fw-medium text-primary">Capacidad</th>
+                                <th scope="col" className="fw-medium text-primary">Ubicacion</th>
                                 <th scope="col" width="20%" className="text-center fw-medium text-primary">Acción</th>
                             </tr>
                         </thead>
@@ -60,6 +93,9 @@ export const Groups = () => {
                                 groups.map((group, index) => {
                                     const startTime = group.start_time.split(" ")[1].slice(0, 5);
                                     const endTime = group.end_time.split(" ")[1].slice(0, 5);
+                                    const studentCount = Array.isArray(group.students) ? group.students.length : 0;
+                                    const labCapacity = group.lab?.equipment_count ?? "N/A";
+                                    const labLocation = group.lab?.location ?? "Sin ubicación";
                                     return (
                                         <tr key={index} className="transition-all">
                                             <td className="text-center text-muted">{index + 1}</td>
@@ -71,24 +107,24 @@ export const Groups = () => {
                                                     className="btn btn-sm btn-outline-info"
                                                     onClick={() => handleViewStudents(group)}
                                                 >
-                                                    Ver estudiantes ({group.students.length})
+                                                    Ver estudiantes ({studentCount})
                                                 </button>
                                             </td>
-                                            <td className="text-center">{group.students.length}  {group.capacity}</td>
+                                            <td className="text-center">{labCapacity}</td>
+                                            <td className="text-center text-capitalize">{labLocation}</td>
                                             <td className="text-center">
                                                 <ButtonEdit
                                                     idEditar={idEditar}
                                                     onEditClick={() => handleEditClick(group)}
                                                     className="btn btn-sm btn-outline-primary d-flex align-items-center justify-content-center mx-auto"
-                                                >
-                                                </ButtonEdit>
+                                                />
                                             </td>
                                         </tr>
                                     );
                                 })
                             ) : (
                                 <tr>
-                                    <td colSpan="7" className="text-center py-5">
+                                    <td colSpan="8" className="text-center py-5">
                                         <div className="d-flex flex-column align-items-center text-muted">
                                             <FaObjectGroup className="fs-1 mb-2" />
                                             No hay grupos registrados.
@@ -105,6 +141,7 @@ export const Groups = () => {
                 idEditar={idEditar}
                 data={selectedGroup}
                 title="Editar Periodo"
+                onClose={() => setShowEditModal(false)}
             />
 
             {showStudentsModal && (
@@ -117,4 +154,3 @@ export const Groups = () => {
         </div>
     );
 };
-

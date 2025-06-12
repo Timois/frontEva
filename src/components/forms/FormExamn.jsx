@@ -9,7 +9,6 @@ import { closeFormModal, customAlert } from "../../utils/domHelper"
 import { ContainerInput } from "../login/ContainerInput"
 import { Input } from "../login/Input"
 import { Validate } from "./components/Validate"
-import { SelectInput } from "./components/SelectInput"
 import { ContainerButton } from "../login/ContainerButton"
 import { Button } from "../login/Button"
 import CancelButton from "./components/CancelButon"
@@ -20,22 +19,26 @@ const arrayOption = [
     { value: "web", text: "WEB" }
 ];
 
+import { useParams } from "react-router-dom" // ✅ NUEVO
+
 export const FormExamn = () => {
     const [response, setResponse] = useState(false)
     const { addExamn } = useContext(ExamnsContext)
     const [array, setArray] = useState([])
+    const [selectedPeriod, setSelectedPeriod] = useState(null) // ✅ NUEVO
 
-    const { control, handleSubmit, reset, formState: { errors }, setError } = useForm({
+    const { id: periodId } = useParams(); // ✅ Obtener el id del período desde la URL
+
+    const { control, handleSubmit, reset, formState: { errors }, setError, setValue } = useForm({
         resolver: zodResolver(ExmansSchema)
     })
-   
+
     const user = JSON.parse(localStorage.getItem('user'))
     const career_id = user?.career_id
 
     const { careerAssignments, getDataCareerAssignments } = useFetchCareerAssign(career_id)
     const { careerAssignmentsPeriods, getDataCareerAssignmentPeriods } = useFetchCareerAssignPeriod()
 
-    // Obtienes los datos de la carrera asignada
     useEffect(() => {
         const fetchData = async () => {
             if (career_id && !isNaN(career_id)) {
@@ -45,11 +48,10 @@ export const FormExamn = () => {
         fetchData();
     }, [career_id])
 
-    // Cuando careerAssignments esté listo, saco el id de la tabla intermedia
     useEffect(() => {
         const fetchPeriods = async () => {
             if (careerAssignments.length > 0) {
-                const { academic_management_career_id } = careerAssignments[0];  // Desestructuramos directamente
+                const { academic_management_career_id } = careerAssignments[0];
                 await getDataCareerAssignmentPeriods(academic_management_career_id);
             }
         }
@@ -58,59 +60,59 @@ export const FormExamn = () => {
 
     useEffect(() => {
         if (careerAssignmentsPeriods.length > 0) {
-            const periodOptions = careerAssignmentsPeriods.map(period => ({
-                value: period.id,
-                text: `${period.period}`
-            }));
-            setArray(periodOptions);
+            const foundPeriod = careerAssignmentsPeriods.find(p => p.id === parseInt(periodId));
+            if (foundPeriod) {
+                setSelectedPeriod(foundPeriod); // ✅ Guardar período seleccionado
+                setValue("academic_management_period_id", foundPeriod.id); // ✅ Preasignar al formulario
+            }
         }
-    }, [careerAssignmentsPeriods]);
+    }, [careerAssignmentsPeriods, periodId, setValue]);
 
     const onSubmit = async (data) => {
         if (!data.academic_management_period_id) {
-            customAlert("error", "Debe seleccionar un período académico");
+            customAlert("error", "No se encontró un período académico válido.");
             return;
         }
+
         setResponse(true);
         const formData = new FormData();
-        formData.append("title", data.title)
-        formData.append("description", data.description)
-        formData.append("passing_score", Number(data.passing_score))  // Convertir a número
-        formData.append("date_of_realization", new Date(data.date_of_realization).toISOString().split('T')[0])  // Formatear fecha
-        formData.append("type", "web")
-        formData.append("time", Number(data.time))
-        formData.append("status", "inactivo")
-        formData.append("academic_management_period_id", String(data.academic_management_period_id))
+        formData.append("title", data.title);
+        formData.append("description", data.description);
+        formData.append("passing_score", Number(data.passing_score));
+        formData.append("date_of_realization", new Date(data.date_of_realization).toISOString().split('T')[0]);
+        formData.append("type", "web");
+        formData.append("time", Number(data.time));
+        formData.append("status", "inactivo");
+        formData.append("academic_management_period_id", String(data.academic_management_period_id));
 
         try {
-            const response = await postApi("evaluations/save", formData)
-            if (!response) {
-                throw new Error('No response from server')
-            }
+            const response = await postApi("evaluations/save", formData);
+            if (!response) throw new Error('No response from server');
+
             if (response.status === 422) {
                 for (let key in response.data.errors) {
-                    setError(key, { type: "custom", message: response.data.errors[key][0] })
+                    setError(key, { type: "custom", message: response.data.errors[key][0] });
                 }
-                return
+                return;
             }
-            customAlert("Examen creado con éxito", "success")
-            closeFormModal("registerExamn")
-            addExamn(response)
-            resetForm()
+
+            customAlert("Examen creado con éxito", "success");
+            closeFormModal("registerExamn");
+            addExamn(response);
+            resetForm();
         } catch (error) {
-            if(response.status === 403){
-                customAlert("No tienes permisos para realizar esta acción", "error")
-                closeFormModal("registerExamn")
-                resetForm()
-            }else{
-                customAlert(error.response?.data.errors?.message ||"Error al crear el examen", "error")
-                closeFormModal("registerExamn")
-                resetForm()
+            if (response?.status === 403) {
+                customAlert("No tienes permisos para realizar esta acción", "error");
+            } else {
+                customAlert(error.response?.data.errors?.message || "Error al crear el examen", "error");
             }
+            closeFormModal("registerExamn");
+            resetForm();
         } finally {
-            setResponse(false)
+            setResponse(false);
         }
     }
+
     const resetForm = () => {
         reset({
             title: "",
@@ -121,11 +123,12 @@ export const FormExamn = () => {
             time: "",
             academic_management_period_id: "",
         })
+        setSelectedPeriod(null)
     }
 
     const handleCancel = () => {
-        resetForm()
-        closeFormModal("registerExamn")
+        resetForm();
+        closeFormModal("registerExamn");
     }
 
     return (
@@ -151,14 +154,12 @@ export const FormExamn = () => {
                 <Validate error={errors.time} />
             </ContainerInput>
             <ContainerInput>
-                <SelectInput label="Seleccione el periodo" name="academic_management_period_id" options={array} control={control} error={errors.academic_management_period_id} />
+                <label className="font-medium text-sm text-gray-700 mb-1">Período académico</label>
+                <div className="border border-gray-300 rounded-md p-2 bg-gray-100 text-gray-700">
+                    {selectedPeriod ? selectedPeriod.period : "Cargando período..."}
+                </div>
                 <Validate error={errors.academic_management_period_id} />
             </ContainerInput>
-            {array.length === 0 && (
-                <div style={{ color: 'orange', fontSize: '14px', marginBottom: '10px' }}>
-                    No se encontraron periodos disponibles para esta carrera.
-                </div>
-            )}
             <ContainerButton>
                 <Button type="submit" name="submit" disabled={response}>
                     <span>{response ? "Cargando..." : "Guardar"}</span>
@@ -168,3 +169,4 @@ export const FormExamn = () => {
         </form>
     )
 }
+
