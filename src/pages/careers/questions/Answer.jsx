@@ -1,43 +1,22 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useFetchAnswerByIdQuestion } from '../../../hooks/fetchAnswer';
-import { getApi } from '../../../services/axiosServices/ApiService';
 import { MdArrowBack } from 'react-icons/md';
 import { FaReply, FaReplyAll } from 'react-icons/fa';
+import { useFetchQuestionById } from '../../../hooks/fetchQuestions';
 
 export const Answer = () => {
     const { id } = useParams()
-    const [questionAnswers, setQuestionAnswers] = useState([]);
-    const [questionDetails, setQuestionDetails] = useState(null);
-    const { getAnswer } = useFetchAnswerByIdQuestion();
+    const {question, getQuestion} = useFetchQuestionById();
+    const { getAnswer, answers } = useFetchAnswerByIdQuestion();
     const [isLoading, setIsLoading] = useState(false);
-
     useEffect(() => {
-        const fetchData = async () => {
-            setIsLoading(true);
-            try {
-                const questionResponse = await getApi(`bank_questions/find/${id}`);
-                setQuestionDetails(questionResponse);
-
-                const answersResponse = await getAnswer(id);
-                setQuestionAnswers(answersResponse.answers || []);
-            } catch (error) {
-                if (error.response?.status === 429) {
-                    console.warn('Demasiadas peticiones. Intenta más tarde.');
-                } else {
-                    console.error('Error fetching data:', error);
-                }
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        if (id) {
-            fetchData();
-        }
+        getQuestion(id);
+    }, [id]);
+    useEffect(() => {
+        getAnswer(id);
     }, [id]); // solo id
-
-    // En el render, antes de mostrar los datos
+    
     if (isLoading) {
         return (
             <div className="d-flex justify-content-center mt-5">
@@ -47,16 +26,17 @@ export const Answer = () => {
             </div>
         );
     }
-
+    console.log(answers)
+    const navigate = useNavigate();
     return (
         <div className="container-fluid p-4">
-            <Link
-                to={`/administracion/imports/${id}/questions`}
+            <button
+                onClick={() => navigate(-1)}
                 className="btn btn-outline-primary mb-3 w-auto d-inline-flex align-items-center px-3 py-2"
                 style={{ height: '40px' }}
             >
                 <MdArrowBack className="me-1" /> Volver
-            </Link>
+            </button>
             <div className="card shadow-lg border-0 rounded-3 overflow-hidden">
                 <div className="card-header bg-primary text-white py-3 rounded-top">
                     <h3 className="mb-0">
@@ -66,44 +46,43 @@ export const Answer = () => {
                 </div>
 
                 {/* Detalles de la pregunta */}
-                {questionDetails && (
+                {question && (
                     <div className="card-body border-bottom bg-light">
                         <div className="row">
                             <div className="col-md-6">
                                 <p className="mb-2">
                                     <strong className="text-primary">Pregunta:</strong>
-                                    <span className="ms-2">{questionDetails.question}</span>
+                                    <span className="ms-2">{question.question}</span>
                                 </p>
                             </div>
                             <div className="col-md-6">
                                 <p className="mb-2">
                                     <strong className="text-primary">Dificultad:</strong>
-                                    <span className={`badge ${questionDetails.dificulty === 'Fácil' ? 'bg-success' :
-                                            questionDetails.dificulty === 'Media' ? 'bg-warning' : 'bg-danger'
-                                        } bg-opacity-10 ${questionDetails.dificulty === 'Fácil' ? 'text-success' :
-                                            questionDetails.dificulty === 'Media' ? 'text-warning' : 'text-danger'
+                                    <span className={`badge ${question.dificulty === 'Fácil' ? 'bg-success' :
+                                            question.dificulty === 'Media' ? 'bg-warning' : 'bg-danger'
+                                        } bg-opacity-10 ${question.dificulty === 'Fácil' ? 'text-success' :
+                                            question.dificulty === 'Media' ? 'text-warning' : 'text-danger'
                                         } py-2 px-3 ms-2`}>
-                                        {questionDetails.dificulty}
+                                        {question.dificulty}
                                     </span>
                                 </p>
                             </div>
-                            {questionDetails.description && (
+                            {question.description && (
                                 <div className="col-12">
                                     <p className="mb-0">
                                         <strong className="text-primary">Descripción:</strong>
-                                        <span className="ms-2 text-muted">{questionDetails.description}</span>
+                                        <span className="ms-2 text-muted">{question.description}</span>
                                     </p>
                                 </div>
                             )}
                         </div>
                     </div>
                 )}
-
-                {/* Lista de respuestas */}
+                
                 <div className="card-body">
-                    {questionAnswers.length > 0 ? (
+                    {answers.length > 0 ? (
                         <div className="list-group">
-                            {questionAnswers.map((answer, index) => (
+                            {answers.map((answer, index) => (
                                 <div
                                     key={answer.id || index}
                                     className={`list-group-item border-0 mb-2 rounded-3 transition-all ${answer.is_correct

@@ -1,6 +1,5 @@
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from "react-router-dom";
-import { AreaContext } from '../../../context/AreaProvider';
 import { useFetchAreasByCareer } from '../../../hooks/fetchAreas';
 import ButtonEdit from '../areas/ButtonEdit';
 import { ModalEdit } from '../areas/ModalEdit';
@@ -14,16 +13,15 @@ import { HiThumbDown, HiThumbUp } from 'react-icons/hi';
 import styles from './AreaCards.module.css';
 
 export const ViewAreas = () => {
-  const { areas } = useContext(AreaContext);
   const [questionCounts, setQuestionCounts] = useState({});
   const [selectedArea, setSelectedArea] = useState(null);
   const [careerId, setCareerId] = useState(null);
-  const { getData } = useFetchAreasByCareer();
-
+  const {areas, getData } = useFetchAreasByCareer();
+  
   const handleEditClick = (area) => {
     setSelectedArea(area);
   };
-
+ 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user'));
     const careerIdFromStorage = user ? user.career_id : null;

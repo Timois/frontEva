@@ -44,3 +44,19 @@ export const useFetchDisponibleQuestions = () => {
     }
     return { questions, fetchDisponibles }
 }
+
+export const useFetchQuestionById = () => {
+    const { question, setQuestion } = useContext(QuestionContext)
+    const getQuestion = async (id) => {
+        try {
+            const response = await getApi(`bank_questions/find/${id}`)
+            setQuestion(response)
+            return response
+        }catch (error) {
+            console.error("Error al obtener la pregunta:", error)
+            return null
+        }
+    }
+
+    return { question, getQuestion }
+}

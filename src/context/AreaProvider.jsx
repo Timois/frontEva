@@ -5,7 +5,7 @@ import React, { createContext, useState } from 'react'
 export const AreaContext = createContext()
 export const AreaProvider = ({ children }) => {
     const [areas, setAreas] = useState([])
-    
+    const [area, setArea] = useState({})
     const addArea = (area) => {
         setAreas([...areas, area])
     }
@@ -19,7 +19,7 @@ export const AreaProvider = ({ children }) => {
         }
     }
 
-    const values = { areas, addArea, setAreas, updateArea }
+    const values = { areas, addArea, setAreas, updateArea, area, setArea }
   return (
     <AreaContext.Provider value={values}>
         {children}

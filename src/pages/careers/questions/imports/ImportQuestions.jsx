@@ -9,10 +9,12 @@ import { FaFileExcel } from 'react-icons/fa'
 import { ModalImport } from './ModalImport'
 import { ButtonViewQuestions } from './ButtonViewQuestions'
 import { ButonDelete } from './ButonDelete'
-import { useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
+import { useFetchAreaById } from '../../../../hooks/fetchAreas'
 
 export const ImportQuestions = () => {
     const { id } = useParams()
+    const { area, getDataAreaById} = useFetchAreaById()
     const { importExcelQuestions, setImportExcelQuestions, getData } = useContext(ImportExcelQuestionsContext)
     useEffect(() => {
         setImportExcelQuestions([]);
@@ -24,15 +26,24 @@ export const ImportQuestions = () => {
         };
     }, [id]);
     
+    useEffect(() => {
+        getDataAreaById(id)
+    }, [id])
+    
     const IdImport = "importExcel";
     return (
         <div className="container-fluid p-4">
+            <h1 className="text-center mb-4 text-capitalize">
+                Area de {area.name}
+            </h1>
+            <Link to={"/administracion/areas"} className='btn btn-dark mb-2'>volver</Link>    
             <div className="card shadow-lg border-0 rounded-3 overflow-hidden">
                 <div className="card-header bg-primary text-white py-3 rounded-top d-flex justify-content-between align-items-center">
                     <h3 className="mb-0">
                         <FaFileExcel className="me-2" />
                         Archivos Importados
                     </h3>
+                    
                     <CheckPermissions requiredPermission="importar-excel">
                         <ButtonImport
                             modalIdImp={IdImport}

@@ -4,7 +4,7 @@ import { createContext, useState } from "react"
 export const QuestionContext = createContext()
 export const QuestionsProvider = ({children}) => {
     const [questions, setQuestions] = useState([])
-
+    const [question, setQuestion] = useState({})
     const addQuestion = (question) => {
         setQuestions([...questions, question])
     }
@@ -18,7 +18,7 @@ export const QuestionsProvider = ({children}) => {
         }
     }
 
-    const values = {questions, addQuestion, setQuestions, updateQuestion}
+    const values = {questions, addQuestion, setQuestions, updateQuestion, question, setQuestion}
   return (
     <QuestionContext.Provider value={values}>
         {children}

@@ -29,3 +29,13 @@ export const useFetchAreasActive = () => {
     }
     return { areas, getDataAreas }
 }
+
+export const useFetchAreaById = () => {
+
+    const { area, setArea } = useContext(AreaContext)
+    const getDataAreaById = async (areaId) => {
+        const response = await getApi(`areas/find/${areaId}`)
+        setArea(response)
+    }
+    return { area, getDataAreaById }
+}

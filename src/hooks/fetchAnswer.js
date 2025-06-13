@@ -18,13 +18,13 @@ export const useFetchAnswer = () => {
     return { answers, getData };
 };
 
-export const useFetchAnswerByIdQuestion = (questionId) => {
+export const useFetchAnswerByIdQuestion = () => {
     const { answers, setAnswers } = useContext(AnswersContext);
     
     const getAnswer = async (id) => {
         try {
             const response = await getApi(`bank_answers/findByIdQuestion/${id}`);
-            return response; // Retornamos la respuesta completa del backend
+            setAnswers(response);
         } catch (error) {
             console.error('Error fetching answers:', error);
             return { answers: [] };

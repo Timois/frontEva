@@ -18,13 +18,13 @@ import { useFetchCareerAssign, useFetchCareerAssignPeriod } from "../../hooks/fe
 const arrayOption = [
     { value: "web", text: "WEB" }
 ];
-
+const names = [{ value: "PSA 1", text: "PSA 1" }, { value: "PSA 2", text: "PSA 2"}, { value: "PSA 3", text: "PSA 3"}, { value: "PSA 4", text: "PSA 4" }, { value: "PSA 5", text: "PSA 5" }]
 import { useParams } from "react-router-dom" // ✅ NUEVO
+import { SelectInput } from "./components/SelectInput"
 
 export const FormExamn = () => {
     const [response, setResponse] = useState(false)
     const { addExamn } = useContext(ExamnsContext)
-    const [array, setArray] = useState([])
     const [selectedPeriod, setSelectedPeriod] = useState(null) // ✅ NUEVO
 
     const { id: periodId } = useParams(); // ✅ Obtener el id del período desde la URL
@@ -134,10 +134,10 @@ export const FormExamn = () => {
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
             <ContainerInput>
-                <Input name="title" control={control} type="text" placeholder="Ingrese un título" />
+                <SelectInput name="title" options={names} label="Seleccione una opcion" control={control}/>
                 <Validate error={errors.title} />
             </ContainerInput>
-            <ContainerInput>
+            <ContainerInput>    
                 <Input name="description" control={control} type="text" placeholder="Ingrese una descripción" />
                 <Validate error={errors.description} />
             </ContainerInput>

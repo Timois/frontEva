@@ -18,7 +18,7 @@ import { DateInput } from "../forms/components/DateInput"
 import { useFetchCareerAssign, useFetchCareerAssignPeriod } from "../../hooks/fetchCareers"
 import { ExamnsContext } from "../../context/ExamnsProvider"
 import { useParams } from "react-router-dom"
-
+const names = [{ value: "PSA 1", text: "PSA 1" }, { value: "PSA 2", text: "PSA 2"}, { value: "PSA 3", text: "PSA 3"}, { value: "PSA 4", text: "PSA 4" }, { value: "PSA 5", text: "PSA 5" }]
 
 export const EditExamn = ({ data, closeModal }) => {
     const [response, setResponse] = useState(false)
@@ -135,7 +135,7 @@ export const EditExamn = ({ data, closeModal }) => {
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
             <ContainerInput>
-                <Input name="title" control={control} type="text" placeholder="Ingrese un título"/>
+               <SelectInput label="Seleccione una opcion" name="title" options={names} control={control}/>
                 <Validate error={errors.title} />
             </ContainerInput>
             <ContainerInput>
@@ -161,11 +161,6 @@ export const EditExamn = ({ data, closeModal }) => {
                 </div>
                 <Validate error={errors.academic_management_period_id} />
             </ContainerInput>
-            {array.length === 0 && (
-                <div style={{ color: 'orange', fontSize: '14px', marginBottom: '10px' }}>
-                    No se encontraron periodos disponibles para esta carrera.
-                </div>
-            )}
             <ContainerButton>
                 <Button type="submit" name="submit" disabled={response}>
                     <span>{response ? "Cargando..." : "Guardar"}</span>

@@ -1,13 +1,11 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 import { useContext, useEffect, useState } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { QuestionContext } from "../../../context/QuestionsProvider";
 import { useFetchQuestionsByArea } from "../../../hooks/fetchQuestions";
 import ButtonEdit from "./ButtonEdit";
 import { ModalEdit } from "./ModalEdit";
-import { ModalImport } from "./imports/ModalImport";
-import { ButtonImport } from "./imports/ButtonImport";
 import CheckPermissions from "../../../routes/CheckPermissions";
 import { useFetchArea } from "../../../hooks/fetchAreas";
 import ButtonViewAnswers from "./ButtonViewAnswers";
@@ -57,15 +55,15 @@ export const Question = () => {
     const modalId = "registerPregunta";
     const idEditar = "editarPregunta";
 
-
+    const navigate = useNavigate();
     return (
         <div className="container-fluid p-4">
-            <Link
-                to={`/administracion/areas/${areaId}/imports`}
+            <button
+                onClick={() => navigate(-1)}
                 className="btn btn-outline-primary mb-3 w-auto d-inline-flex align-items-center px-3 py-2"
             >
                 <MdArrowBack className="me-1" /> Volver
-            </Link>
+            </button>
             <div className="card shadow-lg border-0 rounded-3 overflow-hidden">
                 <div className="card-header bg-primary text-white py-3 rounded-top">
                     <div className="d-flex justify-content-between align-items-center">
