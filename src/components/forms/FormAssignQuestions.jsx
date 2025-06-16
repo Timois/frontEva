@@ -12,6 +12,8 @@ import { useFetchAreasActive } from "../../hooks/fetchAreas";
 import { getApi, postApi } from "../../services/axiosServices/ApiService";
 import { useNavigate, useParams } from "react-router-dom";
 import { useFetchDisponibleQuestions } from "../../hooks/fetchQuestions";
+import { ButtonImport } from "../../pages/careers/questions/imports/ButtonImport";
+import { ModalImport } from "../../pages/careers/questions/imports/ModalImport";
 
 export const FormAssignQuestions = ({ data }) => {
   const { id } = useParams();
@@ -295,6 +297,7 @@ export const FormAssignQuestions = ({ data }) => {
     resetForm();
     navigate(`/administracion/periodsByCareer/${id}/examns`);
   };
+  const modalId = "importExcel"
   return asignado ? (
     <div className="container-fluid p-4">
       <div className="card shadow-lg border-0 rounded-3 overflow-hidden">
@@ -418,6 +421,14 @@ export const FormAssignQuestions = ({ data }) => {
                                 <li>Media: {disponibles?.[area.id]?.media || 0}</li>
                                 <li>Difícil: {disponibles?.[area.id]?.dificil || 0}</li>
                               </ul>
+                              {(disponibles?.[area.id]?.facil === 0 &&
+                                disponibles?.[area.id]?.media === 0 &&
+                                disponibles?.[area.id]?.dificil === 0) && (
+                                  <div className="alert alert-warning mt-2">
+                                    No hay preguntas disponibles en esta área.{" "}
+                                    <ButtonImport modalIdImp={modalId}/>
+                                  </div>
+                                )}
                             </div>
                             {calculatedScores[index] && (
                               <div className="alert alert-secondary mt-2">
@@ -475,6 +486,7 @@ export const FormAssignQuestions = ({ data }) => {
           </form>
         </div>
       </div>
+      <ModalImport modalIdImp={modalId} />
     </div>
   );
 };

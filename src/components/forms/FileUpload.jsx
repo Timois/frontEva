@@ -24,7 +24,7 @@ export const FileUpload = () => {
   /* ---------- hooks & context ---------- */
   const { id } = useParams();
   const area_id = id;
-  const { importExcelQuestions, getData } = useContext(ImportExcelQuestionsContext);
+  const { getData } = useContext(ImportExcelQuestionsContext);
   const [array, setArray] = useState([]);
   // hook que permitirá volver a consultar las preguntas del área
   const { getDataQuestions } = useFetchQuestionsByArea();                    // ← NUEVO

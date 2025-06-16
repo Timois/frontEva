@@ -1,6 +1,7 @@
 import { useContext } from "react";
 import { StudentContext } from "../context/StudentProvider";
 import { getApi } from "../services/axiosServices/ApiService";
+import { AssignQuestionsContext } from "../context/QuestionEvaluationProvider";
 export const useFetchStudent = () => {
     const { students, setStudents } = useContext(StudentContext);
 
@@ -18,3 +19,14 @@ export const useFetchStudent = () => {
     
     return { students, getData, getStudentsByIdExmans };
 };
+
+export const usFetchStudentTest = () => {
+    const { assignQuestions, setAssignQuestions } = useContext(AssignQuestionsContext);
+
+    const getStudentTestById = async (studentTestId) => {
+        const response = await getApi(`student_evaluations/questions/${studentTestId}`);
+        setAssignQuestions(response)
+        return response;
+    }
+    return { assignQuestions, getStudentTestById };
+}

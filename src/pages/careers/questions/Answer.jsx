@@ -26,7 +26,7 @@ export const Answer = () => {
             </div>
         );
     }
-    console.log(answers)
+    
     const navigate = useNavigate();
     return (
         <div className="container-fluid p-4">
