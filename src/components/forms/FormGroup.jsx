@@ -17,11 +17,11 @@ import { DateInput } from "./components/DateInput";
 import { fetchLabs } from "../../hooks/fetchLabs";
 import { SelectInput } from "./components/SelectInput";
 import { useParams } from "react-router-dom";
-import { fetchEvaluationById } from "../../hooks/fetchExamns";
+import { useExamns } from "../../hooks/fetchExamns";
 
 export const FormGroup = () => {
     const { id } = useParams();
-    const { examns, getDataExamns } = fetchEvaluationById();
+    const {examns, getExamnById} = useExamns
     const [response, setResponse] = useState(false);
     const { addGroup } = useContext(GroupContext);
     const { labs, getDataLabs } = fetchLabs();
@@ -55,7 +55,7 @@ export const FormGroup = () => {
     }, []);
 
     useEffect(() => {
-        getDataExamns(id);
+        getExamnById(id);
     }, [id]);
 
     const evaluationId = id;
@@ -101,6 +101,7 @@ export const FormGroup = () => {
 
         try {
             const response = await postApi("groups/save", formData);
+            
             if (!response) {
                 throw new Error("No se pudo guardar el grupo");
             }
@@ -112,7 +113,7 @@ export const FormGroup = () => {
             }
             customAlert("Grupo guardado correctamente", "success");
             closeFormModal("registerGroup");
-            addGroup(response.data);
+            addGroup(response);
             resetForm();
         } catch (error) {
             

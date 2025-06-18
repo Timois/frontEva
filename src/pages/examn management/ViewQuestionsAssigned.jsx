@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { useFetchExamns } from "../../hooks/fetchExamns";
 import { useParams } from "react-router-dom";
+import { useQuestionEvaluations } from "../../hooks/fetchQuestionEvaluations";
 
 export const ViewQuestionsAssigned = () => {
     const { id } = useParams();
-    const { fetchQuestionsAssigned } = useFetchExamns();
+    const { fetchQuestionsAssigned } = useQuestionEvaluations();
     const [questions, setQuestions] = useState([]);
     const [loading, setLoading] = useState(true);
 

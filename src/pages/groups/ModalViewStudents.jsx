@@ -30,18 +30,23 @@ export const ModalViewStudents = ({ modalId, students = [], onClose }) => {
                         {students.length > 0 ? (
                             <ul className="list-group">
                                 {[...students]
-                                    .sort((a, b) => a.paternal_surname.localeCompare(b.paternal_surname))
+                                    .sort((a, b) => {
+                                        const nameA = (a.paternal_surname || a.maternal_surname || '').toLowerCase();
+                                        const nameB = (b.paternal_surname || b.maternal_surname || '').toLowerCase();
+                                        return nameA.localeCompare(nameB);
+                                    })
                                     .map((student, index) => (
                                         <li key={index} className="list-group-item text-capitalize">
-                                            {student.paternal_surname} {student.maternal_surname} {student.name}
+                                            {student.paternal_surname || ''} {student.maternal_surname || ''} {student.name}
                                         </li>
                                     ))}
                             </ul>
+
                         ) : (
                             <p className="text-muted">Este grupo no tiene estudiantes.</p>
                         )}
                     </div>
-                        
+
                     <div className="modal-footer">
                         <button
                             type="button"

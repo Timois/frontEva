@@ -2,8 +2,8 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom'; 
-import { useFetchExamns } from '../../hooks/fetchExamns';
 import { getApi } from '../../services/axiosServices/ApiService';
+import { useStudentTest } from '../../hooks/fetchStudentTest';
 
 const ViewQuestionsForStudent = () => {
   const { id: studentTestId } = useParams(); 
@@ -12,12 +12,12 @@ const ViewQuestionsForStudent = () => {
   const [evaluationTitle, setEvaluationTitle] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { fetchStudenttestStudent } = useFetchExamns();
+  const { fetchQuestionsByStudentTest } = useStudentTest();
 
   useEffect(() => {
     const fetchAllData = async () => {
       try {
-        const response = await fetchStudenttestStudent(studentTestId);
+        const response = await fetchQuestionsByStudentTest(studentTestId);
         setQuestionsData(response);
 
         // Fetch student name

@@ -1,9 +1,13 @@
 /* eslint-disable react/prop-types */
-import { createContext, useState } from "react"
+import { createContext, useEffect, useState } from "react"
 
 export const ExamnsContext = createContext()
 export const ExamnsProvider = ({ children }) => {
   const [examns, setExamns] = useState([])
+
+  useEffect(() => {
+    console.log("::EN EL PROVIDER::", examns)
+  })
   const addExamn = (examn) => {
     setExamns(prev => [...prev, examn])
   }

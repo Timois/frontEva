@@ -1,97 +1,62 @@
-/* eslint-disable no-unused-vars */
+// hooks/useExamns.js
 import { useContext } from "react"
 import { ExamnsContext } from "../context/ExamnsProvider"
-import { getApi } from "../services/axiosServices/ApiService"
+import {
+  fetchAllExamns,
+  fetchPeriodById,
+  fetchExamnById,
+  fetchExamnsByCareer
+} from "../services/routes/ExamService"
 
-export const useFetchExamns = () => {
+export const useExamns = () => {
   const { examns, setExamns } = useContext(ExamnsContext)
 
   const getDataExamns = async () => {
     try {
-      const response = await getApi("evaluations/list")
-      const examnsWithPeriod = await Promise.all(response.map(async (examn) => {
-        const periodResponse = await getApi(`evaluations/findPeriod/${examn.academic_management_period_id}`)
-        return {
-          ...examn,
-          period_name: periodResponse.period?.period
-        }
-      }))
+      const response = await fetchAllExamns()
+      const examnsWithPeriod = await Promise.all(
+        response.map(async (examn) => {
+          const periodResponse = await fetchPeriodById(examn.academic_management_period_id)
+          return {
+            ...examn,
+            period_name: periodResponse.period?.period,
+          }
+        })
+      )
+      
       setExamns(examnsWithPeriod)
+
     } catch (error) {
-      console.error("Error fetching examns:", error)
+      console.error("Error al obtener exámenes:", error)
     }
   }
-  const refreshExamns = async () => {
+  const getExamnById = async (id) => {
     try {
-      const response = await getApi("evaluations/list")
-      const examnsWithPeriod = await Promise.all(response.map(async (examn) => {
-        const periodResponse = await getApi(`evaluations/findPeriod/${examn.academic_management_period_id}`)
-        return {
-          ...examn,
-          period_name: periodResponse.period?.period
-        }
-      }))
-      setExamns(examnsWithPeriod)
+      const response = await fetchExamnById(id)
+      return response.title
     } catch (error) {
-      console.error("Error al actualizar exámenes:", error)
+      console.error("Error al obtener examen por ID:", error)
+      return null
     }
   }
   
-  const fetchQuestionsAssigned = async (examnId) => {
+  
+  const getExamnsByCareer = async (careerId) => {
     try {
-      const response = await getApi(`question_evaluations/find/${examnId}`)
+      const response = await fetchExamnsByCareer(careerId)
+      console.log(":despues de guardar:", response)
       setExamns(response)
-      return response
-    } catch (error) {
-      console.error("Error al obtener preguntas asignadas:", error)
-      return null
-    }
-  }
-  const fetchStudenttestStudent = (student_test_id) => {
-    try {
-      const response = getApi(`student_tests/listQuestionsByStudent/${student_test_id}`)
-      setExamns(response)
-      return response
-    } catch (error) {
-      console.error("Error al obtener preguntas asignadas:", error)
-      return null
-    }
-  }
-  const fetchExamsByCareer = async (careerId) => {
-    try {
-      const response = await getApi(`evaluations/findEvaluationsBYCareer/${careerId}`)
-      setExamns(response)
-      const examnsWithPeriod = await Promise.all(response.map(async (examn) => {
-        const periodResponse = await getApi(`evaluations/findPeriod/${examn.academic_management_period_id}`)
-        return {
-          ...examn,
-          period_name: periodResponse.period?.period
-        }
-      }))
-      setExamns(examnsWithPeriod)
-      return response
     } catch (error) {
       console.error("Error al obtener exámenes por carrera:", error)
-      return null
     }
   }
-  const getExamnById = async (examnId) => {
-    const response = await getApi(`evaluations/find/${examnId}`)
-    return response.title
+  const refreshExamns = getExamnsByCareer
+  
+  return {
+    examns,
+    getDataExamns,
+    refreshExamns,
+    getExamnById,
+    getExamnsByCareer,
   }
-  return { examns, getDataExamns, refreshExamns, fetchQuestionsAssigned, 
-    fetchStudenttestStudent, fetchExamsByCareer, getExamnById}
-}
-
-export const fetchEvaluationById = () => {
-  const {examns, setExamns} = useContext(ExamnsContext)
-  const getDataExamns = async (examnId) => {
-    try {
-      const response = await getApi(`evaluations/find/${examnId}`)
-      setExamns(response)
-    } catch (error) {
-      console.error("Error fetching examns:", error)
-    }
-  }
-  return {examns, getDataExamns}
 }

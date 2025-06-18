@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { useFetchExamns } from '../../hooks/fetchExamns';
+import { useParams } from 'react-router-dom';;
 import { getApi, postApi } from '../../services/axiosServices/ApiService';
 import { customAlert } from '../../utils/domHelper';
+import { useStudentTest } from '../../hooks/fetchStudentTest';
 
 const IndexResults = () => {
   const { id: studentTestId } = useParams();
@@ -13,12 +13,12 @@ const IndexResults = () => {
   const [error, setError] = useState(null);
   const [selectedAnswers, setSelectedAnswers] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { fetchStudenttestStudent } = useFetchExamns();
+  const { fetchQuestionsByStudentTest } = useStudentTest();
 
   useEffect(() => {
     const fetchAllData = async () => {
       try {
-        const response = await fetchStudenttestStudent(studentTestId);
+        const response = await fetchQuestionsByStudentTest(studentTestId);
         setQuestionsData(response);
         
         // Inicializar las respuestas seleccionadas

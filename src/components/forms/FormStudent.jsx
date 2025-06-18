@@ -13,13 +13,13 @@ import { ContainerButton } from "../login/ContainerButton";
 import { Button } from "../login/Button";
 import CancelButton from "./components/CancelButon";
 import { DateInput } from "./components/DateInput";
-import { useFetchExamns } from "../../hooks/fetchExamns";
+import { useExamns } from "../../hooks/fetchExamns";
 
 
 export const FormStudent = ({examnID}) => {
   const { addStudent } = useContext(StudentContext);
   const [response, setResponse] = useState(false);
-  const { getExamnById } = useFetchExamns();
+  const { getExamnById } = useExamns();
   const [title, setTitle] = useState("")
   const { control, handleSubmit, reset, formState: { errors }, setError } = useForm({
     resolver: zodResolver(StudentSchema)

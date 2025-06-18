@@ -6,12 +6,11 @@ import { FaObjectGroup } from "react-icons/fa";
 import ButtonEdit from "./ButtonEdit";
 import ModalEdit from "./ModalEdit";
 import { ModalViewStudents } from "./ModalViewStudents";
-import { fetchEvaluationById } from "../../hooks/fetchExamns";
-
+import { useExamns } from "../../hooks/fetchExamns";
 export const Groups = () => {
     const { id } = useParams();
     const evaluationId = id;
-    const { examns, getDataExamns } = fetchEvaluationById();
+    const { examns, getExamnById } = useExamns()
     const [selectedGroup, setSelectedGroup] = useState(null);
     const { groups, totalStudents, getDataGroupEvaluation } = fetchGroupByEvaluation();
     const [selectedGroupStudents, setSelectedGroupStudents] = useState([]);
@@ -20,17 +19,20 @@ export const Groups = () => {
 
     // ✔️ Manejo seguro de assignedStudents
     const assignedStudents = useMemo(() => {
-        return groups.reduce(
-            (acc, group) => acc + (Array.isArray(group.students) ? group.students.length : 0),
-            0
-        );
-    }, [groups]);
+        if (!Array.isArray(groups) || groups.length === 0) return 0;
 
+        return groups.reduce((acc, group) => {
+            if (group && Array.isArray(group.students)) {
+                return acc + group.students.length;
+            }
+            return acc;
+        }, 0);
+    }, [groups]);
+    
     // ✔️ Manejo seguro de totalStudents
     const unassignedStudents = typeof totalStudents === "number"
         ? totalStudents - assignedStudents
         : 0;
-
     const handleEditClick = (data) => {
         setSelectedGroup(data);
         setShowEditModal(true);
@@ -41,7 +43,7 @@ export const Groups = () => {
     }, [evaluationId]);
 
     useEffect(() => {
-        getDataExamns(evaluationId);
+        getExamnById(evaluationId);
     }, [evaluationId]);
 
     const handleViewStudents = (group) => {
@@ -50,7 +52,7 @@ export const Groups = () => {
     };
 
     const idEditar = "editGroup";
-
+    
     const examDate = examns?.date_of_realization;
 
     return (
@@ -91,11 +93,17 @@ export const Groups = () => {
                         <tbody>
                             {groups.length > 0 ? (
                                 groups.map((group, index) => {
-                                    const startTime = group.start_time.split(" ")[1].slice(0, 5);
-                                    const endTime = group.end_time.split(" ")[1].slice(0, 5);
+                                    const startTime = group.start_time
+                                        ? group.start_time.split(" ")[1]?.slice(0, 5)
+                                        : "N/D";
+                                    const endTime = group.end_time
+                                        ? group.end_time.split(" ")[1]?.slice(0, 5)
+                                        : "N/D";
+
                                     const studentCount = Array.isArray(group.students) ? group.students.length : 0;
                                     const labCapacity = group.lab?.equipment_count ?? "N/A";
                                     const labLocation = group.lab?.location ?? "Sin ubicación";
+
                                     return (
                                         <tr key={index} className="transition-all">
                                             <td className="text-center text-muted">{index + 1}</td>

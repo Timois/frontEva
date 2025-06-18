@@ -39,7 +39,7 @@ export const CareerPeriodsList = () => {
                                 </div>
                                 <div className="card-footer text-center">
                                     <p className="card-text">
-                                        Cantidad de PSA {period.start_date}
+                                        Cantidad de PSA
                                     </p>
                                     <Link
                                         to={`${period.id}/examns`}

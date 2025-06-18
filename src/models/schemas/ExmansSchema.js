@@ -10,6 +10,5 @@ export const ExmansSchema = z.object({
         .transform((val) => new Date(val)),
     time: z.number({ required_error: "El tiempo es obligatorio" })
        .min(1, "El tiempo debe ser mayor o igual a 1"), 
-    academic_management_period_id: z.string({ required_error: "Seleccione una opcion" })
-        .regex(/^[0-9]+$/, { message: "Debe ser un id válido" })
+    academic_management_period_id: z.number({ required_error: "El periodo es obligatorio" })
 })

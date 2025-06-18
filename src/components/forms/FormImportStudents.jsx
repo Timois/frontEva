@@ -12,11 +12,11 @@ import { Button } from "../login/Button";
 import { ImputStudents } from "./components/ImputStudents";
 import CancelButton from "./components/CancelButon";
 import { useFetchStudent } from "../../hooks/fetchStudent";
-import { useFetchExamns } from "../../hooks/fetchExamns";
+import { useExamns } from "../../hooks/fetchExamns";
 
 export const FormImportStudents = ({ examID, modalId }) => {
     const [response, setResponse] = useState(false);
-    const { getExamnById } = useFetchExamns();
+    const { getExamnById } = useExamns();
     const [title, setTitle] = useState("")
 
     const { control,

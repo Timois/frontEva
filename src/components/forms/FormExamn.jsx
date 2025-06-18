@@ -21,18 +21,19 @@ const arrayOption = [
 const names = [{ value: "PSA 1", text: "PSA 1" }, { value: "PSA 2", text: "PSA 2"}, { value: "PSA 3", text: "PSA 3"}, { value: "PSA 4", text: "PSA 4" }, { value: "PSA 5", text: "PSA 5" }]
 import { useParams } from "react-router-dom" // ✅ NUEVO
 import { SelectInput } from "./components/SelectInput"
+import { useExamns } from "../../hooks/fetchExamns"
 
 export const FormExamn = () => {
     const [response, setResponse] = useState(false)
-    const { addExamn } = useContext(ExamnsContext)
-    const [selectedPeriod, setSelectedPeriod] = useState(null) // ✅ NUEVO
+    const { refreshExamns } = useExamns() // Obtener las evaluaciones desde el contexto o desde una API, por ejemplo, fetchExamsByCareer() o useFetchExamsByCareer()
 
+    const [selectedPeriod, setSelectedPeriod] = useState(null) // ✅ NUEVO
     const { id: periodId } = useParams(); // ✅ Obtener el id del período desde la URL
 
     const { control, handleSubmit, reset, formState: { errors }, setError, setValue } = useForm({
         resolver: zodResolver(ExmansSchema)
     })
-
+    
     const user = JSON.parse(localStorage.getItem('user'))
     const career_id = user?.career_id
 
@@ -83,10 +84,11 @@ export const FormExamn = () => {
         formData.append("type", "web");
         formData.append("time", Number(data.time));
         formData.append("status", "inactivo");
-        formData.append("academic_management_period_id", String(data.academic_management_period_id));
+        formData.append("academic_management_period_id", periodId);
 
         try {
             const response = await postApi("evaluations/save", formData);
+            console.log(response)
             if (!response) throw new Error('No response from server');
 
             if (response.status === 422) {
@@ -98,13 +100,14 @@ export const FormExamn = () => {
 
             customAlert("Examen creado con éxito", "success");
             closeFormModal("registerExamn");
-            addExamn(response);
+            await refreshExamns(career_id);
             resetForm();
+            
         } catch (error) {
             if (response?.status === 403) {
                 customAlert("No tienes permisos para realizar esta acción", "error");
             } else {
-                customAlert(error.response?.data.errors?.message || "Error al crear el examen", "error");
+                customAlert(error.response?.data.message || "Error al crear el examen", "error");
             }
             closeFormModal("registerExamn");
             resetForm();
@@ -158,7 +161,6 @@ export const FormExamn = () => {
                 <div className="border border-gray-300 rounded-md p-2 bg-gray-100 text-gray-700">
                     {selectedPeriod ? selectedPeriod.period : "Cargando período..."}
                 </div>
-                <Validate error={errors.academic_management_period_id} />
             </ContainerInput>
             <ContainerButton>
                 <Button type="submit" name="submit" disabled={response}>
