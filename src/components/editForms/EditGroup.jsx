@@ -3,7 +3,7 @@ import { useContext, useEffect, useState } from "react"
 import { GroupContext } from "../../context/GroupsProvider"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { GroupSchema } from "../../models/schemas/GroupSchema"
-import { useForm } from "react-hook-form"
+import { useForm, useWatch } from "react-hook-form"
 import { fetchLabs } from "../../hooks/fetchLabs"
 import CancelButton from "../forms/components/CancelButon"
 import { Button } from "../login/Button"
@@ -16,108 +16,160 @@ import { Input } from "../login/Input"
 import { updateApi } from "../../services/axiosServices/ApiService"
 import { closeFormModal, customAlert } from "../../utils/domHelper"
 import { useParams } from "react-router-dom"
+import { useExamns } from "../../hooks/fetchExamns"
 
-export const EditGroup = ({data}) => {
-    const {id} = useParams()
-    const { updateGroup } = useContext(GroupContext)
-    const [response, setResponse] = useState(false)
-    const [array, setArray] = useState([])
-    const [groupId, setGroupId] = useState(null)
-    const { control, handleSubmit, reset, setValue, formState: { errors }, setError } = useForm({
+export const EditGroup = ({ data }) => {
+    const { id } = useParams();
+    const { updateGroup } = useContext(GroupContext);
+    const [response, setResponse] = useState(false);
+    const [array, setArray] = useState([]);
+    const { examn, getExamnById } = useExamns();
+    const [groupId, setGroupId] = useState(null);
+
+    const {
+        control,
+        handleSubmit,
+        reset,
+        setValue,
+        formState: { errors },
+        setError,
+    } = useForm({
         resolver: zodResolver(GroupSchema),
-    })
+    });
+   
+    const { labs, getDataLabs } = fetchLabs();
     
-    const { labs, getDataLabs } = fetchLabs()
     useEffect(() => {
-        getDataLabs()
-    }, [])
+        getDataLabs();
+    }, []);
+
+    useEffect(() => {
+        getExamnById(id);
+    }, [id]);
 
     useEffect(() => {
         if (labs.length > 0) {
-            const array = labs.map((lab) => {
-                return { value: lab.id, text: `${lab.name} - ${lab.location}` }
-            })
-            setArray(array)
+            const array = labs.map((lab) => ({
+                value: lab.id,
+                text: `${lab.name} - ${lab.location}`,
+            }));
+            setArray(array);
         }
-    }, [labs])
+    }, [labs]);
+
+    const formatToHourMinutes = (datetime) => datetime.split(" ")[1].slice(0, 5);
+
     useEffect(() => {
         if (data) {
-            setValue("name", data.name)
-            setValue("description", data.description)
-            setValue("initial_time", data.initial_time)
-            setValue("end_time", data.end_time)
-            setValue("laborotory_id", data.laboratory_id)
-            setGroupId(data.id)
-        }
-    }, [data, setValue])
-    const evaluation_id = id
-    const onSubmit = async (data) => {
-        setResponse(true)
-        const requestData = new FormData()
-        requestData.append("name", data.name)
-        requestData.append("description", data.description)
-        requestData.append("initial_time", data.initial_time)
-        requestData.append("end_time", data.end_time)
-        requestData.append("laboratory_id", data.laboratory_id)
-        requestData.append("evaluation_id", evaluation_id)
-        try {
-            const response = await updateApi(`groups/edit/${groupId}`, requestData)
-            setResponse(false)
+            setValue('name', data.name);
+            setValue('description', data.description);
+            const startFormatted = formatToHourMinutes(data.start_time);
+            setValue('start_time', startFormatted);
 
-            if(response.status === 422){
-                for(let key in response.data.errors){
-                    setError(key, {type: "custom", message: response.data.errors[key][0] })
-                }
-                return
+            if (examn?.time) {
+                const [hours, minutes] = startFormatted.split(":").map(Number);
+                const totalMinutes = hours * 60 + minutes + Number(examn.time);
+                const hEnd = String(Math.floor(totalMinutes / 60) % 24).padStart(2, '0');
+                const mEnd = String(totalMinutes % 60).padStart(2, '0');
+                setValue('end_time', `${hEnd}:${mEnd}`);
+            } else {
+                setValue('end_time', formatToHourMinutes(data.end_time));
             }
-            if(response){
-                updateGroup(response)
-                customAlert("Grupo actualizado correctamente", "success")
-                closeFormModal("editGroup")
-                reset()
-            }else{
-                customAlert("Error al actualizar el grupo", "error")
-            }
-        }catch(error){
-            if(error.response.status === 403){
-                customAlert("No tienes permisos para realizar esta acción", "error")
-                closeFormModal("editGroup")
-                reset()
-            }else{
-                customAlert(error.response?.data.errors?.message ||"Error al actualizar el grupo", "error")
-                closeFormModal("editGroup")
-            }
-        }finally{
-            setResponse(false)
+
+            setValue('laboratory_id', data.laboratory_id);
+            setValue('order_type', data.order_type);
+            setGroupId(data.id);
         }
-    }
+    }, [data, examn, setValue]);
+
+    // ⏱ Observar cambios en start_time para recalcular end_time
+    const watchedStartTime = useWatch({ control, name: "start_time" });
+
+    useEffect(() => {
+        if (watchedStartTime && examn?.time) {
+            const [hours, minutes] = watchedStartTime.split(":").map(Number);
+            const duration = Number(examn.time); // minutos
+            const totalMinutes = hours * 60 + minutes + duration;
+            const newHours = String(Math.floor(totalMinutes / 60) % 24).padStart(2, "0");
+            const newMinutes = String(totalMinutes % 60).padStart(2, "0");
+            setValue("end_time", `${newHours}:${newMinutes}`);
+        }
+    }, [watchedStartTime, examn, setValue]);
+
+    const evaluation_id = id;
+
+    const onSubmit = async (data) => {
+        setResponse(true);
+        const requestData = new FormData();
+        requestData.append('name', data.name);
+        requestData.append('description', data.description);
+        requestData.append('start_time', data.start_time);
+        requestData.append('end_time', data.end_time);
+        requestData.append('laboratory_id', Number(data.laboratory_id));
+        requestData.append('evaluation_id', evaluation_id);
+
+        try {
+            const response = await updateApi(`groups/edit/${groupId}`, requestData);
+            setResponse(false);
+
+            if (response.status === 422) {
+                for (let key in response.data.errors) {
+                    setError(key, { type: 'custom', message: response.data.errors[key][0] });
+                }
+                return;
+            }
+
+            if (response) {
+                updateGroup(response);
+                customAlert('Grupo actualizado correctamente', 'success');
+                closeFormModal('editGroup');
+                reset();
+            } else {
+                customAlert('Error al actualizar el grupo', 'error');
+            }
+        } catch (error) {
+            if (error.response?.status === 403) {
+                customAlert('No tienes permisos para realizar esta acción', 'error');
+                closeFormModal('editGroup');
+                reset();
+            } else {
+                customAlert(error.response?.data.errors?.message || 'Error al actualizar el grupo', 'error');
+                closeFormModal('editGroup');
+            }
+        } finally {
+            setResponse(false);
+        }
+    };
 
     const handleCancel = () => {
-        closeFormModal("editGroup")
-        reset()
-    }
+        closeFormModal('editGroup');
+    };
 
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
+             <div className="mb-3">
+                <span className="text-align-center text-danger">Tiempo del examen {examn.time || "N/A"} minutos</span>
+            </div>
             <ContainerInput>
                 <Input name="name" placeholder="Ingrese el Nombre del grupo" control={control} errors={errors} />
                 <Validate errors={errors.name} />
             </ContainerInput>
+
             <ContainerInput>
                 <Input name="description" placeholder="Ingrese la descripción del grupo" control={control} errors={errors} />
                 <Validate errors={errors.description} />
             </ContainerInput>
+
             <ContainerInput>
-                <div style={{ display: "flex", gap: "10px" }}>
-                    <DateInput label={"Hora de inicio"} name={"initial_time"} control={control} type={"time"} />
+                <p className="text-xs text-gray-500 mt-1">
+                    La hora de fin se calcula automáticamente según la duración del examen.
+                </p>
+                <div style={{ display: "flex", gap: "10px", justifyContent: "space-around" }}>
+                    <DateInput label={"Hora de inicio"} name={"start_time"} control={control} type={"time"} />
+                    <DateInput label={"Hora de Fin"} name={"end_time"} control={control} type={"time"} disabled />
                 </div>
-                <Validate errors={errors.initial_date} />
-            </ContainerInput>
-            <ContainerInput>
-                <div style={{ display: "flex", gap: "10px" }}>
-                    <DateInput label={"Hora de Fin"} name={"end_time"} control={control} type={"time"} />
-                </div>
-                <Validate errors={errors.end_date} />
+                <Validate errors={errors.start_time} />
+                <Validate errors={errors.end_time} />
             </ContainerInput>
             <ContainerInput>
                 <SelectInput label="Seleccione un Ambiente" name="laboratory_id" options={array} control={control} />
@@ -125,10 +177,10 @@ export const EditGroup = ({data}) => {
             </ContainerInput>
             <ContainerButton>
                 <Button type="submit" name="submit" disabled={response}>
-                    <span>{response ? "Guardando..." : "Guardar"}</span>
+                    <span>{response ? 'Guardando...' : 'Guardar'}</span>
                 </Button>
                 <CancelButton disabled={response} onClick={handleCancel} />
             </ContainerButton>
         </form>
-    )
-}
+    );
+};

@@ -1,7 +1,6 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
-import { useContext, useEffect, useState } from "react";
-import { GroupContext } from "../../context/GroupsProvider";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { GroupSchema } from "../../models/schemas/GroupSchema";
@@ -18,15 +17,16 @@ import { fetchLabs } from "../../hooks/fetchLabs";
 import { SelectInput } from "./components/SelectInput";
 import { useParams } from "react-router-dom";
 import { useExamns } from "../../hooks/fetchExamns";
+import { fetchGroupByEvaluation } from "../../hooks/fetchGroup";
 
 export const FormGroup = () => {
     const { id } = useParams();
-    const {examns, getExamnById} = useExamns
+    const {examn, getExamnById} = useExamns()
     const [response, setResponse] = useState(false);
-    const { addGroup } = useContext(GroupContext);
+    const {refreshGroups} = fetchGroupByEvaluation();
     const { labs, getDataLabs } = fetchLabs();
     const [array, setArray] = useState([]);
-
+    
     const {
         control,
         handleSubmit,
@@ -46,7 +46,7 @@ export const FormGroup = () => {
             order_type: "",
         },
     });
-
+    
     const startTime = watch("start_time");
     const endTime = watch("end_time");
 
@@ -71,12 +71,12 @@ export const FormGroup = () => {
     }, [labs]);
 
     useEffect(() => {
-        if (!startTime || !/^\d{2}:\d{2}$/.test(startTime) || !examns?.time) return
+        if (!startTime || !/^\d{2}:\d{2}$/.test(startTime) || !examn?.time) return
 
         const [hours, minutes] = startTime.split(":").map(Number)
         if (isNaN(hours) || isNaN(minutes)) return
 
-        const totalMinutes = hours * 60 + minutes + parseInt(examns.time)
+        const totalMinutes = hours * 60 + minutes + parseInt(examn.time)
         const endHours = Math.floor(totalMinutes / 60) % 24
         const endMinutes = totalMinutes % 60
 
@@ -85,8 +85,7 @@ export const FormGroup = () => {
             .padStart(2, "0")}`
 
         setValue("end_time", formattedEndTime)
-    }, [startTime, examns?.time])
-
+    }, [startTime, examn?.time])
 
     const onSubmit = async (data) => {
         setResponse(true);
@@ -113,7 +112,7 @@ export const FormGroup = () => {
             }
             customAlert("Grupo guardado correctamente", "success");
             closeFormModal("registerGroup");
-            addGroup(response);
+            await refreshGroups(evaluationId); // Refrescar la list
             resetForm();
         } catch (error) {
             
@@ -148,7 +147,7 @@ export const FormGroup = () => {
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
             <div className="mb-3">
-                <span className="text-align-center text-danger">Tiempo del examen {examns.time || "N/A"} minutos</span>
+                <span className="text-align-center text-danger">Tiempo del examen {examn.time || "N/A"} minutos</span>
             </div>
             <ContainerInput>
                 <Input name="name" placeholder="Ingrese el Nombre del grupo" control={control} errors={errors} />

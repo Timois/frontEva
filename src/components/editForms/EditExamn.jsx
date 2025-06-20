@@ -5,7 +5,7 @@ import { useContext, useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { ExmansSchema } from "../../models/schemas/ExmansSchema"
-import { postApi } from "../../services/axiosServices/ApiService"
+import { updateApi } from "../../services/axiosServices/ApiService"
 import { closeFormModal, customAlert } from "../../utils/domHelper"
 import { ContainerInput } from "../login/ContainerInput"
 import { Input } from "../login/Input"
@@ -18,21 +18,23 @@ import { DateInput } from "../forms/components/DateInput"
 import { useFetchCareerAssign, useFetchCareerAssignPeriod } from "../../hooks/fetchCareers"
 import { ExamnsContext } from "../../context/ExamnsProvider"
 import { useParams } from "react-router-dom"
-const names = [{ value: "PSA 1", text: "PSA 1" }, { value: "PSA 2", text: "PSA 2"}, { value: "PSA 3", text: "PSA 3"}, { value: "PSA 4", text: "PSA 4" }, { value: "PSA 5", text: "PSA 5" }]
+import { useExamns } from "../../hooks/fetchExamns"
+const names = [{ value: "PSA 1", text: "PSA 1" }, { value: "PSA 2", text: "PSA 2" }, { value: "PSA 3", text: "PSA 3" }, { value: "PSA 4", text: "PSA 4" }, { value: "PSA 5", text: "PSA 5" }]
 
 export const EditExamn = ({ data, closeModal }) => {
     const [response, setResponse] = useState(false)
     const { updateExamn } = useContext(ExamnsContext)
-    const [array, setArray] = useState([])
     const [selectedPeriod, setSelectedPeriod] = useState(null)
-    const {id: periodId} = useParams()
+    const { id: periodId } = useParams()
+    const { refreshExamns } = useExamns()
+    
     const { control, handleSubmit, reset, setValue, formState: { errors }, setError } = useForm({
         resolver: zodResolver(ExmansSchema),
     })
-    
+
     const user = JSON.parse(localStorage.getItem('user'))
     const career_id = user?.career_id
-    
+
     const { careerAssignments, getDataCareerAssignments } = useFetchCareerAssign(career_id)
     const { careerAssignmentsPeriods, getDataCareerAssignmentPeriods } = useFetchCareerAssignPeriod()
 
@@ -58,8 +60,8 @@ export const EditExamn = ({ data, closeModal }) => {
         if (careerAssignmentsPeriods.length > 0) {
             const foundPeriod = careerAssignmentsPeriods.find(p => p.id === parseInt(periodId));
             if (foundPeriod) {
-                setSelectedPeriod(foundPeriod); // ✅ Guardar período seleccionado
-                setValue("academic_management_period_id", foundPeriod.id); // ✅ Preasignar al formulario
+                setSelectedPeriod(foundPeriod);
+                setValue("academic_management_period_id", foundPeriod.id);
             }
         }
     }, [careerAssignmentsPeriods, periodId, setValue]);
@@ -69,11 +71,11 @@ export const EditExamn = ({ data, closeModal }) => {
             reset({
                 title: data.title,
                 description: data.description,
-                passing_score: String(data.passing_score), // Convertir a string
+                passing_score: data.passing_score, // Agregar este campo si lo tienes en tu esquema de zod
                 date_of_realization: new Date(data.date_of_realization).toISOString().split('T')[0],
                 type: data.type,
                 time: data.time, // Agregar este campo si lo tienes en tu esquema de zod
-                academic_management_period_id: String(data.academic_management_period_id) // Convertir a string
+                academic_management_period_id: data.academic_management_period_id // Convertir a string
             });
         }
     }, [data, reset]);
@@ -83,45 +85,44 @@ export const EditExamn = ({ data, closeModal }) => {
             customAlert("Debe seleccionar un período académico", "error");
             return;
         }
+        const formattedDate = new Date(formData.date_of_realization).toISOString().split("T")[0];
+        const today = new Date().toISOString().split("T")[0];
+        if (formattedDate <= today) {
+            setError("date_of_realization", {
+                type: "custom",
+                message: "La fecha debe ser posterior a hoy.",
+            });
+            return;
+        }
         setResponse(true);
-        
-        const dataToSend = {
-            ...formData,
-            passing_score: Number(formData.passing_score),
-            academic_management_period_id: Number(formData.academic_management_period_id),
-            status: data.status, // Use existing status
-            time: data.time, // Ensure it's converted to number
-            date_of_realization: formData.date_of_realization 
-                ? new Date(formData.date_of_realization).toISOString().split('T')[0]
-                : null,
-            type: "web"
-        };
+        const requestData = new FormData();
+        requestData.append("title", formData.title);
+        requestData.append("description", formData.description);
+        requestData.append("passing_score", formData.passing_score);
+        requestData.append("date_of_realization", formattedDate);
+        requestData.append("type", "web");
+        requestData.append("time", Number(formData.time));
 
         try {
-            const response = await postApi(`evaluations/edit/${data.id}`, dataToSend);
-            
+            const response = await updateApi(`evaluations/edit/${data.id}`, requestData);
+
             if (response.status === 422) {
                 for (const key in response.data.errors) {
                     setError(key, { type: "custom", message: response.data.errors[key][0] });
                 }
                 return;
             }
-            
-            // Update the local state with the new data
-            updateExamn({
-                ...data,
-                ...response.data || response,
-                qualified_students: Number(formData.qualified_students)
-            });
-            
             customAlert("Examen actualizado con éxito", "success");
             closeFormModal("editarExamn");
+            updateExamn(response)
+            await refreshExamns(career_id)
         } catch (error) {
             if (error.response?.status === 403) {
                 customAlert("No tienes permisos para realizar esta acción", "warning");
                 closeModal("editarExamn");
             } else {
-                customAlert("Error al actualizar el examen", "error");
+                closeFormModal("editarExamn");
+                customAlert(error.response?.data.message || "Error al actualizar el examen", "error");
             }
         } finally {
             setResponse(false);
@@ -135,7 +136,7 @@ export const EditExamn = ({ data, closeModal }) => {
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
             <ContainerInput>
-               <SelectInput label="Seleccione una opcion" name="title" options={names} control={control}/>
+                <SelectInput label="Seleccione una opcion" name="title" options={names} control={control} />
                 <Validate error={errors.title} />
             </ContainerInput>
             <ContainerInput>

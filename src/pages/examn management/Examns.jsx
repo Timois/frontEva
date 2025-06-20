@@ -16,14 +16,13 @@ import { useExamns } from '../../hooks/fetchExamns'
 
 export const Examns = () => { 
 const [selectedExamn, setSelectedExamn] = useState(null)
-const { examns, getExamnsByCareer } = useExamns() // Obtener las evaluaciones desde el contexto o desde una API, por ejemplo, fetchExamsByCareer() o useFetchExamsByCareer()
+  const { examns, getExamnsByCareer } = useExamns() // Obtener las evaluaciones desde el contexto o desde una API, por ejemplo, fetchExamsByCareer() o useFetchExamsByCareer()
 const handleEditClick = (examn) => setSelectedExamn(examn)
 const { id: periodId } = useParams()
 const user = JSON.parse(localStorage.getItem('user'))
 const careerId = user ? user.career_id : null
 
 useEffect(() => {
-  console.log("::DESPUES DE ENVIAR::", examns)
   getExamnsByCareer(3)
   if(examns.length === 0) return 
 }, [careerId])

@@ -88,7 +88,6 @@ export const FormExamn = () => {
 
         try {
             const response = await postApi("evaluations/save", formData);
-            console.log(response)
             if (!response) throw new Error('No response from server');
 
             if (response.status === 422) {

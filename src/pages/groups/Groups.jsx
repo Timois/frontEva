@@ -148,7 +148,7 @@ export const Groups = () => {
             <ModalEdit
                 idEditar={idEditar}
                 data={selectedGroup}
-                title="Editar Periodo"
+                title="Editar Grupo"
                 onClose={() => setShowEditModal(false)}
             />
 

@@ -10,7 +10,7 @@ import {
 
 export const useExamns = () => {
   const { examns, setExamns } = useContext(ExamnsContext)
-
+  const {examn, setExamn} = useContext(ExamnsContext)
   const getDataExamns = async () => {
     try {
       const response = await fetchAllExamns()
@@ -33,7 +33,7 @@ export const useExamns = () => {
   const getExamnById = async (id) => {
     try {
       const response = await fetchExamnById(id)
-      return response.title
+      setExamn(response)
     } catch (error) {
       console.error("Error al obtener examen por ID:", error)
       return null
@@ -44,7 +44,6 @@ export const useExamns = () => {
   const getExamnsByCareer = async (careerId) => {
     try {
       const response = await fetchExamnsByCareer(careerId)
-      console.log(":despues de guardar:", response)
       setExamns(response)
     } catch (error) {
       console.error("Error al obtener exámenes por carrera:", error)
@@ -58,5 +57,6 @@ export const useExamns = () => {
     refreshExamns,
     getExamnById,
     getExamnsByCareer,
+    examn
   }
 }
