@@ -230,7 +230,7 @@ export const FormAssignQuestions = ({ data }) => {
     try {
       await postApi("question_evaluations/assignQuestion", payload);
       customAlert("Asignación realizada con éxito", "success");
-      navigate(`/administracion/periodsByCareer/${id}/examns`);
+      navigate(-1);
     } catch (error) {
       if (
         error.response &&
@@ -295,7 +295,7 @@ export const FormAssignQuestions = ({ data }) => {
   const handleCancel = () => {
     closeFormModal();
     resetForm();
-    navigate(`/administracion/periodsByCareer/${id}/examns`);
+    navigate(-1);
   };
   const modalId = "importExcel"
   return asignado ? (
@@ -448,7 +448,7 @@ export const FormAssignQuestions = ({ data }) => {
                             )}
                           </>
                         ) : (
-                          <>
+                          <>  
                             <div className="mb-2">
                               <label>Cantidad Total de Preguntas:</label>
                               <Input

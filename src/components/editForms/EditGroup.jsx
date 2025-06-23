@@ -60,27 +60,28 @@ export const EditGroup = ({ data }) => {
     const formatToHourMinutes = (datetime) => datetime.split(" ")[1].slice(0, 5);
 
     useEffect(() => {
-        if (data) {
-            setValue('name', data.name);
-            setValue('description', data.description);
+        if (data && labs.length > 0) {
             const startFormatted = formatToHourMinutes(data.start_time);
-            setValue('start_time', startFormatted);
-
-            if (examn?.time) {
-                const [hours, minutes] = startFormatted.split(":").map(Number);
-                const totalMinutes = hours * 60 + minutes + Number(examn.time);
-                const hEnd = String(Math.floor(totalMinutes / 60) % 24).padStart(2, '0');
-                const mEnd = String(totalMinutes % 60).padStart(2, '0');
-                setValue('end_time', `${hEnd}:${mEnd}`);
-            } else {
-                setValue('end_time', formatToHourMinutes(data.end_time));
-            }
-
-            setValue('laboratory_id', data.laboratory_id);
-            setValue('order_type', data.order_type);
+            const endFormatted = examn?.time
+                ? (() => {
+                    const [hours, minutes] = startFormatted.split(":").map(Number);
+                    const totalMinutes = hours * 60 + minutes + Number(examn.time);
+                    const hEnd = String(Math.floor(totalMinutes / 60) % 24).padStart(2, '0');
+                    const mEnd = String(totalMinutes % 60).padStart(2, '0');
+                    return `${hEnd}:${mEnd}`;
+                })()
+                : formatToHourMinutes(data.end_time);
+            reset({
+                name: data.name,
+                description: data.description,
+                start_time: startFormatted,
+                end_time: endFormatted,
+                laboratory_id: data.laboratory_id ?? "",
+                order_type: data.order_type,
+            });
             setGroupId(data.id);
         }
-    }, [data, examn, setValue]);
+    }, [data, examn, labs]); // 👈 se agregó labs aquí    
 
     // ⏱ Observar cambios en start_time para recalcular end_time
     const watchedStartTime = useWatch({ control, name: "start_time" });

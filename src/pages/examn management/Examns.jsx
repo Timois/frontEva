@@ -36,6 +36,7 @@ const examnsByPeriod = currentPeriod?.evaluations?.map(e => ({
   ...e,
   period_name: currentPeriod.period_name?.period
 })) || []
+
 const idEditar = "editarExamn"
 const modalRegister = "registerStudent"
 const year = currentPeriod?.period_name?.created_at?.split('-')[0]
