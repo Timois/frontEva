@@ -129,7 +129,7 @@ export const AppRoutes = () => {
               <ViewQuestionsAssigned />
             </PermissionsGuard>
           } />
-          <Route path="administracion/examns/:id/results" element={
+          <Route path="administracion/results" element={
             <PermissionsGuard requiredPermission={"ver-resultados"}>
               <IndexResults />
             </PermissionsGuard>} />

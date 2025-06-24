@@ -16,7 +16,7 @@ import { DateInput } from "./components/DateInput";
 import { useExamns } from "../../hooks/fetchExamns";
 
 
-export const FormStudent = ({examnID}) => {
+export const FormStudent = ({ examnID }) => {
   const { addStudent } = useContext(StudentContext);
   const [response, setResponse] = useState(false);
   const { getExamnById } = useExamns();
@@ -76,18 +76,18 @@ export const FormStudent = ({examnID}) => {
   }
   useEffect(() => {
     const fetchTitle = async () => {
-        const examTitle = await getExamnById(examnID)
-        setTitle(examTitle)
+      const examTitle = await getExamnById(examnID)
+      setTitle(examTitle)
     }
     if (examnID) {
-        fetchTitle()
+      fetchTitle()
     }
-}, [examnID])
+  }, [examnID])
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <ContainerInput>
         <strong>Evaluation: {title}</strong>
-      </ContainerInput>  
+      </ContainerInput>
       <ContainerInput>
         <Input type="text" placeholder="Ingrese el numero de ci" name="ci" control={control} />
         <Validate error={errors.ci} />

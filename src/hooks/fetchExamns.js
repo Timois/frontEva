@@ -10,7 +10,7 @@ import {
 
 export const useExamns = () => {
   const { examns, setExamns } = useContext(ExamnsContext)
-  const {examn, setExamn} = useContext(ExamnsContext)
+  const { examn, setExamn } = useContext(ExamnsContext)
   const getDataExamns = async () => {
     try {
       const response = await fetchAllExamns()
@@ -23,7 +23,7 @@ export const useExamns = () => {
           }
         })
       )
-      
+
       setExamns(examnsWithPeriod)
 
     } catch (error) {
@@ -39,8 +39,7 @@ export const useExamns = () => {
       return null
     }
   }
-  
-  
+
   const getExamnsByCareer = async (careerId) => {
     try {
       const response = await fetchExamnsByCareer(careerId)
@@ -50,13 +49,13 @@ export const useExamns = () => {
     }
   }
   const refreshExamns = getExamnsByCareer
-  
+
   return {
     examns,
     getDataExamns,
     refreshExamns,
     getExamnById,
     getExamnsByCareer,
-    examn
+    examn,
   }
 }

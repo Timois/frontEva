@@ -11,16 +11,22 @@ export const useFetchPeriod = () => {
         return periods
     }
 
-    const refreshPeriods = async () => {
-        const response = await getApi("periods/list");
-        setPeriods(response);
-    };
+    const refreshPeriods = getData
 
     const getPeriodsByCareerId = async (careerId) => {
         const response = await getApi(`careers/listPeriodsByCareerId/${careerId}`)
         setPeriods(response);
     }
-    return { periods, getData, refreshPeriods, getPeriodsByCareerId }
+    const getPeriodsByCareerAndGestion = async (careerId, gestionId) => {
+        try {
+          const response = await getApi(`academic_management_period/findPeriodsByCareerManagement/${careerId}/${gestionId}`);
+          setPeriods(response);
+        } catch (error) {
+          console.error("Error al obtener periodos:", error);
+        }
+      };
+    return { periods, getData, refreshPeriods, getPeriodsByCareerId, getPeriodsByCareerAndGestion }
 
 }
+
 

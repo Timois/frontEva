@@ -25,6 +25,7 @@ import { ExamnsProvider } from './context/ExamnsProvider.jsx';
 import { QuestionEvaluationProvider } from './context/QuestionEvaluationProvider.jsx';
 import { GroupsProvider } from './context/GroupsProvider.jsx';
 import { LabsProvider } from './context/LabsProvider.jsx';
+import { ResultsProvider } from './context/ResultsProvider.jsx';
 
 
 createRoot(document.getElementById('root')).render(
@@ -48,10 +49,12 @@ createRoot(document.getElementById('root')).render(
                                     <LabsProvider>
                                       <GroupsProvider>
                                         <QuestionEvaluationProvider>
-                                          <App />
+                                          <ResultsProvider>
+                                            <App />
+                                          </ResultsProvider>
                                         </QuestionEvaluationProvider>
                                       </GroupsProvider>
-                                    </LabsProvider> 
+                                    </LabsProvider>
                                   </StudentProvider>
                                 </ExamnsProvider>
                               </AnswersProvider>

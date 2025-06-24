@@ -39,6 +39,7 @@ export const EditArea = ({ data, closeModal }) => {
     }
   }, [data, setValue, career_id]);
 
+
   const onSubmit = async (formData) => {
     setResponse(true);
 

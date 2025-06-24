@@ -5,7 +5,7 @@ export const AnswersContext = createContext()
 export const AnswersProvider = ({children}) => {
     const [answers, setAnswers] = useState([])
 
-    const addAnswer = (answer) => {
+        const addAnswer = (answer) => {
         setAnswers([...answers, answer])
     }
 

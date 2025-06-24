@@ -1,173 +1,157 @@
-import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';;
-import { getApi, postApi } from '../../services/axiosServices/ApiService';
-import { customAlert } from '../../utils/domHelper';
-import { useStudentTest } from '../../hooks/fetchStudentTest';
+import { useEffect, useMemo, useState } from "react";
+import { useForm } from "react-hook-form";
+import { useFetchGestion } from "../../hooks/fetchGestion";
+import { SelectInput } from "../../components/forms/components/SelectInput";
+import { fetchResultsByExam } from "../../hooks/fetchResults";
+import { useFetchPeriod } from "../../hooks/fetchPeriod";
+import { useExamns } from "../../hooks/fetchExamns";
 
 const IndexResults = () => {
-  const { id: studentTestId } = useParams();
-  const [questionsData, setQuestionsData] = useState(null);
-  const [studentName, setStudentName] = useState('');
-  const [evaluationTitle, setEvaluationTitle] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [selectedAnswers, setSelectedAnswers] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { fetchQuestionsByStudentTest } = useStudentTest();
+  const { control, watch } = useForm();
+  const { gestions, getData } = useFetchGestion();
+  const { results, getResults } = fetchResultsByExam();
+  const { periods, getPeriodsByCareerAndGestion } = useFetchPeriod();
+  const { examns, getExamnsByCareer } = useExamns();
+  const [filteredPeriods, setFilteredPeriods] = useState([]);
+  const [examnOptions, setExamnOptions] = useState([]);
+
+  const user = JSON.parse(localStorage.getItem("user"));
+  const careerId = user?.career_id ?? null;
+  const selectedGestionId = watch("gestion_id");
+  const selectedPeriodId = watch("period_id");
+  const selectedExamnId = watch("examn_id");
+  // Cargar gestiones al inicio
+  useEffect(() => {
+    getData();
+  }, []);
+
+  // Cargar periodos cuando cambia la gestión
+  useEffect(() => {
+    if (careerId && selectedGestionId) {
+      getPeriodsByCareerAndGestion(careerId, selectedGestionId);
+    }
+  }, [careerId, selectedGestionId]);
+
+  // Convertir gestiones
+  const gestionOptions = gestions.map((g) => ({
+    text: g.year,
+    value: g.id,
+  }));
+  
+  // Convertir periodos
+  const periodOptions = useMemo(() => {
+    return periods.map((p) => ({
+      text: p.period,
+      value: p.id,
+      gestionId: Number(p.academic_management_id), // el que viene del backend, convertido a número si es string
+    }));
+  }, [periods]);  
 
   useEffect(() => {
-    const fetchAllData = async () => {
-      try {
-        const response = await fetchQuestionsByStudentTest(studentTestId);
-        setQuestionsData(response);
-        
-        // Inicializar las respuestas seleccionadas
-        const initialAnswers = {};
-        response.questions.forEach(question => {
-          initialAnswers[question.id] = null;
-        });
-        setSelectedAnswers(initialAnswers);
-
-        const studentResponse = await getApi(`students/find/${response.student_id}`);
-        setStudentName(`${studentResponse.name} ${studentResponse.paternal_surname} ${studentResponse.maternal_surname}`);
-
-        const evaluationResponse = await getApi(`evaluations/find/${response.evaluation_id}`);
-        setEvaluationTitle(evaluationResponse.title);
-      } catch (err) {
-        setError(err?.response?.data?.message || 'Error al cargar datos');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (studentTestId) {
-      fetchAllData();
+    if (selectedGestionId) {
+      const filtered = periodOptions.filter(
+        (p) => p.gestionId === Number(selectedGestionId)
+      );
+      setFilteredPeriods(filtered);
+    } else {
+      setFilteredPeriods([]);
     }
-  }, [studentTestId]);
+  }, [selectedGestionId, periodOptions]);
+  console.log("Examenes: ", examns);
+  // Cargar exámenes cuando se selecciona un periodo
+  useEffect(() => {
+    if (selectedPeriodId) {
+      getExamnsByCareer(selectedPeriodId);
+    }
+  }, [selectedPeriodId, getExamnsByCareer]);
 
-  const handleAnswerSelection = (questionId, answerId) => {
-    setSelectedAnswers(prev => ({
-      ...prev,
-      [questionId]: answerId
-    }));
-  };
+  // Convertir exámenes en opciones
+  useEffect(() => {
+    const options = examns.map((e) => ({
+      text: e.title,
+      value: e.id,
+    }));  
+    setExamnOptions(options);
+  }, [examns]);
 
-  const handleSubmit = async (e) => {
+  // Cargar resultados cuando se selecciona un examen
+  useEffect(() => {
+    if (selectedExamnId) {
+      getResults(selectedExamnId); // ← este debe ser por examen, no periodo
+    }
+  }, [selectedExamnId]);
+
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
-
-    try {
-      // Verificar que todas las preguntas estén respondidas
-      const unansweredQuestions = Object.values(selectedAnswers).includes(null);
-      if (unansweredQuestions) {
-        customAlert("Por favor responde todas las preguntas", "warning");
-        return;
-      }
-
-      // Preparar datos para enviar
-      const answersData = {
-        student_test_id: studentTestId,
-        answers: Object.entries(selectedAnswers).map(([questionId, answerId]) => ({
-          question_id: questionId,
-          selected_answer_id: answerId
-        }))
-      };
-
-      // Enviar respuestas
-      const response = await postApi('student-answers/save', answersData);
-      
-      if (response.status === 200) {
-        customAlert("Examen enviado correctamente", "success");
-        // Aquí puedes redirigir al estudiante a una página de confirmación
-      }
-    } catch (error) {
-      customAlert(error.response?.data?.message || "Error al enviar el examen", "error");
-    } finally {
-      setIsSubmitting(false);
-    }
   };
-
-  const API_BASE_URL = import.meta.env.VITE_URL_IMAGES;
-
-  if (loading) return <div className="text-center p-5"><div className="spinner-border" role="status"></div></div>;
-  if (error) return <div className="alert alert-danger m-4">{error}</div>;
-  if (!questionsData || !questionsData.questions) {
-    return <div className="alert alert-info m-4">No se encontraron preguntas para esta prueba.</div>;
-  }
 
   return (
     <div className="container mt-4">
+      <h1>Resultados de los exámenes</h1>
       <form onSubmit={handleSubmit}>
-        <div className="card mb-4">
-          <div className="card-header bg-primary text-white">
-            <h3 className="mb-0">Examen: {evaluationTitle}</h3>
+        <div
+          className="d-flex gap-3 align-items-end flex-wrap border p-2 rounded"
+          style={{ background: "#daf2ef" }}
+        >
+          <div style={{ width: "auto" }}>
+            <SelectInput
+              label="Seleccione una Gestión"
+              name="gestion_id"
+              options={gestionOptions}
+              control={control}
+              castToNumber= {true}
+            />
           </div>
-          <div className="card-body">
-            <div className="mb-2">
-              <strong>Estudiante:</strong> {studentName}
-            </div>
+
+          <div style={{ width: "auto" }}>
+            <SelectInput
+              label="Seleccione un Periodo"
+              name="period_id"
+              options={filteredPeriods}
+              control={control}
+              castToNumber= {true}
+            />
           </div>
-        </div>
 
-        <div className="questions-container">
-          {questionsData.questions.map((question, index) => (
-            <div key={question.id} className="card mb-4">
-              <div className="card-header bg-light">
-                <h5 className="mb-0">Pregunta {index + 1}</h5>
-              </div>
-              <div className="card-body">
-                <p className="fw-bold mb-2">{question.question}</p>
-                
-                {question.image && (
-                  <div className="text-center mb-4">
-                    <img 
-                      src={`${API_BASE_URL}${question.image}`}
-                      alt="Imagen de la pregunta"
-                      className="img-fluid rounded"
-                      style={{ maxHeight: '300px' }}
-                    />
-                  </div>
-                )}
-
-                <p className="text-muted mb-4">{question.description}</p>
-
-                <div className="answers-container">
-                  {question.bank_answers.map((answer) => (
-                    <div key={answer.id} className="form-check mb-2">
-                      <input
-                        type="radio"
-                        name={`question-${question.id}`}
-                        id={`answer-${answer.id}`}
-                        className="form-check-input"
-                        onChange={() => handleAnswerSelection(question.id, answer.id)}
-                        checked={selectedAnswers[question.id] === answer.id}
-                      />
-                      <label className="form-check-label" htmlFor={`answer-${answer.id}`}>
-                        {answer.answer}
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="d-grid gap-2 col-6 mx-auto mb-4">
-          <button 
-            type="submit" 
-            className="btn btn-primary btn-lg"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? (
-              <>
-                <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                Enviando...
-              </>
-            ) : 'Enviar Examen'}
-          </button>
+          <div style={{ width: "auto" }}>
+            <SelectInput
+              label="Seleccione un Examen"
+              name="examn_id"
+              options={examnOptions}
+              control={control}
+              castToNumber= {true}
+            />
+          </div>
         </div>
       </form>
+
+      {/* Resultados */}
+      <div className="mt-4">
+        {results && results.length > 0 ? (
+          <table className="table table-bordered">
+            <thead>
+              <tr>
+                <th>CI</th>
+                <th>Nombre</th>
+                <th>Nota</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              {results.map((r) => (
+                <tr key={r.ci}>
+                  <td>{r.ci}</td>
+                  <td>{r.name}</td>
+                  <td>{r.score}</td>
+                  <td>{r.status}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <p className="text-muted">Seleccione un examen para ver los resultados.</p>
+        )}
+      </div>
     </div>
   );
 };
