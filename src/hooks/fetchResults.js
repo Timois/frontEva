@@ -3,10 +3,10 @@ import { useContext } from "react"
 import { ResultsContext } from "../context/ResultsProvider"
 import { getApi } from "../services/axiosServices/ApiService"
 
-export const fetchResultsByExam = async () => {
+export const fetchResultsByExam = () => {
     const {results, setResults} = useContext(ResultsContext)
 
-    const getResults = async ({examId}) => {
+    const getResults = async (examId) => {
         try {
             const response = await getApi(`student_tests/listResultsByEvaluation/${examId}`)
             setResults(response)

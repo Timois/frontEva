@@ -1,11 +1,12 @@
 // hooks/useExamns.js
-import { useContext } from "react"
+import { useCallback, useContext } from "react"
 import { ExamnsContext } from "../context/ExamnsProvider"
 import {
   fetchAllExamns,
   fetchPeriodById,
   fetchExamnById,
-  fetchExamnsByCareer
+  fetchExamnsByCareer,
+  fetchExamnsByPeriod
 } from "../services/routes/ExamService"
 
 export const useExamns = () => {
@@ -49,13 +50,21 @@ export const useExamns = () => {
     }
   }
   const refreshExamns = getExamnsByCareer
-
+  const getExmansByPeriod = useCallback(async (periodId) => {
+    try {
+      const response = await fetchExamnsByPeriod(periodId)
+      setExamns(response)
+    } catch (error) {
+      console.error("Error al obtener exámenes por periodo:", error)
+    }
+  }, [setExamns])
   return {
     examns,
     getDataExamns,
     refreshExamns,
     getExamnById,
     getExamnsByCareer,
+    getExmansByPeriod,
     examn,
   }
 }
