@@ -426,7 +426,7 @@ export const FormAssignQuestions = ({ data }) => {
                                 disponibles?.[area.id]?.dificil === 0) && (
                                   <div className="alert alert-warning mt-2">
                                     No hay preguntas disponibles en esta área.{" "}
-                                    <ButtonImport modalIdImp={modalId}/>
+                                    <ButtonImport modalIdImp={modalId} />
                                   </div>
                                 )}
                             </div>
@@ -448,7 +448,7 @@ export const FormAssignQuestions = ({ data }) => {
                             )}
                           </>
                         ) : (
-                          <>  
+                          <>
                             <div className="mb-2">
                               <label>Cantidad Total de Preguntas:</label>
                               <Input
@@ -475,12 +475,15 @@ export const FormAssignQuestions = ({ data }) => {
               <button
                 type="submit"
                 name="submit"
-                disabled={response}
+                disabled={
+                  response || totalAssignedScore !== Number(data.total_score)
+                }
                 className="btn rounded-0 btn-lg"
                 style={{ backgroundColor: "#070785", color: "white" }}
               >
                 <span>{response ? "Guardando..." : "Guardar"}</span>
               </button>
+
               <CancelButton onClick={handleCancel} />
             </ContainerButton>
           </form>

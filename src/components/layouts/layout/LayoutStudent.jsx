@@ -26,8 +26,8 @@ const LayoutStudent = ({ children }) => {
     <div className="d-flex flex-column vh-100">
       <nav className="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm px-4">
         <div className="container-fluid justify-content-between">
-          <span className="navbar-brand fw-semibold text-truncate">
-            👨‍🎓 {student?.name || "Estudiante"}
+          <span className="navbar-brand fw-semibold text-truncate text-capitalize">
+            👨‍🎓 {student?.nombre_completo || "Estudiante"}
           </span>
           <button
             onClick={logout}

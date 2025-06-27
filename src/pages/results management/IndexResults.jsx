@@ -8,6 +8,7 @@ import { useExamns } from "../../hooks/fetchExamns";
 import { Button } from "../../components/login/Button";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { FaFilePdf } from "react-icons/fa";
 const IndexResults = () => {
   const { control, watch } = useForm();
   const { gestions, getData } = useFetchGestion();
@@ -61,7 +62,7 @@ const IndexResults = () => {
   }, [selectedGestionId, periodOptions]);
 
   useEffect(() => {
-    if (selectedPeriodId && examns.length === 0) {
+    if (selectedPeriodId) {
       getExmansByPeriod(selectedPeriodId);
     }
   }, [selectedPeriodId]);
@@ -73,6 +74,10 @@ const IndexResults = () => {
     }));
     setExamnOptions(options);
   }, [examns]);
+
+  useEffect(() => {
+    setExamnOptions([]); // Limpia las opciones del examen al cambiar periodo
+  }, [selectedPeriodId]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -92,28 +97,48 @@ const IndexResults = () => {
   const handlePageChange = (page) => {
     if (page >= 1 && page <= totalPages) setCurrentPage(page);
   };
+  const capitalizeWords = (str) =>
+    str
+      ?.toLowerCase()
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+
   const downloadPdf = () => {
     if (!results?.students?.length) return;
 
+    const gestion = gestions.find(g => g.id === selectedGestionId);
+    const period = periods.find(p => p.id === selectedPeriodId);
+    const examn = examns.find(e => e.id === selectedExamnId);
+
+    const gestionText = gestion?.year || "desconocido";
+    const periodText = period?.period || "desconocido";
+    const examnTitle = examn?.title || "Examen";
+
     const doc = new jsPDF();
 
+    const titulo = `Resultados del Examen - ${examnTitle}`;
+    const subtitulo = `Gestión: ${gestionText} - Periodo: ${periodText}`;
+
     doc.setFontSize(14);
-    doc.text("Resultados del Examen", 14, 15);
+    doc.text(titulo, 14, 15);
+    doc.setFontSize(11);
+    doc.text(subtitulo, 14, 22);
 
     const tableColumn = ["N°", "CI", "Nombre", "Apellido Paterno", "Apellido Materno", "Nota"];
     const tableRows = results.students.map((student, index) => [
       index + 1,
       student.ci,
-      student.name,
-      student.paternal_surname,
-      student.maternal_surname,
+      capitalizeWords(student.name),
+      capitalizeWords(student.paternal_surname),
+      capitalizeWords(student.maternal_surname),
       student.score
     ]);
 
     autoTable(doc, {
       head: [tableColumn],
       body: tableRows,
-      startY: 25,
+      startY: 30,
       styles: {
         fontSize: 10,
         cellPadding: 3,
@@ -128,13 +153,16 @@ const IndexResults = () => {
       },
     });
 
-    doc.save("resultados_examen.pdf");
+    // Nombre de archivo dinámico
+    const fileName = `resultados_examen_${gestionText}_${periodText}_${examnTitle}.pdf`;
+    doc.save(fileName);
   };
+
   return (
     <div className="container mt-4">
       <h1>Resultados de los exámenes</h1>
       <form onSubmit={handleSubmit}>
-        <div className="d-flex gap-3 align-items-end flex-wrap border p-2 rounded" style={{ background: "#daf2ef" }}>
+        <div className="d-flex gap-5 align-items-center flex-wrap border p-2 rounded" style={{ background: "#daf2ef" }}>
           <div>
             <SelectInput label="Seleccione una Gestión" name="gestion_id" options={gestionOptions} control={control} castToNumber={true} />
           </div>
@@ -146,13 +174,15 @@ const IndexResults = () => {
           </div>
           <div>
             <Button type="submit" name="submit" disabled={!Number.isInteger(selectedExamnId)}>
-              <span>Buscar</span>
+              Buscar
             </Button>
           </div>
         </div>
       </form>
-      <div className="p-2 bg-primary text-white rounded pointer" onClick={downloadPdf} style={{ cursor: "pointer", width: "fit-content" }}>
-        Descargar PDF
+      <div className="d-flex w-100 p-2 m-2 justify-content-end" >
+        <button className="rounded" onClick={downloadPdf}>
+          <FaFilePdf size={24}  className="text-danger"/>
+        </button>
       </div>
       <div className="mt-4">
         <table className="table table-hover align-middle mb-0">

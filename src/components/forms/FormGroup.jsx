@@ -18,15 +18,21 @@ import { SelectInput } from "./components/SelectInput";
 import { useParams } from "react-router-dom";
 import { useExamns } from "../../hooks/fetchExamns";
 import { fetchGroupByEvaluation } from "../../hooks/fetchGroup";
-
+const arrayOption = [
+    { value: "turno1", text: "Turno 1" }, { value: "turno2", text: "Turno 2" }, { value: "turno3", text: "Turno 3" }, { value: "turno4", text: "Turno 4" }
+];
+const ordens = [
+    { value: "id_asc", text: "Por ID (ascendente)" },
+    { value: "alphabetical", text: "Por Apellido (A-Z)" },
+]
 export const FormGroup = () => {
     const { id } = useParams();
-    const {examn, getExamnById} = useExamns()
+    const { examn, getExamnById } = useExamns()
     const [response, setResponse] = useState(false);
-    const {refreshGroups} = fetchGroupByEvaluation();
+    const { refreshGroups } = fetchGroupByEvaluation();
     const { labs, getDataLabs } = fetchLabs();
     const [array, setArray] = useState([]);
-    
+
     const {
         control,
         handleSubmit,
@@ -42,7 +48,7 @@ export const FormGroup = () => {
             description: "",
             start_time: "",
             end_time: "",
-            laboratory_id: "",
+            laboratory_id: null,
             order_type: "",
         },
     });
@@ -60,15 +66,6 @@ export const FormGroup = () => {
 
     const evaluationId = id;
 
-    useEffect(() => {
-        if (labs.length > 0) {
-            const array = labs.map((lab) => ({
-                value: lab.id,
-                text: `${lab.name} - ${lab.location}`,
-            }));
-            setArray(array);
-        }
-    }, [labs]);
 
     useEffect(() => {
         if (!startTime || !/^\d{2}:\d{2}$/.test(startTime) || !examn?.time) return
@@ -86,8 +83,18 @@ export const FormGroup = () => {
 
         setValue("end_time", formattedEndTime)
     }, [startTime, examn?.time])
+    useEffect(() => {
+        if (labs.length > 0) {
+            const newArray = labs.map((lab) => ({
+                value: lab.id,
+                text: `${lab.name} - ${lab.location}`,
+            }));
+            setArray(newArray);
+        }
+    }, [labs]);
 
     const onSubmit = async (data) => {
+        
         setResponse(true);
         const formData = new FormData();
         formData.append("name", data.name);
@@ -100,7 +107,7 @@ export const FormGroup = () => {
 
         try {
             const response = await postApi("groups/save", formData);
-            
+
             if (!response) {
                 throw new Error("No se pudo guardar el grupo");
             }
@@ -115,7 +122,6 @@ export const FormGroup = () => {
             await refreshGroups(evaluationId); // Refrescar la list
             resetForm();
         } catch (error) {
-            
             if (error.response?.status === 403) {
                 customAlert("No tienes permisos para guardar el grupo", "error");
             } else {
@@ -143,9 +149,11 @@ export const FormGroup = () => {
         resetForm();
         closeFormModal("registerGroup");
     };
-
+    const onError = (errors) => {
+        console.log("Errores del formulario:", errors);
+      };
     return (
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(onSubmit, onError)}>
             <div className="mb-3">
                 <span className="text-align-center text-danger">Tiempo del examen {examn.time || "N/A"} minutos</span>
             </div>
@@ -154,7 +162,7 @@ export const FormGroup = () => {
                 <Validate errors={errors.name} />
             </ContainerInput>
             <ContainerInput>
-                <Input name="description" placeholder="Ingrese la descripción del grupo" control={control} errors={errors} />
+                <SelectInput label="Seleccione una opcion" name="description" options={arrayOption} control={control} />
                 <Validate errors={errors.description} />
             </ContainerInput>
             <ContainerInput>
@@ -169,22 +177,18 @@ export const FormGroup = () => {
                 <Validate errors={errors.end_time} />
             </ContainerInput>
             <ContainerInput>
-                <SelectInput label="Seleccione un Ambiente" name="laboratory_id" options={array} control={control} />
+                <SelectInput label="Seleccione un Ambiente" name="laboratory_id" options={array} control={control} castToNumber={true} />
                 <Validate errors={errors.laboratory_id} />
             </ContainerInput>
             <ContainerInput>
                 <SelectInput
                     label="Seleccione el tipo de ordenamiento"
                     name="order_type"
-                    options={[
-                        { value: "id_asc", text: "Por ID (ascendente)" },
-                        { value: "alphabetical", text: "Por Apellido (A-Z)" },
-                    ]}
+                    options={ordens}
                     control={control}
                 />
                 <Validate errors={errors.order_type} />
             </ContainerInput>
-
             <ContainerButton>
                 <Button type="submit" name="submit" disabled={response}>
                     <span>{response ? "Guardando..." : "Guardar"}</span>

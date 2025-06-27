@@ -72,7 +72,6 @@ export const FormCareer = () => {
                 dependiente: "Unidad Dependiente registrada correctamente",
                 carrera: "Carrera registrada correctamente"
             };
-            
             customAlert(typeMessages[data.type] || "Registro exitoso", "success");
             closeFormModal("registroCarrera");
             resetForm();

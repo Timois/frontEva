@@ -20,8 +20,7 @@ export const EditRol = ({ data }) => {
     const { updateRol } = useContext(RolContext);
     const { permisos, getData } = useFetchPermission();
     const [response, setResponse] = useState(false);
-    const [selectedPermisos, setSelectedPermisos] = useState([]);
-    
+    const [selectedPermisos, setSelectedPermisos] = useState([]); 
     const { 
         control, 
         handleSubmit, 
@@ -35,7 +34,6 @@ export const EditRol = ({ data }) => {
             name: data.name
         }
     });
-
     // Cargar datos iniciales
     // Agregar console.log para debuggear
     useEffect(() => {
@@ -52,11 +50,9 @@ export const EditRol = ({ data }) => {
             setSelectedPermisos(permissionNames);
         }
     }, [data, setValue]);
-
     useEffect(() => {
         getData();
     }, [getData]);
-
     const handleSelectAll = (isChecked) => {
         if (isChecked) {
             const allPermisoNames = permisos.map(permiso => permiso.name);
@@ -65,7 +61,6 @@ export const EditRol = ({ data }) => {
             setSelectedPermisos([]);
         }
     };
-
     const handlePermisoChange = (permisoName) => {
         setSelectedPermisos(prev => 
             prev.includes(permisoName)
@@ -73,19 +68,15 @@ export const EditRol = ({ data }) => {
                 : [...prev, permisoName]
         );
     };
-
     const allPermisosSelected = permisos?.length > 0 && 
                                selectedPermisos.length === permisos.length;
-
     const onSubmit = async (formData) => {
         setResponse(true);
-        
         const payload = {
             ...formData,
             id: data.id,
             permissions: selectedPermisos
         };
-    
         try {
             const response = await postApi(`roles/edit/${data.id}`, payload);
             
@@ -98,13 +89,11 @@ export const EditRol = ({ data }) => {
                 }
                 return;
             }
-            
             // Asegurarse de que la respuesta incluya los permisos actualizados
             const updatedRole = {
                 ...response,
                 permissions: selectedPermisos.map(name => ({ name }))
             };
-            
             updateRol(updatedRole);
             customAlert("Rol Actualizado", "success");
             navigate("/administracion/roles");

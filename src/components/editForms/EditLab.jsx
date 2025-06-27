@@ -20,12 +20,12 @@ export const EditLab = ({ data }) => {
     const { control, handleSubmit, reset, setValue, formState: { errors }, setError } = useForm({
         resolver: zodResolver(LabSchema)
     });
-
+    
     useEffect(() => {
         if (data) {
             setValue("name", data.name);
             setValue("location", data.location);
-            setValue("equipment_count", data.equipment_count);
+            setValue("equipment_count", Number(data.equipment_count));
             setLabId(data.id);
         }
     }, [data, setValue]);

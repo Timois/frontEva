@@ -83,6 +83,7 @@ export const FormExamn = () => {
         formData.append("date_of_realization", new Date(data.date_of_realization).toISOString().split('T')[0]);
         formData.append("type", "web");
         formData.append("time", Number(data.time));
+        formData.append("places", Number(data.places));
         formData.append("status", "inactivo");
         formData.append("academic_management_period_id", periodId);
 
@@ -121,6 +122,7 @@ export const FormExamn = () => {
             description: "",
             passing_score: "",
             date_of_realization: "",
+            places: "",
             type: "",
             time: "",
             academic_management_period_id: "",
@@ -154,6 +156,10 @@ export const FormExamn = () => {
             <ContainerInput>
                 <Input name="time" control={control} type="number" placeholder="Ingrese el tiempo en minutos" />
                 <Validate error={errors.time} />
+            </ContainerInput>
+            <ContainerInput>
+                <Input name="places" control={control} type="number" placeholder="Ingrese el número de plazas" />
+                <Validate error={errors.places} />
             </ContainerInput>
             <ContainerInput>
                 <label className="font-medium text-sm text-gray-700 mb-1">Período académico</label>

@@ -17,12 +17,12 @@ const ViewQuestionsAndAnswers = () => {
   const { getStudentTestById } = usFetchStudentTest();
   const student = JSON.parse(localStorage.getItem('user'));
   const ci = student ? student.ci : null;
-  const [studentName] = useState(student ? student.nombre_completo : '');
+  const studentName = student? student.nombre_completo : null;
   const [timer, setTimer] = useState(0);
   const [timeLeft, setTimeLeft] = useState(null);
   const API_BASE_URL = import.meta.env.VITE_URL_IMAGES;
-
-  useEffect(() => {
+  
+  useEffect(() => { 
     if (timer && !alreadyAnswered) {
       setTimeLeft(timer * 60);
       const interval = setInterval(() => {
@@ -155,7 +155,7 @@ const ViewQuestionsAndAnswers = () => {
       </div>
     );
   }
-
+  
   return (
     <div className="container-fluid p-4">
       <div className="card shadow-lg border-0 rounded-3 mb-4 overflow-hidden">
@@ -176,9 +176,6 @@ const ViewQuestionsAndAnswers = () => {
         </div>
         <div className="card-body bg-light">
           <div className="row">
-            <div className="col-md-6">
-              <p className="mb-3 text-capitalize"><FaUserGraduate className="me-2 text-primary" /><strong>Estudiante:</strong> {studentName}</p>
-            </div>
             <div className="col-md-6">
               <p className="mb-3"><FaClock className="me-2 text-primary" /><strong>Duración total:</strong> {timer} minutos</p>
             </div>

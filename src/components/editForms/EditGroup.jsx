@@ -157,7 +157,7 @@ export const EditGroup = ({ data }) => {
             </ContainerInput>
 
             <ContainerInput>
-                <Input name="description" placeholder="Ingrese la descripción del grupo" control={control} errors={errors} />
+                <Input name="description" placeholder="Ingrese el turno del grupo" control={control} errors={errors} />
                 <Validate errors={errors.description} />
             </ContainerInput>
 

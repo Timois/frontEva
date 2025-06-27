@@ -23,7 +23,7 @@ const user = JSON.parse(localStorage.getItem('user'))
 const careerId = user ? user.career_id : null
 
 useEffect(() => {
-  getExamnsByCareer(3)
+  getExamnsByCareer(careerId)
   if(examns.length === 0) return 
 }, [careerId])
 if(examns.length === 0){
