@@ -35,6 +35,7 @@ import { IndexArea } from "../pages/careers/areas/IndexArea"
 import { IndexStudents } from "../pages/docentes/IndexStudents"
 import { IndexLabs } from "../pages/labs/IndexLabs"
 import { IndexGroups } from "../pages/groups/IndexGroups"
+import { CompareAnswers } from "../pages/examn management/CompareAnswers"
 export const AppRoutes = () => {
   return (
     <Routes
@@ -155,6 +156,7 @@ export const AppRoutes = () => {
         <Route element={<LayoutStudent><Outlet /></LayoutStudent>}>
           <Route path="estudiantes/exams" element={<ViewQuestionsAndAnswers />} />
         </Route>
+        <Route path="estudiantes/exams/:id/compareAnswers" element={<CompareAnswers />} />
       </Route>
       <Route path="404" element={<NotFound404 />}></Route>
     </Routes>

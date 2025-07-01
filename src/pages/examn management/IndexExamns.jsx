@@ -4,7 +4,6 @@ import ButtonAdd from './ButtonAdd'
 import { Examns } from './Examns'
 import ModalRegister from './ModalRegister'
 import CheckPermissions from '../../routes/CheckPermissions'
-
 export const IndexExamns = () => {
   const modalId = 'registerExamn'
   return (

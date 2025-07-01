@@ -34,6 +34,7 @@ const FormStudentLogin = () => {
         const confirmarExamen = window.confirm("¿Desea iniciar su examen ahora?");
         if (confirmarExamen) {
           navigate("/estudiantes/exams");
+        window.location.reload(); // Recargar la página para que se muestre el examen correctamente  
         } else {
           // Si el estudiante no confirma, cerrar sesión
           localStorage.removeItem("jwt_token");

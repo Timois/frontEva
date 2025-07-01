@@ -5,6 +5,7 @@ import { getApi, postApi } from '../../services/axiosServices/ApiService';
 import { usFetchStudentTest } from '../../hooks/fetchStudent';
 import { FaCheck, FaClock, FaQuestionCircle, FaUserGraduate } from 'react-icons/fa';
 import { MdOutlineTimer } from 'react-icons/md';
+import { Link } from 'react-router-dom';
 
 const ViewQuestionsAndAnswers = () => {
   const [questionsData, setQuestionsData] = useState(null);
@@ -17,12 +18,12 @@ const ViewQuestionsAndAnswers = () => {
   const { getStudentTestById } = usFetchStudentTest();
   const student = JSON.parse(localStorage.getItem('user'));
   const ci = student ? student.ci : null;
-  const studentName = student? student.nombre_completo : null;
   const [timer, setTimer] = useState(0);
   const [timeLeft, setTimeLeft] = useState(null);
   const API_BASE_URL = import.meta.env.VITE_URL_IMAGES;
-  
-  useEffect(() => { 
+  const [studentId, setStudentId] = useState(null);
+
+  useEffect(() => {
     if (timer && !alreadyAnswered) {
       setTimeLeft(timer * 60);
       const interval = setInterval(() => {
@@ -92,33 +93,29 @@ const ViewQuestionsAndAnswers = () => {
       }
 
       try {
-        const studentId = await getApi(`student_evaluations/list/${ci}`);
-        if (!isMounted || !studentId) {
+        const fetchedStudentId = await getApi(`student_evaluations/list/${ci}`);
+       
+        if (!isMounted || !fetchedStudentId) {
           setError('No se encontró ninguna evaluación para este estudiante');
           return;
         }
-
-        const response = await getStudentTestById(studentId);
+        setStudentId(fetchedStudentId);
+        const response = await getStudentTestById(fetchedStudentId);
 
         if (!isMounted || !response) {
           setError('No se encontró la prueba asignada al estudiante.');
           return;
         }
-
         setQuestionsData(response);
-
         const evaluationResponse = await getApi(`student_evaluations/find/${response.evaluation_id}`);
         if (!isMounted || !evaluationResponse) return;
-
         setEvaluationTitle(evaluationResponse.title);
         setTimer(evaluationResponse.time);
-
         const answeredResp = await getApi(`student_answers/list/${response.student_test_id}`);
         if (answeredResp?.answered) {
           setAlreadyAnswered(true);
           setFinalScore(Math.round(answeredResp.score));
         }
-
       } catch (err) {
         if (isMounted) {
           console.error('Error:', err);
@@ -152,16 +149,31 @@ const ViewQuestionsAndAnswers = () => {
             <p>No puedes volver a enviar tus respuestas.</p>
           )}
         </div>
+        <div>
+          <Link to={`${studentId}/compareAnswers`} className="btn btn-primary">
+            Comparar Respuestas
+          </Link>
+        </div>
       </div>
     );
   }
-  
+
   return (
     <div className="container-fluid p-4">
       <div className="card shadow-lg border-0 rounded-3 mb-4 overflow-hidden">
         <div className="card-header bg-primary text-white py-3 rounded-top">
           <div className="d-flex justify-content-between align-items-center">
-            <h3 className="mb-0"><FaQuestionCircle className="me-2" />Evaluación: {evaluationTitle}</h3>
+            <div>
+              <h3 className="mb-1 d-flex align-items-center">
+                <FaQuestionCircle className="me-2" />
+                Evaluación: {evaluationTitle}
+              </h3>
+              {questionsData?.test_code && (
+                <span className="mb-1 d-flex align-items-center">
+                  Código de Examen: {questionsData.test_code}
+                </span>
+              )}
+            </div>
             {timeLeft !== null && (
               <div
                 className="position-fixed top-20 end-0 bg-white text-dark px-3 py-2 rounded shadow border d-flex align-items-center"
@@ -214,8 +226,8 @@ const ViewQuestionsAndAnswers = () => {
                 <div
                   key={answer.id}
                   className={`p-3 mb-3 rounded-3 cursor-pointer ${selectedAnswers[question.question_id] === answer.id
-                      ? 'bg-primary bg-opacity-10 border border-primary'
-                      : 'bg-light border'
+                    ? 'bg-primary bg-opacity-10 border border-primary'
+                    : 'bg-light border'
                     }`}
                   onClick={() => handleAnswerSelection(question.question_id, answer.id)}
                   role="button"

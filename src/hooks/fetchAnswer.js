@@ -6,21 +6,17 @@ import { getApi } from "../services/axiosServices/ApiService"
 
 export const useFetchAnswer = () => {
     const { answers, setAnswers } = useContext(AnswersContext);
-    
+
     const getData = async () => {
-        if (answers.length < 1) {
-            const response = await getApi("bank_answers/list");
-            // Extraemos el array de answers de la respuesta
-            setAnswers(response.answers || []);
-        }
-        return answers;
+        const response = await getApi("bank_answers/list");
+        setAnswers(response.answers || []);
     };
-    return { answers, getData };
+    return { answers, getData,  };
 };
 
 export const useFetchAnswerByIdQuestion = () => {
     const { answers, setAnswers } = useContext(AnswersContext);
-    
+
     const getAnswer = async (id) => {
         try {
             const response = await getApi(`bank_answers/findByIdQuestion/${id}`);
@@ -30,6 +26,6 @@ export const useFetchAnswerByIdQuestion = () => {
             return { answers: [] };
         }
     };
-    
+
     return { answers, getAnswer };
 };

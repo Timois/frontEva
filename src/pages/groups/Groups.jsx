@@ -10,13 +10,13 @@ import { useExamns } from "../../hooks/fetchExamns";
 export const Groups = () => {
     const { id } = useParams();
     const evaluationId = id;
-    const { examns, getExamnById } = useExamns()
+    const { examn, getExamnById } = useExamns()
     const [selectedGroup, setSelectedGroup] = useState(null);
     const { groups, totalStudents, getDataGroupEvaluation } = fetchGroupByEvaluation();
     const [selectedGroupStudents, setSelectedGroupStudents] = useState([]);
     const [showStudentsModal, setShowStudentsModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
-
+    console.log(examn)
     // ✔️ Manejo seguro de assignedStudents
     const assignedStudents = useMemo(() => {
         if (!Array.isArray(groups) || groups.length === 0) return 0;
@@ -53,8 +53,8 @@ export const Groups = () => {
 
     const idEditar = "editGroup";
     
-    const examDate = examns?.date_of_realization;
-
+    const examDate = examn?.date_of_realization;
+    
     return (
         <div className="container-fluid p-4">
             <div className="card shadow-lg border-0 rounded-3 overflow-hidden">
@@ -62,7 +62,7 @@ export const Groups = () => {
                     <h4 className="mb-0 d-flex align-items-center justify-content-between">
                         <span>
                             <FaObjectGroup className="me-2" />
-                            Gestión de Grupos del {examns.title}
+                            Gestión de Grupos del {examn.title}
                         </span>
                         <div className="text-end">
                             <div>Total de estudiantes: {totalStudents}</div>

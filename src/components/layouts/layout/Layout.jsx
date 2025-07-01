@@ -158,6 +158,7 @@ const Layout = ({ children }) => {
                   data-bs-parent="#accordionSidebar"
                 >
                   <div className="accordion-body p-0">
+                    <MenuButton path={"/administracion/default"} label={"Panel Principal"} onClick={closeSidebar} />
                     <MenuButton path={"/administracion/homeDocente"} label={"Inicio"} onClick={closeSidebar} />
                     {hasPermission("ver-areas") && (
                       <MenuButton path={"/administracion/areas"} label={"Areas"} onClick={closeSidebar} />

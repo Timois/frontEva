@@ -9,7 +9,7 @@ export const useFetchGestion = () =>{
             const response = await getApi("management/list")
             setGestions(response)
         }
-        return gestions
+        return gestions 
     }
     
     const refreshGestions = async () => {

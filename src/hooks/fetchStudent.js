@@ -16,7 +16,7 @@ export const useFetchStudent = () => {
         const response = await getApi(`student_tests/list/${exmanId}`);
         setStudents(response);
     }
-    
+
     return { students, getData, getStudentsByIdExmans };
 };
 
