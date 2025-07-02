@@ -77,7 +77,7 @@ export const AppRoutes = () => {
               <IndexPeriod />
             </PermissionsGuard>} />
           <Route path="administracion/periodsByCareer" element={
-            <PermissionsGuard requiredPermission={"ver-periodos-asignados"}>
+            <PermissionsGuard requiredPermission={"ver-periodos-por-carrera"}>
               <CareerPeriodsList />
             </PermissionsGuard>} />
           <Route path="administracion/areas" element={

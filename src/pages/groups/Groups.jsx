@@ -16,7 +16,7 @@ export const Groups = () => {
     const [selectedGroupStudents, setSelectedGroupStudents] = useState([]);
     const [showStudentsModal, setShowStudentsModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
-    console.log(examn)
+    
     // ✔️ Manejo seguro de assignedStudents
     const assignedStudents = useMemo(() => {
         if (!Array.isArray(groups) || groups.length === 0) return 0;

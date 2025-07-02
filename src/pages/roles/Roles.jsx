@@ -10,7 +10,7 @@ export const Roles = () => {
   useEffect(() => {
     getData(); // Obtener los roles al cargar el componente
   }, [getData]);
-
+  
  return (
     <div className="container-fluid p-4">
       <div className="card shadow-lg border-0 rounded-3 overflow-hidden">

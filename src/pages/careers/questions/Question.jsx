@@ -7,7 +7,7 @@ import { useFetchQuestionsByArea } from "../../../hooks/fetchQuestions";
 import ButtonEdit from "./ButtonEdit";
 import { ModalEdit } from "./ModalEdit";
 import CheckPermissions from "../../../routes/CheckPermissions";
-import { useFetchArea } from "../../../hooks/fetchAreas";
+import { useFetchArea, useFetchAreaById } from "../../../hooks/fetchAreas";
 import ButtonViewAnswers from "./ButtonViewAnswers";
 import ReactPaginate from "react-paginate";
 import { MdAddPhotoAlternate, MdArrowBack } from "react-icons/md";
@@ -17,24 +17,20 @@ const urlimages = import.meta.env.VITE_URL_IMAGES;
 
 export const Question = () => {
     const { id } = useParams();
-    const { questions, setQuestions } = useContext(QuestionContext);
     const [selectedQuestion, setSelectedQuestion] = useState(null);
     const [modalImage, setModalImage] = useState(null);
     const [currentPage, setCurrentPage] = useState(0);
     const questionsPerPage = 5;
-    const { getDataArea, areas } = useFetchArea();
-    const { getDataQuestions } = useFetchQuestionsByArea();
+    const { area, getDataAreaById} = useFetchAreaById();
+    const { questions, getDataQuestions } = useFetchQuestionsByArea();
+    useEffect(() => {
+        getDataAreaById(id);
+    }, [id]);
 
-    const areaName = areas?.find(area => String(area.id) === String(id))?.name;
-    const areaId = areas?.find(area => String(area.id) === String(id))?.id;
+    const areaName = area?.name; // Obtener el nombre de la área desde el context
     
     useEffect(() => {
-        const fetchData = async () => {
-            await getDataArea();
-            const questionsData = await getDataQuestions(id);
-            setQuestions(questionsData);
-        };
-        fetchData();
+        getDataQuestions(id);
     }, [id]);
 
     const handleEditClick = (question) => {
@@ -73,8 +69,6 @@ export const Question = () => {
                         </h3>
                     </div>
                 </div>
-
-                {/* Tabla */}
                 <div className="table-responsive rounded-3">
                     <table className="table table-hover align-middle mb-0">
                         <thead className="bg-light">
@@ -113,7 +107,7 @@ export const Question = () => {
                                             {question.image ? (
                                                 <button
                                                     className="btn btn-sm btn-outline-info"
-                                                    onClick={() => setModalImage(urlimages + question.image)}
+                                                    onClick={() => setModalImage(urlimages+question.image)}
                                                 >
                                                     <MdAddPhotoAlternate />
                                                 </button>

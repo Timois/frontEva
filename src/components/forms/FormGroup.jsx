@@ -32,7 +32,7 @@ export const FormGroup = () => {
     const { refreshGroups } = fetchGroupByEvaluation();
     const { labs, getDataLabs } = fetchLabs();
     const [array, setArray] = useState([]);
-
+    const isEdit = false;
     const {
         control,
         handleSubmit,
@@ -42,7 +42,7 @@ export const FormGroup = () => {
         setValue,
         watch,
     } = useForm({
-        resolver: zodResolver(GroupSchema),
+        resolver: zodResolver(GroupSchema(isEdit)),
         defaultValues: {
             name: "",
             description: "",

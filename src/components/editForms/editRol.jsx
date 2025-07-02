@@ -34,8 +34,7 @@ export const EditRol = ({ data }) => {
             name: data.name
         }
     });
-    // Cargar datos iniciales
-    // Agregar console.log para debuggear
+    
     useEffect(() => {
         if (data && data.permissions) {
             setValue('name', data.name);

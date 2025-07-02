@@ -17,6 +17,7 @@ import { updateApi } from "../../services/axiosServices/ApiService"
 import { closeFormModal, customAlert } from "../../utils/domHelper"
 import { useParams } from "react-router-dom"
 import { useExamns } from "../../hooks/fetchExamns"
+import { fetchGroupByEvaluation } from "../../hooks/fetchGroup"
 
 export const EditGroup = ({ data }) => {
     const { id } = useParams();
@@ -25,7 +26,8 @@ export const EditGroup = ({ data }) => {
     const [array, setArray] = useState([]);
     const { examn, getExamnById } = useExamns();
     const [groupId, setGroupId] = useState(null);
-
+    const {refresGroups} = fetchGroupByEvaluation();
+    const isEdit = true;
     const {
         control,
         handleSubmit,
@@ -34,9 +36,9 @@ export const EditGroup = ({ data }) => {
         formState: { errors },
         setError,
     } = useForm({
-        resolver: zodResolver(GroupSchema),
+        resolver: zodResolver(GroupSchema(isEdit)),
     });
-   
+    
     const { labs, getDataLabs } = fetchLabs();
     
     useEffect(() => {
@@ -108,7 +110,6 @@ export const EditGroup = ({ data }) => {
         requestData.append('end_time', data.end_time);
         requestData.append('laboratory_id', Number(data.laboratory_id));
         requestData.append('evaluation_id', evaluation_id);
-
         try {
             const response = await updateApi(`groups/edit/${groupId}`, requestData);
             setResponse(false);
@@ -123,6 +124,7 @@ export const EditGroup = ({ data }) => {
             if (response) {
                 updateGroup(response);
                 customAlert('Grupo actualizado correctamente', 'success');
+                refresGroups(evaluation_id);
                 closeFormModal('editGroup');
                 reset();
             } else {

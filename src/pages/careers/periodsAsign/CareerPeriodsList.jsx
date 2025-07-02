@@ -20,7 +20,7 @@ export const CareerPeriodsList = () => {
         }
         return <h1>Sistema de Períodos</h1>;
     };
-
+    
     return (
         <div className="container py-4">
             <h5 className="text-center text-success mb-4">{getTitleByPeriodType()}</h5>
@@ -33,9 +33,6 @@ export const CareerPeriodsList = () => {
                                     <h4 className="card-title">
                                         Periodo <br/>{period.level}<span className="text-muted">/</span>{period.gestion}
                                     </h4>
-                                    <span className={`badge ${period.status === 'activo' ? 'bg-success' : 'bg-danger'}`}>
-                                        {period.status}
-                                    </span>
                                 </div>
                                 <div className="card-footer text-center">
                                     <p className="card-text">

@@ -20,7 +20,6 @@ export const useFetchQuestionsByArea = () => {
         try {
             const response = await getApi(`areas/listQuestions/${area_id}`)
             setQuestions(response) // Actualizamos el contexto con las preguntas del área
-            return response
         } catch (error) {
             console.error("Error fetching questions by area:", error)
             return []

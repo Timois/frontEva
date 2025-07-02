@@ -32,7 +32,6 @@ export const FormRol = () => {
     useEffect(() => {
         getData();
     }, [getData]);
-
     const handleSelectAll = (isChecked) => {
         if (isChecked) {
             const allPermisoNames = permisos.map(permiso => permiso.name);
