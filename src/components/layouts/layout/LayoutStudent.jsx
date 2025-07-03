@@ -4,13 +4,15 @@ import { clearStorageStudent } from "../../../services/storage/clearStorage";
 import { useContext } from "react";
 import { MdLogout } from "react-icons/md";
 import { StudentContext } from "../../../context/StudentProvider";
+import { removeSingleExamLog } from "../../../services/storage/storageStudent";
 
 const LayoutStudent = ({ children }) => {
   const { student, storeStudent } = useContext(StudentContext);
   const navigate = useNavigate();
-
+  
   const logout = () => {
     try {
+      removeSingleExamLog()
       clearStorageStudent();
       storeStudent(null);
       navigate("/estudiantes");
@@ -21,6 +23,7 @@ const LayoutStudent = ({ children }) => {
       console.error("Error during logout:", error);
     }
   };
+  
 
   return (
     <div className="d-flex flex-column vh-100">

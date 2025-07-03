@@ -34,3 +34,21 @@ export const savePermissionsStudent = (permissions) => {
         localStorage.setItem("permissions", JSON.stringify(permissions));
     }
 };
+
+export const removePermissionsStudent = () => {
+    localStorage.removeItem("permissions");
+};
+export const removeExamLogsByTestCode = (testCode) => {
+    if (testCode) {
+      const key = `exam_logs_${testCode}`;
+      localStorage.removeItem(key);
+    }
+  };
+
+  export const removeSingleExamLog = () => {
+    const logKey = Object.keys(localStorage).find(key => key.startsWith("exam_logs_"));
+    if (logKey) {
+      localStorage.removeItem(logKey);
+    }
+  };
+  
