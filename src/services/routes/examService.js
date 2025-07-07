@@ -21,3 +21,4 @@ export const fetchExamnsByCareer = async (careerId) => {
 export const fetchExamnsByPeriod = async (periodId) => {
   return await getApi(`evaluations/listExmansByPeriod/${periodId}`)
 }
+

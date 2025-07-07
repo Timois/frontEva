@@ -6,7 +6,7 @@ import {
   fetchPeriodById,
   fetchExamnById,
   fetchExamnsByCareer,
-  fetchExamnsByPeriod
+  fetchExamnsByPeriod,
 } from "../services/routes/ExamService"
 
 export const useExamns = () => {
@@ -58,6 +58,7 @@ export const useExamns = () => {
       console.error("Error al obtener exámenes por periodo:", error)
     }
   }, [setExamns])
+
   return {
     examns,
     getDataExamns,

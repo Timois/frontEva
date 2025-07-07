@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 import { useContext } from "react"
 import { ResultsContext } from "../context/ResultsProvider"
-import { getApi } from "../services/axiosServices/ApiService"
+import { getApi, postApi } from "../services/axiosServices/ApiService"
 
 export const fetchResultsByExam = () => {
     const {results, setResults} = useContext(ResultsContext)
@@ -15,5 +15,15 @@ export const fetchResultsByExam = () => {
             return null
         }
     }
-    return { getResults, results }
+
+    const getFinalResults = async (examId) => {
+        try {
+            const response = await postApi(`results/finalResults/${examId}`)
+            setResults(response)
+        } catch (error) {
+            console.error("Error al obtener preguntas del estudiante:", error)
+            return null
+        }
+    }
+    return { getResults, results, getFinalResults  }
 }

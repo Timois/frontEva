@@ -139,13 +139,36 @@ const ViewQuestionsAndAnswers = () => {
         setEvaluationTitle(evaluation.title);
         setTimer(evaluation.time);
 
-        // Cargar respuestas previas desde localStorage
+        // 🔁 Clave local para el examen
         const key = `exam_logs_${response.test_code}`;
         const savedLogs = JSON.parse(localStorage.getItem(key)) || [];
-        const savedAnswers = {};
-        savedLogs.forEach(log => {
-          savedAnswers[log.question_id] = log.answer_id;
-        });
+        let savedAnswers = {};
+
+        if (savedLogs.length > 0) {
+          // 🔹 Cargar desde localStorage
+          savedLogs.forEach(log => {
+            savedAnswers[log.question_id] = log.answer_id;
+          });
+        } else {
+          // 🔹 Si no hay en localStorage, intentar cargar desde el backend
+          try {
+            const logsBackend = await getApi(`logs_answers/list/${response.student_test_id}`);
+            logsBackend.forEach(log => {
+              savedAnswers[log.question_id] = log.answer_id;
+            });
+
+            // También guardar en localStorage para uso posterior
+            const newLocalLogs = logsBackend.map(log => ({
+              question_id: log.question_id,
+              answer_id: log.answer_id,
+              time: log.time || new Date().toISOString(), // o lo que tengas guardado
+            }));
+            localStorage.setItem(key, JSON.stringify(newLocalLogs));
+          } catch (err) {
+            console.error('No se pudieron obtener respuestas desde el backend', err);
+          }
+        }
+
         setSelectedAnswers(savedAnswers);
 
         if (answeredResp?.answered) {
@@ -161,7 +184,6 @@ const ViewQuestionsAndAnswers = () => {
         if (isMounted) setLoading(false);
       }
     };
-
     fetchAllData();
     return () => { isMounted = false; };
   }, [ci]);
