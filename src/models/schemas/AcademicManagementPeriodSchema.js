@@ -10,8 +10,8 @@ export const AcademicManagementPeriodSchema = z.object({
         { message: "La fecha de fin debe ser válida" }
       ),
       status: z.enum(["aperturado", "cerrado"], { errorMap: () => ({ message: "Seleccione una opcion. " }) }),
-      academic_management_career_id: z.string({ required_error: "La gestion acadmeica de la carrera es obligatoria" }),
-      period_id: z.string({ required_error: "el periodo es obligatoria" })
+      academic_management_career_id: z.number({ required_error: "La carrera es obligatoria" }),
+      period_id: z.number({ required_error: "el periodo es obligatoria" })
 })
 .refine(
     (data) => new Date(data.initial_date) <= new Date(data.end_date),

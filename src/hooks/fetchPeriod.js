@@ -14,7 +14,7 @@ export const useFetchPeriod = () => {
     const refreshPeriods = getData
 
     const getPeriodsByCareerId = async (careerId) => {
-        const response = await getApi(`careers/listPeriodsByCareerId/${careerId}`)
+        const response = await getApi(`evaluations/findEvaluationsBYCareer/${careerId}`)
         setPeriods(response);
     }
     const getPeriodsByCareerAndGestion = async (careerId, gestionId) => {
@@ -22,7 +22,7 @@ export const useFetchPeriod = () => {
           const response = await getApi(`academic_management_period/findPeriodsByCareerManagement/${careerId}/${gestionId}`);
           setPeriods(response);
         } catch (error) {
-          console.error("Error al obtener periodos:", error);
+          //console.error("Error al obtener periodos:", error);
         }
       };
     return { periods, getData, refreshPeriods, getPeriodsByCareerId, getPeriodsByCareerAndGestion }

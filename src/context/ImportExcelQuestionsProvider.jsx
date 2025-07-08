@@ -19,7 +19,7 @@ export const ImportExcelQuestionsProvider = ({ children }) => {
                 setImportExcelQuestions([...response])
             }
         } catch (error) {
-            console.error("Error al obtener archivos importados:", error)
+            // console.error("Error al obtener archivos importados:", error)
         }
     }
     const getArea = async (excel_id) => {
@@ -29,7 +29,7 @@ export const ImportExcelQuestionsProvider = ({ children }) => {
                 return response
             }
         } catch (error) {
-            console.error("Error al obtener archivos importados:", error)
+            // console.error("Error al obtener archivos importados:", error)
         }
     }
     const values = {

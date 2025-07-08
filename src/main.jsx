@@ -11,7 +11,6 @@ import { UserProvider } from './context/UserProvider.jsx'
 import { CareerProvider } from './context/CareerProvider.jsx'
 import { GestionProvider } from './context/GestionProvider.jsx'
 import { PeriodProvider } from './context/PeriodProvider.jsx'
-import { ExtensionGestionProvider } from './context/ExtensionGestionProvider.jsx'
 import { CareerAssignProvider } from './context/CareerAssignProvider.jsx';
 import { ImportExcelQuestionsProvider } from './context/ImportExcelQuestionsProvider.jsx';
 import { AreaProvider } from './context/AreaProvider.jsx';
@@ -38,7 +37,6 @@ createRoot(document.getElementById('root')).render(
               <CareerProvider>
                 <GestionProvider>
                   <PeriodProvider>
-                    <ExtensionGestionProvider>
                       <CareerAssignProvider>
                         <AreaProvider>
                           <ImportExcelQuestionsProvider>
@@ -62,7 +60,6 @@ createRoot(document.getElementById('root')).render(
                           </ImportExcelQuestionsProvider>
                         </AreaProvider>
                       </CareerAssignProvider>
-                    </ExtensionGestionProvider>
                   </PeriodProvider>
                 </GestionProvider>
               </CareerProvider>

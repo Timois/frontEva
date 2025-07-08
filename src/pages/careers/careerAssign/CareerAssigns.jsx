@@ -110,7 +110,6 @@ export const CareerAssigns = ({ data }) => {
                                 <CheckPermissions requiredPermission="ver-periodos-asignados">
                                     <ViewPeriod handleClick={() => {
                                         setModalData(gestion['academic_management_career_id'], "verPeriodo");
-                                        // console.log(gestion);
                                     }} />
                                 </CheckPermissions>
                             </div>

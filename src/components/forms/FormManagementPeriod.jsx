@@ -8,13 +8,12 @@ import { useForm } from "react-hook-form"
 import { closeFormModal, customAlert } from "../../utils/domHelper"
 import { postApi } from "../../services/axiosServices/ApiService"
 import { useParams } from "react-router-dom"
-import { AcademicManagementCareerPeriodSchema } from "../../models/schemas/AcademicManagementCareerPeriodSchema"
 import { DateInput } from "./components/DateInput"
 import { useContext, useEffect, useState } from "react"
 import { PeriodContext } from "../../context/PeriodProvider"
 import { Validate } from "./components/Validate"
+import { AcademicManagementCareerPeriodSchema } from "../../models/schemas/AcademicManagementCareerPeriodSchema"
 export const FormManagementPeriod = () => {
-    // console.log("::ESTOY AQUI::", data)
     const { periods } = useContext(PeriodContext);
     const [data, setData] = useState([]);
     useEffect(() => {
@@ -39,17 +38,18 @@ export const FormManagementPeriod = () => {
     };
 
     const onSubmit = async (data) => {
+        
         setResponse(true)
         const initialDateTime = `${data.initial_date} ${data.initial_time}:00`;
         const endDateTime = `${data.end_date} ${data.end_time}:00`;
-
+        console.log(initialDateTime, endDateTime)
         const academicManagementCareerId = getManagementCareerIdByAttr();
 
         if (!academicManagementCareerId) {
             console.error("El atributo 'academic_management_career_id' no está definido.");
             return;
-        }
-
+        }   
+        
         const formData = new FormData();
         formData.append("period_id", data.period_id);
         formData.append("career_id", career_id);
@@ -90,12 +90,12 @@ export const FormManagementPeriod = () => {
             "end_time"
         )
     }
-    const onError = (errors, e) => console.log(errors, e)
+    // const onError = (errors, e) => console.log(errors, e)
     const handleCancel = () => {
         closeFormModal("asignarPeriodo")
     }
     return (
-        <form onSubmit={handleSubmit(onSubmit, onError)}>
+        <form onSubmit={handleSubmit(onSubmit)}>
             <ContainerInput>
                 <SelectInput
                     label="Seleccione un periodo"
@@ -103,6 +103,7 @@ export const FormManagementPeriod = () => {
                     options={data.periods}
                     control={control}
                     errors={data.errors}
+                    castToNumber={true}
                 />
                 <Validate error={errors.period_id} />
             </ContainerInput>

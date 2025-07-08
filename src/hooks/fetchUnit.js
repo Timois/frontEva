@@ -10,7 +10,6 @@ export const useFetchUnit = () => {
             const response = await getApi("careers/listsFacultiesMayor");
             setUnits(response);
         }
-        return units;
     };
 
     // ✅ Esta función siempre refresca la lista de unidades

@@ -87,6 +87,7 @@ export const AsignPeriod = ({ data }) => {
           options={data?.academic_management_careers}
           control={control}
           errors={errors.academic_management_careers}
+          castToNumber={true}
         />
       </ContainerInput>
       <ContainerInput>
@@ -96,6 +97,7 @@ export const AsignPeriod = ({ data }) => {
           options={data?.academic_managements}
           control={control}
           errors={errors.periods}
+          castToNumber={true}
         />
       </ContainerInput>
       <ContainerButton>

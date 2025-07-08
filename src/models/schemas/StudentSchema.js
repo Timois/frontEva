@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const StudentSchema = z.object({
     ci: z.string({ required_error: "El CI es obligatorio" }).min(7, "El minimo de caracteres es 5"),
-    name: z.string({ required_error: "El nombre es obligatorio" }).min(5, "El minimo de caracteres es 5"),
+    name: z.string({ required_error: "El nombre es obligatorio" }).min(2, "El minimo de caracteres es 2"),
     paternal_surname: z.string().optional().or(z.literal("")),
     maternal_surname: z.string().optional().or(z.literal("")),
     phone_number: z

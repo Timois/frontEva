@@ -22,7 +22,7 @@ export const useFetchAnswerByIdQuestion = () => {
             const response = await getApi(`bank_answers/findByIdQuestion/${id}`);
             setAnswers(response);
         } catch (error) {
-            console.error('Error fetching answers:', error);
+            //console.error('Error fetching answers:', error);
             return { answers: [] };
         }
     };

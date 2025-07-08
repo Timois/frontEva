@@ -18,7 +18,7 @@ import { useFetchCareerAssign, useFetchCareerAssignPeriod } from "../../hooks/fe
 const arrayOption = [
     { value: "web", text: "WEB" }
 ];
-const names = [{ value: "PSA 1", text: "PSA 1" }, { value: "PSA 2", text: "PSA 2"}, { value: "PSA 3", text: "PSA 3"}, { value: "PSA 4", text: "PSA 4" }, { value: "PSA 5", text: "PSA 5" }]
+const names = [{ value: "PSA 1", text: "PSA 1" }, { value: "PSA 2", text: "PSA 2" }, { value: "PSA 3", text: "PSA 3" }, { value: "PSA 4", text: "PSA 4" }, { value: "PSA 5", text: "PSA 5" }]
 import { useParams } from "react-router-dom" // ✅ NUEVO
 import { SelectInput } from "./components/SelectInput"
 import { useExamns } from "../../hooks/fetchExamns"
@@ -102,7 +102,7 @@ export const FormExamn = () => {
             closeFormModal("registerExamn");
             await refreshExamns(career_id);
             resetForm();
-            
+
         } catch (error) {
             if (response?.status === 403) {
                 customAlert("No tienes permisos para realizar esta acción", "error");
@@ -125,9 +125,7 @@ export const FormExamn = () => {
             places: "",
             type: "",
             time: "",
-            academic_management_period_id: "",
         })
-        setSelectedPeriod(null)
     }
 
     const handleCancel = () => {
@@ -138,10 +136,10 @@ export const FormExamn = () => {
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
             <ContainerInput>
-                <SelectInput name="title" options={names} label="Seleccione una opcion" control={control}/>
+                <SelectInput name="title" options={names} label="Seleccione una opcion" control={control} />
                 <Validate error={errors.title} />
             </ContainerInput>
-            <ContainerInput>    
+            <ContainerInput>
                 <Input name="description" control={control} type="text" placeholder="Ingrese una descripción" />
                 <Validate error={errors.description} />
             </ContainerInput>
@@ -160,12 +158,6 @@ export const FormExamn = () => {
             <ContainerInput>
                 <Input name="places" control={control} type="number" placeholder="Ingrese el número de plazas" />
                 <Validate error={errors.places} />
-            </ContainerInput>
-            <ContainerInput>
-                <label className="font-medium text-sm text-gray-700 mb-1">Período académico</label>
-                <div className="border border-gray-300 rounded-md p-2 bg-gray-100 text-gray-700">
-                    {selectedPeriod ? selectedPeriod.period : "Cargando período..."}
-                </div>
             </ContainerInput>
             <ContainerButton>
                 <Button type="submit" name="submit" disabled={response}>

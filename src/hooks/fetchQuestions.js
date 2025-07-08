@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { useContext } from "react"
 import { QuestionContext } from "../context/QuestionsProvider"
 import { getApi } from "../services/axiosServices/ApiService"
@@ -21,7 +22,7 @@ export const useFetchQuestionsByArea = () => {
             const response = await getApi(`areas/listQuestions/${area_id}`)
             setQuestions(response) // Actualizamos el contexto con las preguntas del área
         } catch (error) {
-            console.error("Error fetching questions by area:", error)
+            //console.error("Error fetching questions by area:", error)
             return []
         }
     }
@@ -37,7 +38,7 @@ export const useFetchDisponibleQuestions = () => {
             setQuestions(response)
             return response
         } catch (error) {
-            console.error("Error al obtener preguntas disponibles:", error)
+           // console.error("Error al obtener preguntas disponibles:", error)
             return null
         }
     }
@@ -52,7 +53,7 @@ export const useFetchQuestionById = () => {
             setQuestion(response)
             return response
         }catch (error) {
-            console.error("Error al obtener la pregunta:", error)
+           // console.error("Error al obtener la pregunta:", error)
             return null
         }
     }

@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { useContext } from "react"
 import { LabsContext } from "../context/LabsProvider"
 import { getApi } from "../services/axiosServices/ApiService"
@@ -9,7 +10,7 @@ export const fetchLabs = () => {
       const response = await getApi("laboratories/list")
       setLabs(response)
     }catch (error) {
-      console.log(error)
+      // console.log(error)
     }
   }
   return {

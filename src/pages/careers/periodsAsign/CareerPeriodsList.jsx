@@ -1,48 +1,51 @@
-import { useContext, useEffect } from 'react';
+import { useEffect } from 'react';
 import { Card } from '../../../components/login/Card';
 import { useFetchPeriod } from '../../../hooks/fetchPeriod';
-import { PeriodContext } from '../../../context/PeriodProvider';
 import { Link } from 'react-router-dom';
 
 export const CareerPeriodsList = () => {
-    const { getPeriodsByCareerId } = useFetchPeriod()
-    const {periods} = useContext(PeriodContext)
+    const { periods, getPeriodsByCareerId } = useFetchPeriod();
     const user = JSON.parse(localStorage.getItem('user'));
     const career_id = user ? user.career_id : null;
 
     useEffect(() => {
-        getPeriodsByCareerId(career_id)
+        if (career_id) {
+            getPeriodsByCareerId(career_id);
+        }
     }, [career_id]);
-    
+
     const getTitleByPeriodType = () => {
         if (periods && periods.length > 0) {
-            return periods[0].period === 'semestre1' ? <h1>Sistema Semestral</h1> : <h1>Sistema Anual</h1>;
+            return periods[0].periodo === 'semestre1' ? (
+                <h1>Sistema Semestral</h1>
+            ) : (
+                <h1>Sistema Anual</h1>
+            );
         }
         return <h1>Sistema de Períodos</h1>;
     };
-    
+
     return (
         <div className="container py-4">
-            <h5 className="text-center text-success mb-4">{getTitleByPeriodType()}</h5>
+            <div className="text-center text-success mb-4">{getTitleByPeriodType()}</div>
             <div className="row">
                 {periods.length > 0 ? (
                     periods.map((period) => (
-                        <div key={period.id} className="col-md-4 col-sm-6 mb-4">
+                        <div key={period.academic_management_period_id} className="col-md-4 col-sm-6 mb-4">
                             <Card className={"card h-100"}>
                                 <div className="card-body text-center">
                                     <h4 className="card-title">
-                                        Periodo <br/>{period.level}<span className="text-muted">/</span>{period.gestion}
+                                        Periodo <br />
+                                        {period.periodo.level} <span className="text-muted">/</span> {period.year}
                                     </h4>
                                 </div>
                                 <div className="card-footer text-center">
-                                    <p className="card-text">
-                                        Cantidad de PSA
-                                    </p>
+                                    <p className="card-text">Cantidad de PSA: {period.evaluations?.length || 0}</p>
                                     <Link
-                                        to={`${period.id}/examns`}
+                                        to={`${period.academic_management_period_id}/examns`}
                                         className="btn btn-primary btn-sm"
                                     >
-                                        Ver PSAS
+                                        Ver Exámenes
                                     </Link>
                                 </div>
                             </Card>

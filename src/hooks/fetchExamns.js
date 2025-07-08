@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 // hooks/useExamns.js
 import { useCallback, useContext } from "react"
 import { ExamnsContext } from "../context/ExamnsProvider"
@@ -28,7 +29,7 @@ export const useExamns = () => {
       setExamns(examnsWithPeriod)
 
     } catch (error) {
-      console.error("Error al obtener exámenes:", error)
+     // console.error("Error al obtener exámenes:", error)
     }
   }
   const getExamnById = async (id) => {
@@ -36,7 +37,7 @@ export const useExamns = () => {
       const response = await fetchExamnById(id)
       setExamn(response)
     } catch (error) {
-      console.error("Error al obtener examen por ID:", error)
+      //console.error("Error al obtener examen por ID:", error)
       return null
     }
   }
@@ -46,7 +47,7 @@ export const useExamns = () => {
       const response = await fetchExamnsByCareer(careerId)
       setExamns(response)
     } catch (error) {
-      console.error("Error al obtener exámenes por carrera:", error)
+     // console.error("Error al obtener exámenes por carrera:", error)
     }
   }
   const refreshExamns = getExamnsByCareer
@@ -55,7 +56,7 @@ export const useExamns = () => {
       const response = await fetchExamnsByPeriod(periodId)
       setExamns(response)
     } catch (error) {
-      console.error("Error al obtener exámenes por periodo:", error)
+     // console.error("Error al obtener exámenes por periodo:", error)
     }
   }, [setExamns])
 

@@ -16,6 +16,7 @@ export const RegisterManagement = ({ data }) => {
     const { control, handleSubmit, reset, formState: { errors }, setError } = useForm({
         resolver: zodResolver(AsignGestionSchema)
     })
+    console.log(errors)
     const onSubmit = async (data) => {
         setResponse(true)
         const formData = new FormData()
@@ -52,7 +53,7 @@ export const RegisterManagement = ({ data }) => {
         }
     };
 
-    const onError = (errors, e) => console.log(errors, e)
+    // const onError = (errors, e) => console.log(errors, e)
     const handleCancel = () => {
         reset({
             career_id: "",
@@ -60,7 +61,7 @@ export const RegisterManagement = ({ data }) => {
         })
     }
     return (
-        <form onSubmit={handleSubmit(onSubmit, onError)}>
+        <form onSubmit={handleSubmit(onSubmit)}>
             <ContainerInput>
                 <SelectInput
                     label="Seleccione una carrera"

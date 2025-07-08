@@ -25,7 +25,7 @@ const handleTokenExpiration = () => {
   if (isPublicRoute() || isRedirecting) return;
   
   isRedirecting = true;
-  console.log("Token expirado, redirigiendo...");
+  // console.log("Token expirado, redirigiendo...");
 
   // Limpiar el almacenamiento y redirigir a la página de login
   clearStorage();
@@ -83,11 +83,11 @@ export const getApi = async (url) => {
         const { data } = await axios.get(path + url, { headers });
         return data;
     } catch (error) {
-        console.error("Error en la respuesta:", error);
-        console.log(error.response.status);
+        // console.error("Error en la respuesta:", error);
+        // console.log(error.response.status);
         // Si el error es 401 o 403 y no estamos en una ruta pública, manejar expiración del token
         if (error.response?.status === 401 || error.response?.status === 403) {
-            //handleTokenExpiration();
+            handleTokenExpiration();
         }
 
         throw error;

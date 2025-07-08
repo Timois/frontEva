@@ -167,10 +167,8 @@ export const FileUpload = () => {
       academic_management_period_id: ""
     });
   };
-  /* ============== RENDER ============== */
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      {/* ---------- Tipo de importación ---------- */}
       <ContainerInput>
         <label htmlFor="importOption">Tipo de importación:</label>
         <Controller

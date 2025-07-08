@@ -4,7 +4,8 @@ import { StudentContext } from '../../context/StudentProvider';
 import { useFetchStudent } from '../../hooks/fetchStudent';
 import ReactPaginate from 'react-paginate';
 import { FaChevronLeft, FaChevronRight, FaPhone, FaUserGraduate, FaUserSlash } from 'react-icons/fa';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import { MdArrowBack } from 'react-icons/md';
 
 export const StudentsList = () => {
   const {id} = useParams();
@@ -12,6 +13,7 @@ export const StudentsList = () => {
   const { students, setStudents } = useContext(StudentContext);
   const { getStudentsByIdExmans } = useFetchStudent();
   const [currentPage, setCurrentPage] = useState(0);
+  const navigate = useNavigate();
   const itemsPerPage = 5;
   useEffect(() => {
     getStudentsByIdExmans(examnId);
@@ -24,9 +26,12 @@ export const StudentsList = () => {
   const handlePageClick = ({ selected }) => {
     setCurrentPage(selected);
   };
-
   return (
   <div className="container-fluid p-4">
+    <button className="btn btn-dark mb-3" onClick={() => navigate(-1)}>
+      <MdArrowBack className="me-2" />
+      Atras
+    </button>
     <div className="card shadow-lg border-0 rounded-3 overflow-hidden">
       <div className="card-header bg-primary text-white py-3 rounded-top">
         <h3 className="mb-0">

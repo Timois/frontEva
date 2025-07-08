@@ -1,13 +1,14 @@
 /* eslint-disable no-unused-vars */
 import { useEffect, useState, useMemo } from "react";
 import { fetchGroupByEvaluation } from "../../hooks/fetchGroup";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { FaObjectGroup } from "react-icons/fa";
 import ButtonEdit from "./ButtonEdit";
 import ModalEdit from "./ModalEdit";
 import { ModalViewStudents } from "./ModalViewStudents";
 import { useExamns } from "../../hooks/fetchExamns";
 export const Groups = () => {
+    const navigate = useNavigate();
     const { id } = useParams();
     const evaluationId = id;
     const { examn, getExamnById } = useExamns()
@@ -57,6 +58,12 @@ export const Groups = () => {
     
     return (
         <div className="container-fluid p-4">
+            <button
+                className="btn btn-dark mb-3"
+                onClick={() => navigate(-1)}
+            >
+               Atras
+            </button>
             <div className="card shadow-lg border-0 rounded-3 overflow-hidden">
                 <div className="card-header bg-primary text-white py-3 rounded-top">
                     <h4 className="mb-0 d-flex align-items-center justify-content-between">

@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -46,7 +47,7 @@ const FormLogin = () => {
       });
     }
   } catch (error) {
-    console.error("Error en el login:", error);
+    //console.error("Error en el login:", error);
     setError("root", {
       type: "custom",
       message: "Error en el servidor",

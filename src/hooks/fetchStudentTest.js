@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 // hooks/useStudentTest.js
 import { getApi } from "../services/axiosServices/ApiService"
 
@@ -7,7 +8,7 @@ export const useStudentTest = () => {
       const response = await getApi(`student_tests/listQuestionsByStudent/${studentTestId}`)
       return response
     } catch (error) {
-      console.error("Error al obtener preguntas del estudiante:", error)
+      //console.error("Error al obtener preguntas del estudiante:", error)
       return null
     }
   }

@@ -150,7 +150,7 @@ export const FormGroup = () => {
         closeFormModal("registerGroup");
     };
     const onError = (errors) => {
-        console.log("Errores del formulario:", errors);
+        // console.log("Errores del formulario:", errors);
       };
     return (
         <form onSubmit={handleSubmit(onSubmit, onError)}>

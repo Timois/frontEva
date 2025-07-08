@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
 import { useContext } from "react"
 import { ResultsContext } from "../context/ResultsProvider"
@@ -11,7 +12,7 @@ export const fetchResultsByExam = () => {
             const response = await getApi(`student_tests/listResultsByEvaluation/${examId}`)
             setResults(response)
         } catch (error) {
-            console.error("Error al obtener preguntas del estudiante:", error)
+            //console.error("Error al obtener preguntas del estudiante:", error)
             return null
         }
     }
@@ -21,7 +22,7 @@ export const fetchResultsByExam = () => {
             const response = await postApi(`results/finalResults/${examId}`)
             setResults(response)
         } catch (error) {
-            console.error("Error al obtener preguntas del estudiante:", error)
+           // console.error("Error al obtener preguntas del estudiante:", error)
             return null
         }
     }

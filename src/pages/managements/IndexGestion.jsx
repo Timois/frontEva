@@ -3,8 +3,6 @@ import React from 'react'
 import { Gestiones } from './Gestiones'
 import ButtonAdd from './ButtonAdd'
 import { ModalRegister } from './ModalRegister'
-import { ModalExtension } from './ModalExtension'
-import ButtonAddExtension from './ButtonAddExtension'
 import CheckPermissions from '../../routes/CheckPermissions'
 
 export const IndexGestion = () => {

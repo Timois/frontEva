@@ -12,8 +12,6 @@ import { useFetchAreasActive } from "../../hooks/fetchAreas";
 import { getApi, postApi } from "../../services/axiosServices/ApiService";
 import { useNavigate, useParams } from "react-router-dom";
 import { useFetchDisponibleQuestions } from "../../hooks/fetchQuestions";
-import { ButtonImport } from "../../pages/careers/questions/imports/ButtonImport";
-import { ModalImport } from "../../pages/careers/questions/imports/ModalImport";
 
 export const FormAssignQuestions = ({ data }) => {
   const { id } = useParams();
@@ -297,7 +295,6 @@ export const FormAssignQuestions = ({ data }) => {
     resetForm();
     navigate(-1);
   };
-  const modalId = "importExcel"
   return asignado ? (
     <div className="container-fluid p-4">
       <div className="card shadow-lg border-0 rounded-3 overflow-hidden">
@@ -321,20 +318,19 @@ export const FormAssignQuestions = ({ data }) => {
           <div className="d-flex gap-2 mb-4">
             <button
               type="button"
-              className={`btn ${modo === 1 ? "btn-primary" : "btn-outline-primary"} btn-sm`}
+              className={`btn ${modo === 1 ? "btn-info" : "btn-outline-info"} btn-sm fw-bold`}
               onClick={() => setModo(1)}
             >
-              Ponderar
+              📊 Ponderar
             </button>
             <button
               type="button"
-              className={`btn ${modo === 0 ? "btn-primary" : "btn-outline-primary"} btn-sm`}
+              className={`btn ${modo === 0 ? "btn-warning" : "btn-outline-warning"} btn-sm fw-bold`}
               onClick={() => setModo(0)}
             >
-              No Ponderar
+              ➖ No Ponderar
             </button>
           </div>
-
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="alert alert-info mb-4">
               <div className="d-flex justify-content-between align-items-center">
@@ -421,14 +417,6 @@ export const FormAssignQuestions = ({ data }) => {
                                 <li>Media: {disponibles?.[area.id]?.media || 0}</li>
                                 <li>Difícil: {disponibles?.[area.id]?.dificil || 0}</li>
                               </ul>
-                              {(disponibles?.[area.id]?.facil === 0 &&
-                                disponibles?.[area.id]?.media === 0 &&
-                                disponibles?.[area.id]?.dificil === 0) && (
-                                  <div className="alert alert-warning mt-2">
-                                    No hay preguntas disponibles en esta área.{" "}
-                                    <ButtonImport modalIdImp={modalId} />
-                                  </div>
-                                )}
                             </div>
                             {calculatedScores[index] && (
                               <div className="alert alert-secondary mt-2">
@@ -489,7 +477,6 @@ export const FormAssignQuestions = ({ data }) => {
           </form>
         </div>
       </div>
-      <ModalImport modalIdImp={modalId} />
     </div>
   );
 };

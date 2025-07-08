@@ -12,8 +12,6 @@ const CheckPermissions = ({
 
   let hasAccess = false;
 if (requiredPermission) {
-  // console.log("Permiso requerido:", requiredPermission);
-  // console.log("Lista de permisos:", permissions);
   hasAccess = permissions.includes(requiredPermission);
   // console.log("¿Tiene el permiso requerido?", hasAccess);
 } else if (requiredPermissions) {

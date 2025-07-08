@@ -26,7 +26,6 @@ export const UserProvider = ({ children }) => {
             setUsers(lista)
         }
     };
-    
 
     const storeUser = (user) => {
         setUser(user);
