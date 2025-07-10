@@ -25,16 +25,21 @@ export const FormStudent = ({ examnID }) => {
     resolver: zodResolver(StudentSchema)
   });
   const onSubmit = async (data) => {
+    console.log(data)
     setResponse(true);
     try {
+      // Sanitizar campos opcionales
+      const paternal = data?.paternal_surname ?? "";
+      const maternal = data?.maternal_surname ?? "";
       const formData = new FormData();
       formData.append("ci", data.ci);
       formData.append("name", data.name);
-      formData.append("paternal_surname", data.paternal_surname);
-      formData.append("maternal_surname", data.maternal_surname);
+      formData.append("paternal_surname", paternal);
+      formData.append("maternal_surname", maternal);
       formData.append("phone_number", data.phone_number);
       formData.append("birthdate", data.birthdate);
       formData.append("evaluation_id", examnID);
+
       const response = await postApi("students/save", formData);
 
       if (response.status === 422) {
@@ -44,7 +49,7 @@ export const FormStudent = ({ examnID }) => {
       }
       addStudent(response.data);
       customAlert("Estudiante creado correctamente", "success");
-      closeFormModal("registerStudent")
+      closeFormModal("registerStudent");
       resetForm();
     } catch (error) {
       if (error.response.status === 403) {
@@ -52,12 +57,13 @@ export const FormStudent = ({ examnID }) => {
       } else {
         customAlert(error.response?.data?.message || "Error al crear el estudiante", "error");
         resetForm();
-        closeFormModal("registerStudent")
+        closeFormModal("registerStudent");
       }
     } finally {
       setResponse(false);
     }
-  }
+  };
+
   const resetForm = () => {
     reset(
       {

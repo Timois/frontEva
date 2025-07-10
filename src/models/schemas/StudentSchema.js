@@ -20,7 +20,7 @@ export const StudentSchema = z.object({
         (data.paternal_surname && data.paternal_surname.trim()) ||
         (data.maternal_surname && data.maternal_surname.trim()),
     {
-        message: "Debe ingresar al menos uno de los apellidos con un mínimo de 5 caracteres.",
+        message: "Debe ingresar al menos uno de los apellidos.",
         path: ["paternal_surname"], // o podrías usar `["_form"]` si quieres que sea un error general
     }
 );

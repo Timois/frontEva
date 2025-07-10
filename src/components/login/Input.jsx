@@ -8,6 +8,7 @@ export const Input = ({ type, placeholder, name, control }) => {
     <Controller
       name={name}
       control={control}
+      defaultValue="" // 👈 ESTE ES CLAVE
       render={({ field }) => {
         const isNumber = type === 'number';
         return (

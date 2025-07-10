@@ -36,7 +36,7 @@ export const Examns = () => {
 
   const examnsByPeriod = currentPeriod?.evaluations?.map(e => ({
     ...e,
-    period_name: currentPeriod.periodo
+    period_name: currentPeriod.periodo.period
   })) || []  
 
   const idEditar = "editarExamn"
