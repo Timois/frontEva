@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import { StudentContext } from "../../context/StudentProvider";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -13,19 +13,15 @@ import { ContainerButton } from "../login/ContainerButton";
 import { Button } from "../login/Button";
 import CancelButton from "./components/CancelButon";
 import { DateInput } from "./components/DateInput";
-import { useExamns } from "../../hooks/fetchExamns";
 
 
 export const FormStudent = ({ examnID }) => {
   const { addStudent } = useContext(StudentContext);
   const [response, setResponse] = useState(false);
-  const { getExamnById } = useExamns();
-  const [title, setTitle] = useState("")
   const { control, handleSubmit, reset, formState: { errors }, setError } = useForm({
     resolver: zodResolver(StudentSchema)
   });
   const onSubmit = async (data) => {
-    console.log(data)
     setResponse(true);
     try {
       // Sanitizar campos opcionales
@@ -80,20 +76,8 @@ export const FormStudent = ({ examnID }) => {
     resetForm();
     closeFormModal("registerStudent")
   }
-  useEffect(() => {
-    const fetchTitle = async () => {
-      const examTitle = await getExamnById(examnID)
-      setTitle(examTitle)
-    }
-    if (examnID) {
-      fetchTitle()
-    }
-  }, [examnID])
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <ContainerInput>
-        <strong>Evaluation: {title}</strong>
-      </ContainerInput>
       <ContainerInput>
         <Input type="text" placeholder="Ingrese el numero de ci" name="ci" control={control} />
         <Validate error={errors.ci} />

@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
-import { useContext, useEffect, useState } from "react";
-import { postApi, getApi } from "../../services/axiosServices/ApiService";
+import { useState } from "react";
+import { postApi } from "../../services/axiosServices/ApiService";
 import { closeFormModal, customAlert } from "../../utils/domHelper";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,13 +11,9 @@ import { ContainerButton } from "../login/ContainerButton";
 import { Button } from "../login/Button";
 import { ImputStudents } from "./components/ImputStudents";
 import CancelButton from "./components/CancelButon";
-import { useFetchStudent } from "../../hooks/fetchStudent";
-import { useExamns } from "../../hooks/fetchExamns";
 
 export const FormImportStudents = ({ examID, modalId }) => {
     const [response, setResponse] = useState(false);
-    const { getExamnById } = useExamns();
-    const [title, setTitle] = useState("")
 
     const { control,
         handleSubmit,
@@ -103,21 +99,9 @@ export const FormImportStudents = ({ examID, modalId }) => {
             });
         }
     };
-    useEffect(() => {
-        const fetchTitle = async () => {
-            const examTitle = await getExamnById(examID)
-            setTitle(examTitle)
-        }
-        if (examID) {
-            fetchTitle()
-        }
-    }, [examID])
 
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
-            <ContainerInput>
-                <strong>Evaluación: {title} </strong>
-            </ContainerInput>
             <ContainerInput>
                 <ImputStudents onChange={handleFile} />
                 {errors.file && (

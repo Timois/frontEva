@@ -203,18 +203,27 @@ export const FormAssignQuestions = ({ data }) => {
     const questionsPerArea = [];
 
     formData.areas.forEach((area) => {
+      const cantidadFacil = Number(area.cantidadFacil || 0);
+      const cantidadMedia = Number(area.cantidadMedia || 0);
+      const cantidadDificil = Number(area.cantidadDificil || 0);
       const cantidadTotal = modo
-        ? Number(area.cantidadFacil || 0) +
-        Number(area.cantidadMedia || 0) +
-        Number(area.cantidadDificil || 0)
+        ? cantidadFacil + cantidadMedia + cantidadDificil
         : Number(area.cantidadTotal || 0);
 
       if (cantidadTotal > 0) {
-        questionsPerArea.push({
+        const areaData = {
           id: area.area_id,
           cantidadTotal,
           nota: Number(area.puntajeTotal),
-        });
+        };
+
+        if (modo === 1) {
+          areaData.cantidadFacil = cantidadFacil;
+          areaData.cantidadMedia = cantidadMedia;
+          areaData.cantidadDificil = cantidadDificil;
+        }
+
+        questionsPerArea.push(areaData);
       }
     });
 

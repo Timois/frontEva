@@ -44,49 +44,46 @@ export const CompareAnswers = () => {
                 Volver a la Evaluación
             </button>
             {evaluationData?.questions?.map((q, index) => {
-                const correctAnswer = q.answers.find((a) => a.is_correct);
-                const studentAnswer = q.answers.find((a) => a.id === q.student_answer);
-                const noRespuesta = q.student_answer===null? "No respondió":null;
+                const noRespuesta = q.student_answer === null;
 
                 return (
-                    <div key={q.question_id} className="card mb-3">
+                    <div key={q.question_id} className="card mb-4 shadow-sm border-0">
+                        <div className={`card-header fw-bold d-flex justify-content-between align-items-center ${q.is_correct ? "bg-success text-white" : "bg-danger text-white"}`}>
+                            <span>Pregunta {index + 1}</span>
+                            <span>{q.is_correct ? "✔ Correcta" : "✘ Incorrecta"}</span>
+                        </div>
                         <div className="card-body">
-                            <h5 className="card-title">Pregunta {index + 1}</h5>
-                            <p className="card-text">{q.question}</p>
-                            <p>
-                                <strong>Respuesta del estudiante:</strong>{" "}
-                                {studentAnswer ? (
-                                    <span className="text-primary">{studentAnswer}</span>
-                                ) : (
-                                    <span className="text-muted">{noRespuesta}</span>
-                                )}
-                            </p>
+                            <p className="mb-3"><strong>{q.question}</strong></p>
+
                             <ul className="list-group mb-3">
-                                {q.answers.map((a) => (
-                                    <li
-                                        key={a.id}
-                                        className={`list-group-item d-flex justify-content-between align-items-center
-                      ${a.id === q.student_answer ? "list-group-item-info" : ""}
-                      ${a.is_correct ? "list-group-item-success" : ""}
-                    `}
-                                    >
-                                        {a.answer}
-                                        <div>
-                                            {a.id === q.student_answer && <span className="badge bg-primary me-1">Seleccionada</span>}
-                                            {a.is_correct && <span className="badge bg-success">Correcta</span>}
-                                        </div>
-                                    </li>
-                                ))}
+                                {q.answers.map((a) => {
+                                    const isSelected = a.id === Number(q.student_answer);
+                                    const isCorrect = a.is_correct;
+
+                                    let itemClass = "list-group-item d-flex justify-content-between align-items-center";
+                                    if (isCorrect && isSelected) itemClass += " list-group-item-success"; // correcta y seleccionada
+                                    else if (isCorrect) itemClass += " list-group-item-success";
+                                    else if (isSelected) itemClass += " list-group-item-warning";
+
+                                    return (
+                                        <li key={a.id} className={itemClass}>
+                                            <span>{a.answer}</span>
+                                            <div>
+                                                {isSelected && <span className="badge bg-warning text-dark me-1">Seleccionada</span>}
+                                                {isCorrect && <span className="badge bg-success">Correcta</span>}
+                                            </div>
+                                        </li>
+                                    );
+                                })}
                             </ul>
 
-                            <p>
-                                <strong>¿Respuesta correcta?</strong>{" "}
-                                {q.is_correct ? (
-                                    <span className="text-success">Sí</span>
-                                ) : (
-                                    <span className="text-danger">No</span>
-                                )}
-                            </p>
+                            {noRespuesta && (
+                                <div className="alert alert-secondary py-2">El estudiante no respondió esta pregunta.</div>
+                            )}
+
+                            <div className="d-flex justify-content-end">
+                                <small className="text-muted">Puntaje asignado: {q.score_assigned}</small>
+                            </div>
                         </div>
                     </div>
                 );
