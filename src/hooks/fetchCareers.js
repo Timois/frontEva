@@ -17,7 +17,7 @@ export const useFetchCareer = () => {
       const response = await getApi("careers/list");
       setCareers(response);
     } catch (err) {
-      console.error("Error al obtener las carreras:", err);
+      // console.error("Error al obtener las carreras:", err);
       setError("Error al conectar con el servidor.");
     } finally {
       setLoading(false);
@@ -31,9 +31,9 @@ export const useFetchCareer = () => {
 
   return { careers, getDataCareer, loading, error };
 };
-export const useFetchCareerAssign = (id) => {
+export const useFetchCareerAssign = () => {
   const { careerAssignments, setCareerAssignments } = useContext(CareerAssignContext)
-  const getDataCareerAssignments = async () => {
+  const getDataCareerAssignments = async (id) => {
     const response = await getApi(`careers/findByAssignId/${id}`)
     setCareerAssignments(response)
   }
@@ -46,15 +46,10 @@ export const useFetchCareerAssignPeriod = () => {
   const getDataCareerAssignmentPeriods = async (academic_management_career_id) => {
     try {
       if (!academic_management_career_id) return;
-
       const response = await getApi(`careers/findPeriodByIdAssign/${academic_management_career_id}`);
-      if (Array.isArray(response)) {
-        setCareerAssignmentsPeriods(response);
-      } else {
-        setCareerAssignmentsPeriods([]);
-      }
+      setCareerAssignmentsPeriods(response);
     } catch (error) {
-      setCareerAssignmentsPeriods([]);
+      console.error("Error al obtener los periodos de asignación:", error); 
     }
   };
 

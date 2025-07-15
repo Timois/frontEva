@@ -15,14 +15,17 @@ export const CareerPeriodsList = () => {
     }, [career_id]);
 
     const getTitleByPeriodType = () => {
-        if (periods && periods.length > 0) {
-            return periods[0].periodo === 'semestre1' ? (
-                <h1>Sistema Semestral</h1>
-            ) : (
-                <h1>Sistema Anual</h1>
-            );
+        const period = periods?.[0]?.periodo?.period;
+
+        switch (period) {
+            case 'semestre1':
+            case 'semestre2':
+                return <h1>Sistema Semestral</h1>;
+            case 'anual':
+                return <h1>Sistema Anual</h1>;
+            default:
+                return <h1>Sistema de Períodos</h1>;
         }
-        return <h1>Sistema de Períodos</h1>;
     };
 
     return (
@@ -30,27 +33,29 @@ export const CareerPeriodsList = () => {
             <div className="text-center text-success mb-4">{getTitleByPeriodType()}</div>
             <div className="row">
                 {periods.length > 0 ? (
-                    periods.map((period) => (
-                        <div key={period.academic_management_period_id} className="col-md-4 col-sm-6 mb-4">
-                            <Card className={"card h-100"}>
-                                <div className="card-body text-center">
-                                    <h4 className="card-title">
-                                        Periodo <br />
-                                        {period.periodo.level} <span className="text-muted">/</span> {period.year}
-                                    </h4>
-                                </div>
-                                <div className="card-footer text-center">
-                                    <p className="card-text">Cantidad de PSA: {period.evaluations?.length || 0}</p>
-                                    <Link
-                                        to={`${period.academic_management_period_id}/examns`}
-                                        className="btn btn-primary btn-sm"
-                                    >
-                                        Ver Exámenes
-                                    </Link>
-                                </div>
-                            </Card>
-                        </div>
-                    ))
+                    periods
+                        .filter((period) => period?.periodo) // evitar que se rendericen periodos inválidos
+                        .map((period) => (
+                            <div key={period.academic_management_period_id} className="col-md-4 col-sm-6 mb-4">
+                                <Card className={"card h-100"}>
+                                    <div className="card-body text-center">
+                                        <h4 className="card-title">
+                                            Periodo <br />
+                                            {period.periodo.level || '—'} <span className="text-muted">/</span> {period.year}
+                                        </h4>
+                                    </div>
+                                    <div className="card-footer text-center">
+                                        <p className="card-text">Cantidad de PSA: {period.evaluations?.length || 0}</p>
+                                        <Link
+                                            to={`${period.academic_management_period_id}/examns`}
+                                            className="btn btn-primary btn-sm"
+                                        >
+                                            Ver Exámenes
+                                        </Link>
+                                    </div>
+                                </Card>
+                            </div>
+                        ))
                 ) : (
                     <div className="col-12">
                         <div className="alert alert-info text-center">

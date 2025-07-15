@@ -2,7 +2,6 @@
 /* eslint-disable react/prop-types */
 import { useNavigate } from "react-router-dom";
 import { useSidebar } from "../../../hooks/useSidebar";
-import { Button } from "../../login/Button";
 import "./Layout.css";
 import { Sidebar, SidebarOpenButton, MenuButton } from "./components";
 import { clearStorage } from "../../../services/storage/clearStorage";
@@ -18,9 +17,9 @@ import { PermissionsContext } from "../../../context/PermissionsProvider";
 const Layout = ({ children }) => {
   const { user, storeUser } = useContext(UserContext);
   const { permissions, isLoading } = useContext(PermissionsContext);
-  const {toggleSidebar, closeSidebar } = useSidebar();
+  const { toggleSidebar, closeSidebar } = useSidebar();
   const navigate = useNavigate();
-  
+  const name = user?.nombre;
   const logout = () => {
     try {
       clearStorage();
@@ -69,7 +68,7 @@ const Layout = ({ children }) => {
           <div className="d-flex align-items-center">
             <span className="navbar-brand mb-0 h6 ms-3 text-truncate">
               <FaUserShield className="me-2" />
-              {user?.name}
+              Bienvenido, {name}
             </span>
           </div>
           <div className="d-flex align-items-center">

@@ -1,19 +1,19 @@
+/* eslint-disable no-unused-vars */
 import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useFetchGestion } from "../../hooks/fetchGestion";
 import { SelectInput } from "../../components/forms/components/SelectInput";
 import { fetchResultsByExam } from "../../hooks/fetchResults";
-import { useFetchPeriod } from "../../hooks/fetchPeriod";
 import { useExamns } from "../../hooks/fetchExamns";
 import { Button } from "../../components/login/Button";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { FaFilePdf } from "react-icons/fa";
+import { useFetchCareerAssign, useFetchCareerAssignPeriod } from "../../hooks/fetchcareers";
 const IndexResults = () => {
   const { control, watch } = useForm();
-  const { gestions, getData } = useFetchGestion();
+  const { careerAssignments, getDataCareerAssignments } = useFetchCareerAssign();
   const { results, getResults } = fetchResultsByExam();
-  const { periods, getPeriodsByCareerAndGestion } = useFetchPeriod();
+  const { careerAssignmentsPeriods, getDataCareerAssignmentPeriods } = useFetchCareerAssignPeriod();
   const { examns, getExmansByPeriod } = useExamns();
 
   const [filteredPeriods, setFilteredPeriods] = useState([]);
@@ -23,43 +23,43 @@ const IndexResults = () => {
 
   const user = JSON.parse(localStorage.getItem("user"));
   const careerId = user?.career_id ?? null;
-  const selectedGestionId = watch("gestion_id");
-  const selectedPeriodId = watch("period_id");
+  const selectedGestionId = watch("academic_management_career_id");
+  const selectedPeriodId = watch("academic_management_period_id");
   const selectedExamnId = watch("examn_id");
 
   useEffect(() => {
-    getData();
-  }, []);
+    if (careerId) {
+      getDataCareerAssignments(careerId);
+    }
+  }, [careerId]);
+
+  const academic_management_career_id = careerAssignments[0]?.academic_management_career_id;
 
   useEffect(() => {
-    if (careerId && selectedGestionId) {
-      getPeriodsByCareerAndGestion(careerId, selectedGestionId);
+    if (academic_management_career_id) {
+      getDataCareerAssignmentPeriods(academic_management_career_id);
     }
-  }, [careerId, selectedGestionId]);
+  }, [academic_management_career_id]);
 
-  const gestionOptions = gestions.map((g) => ({
+  const gestionOptions = careerAssignments.map((g) => ({
     text: g.year,
-    value: g.id,
+    value: g.academic_management_career_id
   }));
 
   const periodOptions = useMemo(() => {
-    return periods.map((p) => ({
+    return careerAssignmentsPeriods.map((p) => ({
       text: p.period,
-      value: p.id,
-      gestionId: Number(p.academic_management_id),
+      value: p.academic_management_period_id,
     }));
-  }, [periods]);
+  }, [careerAssignmentsPeriods]);
 
   useEffect(() => {
-    if (selectedGestionId) {
-      const filtered = periodOptions.filter(
-        (p) => p.gestionId === Number(selectedGestionId)
-      );
-      setFilteredPeriods(filtered);
-    } else {
-      setFilteredPeriods([]);
-    }
-  }, [selectedGestionId, periodOptions]);
+    setFilteredPeriods(periodOptions);
+  }, [periodOptions]);
+
+  useEffect(() => {
+    setFilteredPeriods(periodOptions);
+  }, [periodOptions]);  
 
   useEffect(() => {
     if (selectedPeriodId) {
@@ -76,14 +76,14 @@ const IndexResults = () => {
   }, [examns]);
 
   useEffect(() => {
-    setExamnOptions([]); // Limpia las opciones del examen al cambiar periodo
+    setExamnOptions([]);
   }, [selectedPeriodId]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (Number.isInteger(selectedExamnId)) {
       getResults(selectedExamnId);
-      setCurrentPage(1); // Reinicia a la primera página al buscar
+      setCurrentPage(1);
     }
   };
 
@@ -107,8 +107,8 @@ const IndexResults = () => {
   const downloadPdf = () => {
     if (!results?.students?.length) return;
 
-    const gestion = gestions.find(g => g.id === selectedGestionId);
-    const period = periods.find(p => p.id === selectedPeriodId);
+    const gestion = careerAssignments.find(g => g.academmic_management_career_id === selectedGestionId);
+    const period = careerAssignmentsPeriods.find(p => p.id === selectedPeriodId);
     const examn = examns.find(e => e.id === selectedExamnId);
 
     const gestionText = gestion?.year || "desconocido";
@@ -153,7 +153,6 @@ const IndexResults = () => {
       },
     });
 
-    // Nombre de archivo dinámico
     const fileName = `resultados_examen_${gestionText}_${periodText}_${examnTitle}.pdf`;
     doc.save(fileName);
   };
@@ -164,10 +163,10 @@ const IndexResults = () => {
       <form onSubmit={handleSubmit}>
         <div className="d-flex gap-5 align-items-center flex-wrap border p-2 rounded" style={{ background: "#daf2ef" }}>
           <div>
-            <SelectInput label="Seleccione una Gestión" name="gestion_id" options={gestionOptions} control={control} castToNumber={true} />
+            <SelectInput label="Seleccione una Gestión" name="academic_management_career_id" options={gestionOptions} control={control} castToNumber={true} />
           </div>
           <div>
-            <SelectInput label="Seleccione un Periodo" name="period_id" options={filteredPeriods} control={control} castToNumber={true} />
+            <SelectInput label="Seleccione un Periodo" name="academic_management_period_id" options={periodOptions} control={control} castToNumber={true} />
           </div>
           <div>
             <SelectInput label="Seleccione un Examen" name="examn_id" options={examnOptions} control={control} castToNumber={true} />
@@ -181,7 +180,7 @@ const IndexResults = () => {
       </form>
       <div className="d-flex w-100 p-2 m-2 justify-content-end" >
         <button className="rounded" onClick={downloadPdf}>
-          <FaFilePdf size={24}  className="text-danger"/>
+          <FaFilePdf size={24} className="text-danger" />
         </button>
       </div>
       <div className="mt-4">

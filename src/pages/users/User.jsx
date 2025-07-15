@@ -89,15 +89,6 @@ export const User = () => {
                                                 <span className="text-muted">
                                                     {getCareerName(persona.career_id) || "Sin asignar"}
                                                 </span>
-                                                {!persona.career_id && (
-                                                    <CheckPermissions requiredPermission="asignar-carreras-a-usuarios">
-                                                        <ButtonAssign
-                                                            modalId={modalAsign}
-                                                            persona={persona}
-                                                            className="btn-link text-primary p-0"
-                                                        />
-                                                    </CheckPermissions>
-                                                )}
                                             </div>
                                         </td>
                                         <td>
