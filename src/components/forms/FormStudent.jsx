@@ -50,6 +50,7 @@ export const FormStudent = ({ examnID }) => {
     } catch (error) {
       if (error.response.status === 403) {
         customAlert("No tienes permisos para crear un estudiante", "error");
+        closeFormModal("registerStudent");
       } else {
         customAlert(error.response?.data?.message || "Error al crear el estudiante", "error");
         resetForm();

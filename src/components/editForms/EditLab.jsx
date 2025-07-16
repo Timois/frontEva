@@ -65,7 +65,7 @@ export const EditLab = ({ data }) => {
                 customAlert("No tienes permiso para editar el laboratorio", "error")
                 closeFormModal("editLab")
             } else {
-                customAlert(error.response?.data.errors?.message || "Error al editar el laboratorio", "error")
+                customAlert(error.response?.data?.message || "Error al editar el laboratorio", "error")
                 closeFormModal("editLab")
             }
         } finally {

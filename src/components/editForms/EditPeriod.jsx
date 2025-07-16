@@ -56,7 +56,15 @@ export const EditPeriod = ({ data, closeModal }) => {
             updatePeriod(response.data)
             reset()
         } catch (error) {
-            setResponse(false)
+            if (error.response.status === 403) {
+                customAlert("No tienes permiso para realizar esta acción", "error")
+                closeFormModal("editarPeriodo")
+                reset()
+            }else{
+                customAlert(error.response?.data?.message ||"Error al editar el periodo", "error")
+                closeFormModal("editarPeriodo")
+                reset()
+            }
         }
     }
     const handleCancel = () => {

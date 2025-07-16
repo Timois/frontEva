@@ -63,13 +63,27 @@ export const Unidad = () => {
                     <td className="text-center fw-bold text-muted">{offset + index + 1}</td>
                     <td>
                       <div className="d-flex align-items-center">
-                        <img 
-                          className="rounded-circle me-3 shadow-sm" 
-                          src={unit.logo} 
-                          alt={`Logo de ${unit.name}`} 
-                          width={50} 
-                          height={50} 
-                        />
+                        {unit.logo ? (
+                          <img
+                            className="rounded-circle me-3 shadow-sm"
+                            src={unit.logo}
+                            alt={`Logo de ${unit.name}`}
+                            width={50}
+                            height={50}
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.style.display = "none";
+                              e.target.parentNode.innerHTML = '<span class="text-muted fw-bold">Sin logo</span>';
+                            }}
+                          />
+                        ) : (
+                          <span
+                            className="d-inline-flex align-items-center justify-content-center bg-light border rounded-circle text-muted me-3"
+                            style={{ width: 60, height: 60, fontSize: 12 }}
+                          >
+                            Sin logo
+                          </span>
+                        )}
                         <span className="fw-semibold">{unit.name}</span>
                       </div>
                     </td>
@@ -131,10 +145,10 @@ export const Unidad = () => {
       </div>
 
       <CheckPermissions requiredPermission="editar-unidades-academicas">
-        <ModalEdit 
-          idEditar={idEditar} 
-          data={selectedUnit} 
-          title="Editar Unidad Académica" 
+        <ModalEdit
+          idEditar={idEditar}
+          data={selectedUnit}
+          title="Editar Unidad Académica"
         />
       </CheckPermissions>
     </div>

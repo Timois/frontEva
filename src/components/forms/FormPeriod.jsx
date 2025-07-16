@@ -15,6 +15,9 @@ import CancelButton from './components/CancelButon'
 import { closeFormModal, customAlert } from '../../utils/domHelper'
 
 const option = [{ value: "1", text: "periodo1" }, { value: "2", text: "periodo2" }, { value: "3", text: "periodo3" }, { value: "4", text: "periodo4" }, { value: "5", text: "periodo5" }]
+const periods = [
+    { value: "semestre1", text: "semestre 1" },{ value: "semestre2", text:"semestre 2"}, {value: "anual", text:"anual"}, {value: "verano", text:"verano"}, {value: "mesa", text:"mesa"}
+]
 export const FormPeriod = () => {
 
     const [response, setResponse] = useState(false)
@@ -64,7 +67,12 @@ export const FormPeriod = () => {
         <form onSubmit={handleSubmit(onSubmit)}>
 
             <ContainerInput>
-                <Input name={"period"} control={control} type={"text"} placeholder={"Ingrese un periodo"} />
+                <SelectInput
+                    label="Seleccione un periodo"
+                    name={"period"}
+                    control={control}
+                    options={periods}
+                />
                 <Validate error={errors.period} />
             </ContainerInput>
             <ContainerInput>
@@ -73,7 +81,6 @@ export const FormPeriod = () => {
                     name={"level"}
                     control={control}
                     options={option}
-                    error={errors.level}
                 />
                 <Validate error={errors.level} />
             </ContainerInput>

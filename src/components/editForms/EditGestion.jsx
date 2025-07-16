@@ -58,7 +58,7 @@ export const EditGestion = ({ data }) => {
                 customAlert("No tienes permisos para realizar esta acción", "error");
                 closeFormModal("editarGestion");
             } else {
-                customAlert("Error al actualizar la gestión", "error");
+                customAlert(error.response?.data?.message || "Error al actualizar la gestión", "error");
                 closeFormModal("editarGestion");
             }
         } finally {

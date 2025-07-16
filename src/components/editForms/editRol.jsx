@@ -97,7 +97,7 @@ export const EditRol = ({ data }) => {
             customAlert("Rol Actualizado", "success");
             navigate("/administracion/roles");
         } catch (error) {
-            customAlert(error.response?.data.errors?.name?.[0] || "Error al actualizar el rol", "error");
+            customAlert(error.response?.data?.message || "Error al actualizar el rol", "error");
         } finally {
             setResponse(false);
         }

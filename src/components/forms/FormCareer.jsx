@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 import React, { useContext, useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CareerSchema } from '../../models/schemas/CareerSchema';
 import { ContainerInput } from '../login/ContainerInput';
@@ -16,6 +16,7 @@ import { useFetchUnit } from '../../hooks/fetchUnit';
 import { postApi } from '../../services/axiosServices/ApiService';
 import CancelButton from './components/CancelButon';
 import { closeFormModal, customAlert } from '../../utils/domHelper';
+import { InputFile } from './components/InputFile';
 
 const arrayOption = [
     { value: "mayor", text: "Unidad Mayor" },
@@ -32,6 +33,9 @@ export const FormCareer = () => {
     const [array, setArray] = useState([]);
 
     const { control, handleSubmit, reset, setValue, watch, formState: { errors }, setError } = useForm({
+        defaultValues: {
+            logo: [],
+        },
         resolver: zodResolver(CareerSchema)
     });
 
@@ -43,29 +47,33 @@ export const FormCareer = () => {
             setValue("unit_id", "0");
         }
     }, [selectedType, setValue]);
-    
+
     const onSubmit = async (data) => {
         setResponse(true);
         const formData = new FormData();
         formData.append("name", data.name);
         formData.append("initials", data.initials);
-        formData.append("logo", data.logo[0]);
+
+        if (data.logo && data.logo.length > 0) {
+            formData.append("logo", data.logo[0]);
+        }
+
         formData.append("type", data.type);
         if (data.unit_id) formData.append("unit_id", data.unit_id);
 
         try {
             const response = await postApi("careers/save", formData);
-            
+
             if (response.status === 422) {
                 for (const key in response.data.errors) {
                     setError(key, { type: "custom", message: response.data.errors[key][0] });
                 }
                 return;
             }
+
             await refreshUnits();
             getData();
 
-            // Mensaje dinámico según el tipo
             const typeMessages = {
                 mayor: "Unidad Mayor registrada correctamente",
                 facultad: "Facultad registrada correctamente",
@@ -80,9 +88,9 @@ export const FormCareer = () => {
                 customAlert("No tienes permisos para realizar esta acción", "error");
                 closeFormModal("registroCarrera");
             } else {
-                // Mensaje de error dinámico
                 const errorType = data.type === "carrera" ? "la carrera" : "la unidad académica";
-                customAlert(error.response?.data.errors?.name?.[0] || `Error al guardar ${errorType}`, "error");
+                customAlert(error.response?.data?.message || `Error al guardar ${errorType}`, "error");
+                closeFormModal("registroCarrera");
             }
         } finally {
             setResponse(false);
@@ -132,9 +140,19 @@ export const FormCareer = () => {
                 <Validate error={errors.initials} />
             </ContainerInput>
             <ContainerInput>
-                <input type="file" onChange={onChange} />
+                <Controller
+                    name="logo"
+                    control={control}
+                    render={({ field }) => (
+                        <InputFile
+                            onChange={field.onChange}
+                            error={errors.logo}
+                            accept="image/*"
+                        />
+                    )}
+                />
                 <Validate error={errors.logo} />
-                {preview && <img src={preview} alt="preview" width={80} height={80} />}
+
             </ContainerInput>
             <ContainerInput>
                 <SelectInput label="Seleccione el tipo" name="type" options={arrayOption} control={control} error={errors.type} />

@@ -113,6 +113,7 @@ export const EditUser = ({ data, closeModal }) => {
     } catch (error) {
       console.error("Error al actualizar usuario:", error);
       customAlert(error.response?.data?.message || "Error al actualizar usuario", "error");
+      closeFormModal("editarUsuario");
     } finally {
       setIsSubmitting(false);
     }

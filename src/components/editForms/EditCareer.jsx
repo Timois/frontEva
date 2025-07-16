@@ -87,7 +87,8 @@ export const EditCareer = ({ data, closeModal }) => {
             reset();
         } catch (error) {
             console.error("Error al actualizar unidad:", error);
-            customAlert(error.response.data.message, "error");
+            closeFormModal("editarCarrera");
+            customAlert(error.response?.data?.message, "error");
         }finally {
             setResponse(false);
         }

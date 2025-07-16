@@ -41,7 +41,6 @@ export const ModalViewManagementPeriod = ({ ModalId, title }) => {
 
     const setModalData = (id, modalId) => {
         const modal = document.getElementById(modalId);
-        //add an attribute to the modal to know which career is being assigned
         modal.setAttribute("data-academic_management_career_id", id);
     };
     return (
@@ -71,7 +70,7 @@ export const ModalViewManagementPeriod = ({ ModalId, title }) => {
                                 </thead>
                                 <tbody>
                                     {careerAssignmentsPeriods.map((period) => (
-                                        <tr key={period.id}>
+                                        <tr key={period.academic_management_period_id}>
                                             <td>{period.period}</td>
                                             <td>{period.initial_date}</td>
                                             <td>{period.end_date}</td>

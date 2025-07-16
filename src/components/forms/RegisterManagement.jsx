@@ -16,7 +16,7 @@ export const RegisterManagement = ({ data }) => {
     const { control, handleSubmit, reset, formState: { errors }, setError } = useForm({
         resolver: zodResolver(AsignGestionSchema)
     })
-    console.log(errors)
+
     const onSubmit = async (data) => {
         setResponse(true)
         const formData = new FormData()

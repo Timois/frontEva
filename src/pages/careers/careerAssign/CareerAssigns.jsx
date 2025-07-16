@@ -9,7 +9,7 @@ import { useCountdown } from '../../../hooks/useCountdown';
 import { useMemo } from "react";
 
 export const CareerAssigns = ({ data }) => {
- 
+    
     const endDates = useMemo(() => {
         return data.map(gestion => ({ end_date: gestion.end_date }));
     }, [data]);

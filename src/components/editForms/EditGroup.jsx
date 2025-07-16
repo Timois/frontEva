@@ -136,7 +136,7 @@ export const EditGroup = ({ data }) => {
                 closeFormModal('editGroup');
                 reset();
             } else {
-                customAlert(error.response?.data.errors?.message || 'Error al actualizar el grupo', 'error');
+                customAlert(error.response?.data?.message || 'Error al actualizar el grupo', 'error');
                 closeFormModal('editGroup');
             }
         } finally {

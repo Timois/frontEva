@@ -65,7 +65,7 @@ const Layout = ({ children }) => {
       {/* Navbar */}
       <nav className="navbar navbar-dark bg-primary shadow-sm py-3">
         <div className="container-fluid">
-          <div className="d-flex align-items-center">
+          <div className="d-flex align-items-center text-capitalize">
             <span className="navbar-brand mb-0 h6 ms-3 text-truncate">
               <FaUserShield className="me-2" />
               Bienvenido, {name}

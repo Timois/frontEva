@@ -9,14 +9,13 @@ import CheckPermissions from "../../../routes/CheckPermissions"
 
 export const IndexCareerAssign = () => {
     const { careerAssignments } = useContext(CareerAssignContext)
-    const { getDataCareerAssignments } = useFetchCareerAssign(useParams().id)
-
+    const { getDataCareerAssignments } = useFetchCareerAssign()
+    const { id } = useParams()
     const modalIdManagementPeriod = "asignarPeriodo"
-
+    
     useEffect(() => {
-        // fetch career assigns
-        getDataCareerAssignments()
-    }, [])
+        getDataCareerAssignments(id)
+    }, [id])
 
     return (
         <div className="m-3 p-3">

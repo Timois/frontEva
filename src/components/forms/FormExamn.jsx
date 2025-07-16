@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
 import { useContext, useEffect, useState } from "react"
 import { ExamnsContext } from "../../context/ExamnsProvider"
@@ -30,20 +31,20 @@ export const FormExamn = () => {
     const [selectedPeriod, setSelectedPeriod] = useState(null) // ✅ NUEVO
     const { id: periodId } = useParams(); // ✅ Obtener el id del período desde la URL
 
-    const { control, handleSubmit, reset, formState: { errors }, setError, setValue } = useForm({
+    const { control, handleSubmit, reset, formState: { errors }, setError, setValue, register } = useForm({
         resolver: zodResolver(ExmansSchema)
     })
     
     const user = JSON.parse(localStorage.getItem('user'))
     const career_id = user?.career_id
 
-    const { careerAssignments, getDataCareerAssignments } = useFetchCareerAssign(career_id)
+    const { careerAssignments, getDataCareerAssignments } = useFetchCareerAssign()
     const { careerAssignmentsPeriods, getDataCareerAssignmentPeriods } = useFetchCareerAssignPeriod()
 
     useEffect(() => {
         const fetchData = async () => {
             if (career_id && !isNaN(career_id)) {
-                await getDataCareerAssignments();
+                await getDataCareerAssignments(career_id);
             }
         }
         fetchData();
@@ -70,6 +71,7 @@ export const FormExamn = () => {
     }, [careerAssignmentsPeriods, periodId, setValue]);
 
     const onSubmit = async (data) => {
+        
         if (!data.academic_management_period_id) {
             customAlert("error", "No se encontró un período académico válido.");
             return;
@@ -159,6 +161,11 @@ export const FormExamn = () => {
                 <Input name="places" control={control} type="number" placeholder="Ingrese el número de plazas" />
                 <Validate error={errors.places} />
             </ContainerInput>
+            <input
+                type="hidden"
+                {...register("academic_management_period_id", { valueAsNumber: true })}
+                value={parseInt(periodId)}
+            />
             <ContainerButton>
                 <Button type="submit" name="submit" disabled={response}>
                     <span>{response ? "Cargando..." : "Guardar"}</span>

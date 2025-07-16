@@ -28,20 +28,20 @@ export const EditExamn = ({ data, closeModal }) => {
     const { id: periodId } = useParams()
     const { refreshExamns } = useExamns()
     
-    const { control, handleSubmit, reset, setValue, formState: { errors }, setError } = useForm({
+    const { control, handleSubmit, reset, setValue, formState: { errors }, setError, register } = useForm({
         resolver: zodResolver(ExmansSchema),
     })
-
+    console.log(errors)
     const user = JSON.parse(localStorage.getItem('user'))
     const career_id = user?.career_id
 
-    const { careerAssignments, getDataCareerAssignments } = useFetchCareerAssign(career_id)
+    const { careerAssignments, getDataCareerAssignments } = useFetchCareerAssign()
     const { careerAssignmentsPeriods, getDataCareerAssignmentPeriods } = useFetchCareerAssignPeriod()
 
     useEffect(() => {
         const fetchData = async () => {
             if (career_id && !isNaN(career_id)) {
-                await getDataCareerAssignments();
+                await getDataCareerAssignments(career_id);
             }
         }
         fetchData();
@@ -75,6 +75,7 @@ export const EditExamn = ({ data, closeModal }) => {
                 date_of_realization: new Date(data.date_of_realization).toISOString().split('T')[0],
                 type: data.type,
                 time: data.time, // Agregar este campo si lo tienes en tu esquema de zod
+                places: data.places, // Agregar este campo si lo tienes en tu esquema de zod
                 academic_management_period_id: data.academic_management_period_id // Convertir a string
             });
         }
@@ -102,7 +103,7 @@ export const EditExamn = ({ data, closeModal }) => {
         requestData.append("date_of_realization", formattedDate);
         requestData.append("type", "web");
         requestData.append("time", Number(formData.time));
-
+        requestData.append("places", Number(formData.places));
         try {
             const response = await updateApi(`evaluations/edit/${data.id}`, requestData);
 
@@ -122,7 +123,7 @@ export const EditExamn = ({ data, closeModal }) => {
                 closeModal("editarExamn");
             } else {
                 closeFormModal("editarExamn");
-                customAlert(error.response?.data.message || "Error al actualizar el examen", "error");
+                customAlert(error.response?.data?.message || "Error al actualizar el examen", "error");
             }
         } finally {
             setResponse(false);
@@ -156,12 +157,14 @@ export const EditExamn = ({ data, closeModal }) => {
                 <Validate error={errors.time} />
             </ContainerInput>
             <ContainerInput>
-                <label className="font-medium text-sm text-gray-700 mb-1">Período académico</label>
-                <div className="border border-gray-300 rounded-md p-2 bg-gray-100 text-gray-700">
-                    {selectedPeriod ? selectedPeriod.period : "Cargando período..."}
-                </div>
-                <Validate error={errors.academic_management_period_id} />
+                <Input name="places" control={control} type="number" placeholder="Ingrese el número de lugares" />
+                <Validate error={errors.places} />
             </ContainerInput>
+            <input
+                type="hidden"
+                {...register("academic_management_period_id", { valueAsNumber: true })}
+                value={parseInt(periodId)}
+            />
             <ContainerButton>
                 <Button type="submit" name="submit" disabled={response}>
                     <span>{response ? "Cargando..." : "Guardar"}</span>

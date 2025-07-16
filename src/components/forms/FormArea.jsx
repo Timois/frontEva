@@ -71,7 +71,8 @@ export const FormArea = () => {
             } else {
                 customAlert(error.response?.data?.message || "Error al crear el área", "error");
                 resetForm();
-                closeFormModal("registroArea");}
+                closeFormModal("registroArea");
+            }
         }
     };
 

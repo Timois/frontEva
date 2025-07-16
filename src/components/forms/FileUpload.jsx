@@ -21,7 +21,6 @@ import { SelectInput } from "./components/SelectInput";
 
 
 export const FileUpload = () => {
-  /* ---------- hooks & context ---------- */
   const { id } = useParams();
   const area_id = id;
   const { getData } = useContext(ImportExcelQuestionsContext);
@@ -44,34 +43,26 @@ export const FileUpload = () => {
   const user = JSON.parse(localStorage.getItem('user'))
   const career_id = user?.career_id
 
-  const { careerAssignments, getDataCareerAssignments } = useFetchCareerAssign(career_id)
+  const { careerAssignments, getDataCareerAssignments } = useFetchCareerAssign()
   const { careerAssignmentsPeriods, getDataCareerAssignmentPeriods } = useFetchCareerAssignPeriod()
-
-  // Obtienes los datos de la carrera asignada
+ 
+  const academic_management_career_id = careerAssignments?.[0]?.academic_management_career_id;
   useEffect(() => {
-    const fetchData = async () => {
-      if (career_id && !isNaN(career_id)) {
-        await getDataCareerAssignments();
-      }
+    if (career_id) {
+      getDataCareerAssignments(career_id);
     }
-    fetchData();
   }, [career_id])
-
-  // Cuando careerAssignments esté listo, saco el id de la tabla intermedia
+  
   useEffect(() => {
-    const fetchPeriods = async () => {
-      if (careerAssignments.length > 0) {
-        const { academic_management_career_id } = careerAssignments[0];  // Desestructuramos directamente
-        await getDataCareerAssignmentPeriods(academic_management_career_id);
-      }
+    if (academic_management_career_id) {
+      getDataCareerAssignmentPeriods(academic_management_career_id);
     }
-    fetchPeriods();
-  }, [careerAssignments]);
-
+  }, [academic_management_career_id]);
+  const academic_management_period_id = careerAssignmentsPeriods?.[0]?.academic_management_period_id;
   useEffect(() => {
     if (careerAssignmentsPeriods.length > 0) {
       const periodOptions = careerAssignmentsPeriods.map(period => ({
-        value: period.id,
+        value: academic_management_period_id,
         text: `${period.period}`
       }));
       setArray(periodOptions);
@@ -96,7 +87,7 @@ export const FileUpload = () => {
     formData.append("status", "completado");
     formData.append("description", data.description);
     formData.append("file_name", data.file_name[0]);
-    formData.append("academic_management_period_id", String(data.academic_management_period_id))
+    formData.append("academic_management_period_id", Number(data.academic_management_period_id))
 
     try {
       /* -------------- SIN IMÁGENES (Excel) -------------- */
@@ -118,7 +109,6 @@ export const FileUpload = () => {
           resetForm();
         }
 
-        /* -------------- CON IMÁGENES (ZIP) -------------- */
       } else if (data.importOption === "withImages") {
         const { message, success, resumen } = await postApi(
           "excel_import_image/savezip",

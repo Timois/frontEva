@@ -72,7 +72,8 @@ export const EditArea = ({ data, closeModal }) => {
     } catch (error) {
       console.error("Error al actualizar área:", error);
       setResponse(false);
-      customAlert("Error al actualizar el área", "error");
+      closeFormModal("editarArea");
+      customAlert(error.response?.data?.message || "Error al actualizar el área", "error");
     }
   };
 

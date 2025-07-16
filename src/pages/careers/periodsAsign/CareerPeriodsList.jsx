@@ -21,7 +21,7 @@ export const CareerPeriodsList = () => {
             case 'semestre1':
             case 'semestre2':
                 return <h1>Sistema Semestral</h1>;
-            case 'anual':
+            case 'anualizado':
                 return <h1>Sistema Anual</h1>;
             default:
                 return <h1>Sistema de Períodos</h1>;

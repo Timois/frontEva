@@ -6,7 +6,7 @@ import { ModalEdit } from "./ModalEdit";
 import { useFetchCareer } from "../../hooks/fetchCareers";
 import { ButtonVerGestion } from "./ButtonVerGestion";
 import CheckPermissions from "../../routes/CheckPermissions";
-import { FaBook, FaGraduationCap } from "react-icons/fa";
+import { FaGraduationCap } from "react-icons/fa";
 
 // Helper para capitalizar
 const capitalizeTitle = (text) => {
@@ -56,16 +56,38 @@ export const Carreras = () => {
                     </div>
                     <div className="card-body text-center d-flex flex-column align-items-center">
                       <div className="bg-white p-3 rounded-circle shadow-sm mb-3">
-                        <img
-                          className="img-fluid"
-                          src={career.logo}
-                          alt={`Logo ${career.initials}`}
-                          style={{
-                            width: "80px",
-                            height: "80px",
-                            objectFit: "contain"
-                          }}
-                        />
+                        {career.logo ? (
+                          <img
+                            className="img-fluid"
+                            src={career.logo}
+                            alt={`Logo ${career.initials}`}
+                            style={{
+                              width: "80px",
+                              height: "80px",
+                              objectFit: "contain"
+                            }}
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.parentNode.innerHTML = `
+        <div class='d-flex align-items-center justify-content-center text-muted' 
+             style="width:80px;height:80px;font-size:12px">
+          Sin logo
+        </div>`;
+                            }}
+                          />
+                        ) : (
+                          <div
+                            className="d-flex align-items-center justify-content-center text-muted"
+                            style={{
+                              width: "80px",
+                              height: "80px",
+                              fontSize: "12px"
+                            }}
+                          >
+                            Sin logo
+                          </div>
+                        )}
+
                       </div>
                       <span className="badge bg-primary bg-opacity-10 text-primary py-2 px-3">
                         Sigla: {career.initials}

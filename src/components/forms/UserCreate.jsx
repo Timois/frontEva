@@ -90,12 +90,13 @@ export const UserCreate = () => {
             }
 
             addUser(response.data);
-            customAlert("Usuario creado exitosamente", "success");
             refreshUsers();
             closeFormModal("registerUser");
+            customAlert("Usuario creado exitosamente", "success");
             reset();
         } catch (error) {
             console.error("Error al crear usuario:", error);
+            closeFormModal("registerUser");
             customAlert(error.response?.data?.message || "Error al crear usuario", "error");
         } finally {
             setResponse(false);
