@@ -22,22 +22,11 @@ export const ImportExcelQuestionsProvider = ({ children }) => {
             // console.error("Error al obtener archivos importados:", error)
         }
     }
-    const getArea = async (excel_id) => {
-        try {
-            const response = await getApi(`excel_import/findAreaByExcel/${excel_id}`)
-            if (response) {
-                return response
-            }
-        } catch (error) {
-            // console.error("Error al obtener archivos importados:", error)
-        }
-    }
     const values = {
         importExcelQuestions,
         addImportExcel,
         setImportExcelQuestions,
-        getData,
-        getArea
+        getData
     }
 
     return (

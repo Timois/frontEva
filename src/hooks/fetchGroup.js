@@ -15,7 +15,7 @@ export const fetchGroupByEvaluation = () => {
             //console.error("Error fetching groups:", error);
         }
     };
-    const refreshGroups = getDataGroupEvaluation; // puedes usar el mismo nombr
+    const refreshGroups = getDataGroupEvaluation; 
     return {
         groups,
         totalStudents,

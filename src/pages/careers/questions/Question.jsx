@@ -17,17 +17,17 @@ const urlimages = import.meta.env.VITE_URL_IMAGES;
 
 export const Question = () => {
     const { id } = useParams();
+    const {area, getAreaByExcelId} = useFetchAreaById();
     const [selectedQuestion, setSelectedQuestion] = useState(null);
     const [modalImage, setModalImage] = useState(null);
     const [currentPage, setCurrentPage] = useState(0);
     const questionsPerPage = 5;
-    const { area, getDataAreaById} = useFetchAreaById();
     const { questions, getDataQuestions } = useFetchQuestionsByArea();
     useEffect(() => {
-        getDataAreaById(id);
+        getAreaByExcelId(id);
     }, [id]);
-
-    const areaName = area?.name; // Obtener el nombre de la área desde el context
+    
+    const areaName = area?.[0]?.name; 
     
     useEffect(() => {
         getDataQuestions(id);
@@ -151,7 +151,6 @@ export const Question = () => {
                     </table>
                 </div>
 
-                {/* Paginación */}
                 {questions.length > questionsPerPage && (
                     <div className="card-footer bg-transparent border-0">
                         <div className="d-flex justify-content-center">
@@ -179,7 +178,6 @@ export const Question = () => {
                 )}
             </div>
 
-            {/* Modales */}
             <CheckPermissions requiredPermission="editar-preguntas">
                 <ModalEdit
                     idEditar={idEditar}
@@ -188,7 +186,6 @@ export const Question = () => {
                 />
             </CheckPermissions>
 
-            {/* Modal de imagen */}
             {modalImage && (
                 <div className="modal fade show d-block" tabIndex="-1" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
                     <div className="modal-dialog modal-dialog-centered">

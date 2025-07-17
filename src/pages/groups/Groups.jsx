@@ -7,6 +7,8 @@ import ButtonEdit from "./ButtonEdit";
 import ModalEdit from "./ModalEdit";
 import { ModalViewStudents } from "./ModalViewStudents";
 import { useExamns } from "../../hooks/fetchExamns";
+import { updateApi } from "../../services/axiosServices/ApiService";
+import { customAlert } from "../../utils/domHelper";
 export const Groups = () => {
     const navigate = useNavigate();
     const { id } = useParams();
@@ -17,7 +19,7 @@ export const Groups = () => {
     const [selectedGroupStudents, setSelectedGroupStudents] = useState([]);
     const [showStudentsModal, setShowStudentsModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
-    
+
     // ✔️ Manejo seguro de assignedStudents
     const assignedStudents = useMemo(() => {
         if (!Array.isArray(groups) || groups.length === 0) return 0;
@@ -29,7 +31,7 @@ export const Groups = () => {
             return acc;
         }, 0);
     }, [groups]);
-    
+
     // ✔️ Manejo seguro de totalStudents
     const unassignedStudents = typeof totalStudents === "number"
         ? totalStudents - assignedStudents
@@ -51,18 +53,26 @@ export const Groups = () => {
         setSelectedGroupStudents(group.students || []);
         setShowStudentsModal(true);
     };
-
+    const handleStartGroup = async (groupId) => {
+        try {
+            await updateApi(`/groups/${groupId}/start`);
+            customAlert("Grupo iniciado correctamente", "success");
+            await getDataGroupEvaluation(evaluationId); // Refresca los datos
+        } catch (error) {
+            customAlert("No se pudo iniciar el grupo", "error");
+        }
+    };
     const idEditar = "editGroup";
-    
+
     const examDate = examn?.date_of_realization;
-    
+
     return (
         <div className="container-fluid p-4">
             <button
                 className="btn btn-dark mb-3"
                 onClick={() => navigate(-1)}
             >
-               Atras
+                Atras
             </button>
             <div className="card shadow-lg border-0 rounded-3 overflow-hidden">
                 <div className="card-header bg-primary text-white py-3 rounded-top">
@@ -109,7 +119,7 @@ export const Groups = () => {
 
                                     const studentCount = Array.isArray(group.students) ? group.students.length : 0;
                                     const labCapacity = group.lab?.equipment_count ?? "N/A";
-                                    const labLocation = group.lab?.location ?? "Sin ubicación";
+                                    const labLocation = group.lab?.name ?? "Sin ubicación";
 
                                     return (
                                         <tr key={index} className="transition-all">
@@ -133,6 +143,14 @@ export const Groups = () => {
                                                     onEditClick={() => handleEditClick(group)}
                                                     className="btn btn-sm btn-outline-primary d-flex align-items-center justify-content-center mx-auto"
                                                 />
+                                                {!group.start_time && (
+                                                    <button
+                                                        className="btn btn-sm btn-outline-success"
+                                                        onClick={() => handleStartGroup(group.id)}
+                                                    >
+                                                        Iniciar examen
+                                                    </button>
+                                                )}
                                             </td>
                                         </tr>
                                     );

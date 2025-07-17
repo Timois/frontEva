@@ -37,5 +37,10 @@ export const useFetchAreaById = () => {
         const response = await getApi(`areas/find/${areaId}`)
         setArea(response)
     }
-    return { area, getDataAreaById }
+
+    const getAreaByExcelId = async (excelId) => {
+        const response = await getApi(`excel_import/findAreaByExcel/${excelId}`)
+        setArea(response)
+    }
+    return { area, getDataAreaById, getAreaByExcelId }
 }
