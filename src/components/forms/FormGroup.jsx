@@ -17,6 +17,7 @@ import { SelectInput } from "./components/SelectInput";
 import { useParams } from "react-router-dom";
 import { useExamns } from "../../hooks/fetchExamns";
 import { fetchGroupByEvaluation } from "../../hooks/fetchGroup";
+import { DateInput } from "./components/DateInput";
 const arrayOption = [
     { value: "turno1", text: "Turno 1" }, { value: "turno2", text: "Turno 2" }, { value: "turno3", text: "Turno 3" }, { value: "turno4", text: "Turno 4" }
 ];
@@ -38,6 +39,8 @@ export const FormGroup = () => {
         reset,
         formState: { errors },
         setError,
+        watch,
+        setValue,
     } = useForm({
         resolver: zodResolver(GroupSchema(isEdit)),
         defaultValues: {
@@ -47,7 +50,8 @@ export const FormGroup = () => {
             order_type: "",
         },
     });
-
+    const startTime = watch("start_time");
+    const endTime = watch("end_time");
     useEffect(() => {
         getDataLabs();
     }, []);
@@ -57,6 +61,22 @@ export const FormGroup = () => {
     }, [id]);
 
     const evaluationId = id;
+    useEffect(() => {
+        if (!startTime || !/^\d{2}:\d{2}$/.test(startTime) || !examn?.time) return
+
+        const [hours, minutes] = startTime.split(":").map(Number)
+        if (isNaN(hours) || isNaN(minutes)) return
+
+        const totalMinutes = hours * 60 + minutes + parseInt(examn.time)
+        const endHours = Math.floor(totalMinutes / 60) % 24
+        const endMinutes = totalMinutes % 60
+
+        const formattedEndTime = `${endHours.toString().padStart(2, "0")}:${endMinutes
+            .toString()
+            .padStart(2, "0")}`
+
+        setValue("end_time", formattedEndTime)
+    }, [startTime, examn?.time])
 
     useEffect(() => {
         if (labs.length > 0) {
@@ -75,6 +95,8 @@ export const FormGroup = () => {
         formData.append("name", data.name);
         formData.append("description", data.description);
         formData.append("evaluation_id", evaluationId);
+        formData.append("start_time", data.start_time); // Enviar como HH:mm
+        formData.append("end_time", data.end_time); // Enviar como HH:mm
         formData.append("laboratory_id", data.laboratory_id);
         formData.append("order_type", data.order_type);
 
@@ -112,6 +134,8 @@ export const FormGroup = () => {
             name: "",
             description: "",
             laboratory_id: "",
+            start_time: "",
+            end_time: "",
             order_type: "",
         });
     };
@@ -135,6 +159,17 @@ export const FormGroup = () => {
             <ContainerInput>
                 <SelectInput label="Seleccione una opcion" name="description" options={arrayOption} control={control} />
                 <Validate errors={errors.description} />
+            </ContainerInput>
+            <ContainerInput>
+                <p className="text-xs text-gray-500 mt-1">
+                    La hora de fin se calcula automáticamente según la duración del examen.
+                </p>
+                <div style={{ display: "flex", gap: "10px", justifyContent: "space-around" }}>
+                    <DateInput label={"Hora de inicio"} name={"start_time"} control={control} type={"time"} />
+                    <DateInput label={"Hora de Fin"} name={"end_time"} control={control} type={"time"} disabled />
+                </div>
+                <Validate errors={errors.start_time} />
+                <Validate errors={errors.end_time} />
             </ContainerInput>
             <ContainerInput>
                 <SelectInput label="Seleccione un Ambiente" name="laboratory_id" options={array} control={control} castToNumber={true} />

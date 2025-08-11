@@ -62,7 +62,7 @@ export const FormRol = () => {
 
         try {
             const response = await postApi("roles/save", formData);
-            
+
             if (response.status === 422) {
                 for (const key in response.data.errors) {
                     setError(key, {
@@ -114,8 +114,8 @@ export const FormRol = () => {
     };
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <ContainerInput>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 p-6 bg-white rounded-lg shadow-md">
+            <ContainerInput className="space-y-2">
                 <Input
                     name="name"
                     control={control}
@@ -124,10 +124,9 @@ export const FormRol = () => {
                 />
                 <Validate error={errors.name} />
             </ContainerInput>
-
             {permisos && permisos.length > 0 && (
-                <div className="space-y-3">
-                    <div className="flex items-center p-2 bg-gray-50 rounded">
+                <div className="space-y-4">
+                    <div className="flex items-center p-3 bg-gray-100 rounded-lg">
                         <input
                             type="checkbox"
                             id="select-all"
@@ -137,25 +136,24 @@ export const FormRol = () => {
                         />
                         <label
                             htmlFor="select-all"
-                            className="ml-2 text-sm font-medium text-gray-700"
+                            className="ml-3 text-sm font-medium text-gray-700"
                         >
                             {allPermisosSelected ? "Deseleccionar todos" : "Seleccionar todos"}
                         </label>
                     </div>
-
-                    <div className="border rounded-lg p-4">
-                        <h4 className="text-lg font-semibold mb-3">Permisos disponibles:</h4>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="border rounded-lg p-5">
+                        <h4 className="text-lg font-semibold mb-4">Permisos disponibles:</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                             {Object.entries(getGroupedPermissions()).map(([category, categoryPermisos]) => (
-                                <div key={category} className="border rounded-lg p-3">
+                                <div key={category} className="border rounded-lg p-4 bg-gray-50 shadow-sm">
                                     <h5 className="text-md font-medium text-gray-700 mb-3 capitalize border-b pb-2">
                                         {category}
                                     </h5>
-                                    <div className="space-y-2 row">
+                                    <div className="space-y-3">
                                         {categoryPermisos.map((permiso) => (
                                             <div
                                                 key={permiso.id}
-                                                className="flex items-center p-2 hover:bg-gray-50 rounded col-md-4"
+                                                className="flex items-center p-2 hover:bg-gray-100 rounded transition"
                                             >
                                                 <input
                                                     type="checkbox"
@@ -179,16 +177,14 @@ export const FormRol = () => {
                     </div>
                 </div>
             )}
-
             <ContainerButton>
                 <button
-                    type={"submit"}
-                    name={"submit"}
+                    type="submit"
+                    name="submit"
                     disabled={response}
-                    className="btn rounded-0 btn-lg"
-                    style={{ backgroundColor: "#070785", color: "white" }}
+                    className="btn btn-primary"
                 >
-                    <span>{response ? "Guardando..." : "Guardar"}</span>
+                    {response ? "Guardando..." : "Guardar"}
                 </button>
                 <CancelButton
                     disabled={response}

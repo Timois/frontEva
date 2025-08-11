@@ -55,7 +55,7 @@ export const Groups = () => {
     };
     const handleStartGroup = async (groupId) => {
         try {
-            await updateApi(`/groups/${groupId}/start`);
+            await updateApi(`groups/startGroup/${groupId}`);
             customAlert("Grupo iniciado correctamente", "success");
             await getDataGroupEvaluation(evaluationId); // Refresca los datos
         } catch (error) {
@@ -143,14 +143,13 @@ export const Groups = () => {
                                                     onEditClick={() => handleEditClick(group)}
                                                     className="btn btn-sm btn-outline-primary d-flex align-items-center justify-content-center mx-auto"
                                                 />
-                                                {!group.start_time && (
-                                                    <button
-                                                        className="btn btn-sm btn-outline-success"
-                                                        onClick={() => handleStartGroup(group.id)}
-                                                    >
-                                                        Iniciar examen
-                                                    </button>
-                                                )}
+                                                <button
+                                                    className="btn btn-sm btn-outline-success"
+                                                    onClick={() => handleStartGroup(group.id)}
+                                                >
+                                                    Iniciar examen
+                                                </button>
+
                                             </td>
                                         </tr>
                                     );

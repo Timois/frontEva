@@ -31,7 +31,7 @@ export const EditExamn = ({ data, closeModal }) => {
     const { control, handleSubmit, reset, setValue, formState: { errors }, setError, register } = useForm({
         resolver: zodResolver(ExmansSchema),
     })
-    console.log(errors)
+    
     const user = JSON.parse(localStorage.getItem('user'))
     const career_id = user?.career_id
 

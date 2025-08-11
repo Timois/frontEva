@@ -74,7 +74,7 @@ export const FormManagementPeriod = () => {
                 customAlert("No tienes permisos para realizar esta acción", "error")
                 closeFormModal("asignarPeriodo")
             }else{
-                customAlert(error.response?.data?.errors?.message || "Error al registrar el periodo", "error") 
+                customAlert(error.response?.data?.message || "Error al asignar el periodo", "error") 
                 closeFormModal("asignarPeriodo")
             }
         }finally{

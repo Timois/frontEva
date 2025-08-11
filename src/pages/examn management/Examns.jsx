@@ -33,7 +33,7 @@ export const Examns = () => {
   }
 
   const currentPeriod = examns.find(p => p.academic_management_period_id == periodId)
-
+  
   const examnsByPeriod = currentPeriod?.evaluations?.map(e => ({
     ...e,
     period_name: currentPeriod.periodo.period
@@ -62,7 +62,7 @@ export const Examns = () => {
 
         </div>
 
-        <div className="p-4">
+        <div className="p-4"> 
           {examnsByPeriod.length > 0 ? (
             <div className="row g-4">
               {examnsByPeriod.map((examn) => (

@@ -7,7 +7,7 @@ import { UserSchema } from "../../models/schemas/UsersSchema";
 import { CareerContext } from "../../context/CareerProvider";
 import { useFetchRol } from "../../hooks/fetchRoles";
 import { closeFormModal, customAlert } from "../../utils/domHelper";
-import { postApi } from "../../services/axiosServices/ApiService";
+import { updateApi } from "../../services/axiosServices/ApiService";
 import { ContainerInput } from "../login/ContainerInput";
 import { Input } from "../login/Input";
 import { Validate } from "../forms/components/Validate";
@@ -84,9 +84,7 @@ export const EditUser = ({ data, closeModal }) => {
 
   const onSubmit = async (formData) => {
     setIsSubmitting(true);
-
     try {
-      // Preparar datos para el backend
       const requestData = {
         name: formData.name,
         email: formData.email,
@@ -95,7 +93,7 @@ export const EditUser = ({ data, closeModal }) => {
         role: formData.role.map(String)
       };
 
-      const response = await postApi(`users/edit/${data.id}`, requestData);
+      const response = await updateApi(`users/edit/${data.id}`, requestData);
 
       if (response.status === 422) {
         for (const [field, errors] of Object.entries(response.data.errors)) {
