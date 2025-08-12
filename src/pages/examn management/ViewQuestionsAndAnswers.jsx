@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { useEffect, useState, useRef } from 'react';
 import { getApi, postApi } from '../../services/axiosServices/ApiService';
 import { usFetchStudentTest } from '../../hooks/fetchStudent';
@@ -27,55 +28,41 @@ const ViewQuestionsAndAnswers = () => {
   const { getStudentTestById } = usFetchStudentTest();
   const student = JSON.parse(localStorage.getItem('user'));
   const ci = student?.ci || null;
-  const [timer, setTimer] = useState(0);
   const [timeLeft, setTimeLeft] = useState(null);
   const [studentId, setStudentId] = useState(null);
   const [currentQuestionId, setCurrentQuestionId] = useState(null);
   const tiempoInicioRef = useRef(null);
   const API_BASE_URL = import.meta.env.VITE_URL_IMAGES;
+  const countdownRef = useRef(null);
 
   const getLocalLogKey = () => `exam_logs_${questionsData?.test_code}`;
 
   const registrarEnLocalStorage = (questionId, answerId, time) => {
     const key = getLocalLogKey();
     const currentLogs = JSON.parse(localStorage.getItem(key)) || [];
-
     const updatedLogs = currentLogs.filter(log => log.question_id !== questionId);
     updatedLogs.push({ question_id: questionId, answer_id: answerId, time });
-
     localStorage.setItem(key, JSON.stringify(updatedLogs));
   };
 
   const guardarEnBackend = async (questionId, answerId, time) => {
-    if (!questionsData?.student_test_id) {
-      console.error('Error: student_test_id no está definido');
-      return;
-    }
-
+    if (!questionsData?.student_test_id) return;
     try {
       await postApi('logs_answers/save', {
         student_test_id: questionsData.student_test_id,
-        question_id: questionId, // Cambiado de questionId a question_id
-        answer_id: answerId, // Cambiado de answerId a answer_id para consistencia
+        question_id: questionId,
+        answer_id: answerId,
         time,
       });
     } catch (err) {
-      console.error('Error al guardar en backend:', {
-        message: err?.response?.data?.message || err.message,
-        status: err?.response?.status,
-        data: err?.response?.data,
-      });
+      console.error('Error al guardar en backend:', err);
     }
   };
 
   const handleAnswerSelection = (questionId, answerId) => {
     const ahora = Date.now();
     const tiempoFormateado = getTiempoEnFormato(ahora);
-
-    // Guardar la respuesta en localStorage inmediatamente
     registrarEnLocalStorage(questionId, answerId, tiempoFormateado);
-
-    // Guardar en el backend solo si se cambia de pregunta
     if (currentQuestionId && currentQuestionId !== questionId) {
       const ultimaRespuesta = selectedAnswers[currentQuestionId];
       if (ultimaRespuesta) {
@@ -83,21 +70,17 @@ const ViewQuestionsAndAnswers = () => {
         guardarEnBackend(currentQuestionId, ultimaRespuesta, tiempoUltimaRespuesta);
       }
     }
-
-    // Actualizar el estado
     setSelectedAnswers(prev => ({ ...prev, [questionId]: answerId }));
     setCurrentQuestionId(questionId);
     tiempoInicioRef.current = ahora;
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-
+    if (e?.preventDefault) e.preventDefault();
     if (currentQuestionId && selectedAnswers[currentQuestionId]) {
       const tiempoFormateado = getTiempoEnFormato(tiempoInicioRef.current);
-      guardarEnBackend(currentQuestionId, selectedAnswers[currentQuestionId], tiempoFormateado);
+      await guardarEnBackend(currentQuestionId, selectedAnswers[currentQuestionId], tiempoFormateado);
     }
-
     try {
       setLoading(true);
       const payload = {
@@ -112,63 +95,74 @@ const ViewQuestionsAndAnswers = () => {
       setAlreadyAnswered(true);
       removeExamLogsByTestCode(questionsData.test_code);
     } catch (error) {
-      setAlreadyAnswered(error?.response?.status === 409);
       console.error('Error al guardar respuestas:', error);
+      setAlreadyAnswered(error?.response?.status === 409);
       alert(error?.response?.data?.message || 'Ocurrió un error al enviar las respuestas.');
     } finally {
       setLoading(false);
     }
   };
 
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
+
   useEffect(() => {
     let isMounted = true;
-
     const fetchAllData = async () => {
       try {
         const fetchedStudentId = await getApi(`student_evaluations/list/${ci}`);
-        if (!fetchedStudentId) throw new Error('No se encontró ninguna evaluación para este estudiante');
-
         setStudentId(fetchedStudentId);
         const response = await getStudentTestById(fetchedStudentId);
         const evaluation = await getApi(`student_evaluations/find/${response.evaluation_id}`);
         const answeredResp = await getApi(`student_answers/list/${response.student_test_id}`);
-
         if (!isMounted) return;
 
         setQuestionsData(response);
         setEvaluationTitle(evaluation.title);
-        setTimer(evaluation.time);
 
-        // 🔁 Clave local para el examen
+        const ahoraServidor = Date.parse(evaluation.current_time);
+        const inicioExamen = Date.parse(evaluation.start_time);
+        const finExamen = Date.parse(evaluation.end_time);
+
+        if (isNaN(ahoraServidor) || isNaN(inicioExamen) || isNaN(finExamen)) {
+          setError("Error en las fechas del examen");
+          return;
+        }
+
+        if (ahoraServidor < inicioExamen) {
+          setError(`El examen comenzará a las ${getTiempoEnFormato(inicioExamen)}`);
+          setTimeLeft(0);
+          return;
+        }
+
+        const segundosRestantes = Math.max(
+          Math.floor((finExamen - ahoraServidor) / 1000),
+          0
+        );
+        setTimeLeft(segundosRestantes);
+
         const key = `exam_logs_${response.test_code}`;
         const savedLogs = JSON.parse(localStorage.getItem(key)) || [];
         let savedAnswers = {};
 
         if (savedLogs.length > 0) {
-          // 🔹 Cargar desde localStorage
           savedLogs.forEach(log => {
             savedAnswers[log.question_id] = log.answer_id;
           });
         } else {
-          // 🔹 Si no hay en localStorage, intentar cargar desde el backend
           try {
             const logsBackend = await getApi(`logs_answers/list/${response.student_test_id}`);
             logsBackend.forEach(log => {
               savedAnswers[log.question_id] = log.answer_id;
             });
-
-            // También guardar en localStorage para uso posterior
-            const newLocalLogs = logsBackend.map(log => ({
-              question_id: log.question_id,
-              answer_id: log.answer_id,
-              time: log.time || new Date().toISOString(), // o lo que tengas guardado
-            }));
-            localStorage.setItem(key, JSON.stringify(newLocalLogs));
-          } catch (err) {
-            console.error('No se pudieron obtener respuestas desde el backend', err);
+            localStorage.setItem(key, JSON.stringify(logsBackend));
+          } catch {
+            console.error('Error al obtener logs desde el backend');
           }
         }
-
         setSelectedAnswers(savedAnswers);
 
         if (answeredResp?.answered) {
@@ -177,7 +171,6 @@ const ViewQuestionsAndAnswers = () => {
         }
       } catch (err) {
         if (isMounted) {
-          console.error('Error al cargar datos:', err);
           setError(err?.response?.data?.message || 'Error al cargar datos');
         }
       } finally {
@@ -189,30 +182,23 @@ const ViewQuestionsAndAnswers = () => {
   }, [ci]);
 
   useEffect(() => {
-    if (timer && !alreadyAnswered) {
-      setTimeLeft(timer * 60);
-      const interval = setInterval(() => {
+    if (timeLeft !== null && !alreadyAnswered && timeLeft > 0) {
+      countdownRef.current = setInterval(() => {
         setTimeLeft(prev => {
           if (prev <= 1) {
-            clearInterval(interval);
-            handleSubmit({ preventDefault: () => { } });
+            clearInterval(countdownRef.current);
+            handleSubmit();
             return 0;
           }
           return prev - 1;
         });
       }, 1000);
-      return () => clearInterval(interval);
+      return () => clearInterval(countdownRef.current);
     }
-  }, [timer, alreadyAnswered]);
-
-  const formatTime = (seconds) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-  };
+  }, [timeLeft, alreadyAnswered]);
 
   if (loading) return <p>Cargando preguntas...</p>;
-  if (error) return <p>Error: {error}</p>;
+  if (error) return <p>{error}</p>;
   if (!questionsData?.questions) return <p>No se encontraron preguntas para esta prueba.</p>;
 
   if (alreadyAnswered) {
@@ -236,7 +222,9 @@ const ViewQuestionsAndAnswers = () => {
       <div className="card shadow-lg border-0 rounded-3 mb-4 overflow-hidden">
         <div className="card-header bg-primary text-white py-3 rounded-top d-flex justify-content-between align-items-center">
           <div>
-            <h3 className="mb-1 d-flex align-items-center"><FaQuestionCircle className="me-2" />Evaluación: {evaluationTitle}</h3>
+            <h3 className="mb-1 d-flex align-items-center">
+              <FaQuestionCircle className="me-2" />Evaluación: {evaluationTitle}
+            </h3>
             {questionsData?.test_code && <span className="mb-1">Código de Examen: {questionsData.test_code}</span>}
           </div>
           {timeLeft !== null && (
@@ -246,9 +234,6 @@ const ViewQuestionsAndAnswers = () => {
               <span className="ms-2 fw-bold">{formatTime(timeLeft)}</span>
             </div>
           )}
-        </div>
-        <div className="card-body bg-light">
-          <p><FaClock className="me-2 text-primary" /><strong>Duración total:</strong> {timer} minutos</p>
         </div>
       </div>
 
