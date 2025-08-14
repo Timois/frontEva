@@ -6,15 +6,11 @@ export const useFetchPersona = () => {
     const { personas, setPersonas } = useContext(PersonaContext)
 
     const getData = async () => {
-        if(personas.length < 1){
-            const response = await getApi("users/list")
-            setPersonas(response)
-        }
-        return personas
-    }
-    const refreshUsers = async () => {
         const response = await getApi("users/list")
         setPersonas(response)
     }
-    return { personas, getData, refreshUsers}
+    const refreshUsers = async () => {
+        getData()
+    }
+    return { personas, getData, refreshUsers }
 }

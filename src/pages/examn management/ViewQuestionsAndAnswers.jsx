@@ -119,19 +119,14 @@ const ViewQuestionsAndAnswers = () => {
         const evaluation = await getApi(`student_evaluations/find/${response.evaluation_id}`);
         const answeredResp = await getApi(`student_answers/list/${response.student_test_id}`);
         if (!isMounted) return;
-
+        
         setQuestionsData(response);
         setEvaluationTitle(evaluation.title);
 
         const ahoraServidor = Date.parse(evaluation.current_time);
         const inicioExamen = Date.parse(evaluation.start_time);
         const finExamen = Date.parse(evaluation.end_time);
-
-        if (isNaN(ahoraServidor) || isNaN(inicioExamen) || isNaN(finExamen)) {
-          setError("Error en las fechas del examen");
-          return;
-        }
-
+        
         if (ahoraServidor < inicioExamen) {
           setError(`El examen comenzará a las ${getTiempoEnFormato(inicioExamen)}`);
           setTimeLeft(0);

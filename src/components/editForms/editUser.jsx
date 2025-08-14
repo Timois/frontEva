@@ -31,7 +31,6 @@ export const EditUser = ({ data, closeModal }) => {
   const {
     control,
     handleSubmit,
-    reset,
     setValue,
     watch,
     formState: { errors },
@@ -119,7 +118,6 @@ export const EditUser = ({ data, closeModal }) => {
 
   const handleCancel = () => {
     closeModal();
-    reset();
   };
 
   if (loadingRoles) return <div>Cargando roles...</div>;

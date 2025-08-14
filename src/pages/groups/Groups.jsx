@@ -53,6 +53,7 @@ export const Groups = () => {
         setSelectedGroupStudents(group.students || []);
         setShowStudentsModal(true);
     };
+    
     const handleStartGroup = async (groupId) => {
         try {
             await updateApi(`groups/startGroup/${groupId}`);
