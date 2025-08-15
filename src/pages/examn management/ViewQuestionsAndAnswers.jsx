@@ -123,21 +123,22 @@ const ViewQuestionsAndAnswers = () => {
         setQuestionsData(response);
         setEvaluationTitle(evaluation.title);
 
-        const ahoraServidor = Date.parse(evaluation.current_time);
-        const inicioExamen = Date.parse(evaluation.start_time);
-        const finExamen = Date.parse(evaluation.end_time);
+        const parseFecha = (fecha) => {
+          if (!fecha) return null;
+          const ts = new Date(fecha).getTime();
+          return isNaN(ts) ? null : ts;
+        };        
         
-        if (ahoraServidor < inicioExamen) {
-          setError(`El examen comenzará a las ${getTiempoEnFormato(inicioExamen)}`);
-          setTimeLeft(0);
-          return;
-        }
-
+        const ahoraServidor = parseFecha(response.current_time);
+        const inicioExamen = parseFecha(response.start_time);
+        const finExamen = parseFecha(response.end_time)
+        
         const segundosRestantes = Math.max(
-          Math.floor((finExamen - ahoraServidor) / 1000),
+          Math.ceil((finExamen - ahoraServidor) / 1000),
           0
         );
         setTimeLeft(segundosRestantes);
+
 
         const key = `exam_logs_${response.test_code}`;
         const savedLogs = JSON.parse(localStorage.getItem(key)) || [];
@@ -178,16 +179,19 @@ const ViewQuestionsAndAnswers = () => {
 
   useEffect(() => {
     if (timeLeft !== null && !alreadyAnswered && timeLeft > 0) {
+      const fin = Date.now() + timeLeft * 1000;
+
       countdownRef.current = setInterval(() => {
-        setTimeLeft(prev => {
-          if (prev <= 1) {
-            clearInterval(countdownRef.current);
-            handleSubmit();
-            return 0;
-          }
-          return prev - 1;
-        });
+        const restante = Math.ceil((fin - Date.now()) / 1000);
+        if (restante <= 0) {
+          clearInterval(countdownRef.current);
+          handleSubmit();
+          setTimeLeft(0);
+        } else {
+          setTimeLeft(restante);
+        }
       }, 1000);
+
       return () => clearInterval(countdownRef.current);
     }
   }, [timeLeft, alreadyAnswered]);
