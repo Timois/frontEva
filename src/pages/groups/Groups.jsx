@@ -9,6 +9,7 @@ import { ModalViewStudents } from "./ModalViewStudents";
 import { useExamns } from "../../hooks/fetchExamns";
 import { updateApi } from "../../services/axiosServices/ApiService";
 import { customAlert } from "../../utils/domHelper";
+import { sendMessage, socket } from "../../services/socketio/socketioClient";
 export const Groups = () => {
     const navigate = useNavigate();
     const { id } = useParams();
@@ -54,9 +55,10 @@ export const Groups = () => {
         setShowStudentsModal(true);
     };
     
-    const handleStartGroup = async (groupId) => {
+    const handleStartGroup = async (group) => {
+        socket.emit('joinRoom',group.id)
         try {
-            await updateApi(`groups/startGroup/${groupId}`);
+            await updateApi(`groups/startGroup/${group.id}`);
             customAlert("Grupo iniciado correctamente", "success");
             await getDataGroupEvaluation(evaluationId); // Refresca los datos
         } catch (error) {
@@ -146,7 +148,7 @@ export const Groups = () => {
                                                 />
                                                 <button
                                                     className="btn btn-sm btn-outline-success"
-                                                    onClick={() => handleStartGroup(group.id)}
+                                                    onClick={() => handleStartGroup(group)}
                                                 >
                                                     Iniciar examen
                                                 </button>

@@ -1,4 +1,4 @@
-import { removePermissionsStudent, removeStudent, removeTokenStudent } from "./storageStudent"
+import { removeGroup, removePermissionsStudent, removeStudent, removeTokenStudent } from "./storageStudent"
 import { removePermissions, removeRolesPermissions, removeToken, removeUser } from "./storageUser"
 
 export const clearStorage = () => {
@@ -9,6 +9,7 @@ export const clearStorage = () => {
 }
 
 export const clearStorageStudent = () => {
+    removeGroup()
     removeTokenStudent()
     removeStudent()
     removePermissionsStudent()

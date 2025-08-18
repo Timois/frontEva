@@ -10,6 +10,10 @@ export const removeTokenStudent = () => {
     window.localStorage.removeItem("jwt_token");
 };
 
+export const removeGroup = () => {
+    window.localStorage.removeItem("group");
+};
+
 export const saveStudent = (student) => {
    if (student) {
         const dataString = JSON.stringify(student);

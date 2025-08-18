@@ -6,6 +6,7 @@ import { FaCheck, FaClock, FaQuestionCircle } from 'react-icons/fa';
 import { MdOutlineTimer } from 'react-icons/md';
 import { Link } from 'react-router-dom';
 import { removeExamLogsByTestCode } from '../../services/storage/storageStudent';
+import { socket } from '../../services/socketio/socketioClient';
 
 const getTiempoEnFormato = (ms) => {
   const fecha = new Date(ms);
@@ -109,73 +110,88 @@ const ViewQuestionsAndAnswers = () => {
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
-  useEffect(() => {
-    let isMounted = true;
-    const fetchAllData = async () => {
-      try {
-        const fetchedStudentId = await getApi(`student_evaluations/list/${ci}`);
-        setStudentId(fetchedStudentId);
-        const response = await getStudentTestById(fetchedStudentId);
-        const evaluation = await getApi(`student_evaluations/find/${response.evaluation_id}`);
-        const answeredResp = await getApi(`student_answers/list/${response.student_test_id}`);
-        if (!isMounted) return;
-        
-        setQuestionsData(response);
-        setEvaluationTitle(evaluation.title);
+  const fetchAllData = async (isMounted) => {   
+    setError(null) 
+    try {
+      const fetchedStudentId = await getApi(`student_evaluations/list/${ci}`);
+      setStudentId(fetchedStudentId);
+      const response = await getStudentTestById(fetchedStudentId);
+      const evaluation = await getApi(`student_evaluations/find/${response.evaluation_id}`);
+      const answeredResp = await getApi(`student_answers/list/${response.student_test_id}`);
+      if (!isMounted) return;      
 
-        const parseFecha = (fecha) => {
-          if (!fecha) return null;
-          const ts = new Date(fecha).getTime();
-          return isNaN(ts) ? null : ts;
-        };        
-        
-        const ahoraServidor = parseFecha(response.current_time);
-        const inicioExamen = parseFecha(response.start_time);
-        const finExamen = parseFecha(response.end_time)
-        
-        const segundosRestantes = Math.max(
-          Math.ceil((finExamen - ahoraServidor) / 1000),
-          0
-        );
-        setTimeLeft(segundosRestantes);
+      setQuestionsData(response);      
+      setEvaluationTitle(evaluation.title);
+
+      const parseFecha = (fecha) => {
+        if (!fecha) return null;
+        const ts = new Date(fecha).getTime();
+        return isNaN(ts) ? null : ts;
+      };
+
+      const ahoraServidor = parseFecha(response.current_time);
+      const inicioExamen = parseFecha(response.start_time);
+      const finExamen = parseFecha(response.end_time)
+
+      const segundosRestantes = Math.max(
+        Math.ceil((finExamen - ahoraServidor) / 1000),
+        0
+      );
+      
+      setTimeLeft(segundosRestantes);
 
 
-        const key = `exam_logs_${response.test_code}`;
-        const savedLogs = JSON.parse(localStorage.getItem(key)) || [];
-        let savedAnswers = {};
+      const key = `exam_logs_${response.test_code}`;
+      const savedLogs = JSON.parse(localStorage.getItem(key)) || [];
+      let savedAnswers = {};
 
-        if (savedLogs.length > 0) {
-          savedLogs.forEach(log => {
+      if (savedLogs.length > 0) {
+        savedLogs.forEach(log => {
+          savedAnswers[log.question_id] = log.answer_id;
+        });
+      } else {
+        try {
+          const logsBackend = await getApi(`logs_answers/list/${response.student_test_id}`);
+          logsBackend.forEach(log => {
             savedAnswers[log.question_id] = log.answer_id;
           });
-        } else {
-          try {
-            const logsBackend = await getApi(`logs_answers/list/${response.student_test_id}`);
-            logsBackend.forEach(log => {
-              savedAnswers[log.question_id] = log.answer_id;
-            });
-            localStorage.setItem(key, JSON.stringify(logsBackend));
-          } catch {
-            console.error('Error al obtener logs desde el backend');
-          }
+          localStorage.setItem(key, JSON.stringify(logsBackend));
+        } catch {
+          console.error('Error al obtener logs desde el backend');
         }
-        setSelectedAnswers(savedAnswers);
-
-        if (answeredResp?.answered) {
-          setAlreadyAnswered(true);
-          setFinalScore(Math.round(answeredResp.score));
-        }
-      } catch (err) {
-        if (isMounted) {
-          setError(err?.response?.data?.message || 'Error al cargar datos');
-        }
-      } finally {
-        if (isMounted) setLoading(false);
       }
-    };
-    fetchAllData();
+      setSelectedAnswers(savedAnswers);
+
+      if (answeredResp?.answered) {
+        setAlreadyAnswered(true);
+        setFinalScore(Math.round(answeredResp.score));
+      }
+    } catch (err) {
+      if (isMounted) {
+        setError(err?.response?.data?.message || 'Error al cargar datos');
+      }
+    } finally {
+      if (isMounted) setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    let isMounted = true;
+    fetchAllData(isMounted);
     return () => { isMounted = false; };
-  }, [ci]);
+  }, []);
+
+  useEffect(() => {
+    socket.emit('joinRoom', student.group)
+  }, [])
+
+  useEffect(() => {
+    socket.on('evaluationStarted', (isStarted) => {
+      if (isStarted) {
+        fetchAllData(true)
+      }
+    })
+  }, [])
 
   useEffect(() => {
     if (timeLeft !== null && !alreadyAnswered && timeLeft > 0) {
