@@ -29,12 +29,15 @@ const ViewQuestionsAndAnswers = () => {
   const { getStudentTestById } = usFetchStudentTest();
   const student = JSON.parse(localStorage.getItem('user'));
   const ci = student?.ci || null;
-  const [timeLeft, setTimeLeft] = useState(null);
   const [studentId, setStudentId] = useState(null);
   const [currentQuestionId, setCurrentQuestionId] = useState(null);
   const tiempoInicioRef = useRef(null);
   const API_BASE_URL = import.meta.env.VITE_URL_IMAGES;
-  const countdownRef = useRef(null);
+  
+  // Estados para manejar el examen y datos del socket
+  const [examStarted, setExamStarted] = useState(false);
+  const [examDataLoaded, setExamDataLoaded] = useState(false);
+  const [socketTimeData, setSocketTimeData] = useState(null); // {timeLeft: number, serverTime: string, etc}
 
   const getLocalLogKey = () => `exam_logs_${questionsData?.test_code}`;
 
@@ -76,8 +79,14 @@ const ViewQuestionsAndAnswers = () => {
     tiempoInicioRef.current = ahora;
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e, isAutoSubmit = false) => {
     if (e?.preventDefault) e.preventDefault();
+    
+    // Si es auto-submit por tiempo agotado, mostrar mensaje
+    if (isAutoSubmit) {
+      alert('Tiempo agotado. Las respuestas se están enviando automáticamente.');
+    }
+    
     if (currentQuestionId && selectedAnswers[currentQuestionId]) {
       const tiempoFormateado = getTiempoEnFormato(tiempoInicioRef.current);
       await guardarEnBackend(currentQuestionId, selectedAnswers[currentQuestionId], tiempoFormateado);
@@ -105,42 +114,33 @@ const ViewQuestionsAndAnswers = () => {
   };
 
   const formatTime = (seconds) => {
+    if (seconds === null || seconds === undefined) return '--:--';
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
-  const fetchAllData = async (isMounted) => {   
-    setError(null) 
+  // Función para cargar solo los datos básicos de la evaluación
+  const loadInitialExamData = async (isMounted) => {
+    setError(null);
     try {
       const fetchedStudentId = await getApi(`student_evaluations/list/${ci}`);
+      if (!isMounted) return;
+      
       setStudentId(fetchedStudentId);
       const response = await getStudentTestById(fetchedStudentId);
+      if (!isMounted) return;
+      
       const evaluation = await getApi(`student_evaluations/find/${response.evaluation_id}`);
-      const answeredResp = await getApi(`student_answers/list/${response.student_test_id}`);
-      if (!isMounted) return;      
+      if (!isMounted) return;
 
-      setQuestionsData(response);      
+      const answeredResp = await getApi(`student_answers/list/${response.student_test_id}`);
+      if (!isMounted) return;
+
+      setQuestionsData(response);
       setEvaluationTitle(evaluation.title);
 
-      const parseFecha = (fecha) => {
-        if (!fecha) return null;
-        const ts = new Date(fecha).getTime();
-        return isNaN(ts) ? null : ts;
-      };
-
-      const ahoraServidor = parseFecha(response.current_time);
-      const inicioExamen = parseFecha(response.start_time);
-      const finExamen = parseFecha(response.end_time)
-
-      const segundosRestantes = Math.max(
-        Math.ceil((finExamen - ahoraServidor) / 1000),
-        0
-      );
-      
-      setTimeLeft(segundosRestantes);
-
-
+      // Cargar respuestas guardadas
       const key = `exam_logs_${response.test_code}`;
       const savedLogs = JSON.parse(localStorage.getItem(key)) || [];
       let savedAnswers = {};
@@ -166,6 +166,8 @@ const ViewQuestionsAndAnswers = () => {
         setAlreadyAnswered(true);
         setFinalScore(Math.round(answeredResp.score));
       }
+
+      setExamDataLoaded(true);
     } catch (err) {
       if (isMounted) {
         setError(err?.response?.data?.message || 'Error al cargar datos');
@@ -175,47 +177,112 @@ const ViewQuestionsAndAnswers = () => {
     }
   };
 
+  // Función separada para manejar datos del socket (tiempo, estado, etc.)
+  const handleSocketData = (payload) => {
+    console.log('Datos recibidos del socket:', payload);
+    
+    if (payload.isStarted === 'STARTED') {
+      setExamStarted(true);
+      
+      // Actualizar datos de tiempo del socket
+      setSocketTimeData({
+        timeLeft: payload.timeLeft || 0,
+        timeFormatted: payload.timeFormatted || '00:00:00',
+        serverTime: payload.serverTime,
+        examStatus: payload.isStarted,
+        message: payload.message || 'Examen iniciado'
+      });
+      
+      console.log('Examen iniciado - Tiempo restante:', payload.timeFormatted);
+    }
+    
+    // Actualizar tiempo durante el examen (mientras está STARTED)
+    if (payload.isStarted === 'STARTED' && examStarted) {
+      setSocketTimeData(prev => ({
+        ...prev,
+        timeLeft: payload.timeLeft,
+        timeFormatted: payload.timeFormatted,
+        serverTime: payload.serverTime,
+        examStatus: payload.isStarted
+      }));
+      
+      // Auto-submit cuando el tiempo se agota
+      if (payload.timeLeft <= 0 && !alreadyAnswered) {
+        console.log('Tiempo agotado, enviando respuestas automáticamente');
+        handleSubmit(null, true);
+      }
+    }
+    
+    // Manejar cuando el examen se completa por tiempo agotado
+    if (payload.isStarted === 'COMPLETED' && payload.examCompleted) {
+      setSocketTimeData(prev => ({
+        ...prev,
+        timeLeft: 0,
+        timeFormatted: '00:00:00',
+        serverTime: payload.serverTime,
+        examStatus: 'COMPLETED'
+      }));
+      
+      if (!alreadyAnswered) {
+        console.log('Examen completado por tiempo - Auto enviando respuestas');
+        handleSubmit(null, true);
+      }
+    }
+  };
+
+  // Cargar datos iniciales al montar el componente
   useEffect(() => {
     let isMounted = true;
-    fetchAllData(isMounted);
+    loadInitialExamData(isMounted);
     return () => { isMounted = false; };
   }, []);
 
+  // Conectar al socket
   useEffect(() => {
-    socket.emit('joinRoom', student.group)
-  }, [])
+    socket.emit('join', { roomId: student.group });
+  }, []);
 
+  // Escuchar eventos del socket
   useEffect(() => {
-    socket.on('evaluationStarted', (isStarted) => {
-      if (isStarted) {
-        fetchAllData(true)
-      }
-    })
-  }, [])
+    // Escuchar evento de inicio y actualizaciones de tiempo
+    socket.on('msg', handleSocketData);
+    
+    // Escuchar eventos específicos de tiempo (opcional)
+    socket.on('timeUpdate', handleSocketData);
+    
+    // Cleanup
+    return () => {
+      socket.off('msg', handleSocketData);
+      socket.off('timeUpdate', handleSocketData);
+    };
+  }, [examStarted, alreadyAnswered]); // Dependencias necesarias
 
-  useEffect(() => {
-    if (timeLeft !== null && !alreadyAnswered && timeLeft > 0) {
-      const fin = Date.now() + timeLeft * 1000;
+  // Los demás useEffect se mantienen igual...
 
-      countdownRef.current = setInterval(() => {
-        const restante = Math.ceil((fin - Date.now()) / 1000);
-        if (restante <= 0) {
-          clearInterval(countdownRef.current);
-          handleSubmit();
-          setTimeLeft(0);
-        } else {
-          setTimeLeft(restante);
-        }
-      }, 1000);
-
-      return () => clearInterval(countdownRef.current);
-    }
-  }, [timeLeft, alreadyAnswered]);
-
-  if (loading) return <p>Cargando preguntas...</p>;
+  // Mostrar loading mientras se cargan los datos iniciales
+  if (loading) return <p>Cargando evaluación...</p>;
   if (error) return <p>{error}</p>;
-  if (!questionsData?.questions) return <p>No se encontraron preguntas para esta prueba.</p>;
+  if (!questionsData?.questions) return <p>No se encontraron preguntas para esta evaluación.</p>;
 
+  // Mostrar que el examen está listo pero no ha comenzado
+  if (examDataLoaded && !examStarted && !alreadyAnswered) {
+    return (
+      <div className="container mt-4">
+        <div className="alert alert-warning text-center">
+          <h4>Evaluación: {evaluationTitle}</h4>
+          <div className="d-flex justify-content-center align-items-center mt-3">
+            <FaClock className="me-2 fs-4" />
+            <p className="mb-0">El examen está listo. Esperando que el instructor inicie la evaluación...</p>
+          </div>
+          <div className="spinner-border text-primary mt-3" role="status">
+            <span className="visually-hidden">Esperando...</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Mostrar resultados si ya respondió
   if (alreadyAnswered) {
     return (
       <div className="container mt-4">
@@ -232,6 +299,7 @@ const ViewQuestionsAndAnswers = () => {
     );
   }
 
+  // Mostrar la evaluación activa
   return (
     <div className="container-fluid p-4">
       <div className="card shadow-lg border-0 rounded-3 mb-4 overflow-hidden">
@@ -242,11 +310,19 @@ const ViewQuestionsAndAnswers = () => {
             </h3>
             {questionsData?.test_code && <span className="mb-1">Código de Examen: {questionsData.test_code}</span>}
           </div>
-          {timeLeft !== null && (
+          {socketTimeData?.timeFormatted && examStarted && (
             <div className="position-fixed top-20 end-0 bg-white text-dark px-3 py-2 rounded shadow border d-flex align-items-center" style={{ top: '80px', zIndex: 1050 }}>
-              <MdOutlineTimer className="me-2 fs-4 text-primary" />
+              <MdOutlineTimer className={`me-2 fs-4 ${socketTimeData.timeLeft <= 300 ? 'text-danger' : 'text-primary'}`} />
               <strong>Tiempo restante:</strong>
-              <span className="ms-2 fw-bold">{formatTime(timeLeft)}</span>
+              <span className={`ms-2 fw-bold fs-5 ${socketTimeData.timeLeft <= 300 ? 'text-danger' : ''}`}>
+                {socketTimeData.timeFormatted}
+              </span>
+              {socketTimeData.timeLeft <= 60 && socketTimeData.timeLeft > 0 && (
+                <span className="ms-2 badge bg-danger">¡URGENTE!</span>
+              )}
+              {socketTimeData.timeLeft === 0 && (
+                <span className="ms-2 badge bg-secondary">TIEMPO AGOTADO</span>
+              )}
             </div>
           )}
         </div>
@@ -271,9 +347,10 @@ const ViewQuestionsAndAnswers = () => {
               <h6 className="mb-3 text-muted">Selecciona una respuesta:</h6>
               {question.answers.map((answer, i) => (
                 <div key={answer.id}
-                  className={`p-3 mb-3 rounded-3 cursor-pointer ${selectedAnswers[question.question_id] === answer.id ? 'bg-primary bg-opacity-10 border border-primary' : 'bg-light border'}`}
-                  onClick={() => handleAnswerSelection(question.question_id, answer.id)}
+                  className={`p-3 mb-3 rounded-3 cursor-pointer ${selectedAnswers[question.question_id] === answer.id ? 'bg-primary bg-opacity-10 border border-primary' : 'bg-light border'} ${!examStarted ? 'opacity-50' : ''}`}
+                  onClick={() => examStarted && handleAnswerSelection(question.question_id, answer.id)}
                   role="button"
+                  style={{ cursor: examStarted ? 'pointer' : 'not-allowed' }}
                 >
                   <div className="d-flex align-items-center">
                     <div className={`me-3 ${selectedAnswers[question.question_id] === answer.id ? 'text-primary' : 'text-muted'}`}>
@@ -290,13 +367,28 @@ const ViewQuestionsAndAnswers = () => {
 
       <div className="d-flex justify-content-center mb-4">
         <button className="btn btn-primary px-5 py-3 rounded-pill fw-bold"
-          disabled={loading || timeLeft === 0}
+          disabled={loading || (socketTimeData?.timeLeft <= 0) || !examStarted}
           onClick={handleSubmit}
         >
-          {timeLeft === 0 ? 'Tiempo Agotado' : loading ? (
+          {!examStarted ? 'Esperando inicio del examen...' :
+           (socketTimeData?.timeLeft <= 0) ? 'Tiempo Agotado' : loading ? (
             <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" />
           ) : 'Enviar Respuestas'}
         </button>
+        
+        {/* Información adicional del socket */}
+        {socketTimeData && examStarted && (
+          <div className="ms-3 d-flex flex-column justify-content-center">
+            <small className="text-muted">
+              Estado: <span className="text-primary">{socketTimeData.examStatus}</span>
+            </small>
+            {socketTimeData.serverTime && (
+              <small className="text-muted">
+                Hora servidor: {socketTimeData.serverTime}
+              </small>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -56,7 +56,7 @@ export const Groups = () => {
     };
     
     const handleStartGroup = async (group) => {
-        socket.emit('joinRoom',group.id)
+        socket.emit('join',{roomId: group.id})
         try {
             await updateApi(`groups/startGroup/${group.id}`);
             customAlert("Grupo iniciado correctamente", "success");
