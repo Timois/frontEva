@@ -82,25 +82,18 @@ export const EditExamn = ({ data, closeModal }) => {
     }, [data, reset]);
 
     const onSubmit = async (formData) => {
+        
         if (!formData.academic_management_period_id) {
             customAlert("Debe seleccionar un período académico", "error");
             return;
         }
-        const formattedDate = new Date(formData.date_of_realization).toISOString().split("T")[0];
-        const today = new Date().toISOString().split("T")[0];
-        if (formattedDate <= today) {
-            setError("date_of_realization", {
-                type: "custom",
-                message: "La fecha debe ser posterior a hoy.",
-            });
-            return;
-        }
+        
         setResponse(true);
         const requestData = new FormData();
         requestData.append("title", formData.title);
         requestData.append("description", formData.description);
         requestData.append("passing_score", formData.passing_score);
-        requestData.append("date_of_realization", formattedDate);
+        requestData.append("date_of_realization", new Date(data.date_of_realization).toISOString().split('T')[0]);
         requestData.append("type", "web");
         requestData.append("time", Number(formData.time));
         requestData.append("places", Number(formData.places));

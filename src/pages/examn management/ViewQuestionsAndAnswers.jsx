@@ -18,6 +18,23 @@ const getTiempoEnFormato = (ms) => {
   });
 };
 
+const LoadingComponent = ({title}) => {
+  return (
+    <div className="container mt-4">
+      <div className="alert alert-warning text-center">
+        <h4>Evaluación: {title}</h4>
+        <div className="d-flex justify-content-center align-items-center mt-3">
+          <FaClock className="me-2 fs-4" />
+          <p className="mb-0">El examen está listo. Esperando que el instructor inicie la evaluación...</p>
+        </div>
+        <div className="spinner-border text-primary mt-3" role="status">
+          <span className="visually-hidden">Esperando...</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const ViewQuestionsAndAnswers = () => {
   const [questionsData, setQuestionsData] = useState(null);
   const [evaluationTitle, setEvaluationTitle] = useState('');
@@ -180,8 +197,8 @@ const ViewQuestionsAndAnswers = () => {
   // Función separada para manejar datos del socket (tiempo, estado, etc.)
   const handleSocketData = (payload) => {
     console.log('Datos recibidos del socket:', payload);
-    
     if (payload.isStarted === 'STARTED') {
+      console.log("STARDEEEEED")
       setExamStarted(true);
       
       // Actualizar datos de tiempo del socket
@@ -192,7 +209,6 @@ const ViewQuestionsAndAnswers = () => {
         examStatus: payload.isStarted,
         message: payload.message || 'Examen iniciado'
       });
-      
       console.log('Examen iniciado - Tiempo restante:', payload.timeFormatted);
     }
     
@@ -235,7 +251,7 @@ const ViewQuestionsAndAnswers = () => {
     let isMounted = true;
     loadInitialExamData(isMounted);
     return () => { isMounted = false; };
-  }, []);
+  }, [examStarted]);
 
   // Conectar al socket
   useEffect(() => {
@@ -261,11 +277,12 @@ const ViewQuestionsAndAnswers = () => {
 
   // Mostrar loading mientras se cargan los datos iniciales
   if (loading) return <p>Cargando evaluación...</p>;
-  if (error) return <p>{error}</p>;
-  if (!questionsData?.questions) return <p>No se encontraron preguntas para esta evaluación.</p>;
+  if (error) return <p><LoadingComponent title={evaluationTitle}/></p>;
+
+  if (!questionsData?.questions) return <p><LoadingComponent title={evaluationTitle}/></p>;
 
   // Mostrar que el examen está listo pero no ha comenzado
-  if (examDataLoaded && !examStarted && !alreadyAnswered) {
+  if (!examStarted) {
     return (
       <div className="container mt-4">
         <div className="alert alert-warning text-center">
