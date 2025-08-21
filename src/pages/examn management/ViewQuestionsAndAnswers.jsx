@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 import { useEffect, useState, useRef } from 'react';
 import { getApi, postApi } from '../../services/axiosServices/ApiService';
@@ -18,7 +19,7 @@ const getTiempoEnFormato = (ms) => {
   });
 };
 
-const LoadingComponent = ({title}) => {
+const LoadingComponent = ({ title }) => {
   return (
     <div className="container mt-4">
       <div className="alert alert-warning text-center">
@@ -37,6 +38,7 @@ const LoadingComponent = ({title}) => {
 
 const ViewQuestionsAndAnswers = () => {
   const [questionsData, setQuestionsData] = useState(null);
+  const questionDataRef = useRef(null);
   const [evaluationTitle, setEvaluationTitle] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -50,7 +52,7 @@ const ViewQuestionsAndAnswers = () => {
   const [currentQuestionId, setCurrentQuestionId] = useState(null);
   const tiempoInicioRef = useRef(null);
   const API_BASE_URL = import.meta.env.VITE_URL_IMAGES;
-  
+
   // Estados para manejar el examen y datos del socket
   const [examStarted, setExamStarted] = useState(false);
   const [examDataLoaded, setExamDataLoaded] = useState(false);
@@ -97,19 +99,24 @@ const ViewQuestionsAndAnswers = () => {
   };
 
   const handleSubmit = async (e, isAutoSubmit = false) => {
-    if (e?.preventDefault) e.preventDefault();
-    
+    if (e) e.preventDefault();
+
     // Si es auto-submit por tiempo agotado, mostrar mensaje
-    if (isAutoSubmit) {
-      alert('Tiempo agotado. Las respuestas se están enviando automáticamente.');
+    else {
+      console.log('Tiempo agotado. Las respuestas se están enviando automáticamente.');
     }
     
+    console.log('108',currentQuestionId, selectedAnswers)
+
     if (currentQuestionId && selectedAnswers[currentQuestionId]) {
+    console.log('--------------------------')
+
       const tiempoFormateado = getTiempoEnFormato(tiempoInicioRef.current);
       await guardarEnBackend(currentQuestionId, selectedAnswers[currentQuestionId], tiempoFormateado);
     }
     try {
       setLoading(true);
+      console.log('116',questionDataRef.current)
       const payload = {
         student_test_id: questionsData.student_test_id,
         answers: Object.entries(selectedAnswers).map(([question_id, answer_id]) => ({
@@ -117,6 +124,8 @@ const ViewQuestionsAndAnswers = () => {
           answer_id
         }))
       };
+
+      console.log(payload)
       const response = await postApi('student_answers/save', payload);
       setFinalScore(Math.floor(response.total_score));
       setAlreadyAnswered(true);
@@ -124,7 +133,7 @@ const ViewQuestionsAndAnswers = () => {
     } catch (error) {
       console.error('Error al guardar respuestas:', error);
       setAlreadyAnswered(error?.response?.status === 409);
-      alert(error?.response?.data?.message || 'Ocurrió un error al enviar las respuestas.');
+      console.log('l 133', error);
     } finally {
       setLoading(false);
     }
@@ -142,18 +151,25 @@ const ViewQuestionsAndAnswers = () => {
     setError(null);
     try {
       const fetchedStudentId = await getApi(`student_evaluations/list/${ci}`);
+      console.log("151", fetchedStudentId)
       if (!isMounted) return;
-      
+
       setStudentId(fetchedStudentId);
       const response = await getStudentTestById(fetchedStudentId);
+      console.log("156", response)
+
       if (!isMounted) return;
-      
+
       const evaluation = await getApi(`student_evaluations/find/${response.evaluation_id}`);
+      console.log('161', evaluation)
       if (!isMounted) return;
 
       const answeredResp = await getApi(`student_answers/list/${response.student_test_id}`);
+      console.log('165', answeredResp)
       if (!isMounted) return;
-
+      if(!response)
+        questionDataRef.current = response
+      
       setQuestionsData(response);
       setEvaluationTitle(evaluation.title);
 
@@ -196,11 +212,9 @@ const ViewQuestionsAndAnswers = () => {
 
   // Función separada para manejar datos del socket (tiempo, estado, etc.)
   const handleSocketData = (payload) => {
-    console.log('Datos recibidos del socket:', payload);
     if (payload.isStarted === 'STARTED') {
-      console.log("STARDEEEEED")
       setExamStarted(true);
-      
+
       // Actualizar datos de tiempo del socket
       setSocketTimeData({
         timeLeft: payload.timeLeft || 0,
@@ -208,10 +222,9 @@ const ViewQuestionsAndAnswers = () => {
         serverTime: payload.serverTime,
         examStatus: payload.isStarted,
         message: payload.message || 'Examen iniciado'
-      });
-      console.log('Examen iniciado - Tiempo restante:', payload.timeFormatted);
+      })
     }
-    
+
     // Actualizar tiempo durante el examen (mientras está STARTED)
     if (payload.isStarted === 'STARTED' && examStarted) {
       setSocketTimeData(prev => ({
@@ -221,14 +234,14 @@ const ViewQuestionsAndAnswers = () => {
         serverTime: payload.serverTime,
         examStatus: payload.isStarted
       }));
-      
+
       // Auto-submit cuando el tiempo se agota
       if (payload.timeLeft <= 0 && !alreadyAnswered) {
         console.log('Tiempo agotado, enviando respuestas automáticamente');
         handleSubmit(null, true);
       }
     }
-    
+
     // Manejar cuando el examen se completa por tiempo agotado
     if (payload.isStarted === 'COMPLETED' && payload.examCompleted) {
       setSocketTimeData(prev => ({
@@ -238,7 +251,7 @@ const ViewQuestionsAndAnswers = () => {
         serverTime: payload.serverTime,
         examStatus: 'COMPLETED'
       }));
-      
+
       if (!alreadyAnswered) {
         console.log('Examen completado por tiempo - Auto enviando respuestas');
         handleSubmit(null, true);
@@ -258,14 +271,18 @@ const ViewQuestionsAndAnswers = () => {
     socket.emit('join', { roomId: student.group });
   }, []);
 
+   useEffect(() => {
+    console.log('272', questionsData)
+  }, [questionsData]);
+
   // Escuchar eventos del socket
   useEffect(() => {
     // Escuchar evento de inicio y actualizaciones de tiempo
     socket.on('msg', handleSocketData);
-    
+
     // Escuchar eventos específicos de tiempo (opcional)
     socket.on('timeUpdate', handleSocketData);
-    
+
     // Cleanup
     return () => {
       socket.off('msg', handleSocketData);
@@ -273,13 +290,12 @@ const ViewQuestionsAndAnswers = () => {
     };
   }, [examStarted, alreadyAnswered]); // Dependencias necesarias
 
-  // Los demás useEffect se mantienen igual...
 
   // Mostrar loading mientras se cargan los datos iniciales
   if (loading) return <p>Cargando evaluación...</p>;
-  if (error) return <p><LoadingComponent title={evaluationTitle}/></p>;
+  if (error) return <LoadingComponent title={evaluationTitle} />;
 
-  if (!questionsData?.questions) return <p><LoadingComponent title={evaluationTitle}/></p>;
+  if (!questionsData?.questions) return <LoadingComponent title={evaluationTitle} />
 
   // Mostrar que el examen está listo pero no ha comenzado
   if (!examStarted) {
@@ -315,7 +331,6 @@ const ViewQuestionsAndAnswers = () => {
       </div>
     );
   }
-
   // Mostrar la evaluación activa
   return (
     <div className="container-fluid p-4">
@@ -331,7 +346,7 @@ const ViewQuestionsAndAnswers = () => {
             <div className="position-fixed top-20 end-0 bg-white text-dark px-3 py-2 rounded shadow border d-flex align-items-center" style={{ top: '80px', zIndex: 1050 }}>
               <MdOutlineTimer className={`me-2 fs-4 ${socketTimeData.timeLeft <= 300 ? 'text-danger' : 'text-primary'}`} />
               <strong>Tiempo restante:</strong>
-              <span className={`ms-2 fw-bold fs-5 ${socketTimeData.timeLeft <= 300 ? 'text-danger' : ''}`}>
+              <span className={`ms-2 fw- bold fs-5 ${socketTimeData.timeLeft <= 300 ? 'text-danger' : ''}`}>
                 {socketTimeData.timeFormatted}
               </span>
               {socketTimeData.timeLeft <= 60 && socketTimeData.timeLeft > 0 && (
@@ -388,11 +403,11 @@ const ViewQuestionsAndAnswers = () => {
           onClick={handleSubmit}
         >
           {!examStarted ? 'Esperando inicio del examen...' :
-           (socketTimeData?.timeLeft <= 0) ? 'Tiempo Agotado' : loading ? (
-            <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" />
-          ) : 'Enviar Respuestas'}
+            (socketTimeData?.timeLeft <= 0) ? 'Tiempo Agotado' : loading ? (
+              <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" />
+            ) : 'Enviar Respuestas'}
         </button>
-        
+
         {/* Información adicional del socket */}
         {socketTimeData && examStarted && (
           <div className="ms-3 d-flex flex-column justify-content-center">
