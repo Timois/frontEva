@@ -15,7 +15,7 @@ export const removeGroup = () => {
 };
 
 export const saveStudent = (student) => {
-   if (student) {
+    if (student) {
         const dataString = JSON.stringify(student);
         window.localStorage.setItem("user", dataString);
     }
@@ -23,7 +23,7 @@ export const saveStudent = (student) => {
 
 export const getStudent = () => {
     const student = window.localStorage.getItem("user");
-    if (student&& student !== 'undefined') {
+    if (student && student !== 'undefined') {
         return JSON.parse(student);
     }
     return null;
@@ -44,15 +44,22 @@ export const removePermissionsStudent = () => {
 };
 export const removeExamLogsByTestCode = (testCode) => {
     if (testCode) {
-      const key = `exam_logs_${testCode}`;
-      localStorage.removeItem(key);
+        const key = `exam_logs_${testCode}`;
+        localStorage.removeItem(key);
     }
-  };
+};
 
-  export const removeSingleExamLog = () => {
+export const removeSingleExamLog = () => {
     const logKey = Object.keys(localStorage).find(key => key.startsWith("exam_logs_"));
     if (logKey) {
-      localStorage.removeItem(logKey);
+        localStorage.removeItem(logKey);
     }
-  };
-  
+};
+
+export const removeTestCode = () => {
+    localStorage.removeItem("test_code");
+}
+
+export const removeStudentTestId = () => {
+    localStorage.removeItem("student_test_id");
+}

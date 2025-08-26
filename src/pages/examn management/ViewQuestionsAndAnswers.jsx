@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { getApi, postApi } from "../../services/axiosServices/ApiService";
 import { usFetchStudentTest } from "../../hooks/fetchStudent";
 import { Link } from "react-router-dom";
-import { removeExamLogsByTestCode } from "../../services/storage/storageStudent";
+import { removeExamLogsByTestCode, removeStudentTestId, removeTestCode } from "../../services/storage/storageStudent";
 import { socket } from "../../services/socketio/socketioClient";
 import LoadingComponent from "./components/LoadingComponent";
 import ExamHeader from "./components/ExamHeader";
@@ -22,8 +22,7 @@ const getTiempoEnFormato = (ms) => {
 };
 
 const ViewQuestionsAndAnswers = () => {
-  const [questionsData, setQuestionsData] = useState(null);
-  const questionDataRef = useRef(null);
+  const [questionsData, setQuestionsData] = useState(null)
   const [evaluationTitle, setEvaluationTitle] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -80,7 +79,6 @@ const ViewQuestionsAndAnswers = () => {
         guardarEnBackend(currentQuestionId, ultimaRespuesta, tiempoUltimaRespuesta);
       }
     }
-
     setSelectedAnswers((prev) => ({ ...prev, [questionId]: answerId }));
     setCurrentQuestionId(questionId);
     tiempoInicioRef.current = ahora;
@@ -88,9 +86,6 @@ const ViewQuestionsAndAnswers = () => {
 
   const handleSubmit = async (e, isAutoSubmit = false) => {
     if (e) e.preventDefault();
-    if (!e && isAutoSubmit) {
-      console.log("Tiempo agotado. Envío automático...");
-    }
     // Guardar última respuesta activa en backend si aplica
     if (currentQuestionId && selectedAnswers[currentQuestionId]) {
       const tiempoFormateado = getTiempoEnFormato(tiempoInicioRef.current);
@@ -107,11 +102,8 @@ const ViewQuestionsAndAnswers = () => {
       let answersArray;
 
       if (isAutoSubmit) {
-        // ⚡ Leer las respuestas guardadas en localStorage
 
         const savedLogs = `exam_logs_${localStorage.getItem('test_code')}`
-        console.log('respuestas guardadas en localStorage', savedLogs)
-        // Transformar para enviar solo question_id y answer_id
         const answersPlainArray = localStorage.getItem(savedLogs)
         if (answersPlainArray)
           answersArray = JSON.parse(answersPlainArray).map((log) => ({
@@ -119,20 +111,14 @@ const ViewQuestionsAndAnswers = () => {
             answer_id: log.answer_id,
           }))
         else {
-          console.log('no hay un carajo...')
           answersArray = []
         }
 
-        console.log('119', answersArray)
-
       } else {
-        // Envío manual → usar el state actual
-        console.log(selectedAnswers)
         answersArray = Object.entries(selectedAnswers).map(([question_id, answer_id]) => ({
           question_id: Number(question_id),
           answer_id,
         }));
-        console.log('123', answersArray)
       }
 
       // ⚡ Payload correcto para el backend
@@ -141,17 +127,15 @@ const ViewQuestionsAndAnswers = () => {
         answers: answersArray,
       };
 
-      console.log("136 - Payload enviado--->", payload, answersArray); // opcional, para debug
-
-
       // Enviar al backend
       const response = await postApi("student_answers/save", payload);
 
       setFinalScore(Math.floor(response.total_score));
       setAlreadyAnswered(true);
 
-      // ✅ Limpiar logs locales al terminar
-      removeExamLogsByTestCode(JSON.parse(localStorage.getItem('test_code')));
+      removeExamLogsByTestCode(localStorage.getItem('test_code'));
+      removeTestCode();
+      removeStudentTestId();
     } catch (error) {
       console.error("Error al guardar respuestas:", error);
       setAlreadyAnswered(error?.response?.status === 409);
@@ -167,24 +151,18 @@ const ViewQuestionsAndAnswers = () => {
       const fetchedStudentId = await getApi(`student_evaluations/list/${ci}`);
       if (!isMounted) return;
       setStudentId(fetchedStudentId);
-      console.log('168', fetchedStudentId)
 
       const response = await getStudentTestById(fetchedStudentId);
       if (!isMounted) return;
       setQuestionsData(response);
       localStorage.setItem('test_code', response.test_code)
-      console.log('173', response)
 
       const evaluation = await getApi(`student_evaluations/find/${response.evaluation_id}`);
       if (!isMounted) return;
       setEvaluationTitle(evaluation.title);
-      console.log('178', evaluation)
 
       const answeredResp = await getApi(`student_answers/list/${response.student_test_id}`);
       if (!isMounted) return;
-      console.log('182', answeredResp)
-
-
       // Respuestas guardadas (local o backend)
       const key = `exam_logs_${response.test_code}`;
       const savedLogs = JSON.parse(localStorage.getItem(key)) || [];

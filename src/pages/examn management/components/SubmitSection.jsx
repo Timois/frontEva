@@ -20,9 +20,6 @@ const SubmitSection = ({ loading, socketTimeData, examStarted, handleSubmit }) =
         <small className="text-muted">
           Estado: <span className="text-primary">{socketTimeData.examStatus}</span>
         </small>
-        {socketTimeData.serverTime && (
-          <small className="text-muted">Hora servidor: {socketTimeData.serverTime}</small>
-        )}
       </div>
     )}
   </div>
