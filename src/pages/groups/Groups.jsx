@@ -65,6 +65,36 @@ export const Groups = () => {
             customAlert("No se pudo iniciar el grupo", "error");
         }
     };
+
+    const handlePauseGroup = async (group) => {
+        try {
+            await updateApi(`groups/pauseGroup/${group.id}`);
+            customAlert("Grupo pausado correctamente", "success");
+            await getDataGroupEvaluation(evaluationId); // Refresca los datos
+        } catch (error) {
+            customAlert("No se pudo pausar el grupo", "error");
+        }
+    }
+
+    const handleResumeGroup = async (group) => {
+        try {
+            await updateApi(`groups/resumeGroup/${group.id}`);
+            customAlert("Grupo resumido correctamente", "success");
+            await getDataGroupEvaluation(evaluationId); // Refresca los datos
+        } catch (error) {
+            customAlert("No se pudo resumir el grupo", "error");
+        }
+    }
+
+    const handleStopGroup = async (group) => {
+        try {
+            await updateApi(`groups/stopGroup/${group.id}`);
+            customAlert("Grupo detenido correctamente", "success");
+            await getDataGroupEvaluation(evaluationId); // Refresca los datos
+        } catch (error) {
+            customAlert("No se pudo detener el grupo", "error");
+        }
+    }
     const idEditar = "editGroup";
 
     const examDate = examn?.date_of_realization;
@@ -152,7 +182,24 @@ export const Groups = () => {
                                                 >
                                                     Iniciar examen
                                                 </button>
-
+                                                <button
+                                                    className="btn btn-sm btn-outline-warning"
+                                                    onClick={() => handlePauseGroup(group)}
+                                                >
+                                                    Pausar examen
+                                                </button>
+                                                <button
+                                                    className="btn btn-sm btn-outline-success"
+                                                    onClick={() => handleResumeGroup(group)}
+                                                >
+                                                    Reaundar examen
+                                                </button>
+                                                <button
+                                                    className="btn btn-sm btn-outline-danger"
+                                                    onClick={() => handleStopGroup(group)}
+                                                >
+                                                    Detener examen
+                                                </button>
                                             </td>
                                         </tr>
                                     );
