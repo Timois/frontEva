@@ -7,9 +7,10 @@ import ButtonEdit from "./ButtonEdit";
 import ModalEdit from "./ModalEdit";
 import { ModalViewStudents } from "./ModalViewStudents";
 import { useExamns } from "../../hooks/fetchExamns";
-import { updateApi } from "../../services/axiosServices/ApiService";
+import { getApi, updateApi } from "../../services/axiosServices/ApiService";
 import { customAlert } from "../../utils/domHelper";
 import { sendMessage, socket } from "../../services/socketio/socketioClient";
+import { io } from "socket.io-client";
 export const Groups = () => {
     const navigate = useNavigate();
     const { id } = useParams();
@@ -54,14 +55,55 @@ export const Groups = () => {
         setSelectedGroupStudents(group.students || []);
         setShowStudentsModal(true);
     };
-    
-    const handleStartGroup = async (group) => {
-        socket.emit('join',{roomId: group.id})
+    const socket = io("http://localhost:3000", {
+        autoConnect: false, // 🔑 importante: no conecta automáticamente
+    });
+    const verifyApi = async (token) => {
         try {
+            // primero intento como docente
+            const data = await getApi(`users/verifyTeacherToken`);
+            console.log("Docente:", data);
+            return { ...data, role: "teacher" };
+        } catch (err) {
+            try {
+                // si falla, intento como estudiante
+                const data = await getApi(`users/verifyStudentToken`);
+                console.log("Estudiante:", data);
+                return { ...data, role: "student" };
+            } catch (err2) {
+                console.log("Ninguno válido", err2);
+                return { valid: false, role: null };
+            }
+        }
+    };
+
+    const handleStartGroup = async (group) => {
+        try {
+            const token = localStorage.getItem("jwt_token");
+            console.log(token)
+            if (!token) {
+                customAlert("No tienes sesión iniciada", "error");
+                return;
+            }
+
+            const data = await verifyApi(token);
+            console.log(data)
+            if (!data.valid) {
+                customAlert("Token inválido o sesión expirada", "error");
+                return;
+            }
+
+            // Conectar el socket enviando token + rol
+            socket.auth = { token, role: data.role };
+            socket.connect();
+
+            socket.emit("join", { roomId: group.id, role: data.role });
+
             await updateApi(`groups/startGroup/${group.id}`);
             customAlert("Grupo iniciado correctamente", "success");
-            await getDataGroupEvaluation(evaluationId); // Refresca los datos
+            await getDataGroupEvaluation(evaluationId);
         } catch (error) {
+            console.error(error);
             customAlert("No se pudo iniciar el grupo", "error");
         }
     };
