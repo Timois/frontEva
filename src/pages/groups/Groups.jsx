@@ -9,8 +9,8 @@ import { ModalViewStudents } from "./ModalViewStudents";
 import { useExamns } from "../../hooks/fetchExamns";
 import { getApi, updateApi } from "../../services/axiosServices/ApiService";
 import { customAlert } from "../../utils/domHelper";
-import { sendMessage, socket } from "../../services/socketio/socketioClient";
 import { io } from "socket.io-client";
+const urlWebSocket = import.meta.env.VITE_URL_WEBSOCKET;
 export const Groups = () => {
     const navigate = useNavigate();
     const { id } = useParams();
@@ -55,8 +55,11 @@ export const Groups = () => {
         setSelectedGroupStudents(group.students || []);
         setShowStudentsModal(true);
     };
-    const socket = io("http://localhost:3000", {
-        autoConnect: false, // 🔑 importante: no conecta automáticamente
+    const socket = io(urlWebSocket, {
+        query: {
+            token: localStorage.getItem("token") // v2 usa query
+        },
+        transports: ["websocket"],
     });
     const verifyApi = async (token) => {
         try {
