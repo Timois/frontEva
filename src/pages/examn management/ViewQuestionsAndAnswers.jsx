@@ -10,6 +10,7 @@ import LoadingComponent from "./components/LoadingComponent";
 import ExamHeader from "./components/ExamHeader";
 import QuestionCard from "./components/QuestionCard";
 import SubmitSection from "./components/SubmitSection";
+import { io } from "socket.io-client";
 
 const getTiempoEnFormato = (ms) => {
   const fecha = new Date(ms);
@@ -145,6 +146,7 @@ const ViewQuestionsAndAnswers = () => {
   };
 
   // Cargar datos iniciales
+  // Manejo de datos iniciales
   const loadInitialExamData = async (isMounted) => {
     setError(null);
     try {
@@ -155,7 +157,7 @@ const ViewQuestionsAndAnswers = () => {
       const response = await getStudentTestById(fetchedStudentId);
       if (!isMounted) return;
       setQuestionsData(response);
-      localStorage.setItem('test_code', response.test_code)
+      localStorage.setItem("test_code", response.test_code);
 
       const evaluation = await getApi(`student_evaluations/find/${response.evaluation_id}`);
       if (!isMounted) return;
@@ -163,7 +165,8 @@ const ViewQuestionsAndAnswers = () => {
 
       const answeredResp = await getApi(`student_answers/list/${response.student_test_id}`);
       if (!isMounted) return;
-      // Respuestas guardadas (local o backend)
+
+      // Guardar respuestas locales o del backend
       const key = `exam_logs_${response.test_code}`;
       const savedLogs = JSON.parse(localStorage.getItem(key)) || [];
       let savedAnswers = {};
@@ -197,27 +200,107 @@ const ViewQuestionsAndAnswers = () => {
       if (isMounted) setLoading(false);
     }
   };
-  useEffect(() => {
-    if (questionsData?.student_test_id) {
-      // Guardar en localStorage
-      localStorage.setItem("student_test_id", questionsData.student_test_id);
-    }
-  }, [questionsData]);
 
-  // Manejo socket
+  // 👉 Conectar socket y escuchar eventos
+  useEffect(() => {
+    const token = localStorage.getItem("jwt_token");
+
+    const socketOptions = {
+      transports: ["websocket"],
+      query: { token },
+    };
+
+    const socketClient = io("http://127.0.0.1:3000", socketOptions);
+
+    socketClient.on("connect", () => {
+      console.log("✅ Estudiante conectado al socket");
+      console.log("📤 Intentando unirse a la sala:", student.group);
+      socketClient.emit("join", { roomId: student.group.toString(), role: "student" });
+    });
+
+    // 🔹 Confirmación de unión a la sala
+    socketClient.on("joined", (data) => {
+      console.log("🎯 ¡Confirmado! Unido a la sala:", data);
+    });
+
+    // 🔹 Cuando se recibe la duración del examen
+    socketClient.on("duration", (data) => {
+      console.log("⏱️ Duración del examen recibida:", data);
+      // Aquí puedes guardar la duración si necesitas
+    });
+
+    // 🔹 Cuando el examen inicia (evento inicial)
+    socketClient.on("start", (data) => {
+      console.log("🚀 ¡Examen iniciado! Datos:", data);
+      setExamStarted(true);
+      setSocketTimeData({
+        timeLeft: 0, // Se actualizará con el primer "msg"
+        timeFormatted: "00:00:00",
+        serverTime: new Date().toLocaleTimeString(),
+        examStatus: "STARTED",
+        message: "Examen iniciado",
+      });
+    });
+
+    // 🔹 Mensajes del servidor (incluye tiempo y estado)
+    socketClient.on("msg", (payload) => {
+      console.log("📨 Mensaje del servidor:", payload);
+      handleSocketData(payload);
+    });
+
+    socketClient.on("connect_error", (err) => {
+      console.error("❌ Error de conexión socket:", err.message);
+    });
+
+    return () => {
+      socketClient.off("joined");
+      socketClient.off("duration");
+      socketClient.off("start");
+      socketClient.off("msg");
+      socketClient.disconnect();
+    };
+  }, [student.group, examStarted, alreadyAnswered]);
+
+  // 🔹 Función para manejar datos del socket (actualizada)
   const handleSocketData = (payload) => {
-    if (payload.isStarted === "STARTED") {
+    console.log("🔄 Procesando payload:", payload);
+
+    // ✅ Cuando el examen está corriendo
+    if (payload.isStarted === "started") {
       setExamStarted(true);
       setSocketTimeData({
         timeLeft: payload.timeLeft || 0,
         timeFormatted: payload.timeFormatted || "00:00:00",
         serverTime: payload.serverTime,
         examStatus: payload.isStarted,
-        message: payload.message || "Examen iniciado",
+        message: payload.message || "Examen en progreso",
       });
+
+      // ✅ Si el tiempo se agotó
+      if (payload.timeLeft <= 0 && !alreadyAnswered) {
+        console.log("⏰ Tiempo agotado, enviando examen...");
+        handleSubmit(null, true);
+      }
     }
 
-    if (payload.isStarted === "STARTED" && examStarted) {
+    // ✅ Cuando el examen se completa
+    if (payload.isStarted === "completed" && payload.examCompleted) {
+      console.log("✅ Examen completado por tiempo");
+      setSocketTimeData((prev) => ({
+        ...prev,
+        timeLeft: 0,
+        timeFormatted: "00:00:00",
+        serverTime: payload.serverTime,
+        examStatus: "completed",
+      }));
+
+      if (!alreadyAnswered) {
+        handleSubmit(null, true);
+      }
+    }
+
+    // ✅ Actualizaciones de tiempo durante el examen
+    if (payload.isStarted === "started" && examStarted) {
       setSocketTimeData((prev) => ({
         ...prev,
         timeLeft: payload.timeLeft,
@@ -225,52 +308,11 @@ const ViewQuestionsAndAnswers = () => {
         serverTime: payload.serverTime,
         examStatus: payload.isStarted,
       }));
-
-      if (payload.timeLeft <= 0 && !alreadyAnswered) {
-        handleSubmit(null, true);
-      }
-    }
-
-    if (payload.isStarted === "COMPLETED" && payload.examCompleted) {
-      setSocketTimeData((prev) => ({
-        ...prev,
-        timeLeft: 0,
-        timeFormatted: "00:00:00",
-        serverTime: payload.serverTime,
-        examStatus: "COMPLETED",
-      }));
-
-      if (!alreadyAnswered) {
-        handleSubmit(null, true);
-      }
     }
   };
-
-  // efectos
-  useEffect(() => {
-    let isMounted = true;
-    loadInitialExamData(isMounted);
-    return () => {
-      isMounted = false;
-    };
-  }, [examStarted]);
-
-  useEffect(() => {
-    socket.emit("join", { roomId: student.group });
-  }, []);
-
-  useEffect(() => {
-    socket.on("msg", handleSocketData);
-    socket.on("timeUpdate", handleSocketData);
-    return () => {
-      socket.off("msg", handleSocketData);
-      socket.off("timeUpdate", handleSocketData);
-    };
-  }, [examStarted, alreadyAnswered]);
-
   // Renderizado
-  if (loading) return <p>Cargando evaluación...</p>;
-  if (error) return <LoadingComponent title={evaluationTitle} />;
+  if (loading) return <LoadingComponent title={evaluationTitle} />
+  if (error) return <LoadingComponent title={evaluationTitle} />
 
 
   if (alreadyAnswered) {

@@ -55,12 +55,6 @@ export const Groups = () => {
         setSelectedGroupStudents(group.students || []);
         setShowStudentsModal(true);
     };
-    const socket = io(urlWebSocket, {
-        query: {
-            token: localStorage.getItem("token") // v2 usa query
-        },
-        transports: ["websocket"],
-    });
     const verifyApi = async (token) => {
         try {
             // primero intento como docente
@@ -83,31 +77,50 @@ export const Groups = () => {
     const handleStartGroup = async (group) => {
         try {
             const token = localStorage.getItem("jwt_token");
-            console.log(token)
             if (!token) {
                 customAlert("No tienes sesión iniciada", "error");
                 return;
             }
 
             const data = await verifyApi(token);
-            console.log(data)
             if (!data.valid) {
                 customAlert("Token inválido o sesión expirada", "error");
                 return;
             }
 
-            // Conectar el socket enviando token + rol
-            socket.auth = { token, role: data.role };
-            socket.connect();
-
-            socket.emit("join", { roomId: group.id, role: data.role });
-
+            // 🔹 1. Primero avisar al backend que el grupo se inició
+            console.log("🔄 Iniciando grupo en el backend...");
             await updateApi(`groups/startGroup/${group.id}`);
+            console.log("✅ Grupo iniciado en el backend");
+
+            // 🔹 2. Luego enviar señal al socket server para notificar a estudiantes
+            console.log("🔄 Enviando señal a estudiantes vía socket...");
+            const socketResponse = await fetch("http://127.0.0.1:3000/emit/start-evaluation", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    roomId: group.id.toString(), // Asegurar que sea string
+                    duration: group.duration_minutes * 60 || 3600, // Convertir a segundos
+                    token: token
+                })
+            });
+
+            const socketResult = await socketResponse.json();
+
+            if (!socketResponse.ok) {
+                throw new Error(socketResult.message || 'Error al iniciar el examen en tiempo real');
+            }
+
+            console.log("✅ Socket response:", socketResult);
+            console.log("🎉 Examen iniciado correctamente para todos los estudiantes");
             customAlert("Grupo iniciado correctamente", "success");
             await getDataGroupEvaluation(evaluationId);
+
         } catch (error) {
-            console.error(error);
-            customAlert("No se pudo iniciar el grupo", "error");
+            console.error("❌ Error iniciando grupo:", error);
+            customAlert(`Error: ${error.message}`, "error");
         }
     };
 
