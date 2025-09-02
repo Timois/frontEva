@@ -55,21 +55,31 @@ export const Groups = () => {
         setSelectedGroupStudents(group.students || []);
         setShowStudentsModal(true);
     };
+    const tokenCache = new Map(); // key: token, value: { valid, role, expires }
+
     const verifyApi = async (token) => {
+        const cached = tokenCache.get(token);
+        if (cached && cached.expires > Date.now()) {
+            return cached;
+        }
+
         try {
-            // primero intento como docente
-            const data = await getApi(`users/verifyTeacherToken`);
-            console.log("Docente:", data);
-            return { ...data, role: "teacher" };
+            // Primero intento como docente
+            const data = await getApi("users/verifyTeacherToken", token);
+            const result = { ...data, role: "teacher" };
+            tokenCache.set(token, { ...result, expires: Date.now() + 60000 }); // cache 1 min
+            return result;
         } catch (err) {
             try {
-                // si falla, intento como estudiante
-                const data = await getApi(`users/verifyStudentToken`);
-                console.log("Estudiante:", data);
-                return { ...data, role: "student" };
+                // Si falla, intento como estudiante
+                const data = await getApi("students/verifyStudentToken", token);
+                const result = { ...data, role: "student" };
+                tokenCache.set(token, { ...result, expires: Date.now() + 60000 }); // cache 1 min
+                return result;
             } catch (err2) {
-                console.log("Ninguno válido", err2);
-                return { valid: false, role: null };
+                const result = { valid: false, role: null };
+                tokenCache.set(token, { ...result, expires: Date.now() + 10000 }); // cache corto
+                return result;
             }
         }
     };
@@ -88,41 +98,36 @@ export const Groups = () => {
                 return;
             }
 
-            // 🔹 1. Primero avisar al backend que el grupo se inició
-            console.log("🔄 Iniciando grupo en el backend...");
-            await updateApi(`groups/startGroup/${group.id}`);
-            console.log("✅ Grupo iniciado en el backend");
+            // 🔹 Avisar al backend que el grupo se inició
+            // Este endpoint devuelve los datos del grupo incluyendo duration en segundos
+            const groupData = await updateApi(`groups/startGroup/${group.id}`);
 
-            // 🔹 2. Luego enviar señal al socket server para notificar a estudiantes
-            console.log("🔄 Enviando señal a estudiantes vía socket...");
+            // 🔹 Enviar al socket solo roomId y token, sin duration
             const socketResponse = await fetch("http://127.0.0.1:3000/emit/start-evaluation", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    roomId: group.id.toString(), // Asegurar que sea string
-                    duration: group.duration_minutes * 60 || 3600, // Convertir a segundos
+                    roomId: group.id.toString(),
                     token: token
                 })
             });
 
             const socketResult = await socketResponse.json();
-
             if (!socketResponse.ok) {
                 throw new Error(socketResult.message || 'Error al iniciar el examen en tiempo real');
             }
 
-            console.log("✅ Socket response:", socketResult);
-            console.log("🎉 Examen iniciado correctamente para todos los estudiantes");
             customAlert("Grupo iniciado correctamente", "success");
             await getDataGroupEvaluation(evaluationId);
 
         } catch (error) {
             console.error("❌ Error iniciando grupo:", error);
-            customAlert(`Error: ${error.message}`, "error");
+            customAlert(error.response?.data?.message || "No se pudo iniciar el grupo", "error");
         }
     };
+
 
     const handlePauseGroup = async (group) => {
         try {
