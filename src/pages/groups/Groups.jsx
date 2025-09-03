@@ -91,26 +91,22 @@ export const Groups = () => {
                 customAlert("No tienes sesión iniciada", "error");
                 return;
             }
-
             const data = await verifyApi(token);
             if (!data.valid) {
                 customAlert("Token inválido o sesión expirada", "error");
                 return;
             }
-
-            // 🔹 Avisar al backend que el grupo se inició
-            // Este endpoint devuelve los datos del grupo incluyendo duration en segundos
+            // 🔹 Obtener duración desde Laravel
             const groupData = await updateApi(`groups/startGroup/${group.id}`);
 
-            // 🔹 Enviar al socket solo roomId y token, sin duration
+            // 🔹 Enviar al servidor socket todo: roomId + token + duración
             const socketResponse = await fetch("http://127.0.0.1:3000/emit/start-evaluation", {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     roomId: group.id.toString(),
-                    token: token
+                    token,
+                    duration: groupData.duration // en segundos
                 })
             });
 
@@ -127,7 +123,6 @@ export const Groups = () => {
             customAlert(error.response?.data?.message || "No se pudo iniciar el grupo", "error");
         }
     };
-
 
     const handlePauseGroup = async (group) => {
         try {
