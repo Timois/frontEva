@@ -4,7 +4,7 @@ import { clearStorageStudent } from "../../../services/storage/clearStorage";
 import { useContext } from "react";
 import { MdLogout } from "react-icons/md";
 import { StudentContext } from "../../../context/StudentProvider";
-import { removeSingleExamLog } from "../../../services/storage/storageStudent";
+import { removeSingleExamLog, removeStudentTestId, removeTestCode } from "../../../services/storage/storageStudent";
 
 const LayoutStudent = ({ children }) => {
   const { student, storeStudent } = useContext(StudentContext);
@@ -13,6 +13,8 @@ const LayoutStudent = ({ children }) => {
   const logout = () => {
     try {
       removeSingleExamLog()
+      removeStudentTestId()
+      removeTestCode()
       clearStorageStudent();
       storeStudent(null);
       navigate("/estudiantes");

@@ -3,7 +3,11 @@ import { useEffect, useState, useRef } from "react";
 import { getApi, postApi } from "../../services/axiosServices/ApiService";
 import { usFetchStudentTest } from "../../hooks/fetchStudent";
 import { Link } from "react-router-dom";
-import { removeExamLogsByTestCode, removeStudentTestId, removeTestCode } from "../../services/storage/storageStudent";
+import {
+  removeExamLogsByTestCode,
+  removeStudentTestId,
+  removeTestCode,
+} from "../../services/storage/storageStudent";
 import { io } from "socket.io-client";
 import LoadingComponent from "./components/LoadingComponent";
 import ExamHeader from "./components/ExamHeader";
@@ -26,19 +30,21 @@ const ViewQuestionsAndAnswers = () => {
   const tiempoInicioRef = useRef(null);
   const API_BASE_URL = import.meta.env.VITE_URL_IMAGES;
 
-  // Estado unificado para el examen y el tiempo desde socket
+  // Estado unificado del examen
   const [socketTimeData, setSocketTimeData] = useState({
     started: false,
     timeLeft: null,
     timeFormatted: "00:00:00",
     serverTime: null,
-    examStatus: null,
+    examStatus: "waiting", // waiting | started | paused | continued | completed
   });
 
   const registrarEnLocalStorage = (questionId, answerId, time) => {
     const key = `exam_logs_${localStorage.getItem("test_code")}`;
     const currentLogs = JSON.parse(localStorage.getItem(key)) || [];
-    const updatedLogs = currentLogs.filter(log => log.question_id !== questionId);
+    const updatedLogs = currentLogs.filter(
+      (log) => log.question_id !== questionId
+    );
     updatedLogs.push({ question_id: questionId, answer_id: answerId, time });
     localStorage.setItem(key, JSON.stringify(updatedLogs));
   };
@@ -58,22 +64,31 @@ const ViewQuestionsAndAnswers = () => {
   };
 
   const handleAnswerSelection = (questionId, answerId) => {
-    if (!socketTimeData.started) return; // solo seleccionar si examen iniciado
+    // Solo seleccionar si examen está en curso
+    if (socketTimeData.examStatus !== "started") return;
 
     const ahora = Date.now();
-    const tiempoFormateado = new Date(ahora).toLocaleTimeString("es-ES", { hour12: false });
+    const tiempoFormateado = new Date(ahora).toLocaleTimeString("es-ES", {
+      hour12: false,
+    });
 
     registrarEnLocalStorage(questionId, answerId, tiempoFormateado);
 
     if (currentQuestionId && currentQuestionId !== questionId) {
       const ultimaRespuesta = selectedAnswers[currentQuestionId];
       if (ultimaRespuesta) {
-        const tiempoUltimaRespuesta = new Date(tiempoInicioRef.current).toLocaleTimeString("es-ES", { hour12: false });
-        guardarEnBackend(currentQuestionId, ultimaRespuesta, tiempoUltimaRespuesta);
+        const tiempoUltimaRespuesta = new Date(
+          tiempoInicioRef.current
+        ).toLocaleTimeString("es-ES", { hour12: false });
+        guardarEnBackend(
+          currentQuestionId,
+          ultimaRespuesta,
+          tiempoUltimaRespuesta
+        );
       }
     }
 
-    setSelectedAnswers(prev => ({ ...prev, [questionId]: answerId }));
+    setSelectedAnswers((prev) => ({ ...prev, [questionId]: answerId }));
     setCurrentQuestionId(questionId);
     tiempoInicioRef.current = ahora;
   };
@@ -81,8 +96,14 @@ const ViewQuestionsAndAnswers = () => {
   const handleSubmit = async (e, isAutoSubmit = false) => {
     if (e) e.preventDefault();
     if (currentQuestionId && selectedAnswers[currentQuestionId]) {
-      const tiempoFormateado = new Date(tiempoInicioRef.current).toLocaleTimeString("es-ES", { hour12: false });
-      await guardarEnBackend(currentQuestionId, selectedAnswers[currentQuestionId], tiempoFormateado);
+      const tiempoFormateado = new Date(
+        tiempoInicioRef.current
+      ).toLocaleTimeString("es-ES", { hour12: false });
+      await guardarEnBackend(
+        currentQuestionId,
+        selectedAnswers[currentQuestionId],
+        tiempoFormateado
+      );
     }
 
     try {
@@ -93,24 +114,24 @@ const ViewQuestionsAndAnswers = () => {
       if (isAutoSubmit) {
         const savedLogs = `exam_logs_${localStorage.getItem("test_code")}`;
         const logs = JSON.parse(localStorage.getItem(savedLogs)) || [];
-        answersArray = logs.map(log => ({
+        answersArray = logs.map((log) => ({
           question_id: log.question_id,
           answer_id: log.answer_id,
         }));
       } else {
-        answersArray = Object.entries(selectedAnswers).map(([question_id, answer_id]) => ({
-          question_id: Number(question_id),
-          answer_id,
-        }
-      ))
-    }
-    console.log(answersArray)
+        answersArray = Object.entries(selectedAnswers).map(
+          ([question_id, answer_id]) => ({
+            question_id: Number(question_id),
+            answer_id,
+          })
+        );
+      }
 
       const payload = {
         student_test_id: parseInt(localStorage.getItem("student_test_id")),
         answers: answersArray,
       };
-      
+
       const response = await postApi("student_answers/save", payload);
 
       setFinalScore(Math.floor(response.total_score));
@@ -131,7 +152,9 @@ const ViewQuestionsAndAnswers = () => {
   useEffect(() => {
     let isMounted = true;
     loadInitialExamData(isMounted);
-    return () => { isMounted = false; };
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const loadInitialExamData = async (isMounted) => {
@@ -146,11 +169,15 @@ const ViewQuestionsAndAnswers = () => {
       setQuestionsData(response);
       localStorage.setItem("test_code", response.test_code);
 
-      const evaluation = await getApi(`student_evaluations/find/${response.evaluation_id}`);
+      const evaluation = await getApi(
+        `student_evaluations/find/${response.evaluation_id}`
+      );
       if (!isMounted) return;
       setEvaluationTitle(evaluation.title);
 
-      const answeredResp = await getApi(`student_answers/list/${response.student_test_id}`);
+      const answeredResp = await getApi(
+        `student_answers/list/${response.student_test_id}`
+      );
       if (!isMounted) return;
 
       const key = `exam_logs_${response.test_code}`;
@@ -158,11 +185,17 @@ const ViewQuestionsAndAnswers = () => {
       let savedAnswers = {};
 
       if (savedLogs.length > 0) {
-        savedLogs.forEach(log => { savedAnswers[log.question_id] = log.answer_id; });
+        savedLogs.forEach((log) => {
+          savedAnswers[log.question_id] = log.answer_id;
+        });
       } else {
         try {
-          const logsBackend = await getApi(`logs_answers/list/${response.student_test_id}`);
-          logsBackend.forEach(log => { savedAnswers[log.question_id] = log.answer_id; });
+          const logsBackend = await getApi(
+            `logs_answers/list/${response.student_test_id}`
+          );
+          logsBackend.forEach((log) => {
+            savedAnswers[log.question_id] = log.answer_id;
+          });
           localStorage.setItem(key, JSON.stringify(logsBackend));
         } catch {
           console.error("Error al obtener logs desde el backend");
@@ -177,7 +210,8 @@ const ViewQuestionsAndAnswers = () => {
 
       setLoading(false);
     } catch (err) {
-      if (isMounted) setError(err?.response?.data?.message || "Error al cargar datos");
+      if (isMounted)
+        setError(err?.response?.data?.message || "Error al cargar datos");
     } finally {
       if (isMounted) setLoading(false);
     }
@@ -186,7 +220,6 @@ const ViewQuestionsAndAnswers = () => {
   // Conectar socket y escuchar eventos
   useEffect(() => {
     if (questionsData?.student_test_id) {
-      // Guardar en localStorage
       localStorage.setItem("student_test_id", questionsData.student_test_id);
     }
     const token = localStorage.getItem("jwt_token");
@@ -204,6 +237,7 @@ const ViewQuestionsAndAnswers = () => {
     });
 
     socketClient.on("msg", (payload) => {
+      // started
       if (payload.isStarted === "started") {
         setSocketTimeData({
           started: true,
@@ -212,10 +246,29 @@ const ViewQuestionsAndAnswers = () => {
           serverTime: payload.serverTime,
           examStatus: "started",
         });
-
-        if (payload.timeLeft <= 0 && !alreadyAnswered) handleSubmit(null, true);
+        if (payload.timeLeft <= 0 && !alreadyAnswered)
+          handleSubmit(null, true);
       }
 
+      // paused
+      if (payload.isStarted === "paused") {
+        setSocketTimeData((prev) => ({
+          ...prev,
+          started: false,
+          examStatus: "paused",
+        }));
+      }
+
+      // continued
+      if (payload.isStarted === "continued") {
+        setSocketTimeData((prev) => ({
+          ...prev,
+          started: true,
+          examStatus: "started", // vuelve a started
+        }));
+      }
+
+      // completed
       if (payload.isStarted === "completed") {
         setSocketTimeData({
           started: false,
@@ -224,13 +277,8 @@ const ViewQuestionsAndAnswers = () => {
           serverTime: payload.serverTime,
           examStatus: "completed",
         });
-
         if (!alreadyAnswered) handleSubmit(null, true);
       }
-    });
-
-    socketClient.on("start", () => {
-      setSocketTimeData(prev => ({ ...prev, started: true }));
     });
 
     return () => {
@@ -248,12 +296,16 @@ const ViewQuestionsAndAnswers = () => {
         <div className="alert alert-info text-center">
           <h4>Ya has respondido esta evaluación.</h4>
           {finalScore !== null ? (
-            <p>Tu nota final es: <strong>{finalScore}</strong></p>
+            <p>
+              Tu nota final es: <strong>{finalScore}</strong>
+            </p>
           ) : (
             <p>No puedes volver a enviar tus respuestas.</p>
           )}
         </div>
-        <Link to={`${studentId}/compareAnswers`} className="btn btn-primary">Comparar Respuestas</Link>
+        <Link to={`${studentId}/compareAnswers`} className="btn btn-primary">
+          Comparar Respuestas
+        </Link>
       </div>
     );
   }
@@ -261,11 +313,22 @@ const ViewQuestionsAndAnswers = () => {
   if (!questionsData?.questions)
     return <LoadingComponent title={evaluationTitle} />;
 
-  if (!socketTimeData.started) {
+  // Estado esperando inicio
+  if (socketTimeData.examStatus === "waiting") {
     return (
       <div className="container mt-4 text-center">
         <h4>Esperando inicio del examen...</h4>
         <p>Permanece en esta ventana. El examen comenzará pronto.</p>
+      </div>
+    );
+  }
+
+  // Estado pausado
+  if (socketTimeData.examStatus === "paused") {
+    return (
+      <div className="container mt-4 text-center">
+        <h4>El examen está pausado temporalmente</h4>
+        <p>Espera a que el docente lo reanude.</p>
       </div>
     );
   }

@@ -48,7 +48,7 @@ export const FormPeriod = () => {
                 customAlert("No tienes permisos para realizar esta acción", "error");
                 closeFormModal("registerPeriod");
             } else{
-                customAlert(error.response?.data?.errors?.message || "Error al registrar el periodo", "error");
+                customAlert(error.response?.data?.errors?.level || "Error al registrar el periodo", "error");
                 closeFormModal("registerPeriod");
             }
         }finally{

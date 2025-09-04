@@ -126,23 +126,51 @@ export const Groups = () => {
 
     const handlePauseGroup = async (group) => {
         try {
-            await updateApi(`groups/pauseGroup/${group.id}`);
+            const token = localStorage.getItem("jwt_token");
+            if (!token) {
+                customAlert("No tienes sesión iniciada", "error");
+                return;
+            }
+            const data = await verifyApi(token);
+            if (!data.valid) {
+                customAlert("Token inválido o sesión expirada", "error");
+                return;
+            }
+
+            // 🔹 Petición al backend Laravel que a su vez llama al socket
+            await updateApi(`groups/${group.id}/pause`);
+
             customAlert("Grupo pausado correctamente", "success");
-            await getDataGroupEvaluation(evaluationId); // Refresca los datos
+            await getDataGroupEvaluation(evaluationId); // Refresca datos en UI
         } catch (error) {
-            customAlert("No se pudo pausar el grupo", "error");
+            console.error("❌ Error pausando grupo:", error);
+            customAlert(error.response?.data?.message || "No se pudo pausar el grupo", "error");
         }
-    }
+    };
 
     const handleResumeGroup = async (group) => {
         try {
-            await updateApi(`groups/resumeGroup/${group.id}`);
-            customAlert("Grupo resumido correctamente", "success");
-            await getDataGroupEvaluation(evaluationId); // Refresca los datos
+            const token = localStorage.getItem("jwt_token");
+            if (!token) {
+                customAlert("No tienes sesión iniciada", "error");
+                return;
+            }
+            const data = await verifyApi(token);
+            if (!data.valid) {
+                customAlert("Token inválido o sesión expirada", "error");
+                return;
+            }
+
+            // 🔹 Petición al backend Laravel que llama al socket
+            await updateApi(`groups/${group.id}/continue`);
+
+            customAlert("Grupo reanudado correctamente", "success");
+            await getDataGroupEvaluation(evaluationId);
         } catch (error) {
-            customAlert("No se pudo resumir el grupo", "error");
+            console.error("❌ Error reanudando grupo:", error);
+            customAlert(error.response?.data?.message || "No se pudo reanudar el grupo", "error");
         }
-    }
+    };
 
     const handleStopGroup = async (group) => {
         try {
