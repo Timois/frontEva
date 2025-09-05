@@ -7,7 +7,7 @@ import ButtonEdit from "./ButtonEdit";
 import ModalEdit from "./ModalEdit";
 import { ModalViewStudents } from "./ModalViewStudents";
 import { useExamns } from "../../hooks/fetchExamns";
-import { getApi, updateApi } from "../../services/axiosServices/ApiService";
+import { getApi, postApi, updateApi } from "../../services/axiosServices/ApiService";
 import { customAlert } from "../../utils/domHelper";
 import { io } from "socket.io-client";
 const urlWebSocket = import.meta.env.VITE_URL_WEBSOCKET;
@@ -98,7 +98,7 @@ export const Groups = () => {
             }
             // 🔹 Obtener duración desde Laravel
             const groupData = await updateApi(`groups/startGroup/${group.id}`);
-
+            console.log(groupData)
             // 🔹 Enviar al servidor socket todo: roomId + token + duración
             const socketResponse = await fetch("http://127.0.0.1:3000/emit/start-evaluation", {
                 method: 'POST',
@@ -138,7 +138,7 @@ export const Groups = () => {
             }
 
             // 🔹 Petición al backend Laravel que a su vez llama al socket
-            await updateApi(`groups/${group.id}/pause`);
+            await postApi(`groups/pauseGroup/${group.id}`);
 
             customAlert("Grupo pausado correctamente", "success");
             await getDataGroupEvaluation(evaluationId); // Refresca datos en UI
@@ -162,7 +162,7 @@ export const Groups = () => {
             }
 
             // 🔹 Petición al backend Laravel que llama al socket
-            await updateApi(`groups/${group.id}/continue`);
+            await postApi(`groups/resumeGroup/${group.id}`);
 
             customAlert("Grupo reanudado correctamente", "success");
             await getDataGroupEvaluation(evaluationId);

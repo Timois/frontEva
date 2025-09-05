@@ -82,13 +82,13 @@ export const FormManagementPeriod = () => {
         }
     };
     const resetForm = () => {
-        reset(
-            "period_id",
-            "initial_date",
-            "initial_time",
-            "end_date",
-            "end_time"
-        )
+        reset({
+            period_id: "",
+            initial_date: "",
+            initial_time: "",
+            end_date: "",
+            end_time: ""
+        });
     }
     // const onError = (errors, e) => console.log(errors, e)
     const handleCancel = () => {

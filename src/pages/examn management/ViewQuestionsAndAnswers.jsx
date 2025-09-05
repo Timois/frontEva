@@ -14,6 +14,22 @@ import ExamHeader from "./components/ExamHeader";
 import QuestionCard from "./components/QuestionCard";
 import SubmitSection from "./components/SubmitSection";
 
+// Estados unificados (igual que en la BD)
+const examStatuses = {
+  WAITING: "pendiente",
+  IN_PROGRESS: "en_progreso",
+  PAUSED: "pausado",
+  COMPLETED: "completado",
+};
+
+// Mapeo de eventos del socket → estados reales
+const socketEventToStatus = {
+  started: examStatuses.IN_PROGRESS,
+  paused: examStatuses.PAUSED,
+  continued: examStatuses.IN_PROGRESS,
+  completed: examStatuses.COMPLETED,
+};
+
 const ViewQuestionsAndAnswers = () => {
   const [questionsData, setQuestionsData] = useState(null);
   const [evaluationTitle, setEvaluationTitle] = useState("");
@@ -36,7 +52,7 @@ const ViewQuestionsAndAnswers = () => {
     timeLeft: null,
     timeFormatted: "00:00:00",
     serverTime: null,
-    examStatus: "waiting", // waiting | started | paused | continued | completed
+    examStatus: examStatuses.WAITING, // por defecto pendiente
   });
 
   const registrarEnLocalStorage = (questionId, answerId, time) => {
@@ -65,7 +81,7 @@ const ViewQuestionsAndAnswers = () => {
 
   const handleAnswerSelection = (questionId, answerId) => {
     // Solo seleccionar si examen está en curso
-    if (socketTimeData.examStatus !== "started") return;
+    if (socketTimeData.examStatus !== examStatuses.IN_PROGRESS) return;
 
     const ahora = Date.now();
     const tiempoFormateado = new Date(ahora).toLocaleTimeString("es-ES", {
@@ -237,45 +253,34 @@ const ViewQuestionsAndAnswers = () => {
     });
 
     socketClient.on("msg", (payload) => {
-      // started
-      if (payload.isStarted === "started") {
+      const newStatus = socketEventToStatus[payload.isStarted];
+
+      if (newStatus === examStatuses.IN_PROGRESS) {
         setSocketTimeData({
           started: true,
           timeLeft: payload.timeLeft,
           timeFormatted: payload.timeFormatted,
           serverTime: payload.serverTime,
-          examStatus: "started",
+          examStatus: examStatuses.IN_PROGRESS,
         });
-        if (payload.timeLeft <= 0 && !alreadyAnswered)
-          handleSubmit(null, true);
+        if (payload.timeLeft <= 0 && !alreadyAnswered) handleSubmit(null, true);
       }
 
-      // paused
-      if (payload.isStarted === "paused") {
+      if (newStatus === examStatuses.PAUSED) {
         setSocketTimeData((prev) => ({
           ...prev,
           started: false,
-          examStatus: "paused",
+          examStatus: examStatuses.PAUSED,
         }));
       }
 
-      // continued
-      if (payload.isStarted === "continued") {
-        setSocketTimeData((prev) => ({
-          ...prev,
-          started: true,
-          examStatus: "started", // vuelve a started
-        }));
-      }
-
-      // completed
-      if (payload.isStarted === "completed") {
+      if (newStatus === examStatuses.COMPLETED) {
         setSocketTimeData({
           started: false,
           timeLeft: 0,
           timeFormatted: "00:00:00",
           serverTime: payload.serverTime,
-          examStatus: "completed",
+          examStatus: examStatuses.COMPLETED,
         });
         if (!alreadyAnswered) handleSubmit(null, true);
       }
@@ -314,7 +319,7 @@ const ViewQuestionsAndAnswers = () => {
     return <LoadingComponent title={evaluationTitle} />;
 
   // Estado esperando inicio
-  if (socketTimeData.examStatus === "waiting") {
+  if (socketTimeData.examStatus === examStatuses.WAITING) {
     return (
       <div className="container mt-4 text-center">
         <h4>Esperando inicio del examen...</h4>
@@ -324,7 +329,7 @@ const ViewQuestionsAndAnswers = () => {
   }
 
   // Estado pausado
-  if (socketTimeData.examStatus === "paused") {
+  if (socketTimeData.examStatus === examStatuses.PAUSED) {
     return (
       <div className="container mt-4 text-center">
         <h4>El examen está pausado temporalmente</h4>
