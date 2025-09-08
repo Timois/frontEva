@@ -22,14 +22,6 @@ const examStatuses = {
   COMPLETED: "completado",
 };
 
-// Mapeo de eventos del socket → estados reales
-const socketEventToStatus = {
-  started: examStatuses.IN_PROGRESS,
-  paused: examStatuses.PAUSED,
-  continued: examStatuses.IN_PROGRESS,
-  completed: examStatuses.COMPLETED,
-};
-
 const ViewQuestionsAndAnswers = () => {
   const [questionsData, setQuestionsData] = useState(null);
   const [evaluationTitle, setEvaluationTitle] = useState("");
@@ -238,8 +230,9 @@ const ViewQuestionsAndAnswers = () => {
     if (questionsData?.student_test_id) {
       localStorage.setItem("student_test_id", questionsData.student_test_id);
     }
+  
     const token = localStorage.getItem("jwt_token");
-
+  
     const socketClient = io("http://127.0.0.1:3000", {
       transports: ["websocket"],
       query: { token },
@@ -251,46 +244,70 @@ const ViewQuestionsAndAnswers = () => {
         role: "student",
       });
     });
-
+  
+    // Si el backend emite un "start" con duration
+    socketClient.on("start", (payload) => {
+      const duration = payload?.duration ?? payload?.time ?? 0;
+      setSocketTimeData((prev) => ({
+        ...prev,
+        started: true,
+        timeLeft: duration,
+        timeFormatted: payload?.timeFormatted,
+        serverTime: payload?.serverTime ?? new Date().toLocaleTimeString("es-ES", { timeZone: "America/La_Paz" }),
+        examStatus: examStatuses.IN_PROGRESS,
+      }));
+    });
+  
+    // Evento principal: backend envía { examStatus, timeLeft, timeFormatted, serverTime, examCompleted? }
     socketClient.on("msg", (payload) => {
-      const newStatus = socketEventToStatus[payload.isStarted];
-
-      if (newStatus === examStatuses.IN_PROGRESS) {
-        setSocketTimeData({
-          started: true,
-          timeLeft: payload.timeLeft,
-          timeFormatted: payload.timeFormatted,
-          serverTime: payload.serverTime,
-          examStatus: examStatuses.IN_PROGRESS,
+      const serverStatus =
+        payload?.examStatus ??
+        (payload?.isStarted !== undefined ? (payload.isStarted ? examStatuses.IN_PROGRESS : examStatuses.PAUSED) : null);
+  
+      if (serverStatus === examStatuses.IN_PROGRESS) {
+        setSocketTimeData((prev) => {
+          const newTimeLeft = payload?.timeLeft ?? prev?.timeLeft ?? 0;
+          return {
+            ...prev,
+            started: true,
+            timeLeft: newTimeLeft,
+            timeFormatted: payload?.timeFormatted,
+            serverTime: payload?.serverTime ?? new Date().toLocaleTimeString("es-ES", { timeZone: "America/La_Paz" }),
+            examStatus: examStatuses.IN_PROGRESS,
+          };
         });
-        if (payload.timeLeft <= 0 && !alreadyAnswered) handleSubmit(null, true);
+        return;
       }
-
-      if (newStatus === examStatuses.PAUSED) {
+  
+      if (serverStatus === examStatuses.PAUSED) {
         setSocketTimeData((prev) => ({
           ...prev,
           started: false,
           examStatus: examStatuses.PAUSED,
         }));
+        return;
       }
-
-      if (newStatus === examStatuses.COMPLETED) {
-        setSocketTimeData({
+      if (serverStatus === examStatuses.COMPLETED || payload?.examCompleted) {
+        setSocketTimeData((prev) => ({
+          ...prev,
           started: false,
           timeLeft: 0,
           timeFormatted: "00:00:00",
-          serverTime: payload.serverTime,
+          serverTime: payload?.serverTime ?? new Date().toLocaleTimeString("es-ES", { timeZone: "America/La_Paz" }),
           examStatus: examStatuses.COMPLETED,
-        });
+        }));
         if (!alreadyAnswered) handleSubmit(null, true);
+        return;
       }
     });
-
+  
     return () => {
+      socketClient.off("start");
+      socketClient.off("msg");
       socketClient.disconnect();
     };
   }, [student.group, alreadyAnswered, questionsData]);
-
+  
   // Renderizado
   if (loading) return <LoadingComponent title={evaluationTitle} />;
   if (error) return <p className="text-danger">Error: {error}</p>;
