@@ -226,13 +226,14 @@ const ViewQuestionsAndAnswers = () => {
   };
 
   // Conectar socket y escuchar eventos
+  // Conectar socket y escuchar eventos
   useEffect(() => {
     if (questionsData?.student_test_id) {
       localStorage.setItem("student_test_id", questionsData.student_test_id);
     }
-  
+
     const token = localStorage.getItem("jwt_token");
-  
+
     const socketClient = io("http://127.0.0.1:3000", {
       transports: ["websocket"],
       query: { token },
@@ -244,7 +245,7 @@ const ViewQuestionsAndAnswers = () => {
         role: "student",
       });
     });
-  
+
     // Si el backend emite un "start" con duration
     socketClient.on("start", (payload) => {
       const duration = payload?.duration ?? payload?.time ?? 0;
@@ -253,17 +254,31 @@ const ViewQuestionsAndAnswers = () => {
         started: true,
         timeLeft: duration,
         timeFormatted: payload?.timeFormatted,
-        serverTime: payload?.serverTime ?? new Date().toLocaleTimeString("es-ES", { timeZone: "America/La_Paz" }),
+        serverTime:
+          payload?.serverTime ??
+          new Date().toLocaleTimeString("es-ES", {
+            timeZone: "America/La_Paz",
+          }),
         examStatus: examStatuses.IN_PROGRESS,
       }));
     });
-  
+
     // Evento principal: backend envía { examStatus, timeLeft, timeFormatted, serverTime, examCompleted? }
     socketClient.on("msg", (payload) => {
-      const serverStatus =
+      let serverStatus =
         payload?.examStatus ??
-        (payload?.isStarted !== undefined ? (payload.isStarted ? examStatuses.IN_PROGRESS : examStatuses.PAUSED) : null);
-  
+        (payload?.isStarted !== undefined
+          ? (payload.isStarted
+            ? examStatuses.IN_PROGRESS
+            : examStatuses.PAUSED)
+          : null);
+
+      // 🔹 Normalizar estados que vienen como string desde el backend
+      if (serverStatus === "pausado") serverStatus = examStatuses.PAUSED;
+      if (serverStatus === "en_progreso") serverStatus = examStatuses.IN_PROGRESS;
+      if (serverStatus === "completado") serverStatus = examStatuses.COMPLETED;
+      if (serverStatus === "pendiente") serverStatus = examStatuses.WAITING;
+
       if (serverStatus === examStatuses.IN_PROGRESS) {
         setSocketTimeData((prev) => {
           const newTimeLeft = payload?.timeLeft ?? prev?.timeLeft ?? 0;
@@ -272,13 +287,17 @@ const ViewQuestionsAndAnswers = () => {
             started: true,
             timeLeft: newTimeLeft,
             timeFormatted: payload?.timeFormatted,
-            serverTime: payload?.serverTime ?? new Date().toLocaleTimeString("es-ES", { timeZone: "America/La_Paz" }),
+            serverTime:
+              payload?.serverTime ??
+              new Date().toLocaleTimeString("es-ES", {
+                timeZone: "America/La_Paz",
+              }),
             examStatus: examStatuses.IN_PROGRESS,
           };
         });
         return;
       }
-  
+
       if (serverStatus === examStatuses.PAUSED) {
         setSocketTimeData((prev) => ({
           ...prev,
@@ -287,27 +306,33 @@ const ViewQuestionsAndAnswers = () => {
         }));
         return;
       }
+
       if (serverStatus === examStatuses.COMPLETED || payload?.examCompleted) {
         setSocketTimeData((prev) => ({
           ...prev,
           started: false,
           timeLeft: 0,
           timeFormatted: "00:00:00",
-          serverTime: payload?.serverTime ?? new Date().toLocaleTimeString("es-ES", { timeZone: "America/La_Paz" }),
+          serverTime:
+            payload?.serverTime ??
+            new Date().toLocaleTimeString("es-ES", {
+              timeZone: "America/La_Paz",
+            }),
           examStatus: examStatuses.COMPLETED,
         }));
         if (!alreadyAnswered) handleSubmit(null, true);
         return;
       }
     });
-  
+
     return () => {
       socketClient.off("start");
       socketClient.off("msg");
       socketClient.disconnect();
     };
   }, [student.group, alreadyAnswered, questionsData]);
-  
+
+
   // Renderizado
   if (loading) return <LoadingComponent title={evaluationTitle} />;
   if (error) return <p className="text-danger">Error: {error}</p>;
