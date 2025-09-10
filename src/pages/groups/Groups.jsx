@@ -9,8 +9,8 @@ import { ModalViewStudents } from "./ModalViewStudents";
 import { useExamns } from "../../hooks/fetchExamns";
 import { getApi, postApi, updateApi } from "../../services/axiosServices/ApiService";
 import { customAlert } from "../../utils/domHelper";
-import { io } from "socket.io-client";
-const urlWebSocket = import.meta.env.VITE_URL_WEBSOCKET;
+import { VITE_URL_WEBSOCKET } from "../../utils/constants";
+
 export const Groups = () => {
     const navigate = useNavigate();
     const { id } = useParams();
@@ -21,7 +21,7 @@ export const Groups = () => {
     const [selectedGroupStudents, setSelectedGroupStudents] = useState([]);
     const [showStudentsModal, setShowStudentsModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
-
+    const URL_SOCKET = VITE_URL_WEBSOCKET
     // ✔️ Manejo seguro de assignedStudents
     const assignedStudents = useMemo(() => {
         if (!Array.isArray(groups) || groups.length === 0) return 0;
@@ -108,7 +108,7 @@ export const Groups = () => {
             };
             console.log("📤 Enviando a socket backend /emit/start-evaluation:", payload);
 
-            const socketResponse = await fetch("http://127.0.0.1:3000/emit/start-evaluation", {
+            const socketResponse = await fetch(`${URL_SOCKET}/emit/start-evaluation`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -156,7 +156,7 @@ export const Groups = () => {
             };
             console.log("📤 Enviando a socket backend /emit/pause-evaluation:", payload);
 
-            const socketResponse = await fetch("http://127.0.0.1:3000/emit/pause-evaluation", {
+            const socketResponse = await fetch(`${URL_SOCKET}/emit/pause-evaluation`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -201,7 +201,7 @@ export const Groups = () => {
             };
             console.log("📤 Enviando a socket backend /emit/continue-evaluation:", payload);
 
-            const socketResponse = await fetch("http://127.0.0.1:3000/emit/continue-evaluation", {
+            const socketResponse = await fetch(`${URL_SOCKET}/emit/continue-evaluation`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -244,7 +244,7 @@ export const Groups = () => {
             };
             console.log("📤 Enviando a socket backend /emit/stop-evaluation:", payload);
 
-            const socketResponse = await fetch("http://127.0.0.1:3000/emit/stop-evaluation", {
+            const socketResponse = await fetch(`${URL_SOCKET}/emit/stop-evaluation`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)

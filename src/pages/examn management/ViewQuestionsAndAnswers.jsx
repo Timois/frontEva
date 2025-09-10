@@ -13,8 +13,8 @@ import LoadingComponent from "./components/LoadingComponent";
 import ExamHeader from "./components/ExamHeader";
 import QuestionCard from "./components/QuestionCard";
 import SubmitSection from "./components/SubmitSection";
+import { VITE_URL_IMAGES, VITE_URL_WEBSOCKET } from "../../utils/constants";
 
-// Estados unificados (igual que en la BD)
 const examStatuses = {
   WAITING: "pendiente",
   IN_PROGRESS: "en_progreso",
@@ -30,21 +30,22 @@ const ViewQuestionsAndAnswers = () => {
   const [selectedAnswers, setSelectedAnswers] = useState({});
   const [alreadyAnswered, setAlreadyAnswered] = useState(false);
   const [finalScore, setFinalScore] = useState(null);
+  const [stoppedByTeacher, setStoppedByTeacher] = useState(false); // 🔹 nuevo
   const { getStudentTestById } = usFetchStudentTest();
   const student = JSON.parse(localStorage.getItem("user"));
   const ci = student?.ci || null;
   const [studentId, setStudentId] = useState(null);
   const [currentQuestionId, setCurrentQuestionId] = useState(null);
   const tiempoInicioRef = useRef(null);
-  const API_BASE_URL = import.meta.env.VITE_URL_IMAGES;
-
-  // Estado unificado del examen
+  //const API_BASE_URL = import.meta.env.VITE_URL_IMAGES;
+  const API_BASE_URL = VITE_URL_IMAGES
+  const URL_SOCKET = VITE_URL_WEBSOCKET
   const [socketTimeData, setSocketTimeData] = useState({
     started: false,
     timeLeft: null,
     timeFormatted: "00:00:00",
     serverTime: null,
-    examStatus: examStatuses.WAITING, // por defecto pendiente
+    examStatus: examStatuses.WAITING,
   });
 
   const registrarEnLocalStorage = (questionId, answerId, time) => {
@@ -72,7 +73,6 @@ const ViewQuestionsAndAnswers = () => {
   };
 
   const handleAnswerSelection = (questionId, answerId) => {
-    // Solo seleccionar si examen está en curso
     if (socketTimeData.examStatus !== examStatuses.IN_PROGRESS) return;
 
     const ahora = Date.now();
@@ -156,7 +156,7 @@ const ViewQuestionsAndAnswers = () => {
     }
   };
 
-  // Cargar datos iniciales
+  // Datos iniciales
   useEffect(() => {
     let isMounted = true;
     loadInitialExamData(isMounted);
@@ -225,8 +225,7 @@ const ViewQuestionsAndAnswers = () => {
     }
   };
 
-  // Conectar socket y escuchar eventos
-  // Conectar socket y escuchar eventos
+  // Socket
   useEffect(() => {
     if (questionsData?.student_test_id) {
       localStorage.setItem("student_test_id", questionsData.student_test_id);
@@ -234,7 +233,7 @@ const ViewQuestionsAndAnswers = () => {
 
     const token = localStorage.getItem("jwt_token");
 
-    const socketClient = io("http://127.0.0.1:3000", {
+    const socketClient = io(URL_SOCKET, {
       transports: ["websocket"],
       query: { token },
     });
@@ -246,7 +245,6 @@ const ViewQuestionsAndAnswers = () => {
       });
     });
 
-    // Si el backend emite un "start" con duration
     socketClient.on("start", (payload) => {
       const duration = payload?.duration ?? payload?.time ?? 0;
       setSocketTimeData((prev) => ({
@@ -263,38 +261,33 @@ const ViewQuestionsAndAnswers = () => {
       }));
     });
 
-    // Evento principal: backend envía { examStatus, timeLeft, timeFormatted, serverTime, examCompleted? }
-    socketClient.on("msg", (payload) => {
+    socketClient.on("msg", async (payload) => {
       let serverStatus =
         payload?.examStatus ??
         (payload?.isStarted !== undefined
           ? (payload.isStarted
-            ? examStatuses.IN_PROGRESS
-            : examStatuses.PAUSED)
+              ? examStatuses.IN_PROGRESS
+              : examStatuses.PAUSED)
           : null);
 
-      // 🔹 Normalizar estados que vienen como string desde el backend
       if (serverStatus === "pausado") serverStatus = examStatuses.PAUSED;
       if (serverStatus === "en_progreso") serverStatus = examStatuses.IN_PROGRESS;
       if (serverStatus === "completado") serverStatus = examStatuses.COMPLETED;
       if (serverStatus === "pendiente") serverStatus = examStatuses.WAITING;
 
       if (serverStatus === examStatuses.IN_PROGRESS) {
-        setSocketTimeData((prev) => {
-          const newTimeLeft = payload?.timeLeft ?? prev?.timeLeft ?? 0;
-          return {
-            ...prev,
-            started: true,
-            timeLeft: newTimeLeft,
-            timeFormatted: payload?.timeFormatted,
-            serverTime:
-              payload?.serverTime ??
-              new Date().toLocaleTimeString("es-ES", {
-                timeZone: "America/La_Paz",
-              }),
-            examStatus: examStatuses.IN_PROGRESS,
-          };
-        });
+        setSocketTimeData((prev) => ({
+          ...prev,
+          started: true,
+          timeLeft: payload?.timeLeft ?? prev?.timeLeft ?? 0,
+          timeFormatted: payload?.timeFormatted,
+          serverTime:
+            payload?.serverTime ??
+            new Date().toLocaleTimeString("es-ES", {
+              timeZone: "America/La_Paz",
+            }),
+          examStatus: examStatuses.IN_PROGRESS,
+        }));
         return;
       }
 
@@ -320,7 +313,14 @@ const ViewQuestionsAndAnswers = () => {
             }),
           examStatus: examStatuses.COMPLETED,
         }));
-        if (!alreadyAnswered) handleSubmit(null, true);
+
+        if (!alreadyAnswered) {
+          await handleSubmit(null, true);
+        }
+
+        if (payload?.reason === "stopped") {
+          setStoppedByTeacher(true); // 🔹 marcar que lo detuvo el docente
+        }
         return;
       }
     });
@@ -332,8 +332,7 @@ const ViewQuestionsAndAnswers = () => {
     };
   }, [student.group, alreadyAnswered, questionsData]);
 
-
-  // Renderizado
+  // Render
   if (loading) return <LoadingComponent title={evaluationTitle} />;
   if (error) return <p className="text-danger">Error: {error}</p>;
 
@@ -341,13 +340,24 @@ const ViewQuestionsAndAnswers = () => {
     return (
       <div className="container mt-4">
         <div className="alert alert-info text-center">
-          <h4>Ya has respondido esta evaluación.</h4>
-          {finalScore !== null ? (
-            <p>
-              Tu nota final es: <strong>{finalScore}</strong>
-            </p>
+          {stoppedByTeacher ? (
+            <>
+              <h4>El docente ha detenido el examen.</h4>
+              <p>
+                Tu nota final es: <strong>{finalScore}</strong>
+              </p>
+            </>
           ) : (
-            <p>No puedes volver a enviar tus respuestas.</p>
+            <>
+              <h4>Ya has respondido esta evaluación.</h4>
+              {finalScore !== null ? (
+                <p>
+                  Tu nota final es: <strong>{finalScore}</strong>
+                </p>
+              ) : (
+                <p>No puedes volver a enviar tus respuestas.</p>
+              )}
+            </>
           )}
         </div>
         <Link to={`${studentId}/compareAnswers`} className="btn btn-primary">
@@ -360,7 +370,6 @@ const ViewQuestionsAndAnswers = () => {
   if (!questionsData?.questions)
     return <LoadingComponent title={evaluationTitle} />;
 
-  // Estado esperando inicio
   if (socketTimeData.examStatus === examStatuses.WAITING) {
     return (
       <div className="container mt-4 text-center">
@@ -370,7 +379,6 @@ const ViewQuestionsAndAnswers = () => {
     );
   }
 
-  // Estado pausado
   if (socketTimeData.examStatus === examStatuses.PAUSED) {
     return (
       <div className="container mt-4 text-center">

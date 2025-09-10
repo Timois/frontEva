@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom'; 
 import { getApi } from '../../services/axiosServices/ApiService';
 import { useStudentTest } from '../../hooks/fetchStudentTest';
+import { VITE_URL_IMAGES } from '../../utils/constants';
 
 const ViewQuestionsForStudent = () => {
   const { id: studentTestId } = useParams(); 
@@ -13,7 +14,8 @@ const ViewQuestionsForStudent = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { fetchQuestionsByStudentTest } = useStudentTest();
-
+  //const API_BASE_URL = import.meta.env.VITE_URL_IMAGES;
+  const API_BASE_URL = VITE_URL_IMAGES
   useEffect(() => {
     const fetchAllData = async () => {
       try {
@@ -44,9 +46,7 @@ const ViewQuestionsForStudent = () => {
   if (!questionsData || !questionsData.questions) {
     return <p>No se encontraron preguntas para esta prueba.</p>;
   }
-
-  const API_BASE_URL = import.meta.env.VITE_URL_IMAGES;
-
+  
   return (
     <div className="container mt-4">
       <div className="card mb-4">

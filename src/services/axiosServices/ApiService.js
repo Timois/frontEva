@@ -1,8 +1,10 @@
 import axios from "axios";
 import { getToken } from "../storage/storageUser";
 import { clearStorage, clearStorageStudent } from "../storage/clearStorage";
+import { VITE_API_ENDPOINT } from "../../utils/constants";
 
-const path = import.meta.env.VITE_API_ENDPOINT;
+//const path = import.meta.env.VITE_API_ENDPOINT;
+const path = VITE_API_ENDPOINT
 
 // Variable para controlar redirecciones
 let isRedirecting = false;

@@ -1,19 +1,20 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { QuestionContext } from "../../../context/QuestionsProvider";
 import { useFetchQuestionsByArea } from "../../../hooks/fetchQuestions";
 import ButtonEdit from "./ButtonEdit";
 import { ModalEdit } from "./ModalEdit";
 import CheckPermissions from "../../../routes/CheckPermissions";
-import { useFetchArea, useFetchAreaById } from "../../../hooks/fetchAreas";
+import { useFetchAreaById } from "../../../hooks/fetchAreas";
 import ButtonViewAnswers from "./ButtonViewAnswers";
 import ReactPaginate from "react-paginate";
 import { MdAddPhotoAlternate, MdArrowBack } from "react-icons/md";
 import { FaChevronLeft, FaChevronRight, FaQuestionCircle } from "react-icons/fa";
+import { VITE_URL_IMAGES } from "../../../utils/constants";
 
-const urlimages = import.meta.env.VITE_URL_IMAGES;
+// const urlimages = import.meta.env.VITE_URL_IMAGES;
+const urlimages = VITE_URL_IMAGES
 
 export const Question = () => {
     const { id } = useParams();

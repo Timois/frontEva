@@ -1,8 +1,10 @@
 import axios from "axios";
 import { savePermissions, saveRolesPermissions, saveToken, saveUser } from "../storage/storageUser"; // Importa saveToken en lugar de saveCredentials
 import { saveStudent, saveTokenStudent, savePermissionsStudent } from "../storage/storageStudent";
+import { VITE_AUTH_ENDPOINT } from "../../utils/constants";
 
-const path = import.meta.env.VITE_AUTH_ENDPOINT; // Endpoint del backend
+// const path = import.meta.env.VITE_AUTH_ENDPOINT; // Endpoint del backend
+const path = VITE_AUTH_ENDPOINT; // Endpoint del backend
 
 export const loginSystem = async (values) => {
     try {

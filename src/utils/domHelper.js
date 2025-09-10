@@ -30,7 +30,7 @@ export const closeFormModal = (id) => {
  * @param {string} [type='success'] - The type of alert (e.g., 'success', 'error', 'warning', 'info', 'question').
  * @param {string} [position='top-end'] - The position of the alert on the screen (e.g., 'top', 'top-start', 'top-end', 'center', 'center-start', 'center-end', 'bottom', 'bottom-start', 'bottom-end').
  */
-export const customAlert = (message, type = 'success', position = 'center-end') => {
+export const customAlert = (message, type = 'success') => {
     Swal.fire({
         timer: 3000,
         showConfirmButton: false,
