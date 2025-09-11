@@ -45,7 +45,7 @@ export const FileUpload = () => {
 
   const { careerAssignments, getDataCareerAssignments } = useFetchCareerAssign()
   const { careerAssignmentsPeriods, getDataCareerAssignmentPeriods } = useFetchCareerAssignPeriod()
- 
+  
   const academic_management_career_id = careerAssignments?.[0]?.academic_management_career_id;
   useEffect(() => {
     if (career_id) {
@@ -62,12 +62,13 @@ export const FileUpload = () => {
   useEffect(() => {
     if (careerAssignmentsPeriods.length > 0) {
       const periodOptions = careerAssignmentsPeriods.map(period => ({
-        value: academic_management_period_id,
+        value: period.academic_management_period_id, // 🔹 usar el id correcto
         text: `${period.period}`
       }));
       setArray(periodOptions);
     }
   }, [careerAssignmentsPeriods]);
+  
   const importOption = watch("importOption");
 
   /* ============== SUBMIT ============== */
@@ -229,7 +230,7 @@ export const FileUpload = () => {
         )}
       </ContainerInput>
       <ContainerInput>
-        <SelectInput label="Seleccione el periodo" name="academic_management_period_id" options={array} control={control} error={errors.academic_management_period_id} />
+        <SelectInput label="Seleccione el periodo" name="academic_management_period_id" options={array} control={control} />
         <Validate error={errors.academic_management_period_id} />
       </ContainerInput>
       <ContainerButton>

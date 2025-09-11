@@ -141,7 +141,7 @@ const ViewQuestionsAndAnswers = () => {
       };
 
       const response = await postApi("student_answers/save", payload);
-
+      
       setFinalScore(Math.floor(response.total_score));
       setAlreadyAnswered(true);
 

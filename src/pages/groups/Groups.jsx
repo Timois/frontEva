@@ -10,6 +10,7 @@ import { useExamns } from "../../hooks/fetchExamns";
 import { getApi, postApi, updateApi } from "../../services/axiosServices/ApiService";
 import { customAlert } from "../../utils/domHelper";
 import { VITE_URL_WEBSOCKET } from "../../utils/constants";
+import ResultsByGroup from "./ResultsByGroup";
 
 export const Groups = () => {
     const navigate = useNavigate();
@@ -21,6 +22,7 @@ export const Groups = () => {
     const [selectedGroupStudents, setSelectedGroupStudents] = useState([]);
     const [showStudentsModal, setShowStudentsModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
+    const [showResults, setShowResults] = useState(false);
     const URL_SOCKET = VITE_URL_WEBSOCKET
     // ✔️ Manejo seguro de assignedStudents
     const assignedStudents = useMemo(() => {
@@ -262,6 +264,10 @@ export const Groups = () => {
             customAlert(error.response?.data?.message || "No se pudo reanudar el grupo", "error");
         }
     }
+    const handleViewResults = (group) => {
+        setSelectedGroup(group);
+        setShowResults(true);
+    };
     const idEditar = "editGroup";
 
     const examDate = examn?.date_of_realization;
@@ -367,6 +373,12 @@ export const Groups = () => {
                                                 >
                                                     Detener examen
                                                 </button>
+                                                <button
+                                                    className="btn btn-sm btn-outline-info"
+                                                    onClick={() => handleViewResults(group)}
+                                                >
+                                                    Ver resultados
+                                                </button>
                                             </td>
                                         </tr>
                                     );
@@ -385,7 +397,11 @@ export const Groups = () => {
                     </table>
                 </div>
             </div>
-
+            <ResultsByGroup
+                group={selectedGroup}
+                show={showResults}
+                onClose={() => setShowResults(false)}
+            />
             <ModalEdit
                 idEditar={idEditar}
                 data={selectedGroup}
