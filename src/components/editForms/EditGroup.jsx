@@ -36,7 +36,7 @@ export const EditGroup = ({ data }) => {
     } = useForm({
         resolver: zodResolver(GroupSchema(isEdit)),
     });
-    
+    console.log(errors)
     const { labs, getDataLabs } = fetchLabs();
     
     useEffect(() => {

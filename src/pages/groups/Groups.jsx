@@ -371,7 +371,7 @@ export const Groups = () => {
                                                     className="btn btn-sm btn-outline-danger"
                                                     onClick={() => handleStopGroup(group)}
                                                 >
-                                                    Detener examen
+                                                    Terminar examen
                                                 </button>
                                                 <button
                                                     className="btn btn-sm btn-outline-info"

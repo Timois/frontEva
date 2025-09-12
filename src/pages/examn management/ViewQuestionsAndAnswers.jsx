@@ -14,6 +14,7 @@ import ExamHeader from "./components/ExamHeader";
 import QuestionCard from "./components/QuestionCard";
 import SubmitSection from "./components/SubmitSection";
 import { VITE_URL_IMAGES, VITE_URL_WEBSOCKET } from "../../utils/constants";
+import { customAlert } from "../../utils/domHelper";
 
 const examStatuses = {
   WAITING: "pendiente",
@@ -23,6 +24,7 @@ const examStatuses = {
 };
 
 const ViewQuestionsAndAnswers = () => {
+  const socketRef = useRef(null);
   const [questionsData, setQuestionsData] = useState(null);
   const [evaluationTitle, setEvaluationTitle] = useState("");
   const [loading, setLoading] = useState(true);
@@ -40,6 +42,7 @@ const ViewQuestionsAndAnswers = () => {
   //const API_BASE_URL = import.meta.env.VITE_URL_IMAGES;
   const API_BASE_URL = VITE_URL_IMAGES
   const URL_SOCKET = VITE_URL_WEBSOCKET
+
   const [socketTimeData, setSocketTimeData] = useState({
     started: false,
     timeLeft: null,
@@ -141,7 +144,7 @@ const ViewQuestionsAndAnswers = () => {
       };
 
       const response = await postApi("student_answers/save", payload);
-      
+
       setFinalScore(Math.floor(response.total_score));
       setAlreadyAnswered(true);
 
@@ -224,28 +227,45 @@ const ViewQuestionsAndAnswers = () => {
       if (isMounted) setLoading(false);
     }
   };
-
   // Socket
   useEffect(() => {
-    if (questionsData?.student_test_id) {
-      localStorage.setItem("student_test_id", questionsData.student_test_id);
-    }
+    if (!questionsData?.student_test_id) return;
+
+    localStorage.setItem("student_test_id", questionsData.student_test_id);
 
     const token = localStorage.getItem("jwt_token");
 
-    const socketClient = io(URL_SOCKET, {
-      transports: ["websocket"],
-      query: { token },
-    });
+    // Solo inicializar si aún no existe
+    if (!socketRef.current) {
+      socketRef.current = io(URL_SOCKET, {
+        transports: ["websocket"],
+        query: { token },
+      });
+    }
 
-    socketClient.on("connect", () => {
-      socketClient.emit("join", {
+    const socket = socketRef.current;
+
+    socket.on("connect", () => {
+      console.log("✅ Conectado al socket:", socket.id);
+      socket.emit("join", {
         roomId: student.group.toString(),
         role: "student",
       });
     });
+    socket.on("connect_error", (err) => {
+      console.warn("❌ Error de conexión con el socket:", err.message);
+      customAlert("No se pudo conectar al servidor de examen", "error");
+    });
+  
+    socket.on("disconnect", (reason) => {
+      console.log("⚠️ Socket desconectado:", reason);
+    });
 
-    socketClient.on("start", (payload) => {
+    socket.on("disconnect", (reason) => {
+      console.log("❌ Desconectado del socket:", reason);
+    });
+
+    socket.on("start", (payload) => {
       const duration = payload?.duration ?? payload?.time ?? 0;
       setSocketTimeData((prev) => ({
         ...prev,
@@ -261,13 +281,13 @@ const ViewQuestionsAndAnswers = () => {
       }));
     });
 
-    socketClient.on("msg", async (payload) => {
+    socket.on("msg", async (payload) => {
       let serverStatus =
         payload?.examStatus ??
         (payload?.isStarted !== undefined
           ? (payload.isStarted
-              ? examStatuses.IN_PROGRESS
-              : examStatuses.PAUSED)
+            ? examStatuses.IN_PROGRESS
+            : examStatuses.PAUSED)
           : null);
 
       if (serverStatus === "pausado") serverStatus = examStatuses.PAUSED;
@@ -319,16 +339,23 @@ const ViewQuestionsAndAnswers = () => {
         }
 
         if (payload?.reason === "stopped") {
-          setStoppedByTeacher(true); // 🔹 marcar que lo detuvo el docente
+          setStoppedByTeacher(true);
         }
         return;
       }
     });
 
+    // Limpieza al desmontar o cuando cambien dependencias
     return () => {
-      socketClient.off("start");
-      socketClient.off("msg");
-      socketClient.disconnect();
+      if (socketRef.current) {
+        console.log("🔌 Cerrando conexión y limpiando listeners");
+        socket.off("start");
+        socket.off("msg");
+        socket.off("connect");
+        socket.off("disconnect");
+        socket.disconnect();
+        socketRef.current = null; // liberar referencia
+      }
     };
   }, [student.group, alreadyAnswered, questionsData]);
 
