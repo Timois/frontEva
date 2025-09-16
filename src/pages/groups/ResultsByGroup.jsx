@@ -5,7 +5,7 @@ import { getApi } from "../../services/axiosServices/ApiService";
 const ResultsByGroup = ({ group, show, onClose }) => {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
-
+  const [message, setMessage] = useState("");
   useEffect(() => {
     if (show && group) {
       fetchResults();
@@ -16,14 +16,20 @@ const ResultsByGroup = ({ group, show, onClose }) => {
     setLoading(true);
     try {
       const response = await getApi(`groups/resultsGroup/${group.id}`);
-      setResults(response.data.students_results || []);
+      if (response.students_results) {
+        setResults(response.students_results);
+        setMessage(""); // limpiar mensaje
+      } else if (response.message) {
+        setResults([]);
+        setMessage(response.message); // guardar el mensaje del backend
+      }
     } catch (error) {
       console.error("Error cargando resultados:", error);
+      setMessage("Ocurrió un error al cargar los resultados");
     } finally {
       setLoading(false);
     }
   };
-
   return (
     <div
       className={`modal fade ${show ? "show d-block" : ""}`}
@@ -35,7 +41,7 @@ const ResultsByGroup = ({ group, show, onClose }) => {
         <div className="modal-content">
           <div className="modal-header">
             <h5 className="modal-title">
-              Resultados del Grupo: {group?.name}
+              Resultados del {group?.name}
             </h5>
             <button
               type="button"
@@ -47,9 +53,7 @@ const ResultsByGroup = ({ group, show, onClose }) => {
           <div className="modal-body">
             {loading ? (
               <p>Cargando resultados...</p>
-            ) : results.length === 0 ? (
-              <p>No hay resultados registrados para este grupo.</p>
-            ) : (
+            ) : results.length > 0 ? (
               <div className="table-responsive">
                 <table className="table table-striped table-bordered table-hover">
                   <thead>
@@ -59,21 +63,27 @@ const ResultsByGroup = ({ group, show, onClose }) => {
                       <th>CI</th>
                       <th>Nota</th>
                       <th>Duración</th>
+                      <th>Estado</th>
                     </tr>
                   </thead>
                   <tbody>
                     {results.map((res, index) => (
                       <tr key={index}>
                         <td>{index + 1}</td>
-                        <td>{res.student_name}</td>
+                        <td className="text-capitalize">
+                          {res.student_name}
+                        </td>
                         <td>{res.student_ci}</td>
                         <td>{res.score_obtained}</td>
                         <td>{res.exam_duration}</td>
+                        <td>{res.status}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
+            ) : (
+              <p>{message || "No hay resultados registrados en el grupo."}</p>
             )}
           </div>
 

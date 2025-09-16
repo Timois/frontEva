@@ -2,7 +2,6 @@
 import { useEffect, useState, useRef } from "react";
 import { getApi, postApi } from "../../services/axiosServices/ApiService";
 import { usFetchStudentTest } from "../../hooks/fetchStudent";
-import { Link } from "react-router-dom";
 import {
   removeExamLogsByTestCode,
   removeStudentTestId,
@@ -15,6 +14,7 @@ import QuestionCard from "./components/QuestionCard";
 import SubmitSection from "./components/SubmitSection";
 import { VITE_URL_IMAGES, VITE_URL_WEBSOCKET } from "../../utils/constants";
 import { customAlert } from "../../utils/domHelper";
+import ExamStatusMessage from "./components/ExamStatusMessage";
 
 const examStatuses = {
   WAITING: "pendiente",
@@ -34,6 +34,7 @@ const ViewQuestionsAndAnswers = () => {
   const [finalScore, setFinalScore] = useState(null);
   const [stoppedByTeacher, setStoppedByTeacher] = useState(false); // 🔹 nuevo
   const { getStudentTestById } = usFetchStudentTest();
+  const [closedByGroup, setClosedByGroup] = useState(false);
   const student = JSON.parse(localStorage.getItem("user"));
   const ci = student?.ci || null;
   const [studentId, setStudentId] = useState(null);
@@ -177,6 +178,16 @@ const ViewQuestionsAndAnswers = () => {
 
       const response = await getStudentTestById(fetchedStudentId);
       if (!isMounted) return;
+
+      // 🔹 Aquí validamos si el backend devolvió examCompleted
+      if (response?.examCompleted) {
+        setAlreadyAnswered(true);
+        setClosedByGroup(true); // 🔹 cerró porque el grupo terminó
+        setQuestionsData(response);
+        setLoading(false);
+        return;
+      }
+
       setQuestionsData(response);
       localStorage.setItem("test_code", response.test_code);
 
@@ -191,29 +202,7 @@ const ViewQuestionsAndAnswers = () => {
       );
       if (!isMounted) return;
 
-      const key = `exam_logs_${response.test_code}`;
-      const savedLogs = JSON.parse(localStorage.getItem(key)) || [];
-      let savedAnswers = {};
-
-      if (savedLogs.length > 0) {
-        savedLogs.forEach((log) => {
-          savedAnswers[log.question_id] = log.answer_id;
-        });
-      } else {
-        try {
-          const logsBackend = await getApi(
-            `logs_answers/list/${response.student_test_id}`
-          );
-          logsBackend.forEach((log) => {
-            savedAnswers[log.question_id] = log.answer_id;
-          });
-          localStorage.setItem(key, JSON.stringify(logsBackend));
-        } catch {
-          console.error("Error al obtener logs desde el backend");
-        }
-      }
-      setSelectedAnswers(savedAnswers);
-
+      // ...
       if (answeredResp?.answered) {
         setAlreadyAnswered(true);
         setFinalScore(Math.round(answeredResp.score));
@@ -256,7 +245,7 @@ const ViewQuestionsAndAnswers = () => {
       console.warn("❌ Error de conexión con el socket:", err.message);
       customAlert("No se pudo conectar al servidor de examen", "error");
     });
-  
+
     socket.on("disconnect", (reason) => {
       console.log("⚠️ Socket desconectado:", reason);
     });
@@ -365,32 +354,12 @@ const ViewQuestionsAndAnswers = () => {
 
   if (alreadyAnswered) {
     return (
-      <div className="container mt-4">
-        <div className="alert alert-info text-center">
-          {stoppedByTeacher ? (
-            <>
-              <h4>El docente ha detenido el examen.</h4>
-              <p>
-                Tu nota final es: <strong>{finalScore}</strong>
-              </p>
-            </>
-          ) : (
-            <>
-              <h4>Ya has respondido esta evaluación.</h4>
-              {finalScore !== null ? (
-                <p>
-                  Tu nota final es: <strong>{finalScore}</strong>
-                </p>
-              ) : (
-                <p>No puedes volver a enviar tus respuestas.</p>
-              )}
-            </>
-          )}
-        </div>
-        <Link to={`${studentId}/compareAnswers`} className="btn btn-primary">
-          Comparar Respuestas
-        </Link>
-      </div>
+      <ExamStatusMessage
+        closedByGroup={closedByGroup}
+        stoppedByTeacher={stoppedByTeacher}
+        finalScore={finalScore}
+        studentId={studentId}
+      />
     );
   }
 
