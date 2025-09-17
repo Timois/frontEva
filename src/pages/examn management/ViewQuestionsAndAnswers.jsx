@@ -32,17 +32,14 @@ const ViewQuestionsAndAnswers = () => {
   const [selectedAnswers, setSelectedAnswers] = useState({});
   const [alreadyAnswered, setAlreadyAnswered] = useState(false);
   const [finalScore, setFinalScore] = useState(null);
-  const [stoppedByTeacher, setStoppedByTeacher] = useState(false); // 🔹 nuevo
+  const [stoppedByTeacher, setStoppedByTeacher] = useState(false);
   const { getStudentTestById } = usFetchStudentTest();
   const [closedByGroup, setClosedByGroup] = useState(false);
   const student = JSON.parse(localStorage.getItem("user"));
   const ci = student?.ci || null;
-  const [studentId, setStudentId] = useState(null);
-  const [currentQuestionId, setCurrentQuestionId] = useState(null);
   const tiempoInicioRef = useRef(null);
-  //const API_BASE_URL = import.meta.env.VITE_URL_IMAGES;
-  const API_BASE_URL = VITE_URL_IMAGES
-  const URL_SOCKET = VITE_URL_WEBSOCKET
+  const API_BASE_URL = VITE_URL_IMAGES;
+  const URL_SOCKET = VITE_URL_WEBSOCKET;
 
   const [socketTimeData, setSocketTimeData] = useState({
     started: false,
@@ -52,98 +49,70 @@ const ViewQuestionsAndAnswers = () => {
     examStatus: examStatuses.WAITING,
   });
 
+  // Registrar respuesta en localStorage
   const registrarEnLocalStorage = (questionId, answerId, time) => {
     const key = `exam_logs_${localStorage.getItem("test_code")}`;
     const currentLogs = JSON.parse(localStorage.getItem(key)) || [];
-    const updatedLogs = currentLogs.filter(
-      (log) => log.question_id !== questionId
-    );
+    const updatedLogs = currentLogs.filter((log) => log.question_id !== questionId);
     updatedLogs.push({ question_id: questionId, answer_id: answerId, time });
     localStorage.setItem(key, JSON.stringify(updatedLogs));
   };
 
-  const guardarEnBackend = async (questionId, answerId, time) => {
+  // Sincronizar todas las respuestas al backend
+  const syncAnswersToBackend = async () => {
     if (!questionsData?.student_test_id) return;
+    const key = `exam_logs_${localStorage.getItem("test_code")}`;
+    const logs = JSON.parse(localStorage.getItem(key)) || [];
+    const logsToSync = logs.filter((log) => log.answer_id !== null);
+    if (logsToSync.length === 0) return;
+
     try {
-      await postApi("logs_answers/save", {
-        student_test_id: questionsData.student_test_id,
-        question_id: questionId,
-        answer_id: answerId,
-        time,
+      await postApi("logs_answers/bulkSave", {
+        student_test_id: Number(questionsData.student_test_id), // 🔹 aquí
+        logs: logsToSync,
       });
+      console.log("✅ Respuestas sincronizadas con el backend");
     } catch (err) {
-      console.error("Error al guardar en backend:", err);
+      console.error("❌ Error al sincronizar respuestas:", err);
     }
   };
 
+
   const handleAnswerSelection = (questionId, answerId) => {
     if (socketTimeData.examStatus !== examStatuses.IN_PROGRESS) return;
-
     const ahora = Date.now();
-    const tiempoFormateado = new Date(ahora).toLocaleTimeString("es-ES", {
-      hour12: false,
-    });
-
+    const tiempoFormateado = new Date(ahora).toLocaleTimeString("es-ES", { hour12: false });
     registrarEnLocalStorage(questionId, answerId, tiempoFormateado);
-
-    if (currentQuestionId && currentQuestionId !== questionId) {
-      const ultimaRespuesta = selectedAnswers[currentQuestionId];
-      if (ultimaRespuesta) {
-        const tiempoUltimaRespuesta = new Date(
-          tiempoInicioRef.current
-        ).toLocaleTimeString("es-ES", { hour12: false });
-        guardarEnBackend(
-          currentQuestionId,
-          ultimaRespuesta,
-          tiempoUltimaRespuesta
-        );
-      }
-    }
-
     setSelectedAnswers((prev) => ({ ...prev, [questionId]: answerId }));
-    setCurrentQuestionId(questionId);
     tiempoInicioRef.current = ahora;
   };
 
   const handleSubmit = async (e, isAutoSubmit = false) => {
     if (e) e.preventDefault();
-    if (currentQuestionId && selectedAnswers[currentQuestionId]) {
-      const tiempoFormateado = new Date(
-        tiempoInicioRef.current
-      ).toLocaleTimeString("es-ES", { hour12: false });
-      await guardarEnBackend(
-        currentQuestionId,
-        selectedAnswers[currentQuestionId],
-        tiempoFormateado
-      );
-    }
 
     try {
       setLoading(true);
 
-      let answersArray = [];
+      // Asegurarse de sincronizar todos los logs antes de enviar
+      await syncAnswersToBackend();
 
+      let answersArray = [];
       if (isAutoSubmit) {
         const savedLogs = `exam_logs_${localStorage.getItem("test_code")}`;
         const logs = JSON.parse(localStorage.getItem(savedLogs)) || [];
-        answersArray = logs.map((log) => ({
-          question_id: log.question_id,
-          answer_id: log.answer_id,
-        }));
+        answersArray = logs.map((log) => ({ question_id: log.question_id, answer_id: log.answer_id }));
       } else {
-        answersArray = Object.entries(selectedAnswers).map(
-          ([question_id, answer_id]) => ({
-            question_id: Number(question_id),
-            answer_id,
-          })
-        );
+        answersArray = Object.entries(selectedAnswers).map(([question_id, answer_id]) => ({
+          question_id: Number(question_id),
+          answer_id,
+        }));
       }
-
+     
       const payload = {
         student_test_id: parseInt(localStorage.getItem("student_test_id")),
         answers: answersArray,
       };
-
+      console.log(parseInt(localStorage.getItem("student_test_id")))
       const response = await postApi("student_answers/save", payload);
 
       setFinalScore(Math.floor(response.total_score));
@@ -164,9 +133,7 @@ const ViewQuestionsAndAnswers = () => {
   useEffect(() => {
     let isMounted = true;
     loadInitialExamData(isMounted);
-    return () => {
-      isMounted = false;
-    };
+    return () => { isMounted = false; };
   }, []);
 
   const loadInitialExamData = async (isMounted) => {
@@ -174,15 +141,12 @@ const ViewQuestionsAndAnswers = () => {
     try {
       const fetchedStudentId = await getApi(`student_evaluations/list/${ci}`);
       if (!isMounted) return;
-      setStudentId(fetchedStudentId);
-
       const response = await getStudentTestById(fetchedStudentId);
       if (!isMounted) return;
-
-      // 🔹 Aquí validamos si el backend devolvió examCompleted
+      localStorage.setItem("student_test_id", response.student_test_id);
       if (response?.examCompleted) {
         setAlreadyAnswered(true);
-        setClosedByGroup(true); // 🔹 cerró porque el grupo terminó
+        setClosedByGroup(true);
         setQuestionsData(response);
         setLoading(false);
         return;
@@ -191,18 +155,13 @@ const ViewQuestionsAndAnswers = () => {
       setQuestionsData(response);
       localStorage.setItem("test_code", response.test_code);
 
-      const evaluation = await getApi(
-        `student_evaluations/find/${response.evaluation_id}`
-      );
+      const evaluation = await getApi(`student_evaluations/find/${response.evaluation_id}`);
       if (!isMounted) return;
       setEvaluationTitle(evaluation.title);
 
-      const answeredResp = await getApi(
-        `student_answers/list/${response.student_test_id}`
-      );
+      const answeredResp = await getApi(`student_answers/list/${response.student_test_id}`);
       if (!isMounted) return;
 
-      // ...
       if (answeredResp?.answered) {
         setAlreadyAnswered(true);
         setFinalScore(Math.round(answeredResp.score));
@@ -210,179 +169,107 @@ const ViewQuestionsAndAnswers = () => {
 
       setLoading(false);
     } catch (err) {
-      if (isMounted)
-        setError(err?.response?.data?.message || "Error al cargar datos");
+      if (isMounted) setError(err?.response?.data?.message || "Error al cargar datos");
     } finally {
       if (isMounted) setLoading(false);
     }
   };
+
   // Socket
   useEffect(() => {
     if (!questionsData?.student_test_id) return;
-
-    localStorage.setItem("student_test_id", questionsData.student_test_id);
-
     const token = localStorage.getItem("jwt_token");
 
-    // Solo inicializar si aún no existe
     if (!socketRef.current) {
-      socketRef.current = io(URL_SOCKET, {
-        transports: ["websocket"],
-        query: { token },
-      });
+      socketRef.current = io(URL_SOCKET, { transports: ["websocket"], query: { token } });
     }
-
     const socket = socketRef.current;
 
     socket.on("connect", () => {
-      console.log("✅ Conectado al socket:", socket.id);
-      socket.emit("join", {
-        roomId: student.group.toString(),
-        role: "student",
-      });
+      socket.emit("join", { roomId: student.group.toString(), role: "student" });
     });
+
     socket.on("connect_error", (err) => {
-      console.warn("❌ Error de conexión con el socket:", err.message);
-      customAlert("No se pudo conectar al servidor de examen", "error");
-    });
-
-    socket.on("disconnect", (reason) => {
-      console.log("⚠️ Socket desconectado:", reason);
-    });
-
-    socket.on("disconnect", (reason) => {
-      console.log("❌ Desconectado del socket:", reason);
+      customAlert(err || "No se pudo conectar al servidor de examen", "error");
     });
 
     socket.on("start", (payload) => {
       const duration = payload?.duration ?? payload?.time ?? 0;
-      setSocketTimeData((prev) => ({
-        ...prev,
+      setSocketTimeData({
         started: true,
         timeLeft: duration,
         timeFormatted: payload?.timeFormatted,
-        serverTime:
-          payload?.serverTime ??
-          new Date().toLocaleTimeString("es-ES", {
-            timeZone: "America/La_Paz",
-          }),
+        serverTime: payload?.serverTime ?? new Date().toLocaleTimeString("es-ES", { timeZone: "America/La_Paz" }),
         examStatus: examStatuses.IN_PROGRESS,
-      }));
+      });
     });
 
     socket.on("msg", async (payload) => {
-      let serverStatus =
-        payload?.examStatus ??
-        (payload?.isStarted !== undefined
-          ? (payload.isStarted
-            ? examStatuses.IN_PROGRESS
-            : examStatuses.PAUSED)
-          : null);
-
-      if (serverStatus === "pausado") serverStatus = examStatuses.PAUSED;
-      if (serverStatus === "en_progreso") serverStatus = examStatuses.IN_PROGRESS;
-      if (serverStatus === "completado") serverStatus = examStatuses.COMPLETED;
-      if (serverStatus === "pendiente") serverStatus = examStatuses.WAITING;
-
-      if (serverStatus === examStatuses.IN_PROGRESS) {
-        setSocketTimeData((prev) => ({
-          ...prev,
-          started: true,
-          timeLeft: payload?.timeLeft ?? prev?.timeLeft ?? 0,
-          timeFormatted: payload?.timeFormatted,
-          serverTime:
-            payload?.serverTime ??
-            new Date().toLocaleTimeString("es-ES", {
-              timeZone: "America/La_Paz",
-            }),
-          examStatus: examStatuses.IN_PROGRESS,
-        }));
-        return;
-      }
-
-      if (serverStatus === examStatuses.PAUSED) {
-        setSocketTimeData((prev) => ({
-          ...prev,
-          started: false,
-          examStatus: examStatuses.PAUSED,
-        }));
-        return;
-      }
-
+      let serverStatus = payload?.examStatus ?? (payload?.isStarted ? examStatuses.IN_PROGRESS : examStatuses.PAUSED);
       if (serverStatus === examStatuses.COMPLETED || payload?.examCompleted) {
-        setSocketTimeData((prev) => ({
-          ...prev,
+        setSocketTimeData({
           started: false,
           timeLeft: 0,
           timeFormatted: "00:00:00",
-          serverTime:
-            payload?.serverTime ??
-            new Date().toLocaleTimeString("es-ES", {
-              timeZone: "America/La_Paz",
-            }),
+          serverTime: payload?.serverTime ?? new Date().toLocaleTimeString("es-ES", { timeZone: "America/La_Paz" }),
           examStatus: examStatuses.COMPLETED,
-        }));
+        });
 
         if (!alreadyAnswered) {
           await handleSubmit(null, true);
         }
 
-        if (payload?.reason === "stopped") {
-          setStoppedByTeacher(true);
-        }
-        return;
+        if (payload?.reason === "stopped") setStoppedByTeacher(true);
+      } else {
+        setSocketTimeData((prev) => ({ ...prev, examStatus: serverStatus, started: serverStatus === examStatuses.IN_PROGRESS }));
       }
     });
 
-    // Limpieza al desmontar o cuando cambien dependencias
     return () => {
       if (socketRef.current) {
-        console.log("🔌 Cerrando conexión y limpiando listeners");
         socket.off("start");
         socket.off("msg");
-        socket.off("connect");
-        socket.off("disconnect");
         socket.disconnect();
-        socketRef.current = null; // liberar referencia
+        socketRef.current = null;
       }
     };
-  }, [student.group, alreadyAnswered, questionsData]);
+  }, [questionsData?.student_test_id]);
+
+  // 🔹 Sincronización automática cada 30s
+  useEffect(() => {
+    if (!questionsData?.student_test_id) return;
+    const interval = setInterval(syncAnswersToBackend, 30000);
+    return () => clearInterval(interval);
+  }, [questionsData?.student_test_id]);
 
   // Render
   if (loading) return <LoadingComponent title={evaluationTitle} />;
   if (error) return <p className="text-danger">Error: {error}</p>;
-
   if (alreadyAnswered) {
     return (
       <ExamStatusMessage
         closedByGroup={closedByGroup}
         stoppedByTeacher={stoppedByTeacher}
         finalScore={finalScore}
-        studentId={studentId}
+        studentId={student?.id}
       />
     );
   }
-
-  if (!questionsData?.questions)
-    return <LoadingComponent title={evaluationTitle} />;
-
-  if (socketTimeData.examStatus === examStatuses.WAITING) {
+  if (!questionsData?.questions) return <LoadingComponent title={evaluationTitle} />;
+  if (socketTimeData.examStatus === examStatuses.WAITING)
     return (
       <div className="container mt-4 text-center">
         <h4>Esperando inicio del examen...</h4>
         <p>Permanece en esta ventana. El examen comenzará pronto.</p>
       </div>
     );
-  }
-
-  if (socketTimeData.examStatus === examStatuses.PAUSED) {
+  if (socketTimeData.examStatus === examStatuses.PAUSED)
     return (
       <div className="container mt-4 text-center">
         <h4>El examen está pausado temporalmente</h4>
         <p>Espera a que el docente lo reanude.</p>
       </div>
     );
-  }
 
   return (
     <div className="container-fluid p-4">
