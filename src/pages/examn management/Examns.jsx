@@ -22,7 +22,7 @@ export const Examns = () => {
   const { id: periodId } = useParams()
   const user = JSON.parse(localStorage.getItem('user'))
   const careerId = user ? user.career_id : null
-
+  
   useEffect(() => {
     getExamnsByCareer(careerId)
     if (examns.length === 0) return
