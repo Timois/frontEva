@@ -5,7 +5,7 @@ import { getApi } from "../services/axiosServices/ApiService"
 export const fetchGroupByEvaluation = () => {
     const { groups, setGroups } = useContext(GroupContext);
     const [totalStudents, setTotalStudents] = useState(0);
-
+    
     const getDataGroupEvaluation = async (evaluationId) => {
         try {
             const response = await getApi(`groups/listByEvaluation/${evaluationId}`);

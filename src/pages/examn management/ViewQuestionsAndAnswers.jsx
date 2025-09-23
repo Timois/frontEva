@@ -107,7 +107,7 @@ const ViewQuestionsAndAnswers = () => {
           answer_id,
         }));
       }
-     
+
       const payload = {
         student_test_id: parseInt(localStorage.getItem("student_test_id")),
         answers: answersArray,
@@ -175,37 +175,52 @@ const ViewQuestionsAndAnswers = () => {
     }
   };
 
-  // Socket
   useEffect(() => {
     if (!questionsData?.student_test_id) return;
+
     const token = localStorage.getItem("jwt_token");
 
+    // Inicializar socket solo una vez
     if (!socketRef.current) {
       socketRef.current = io(URL_SOCKET, { transports: ["websocket"], query: { token } });
     }
+
     const socket = socketRef.current;
 
+    // 🔹 Conexión
     socket.on("connect", () => {
+      console.log("✅ Conectado al socket:", socket.id);
       socket.emit("join", { roomId: student.group.toString(), role: "student" });
     });
 
+    // 🔹 Confirmación de join
+    socket.on("joined", (payload) => {
+      console.log("📌 Cliente se unió a sala:", payload);
+    });
+
+    // 🔹 Error de conexión
     socket.on("connect_error", (err) => {
+      console.error("❌ Error de conexión al socket:", err);
       customAlert(err || "No se pudo conectar al servidor de examen", "error");
     });
 
+    // 🔹 Evento start
     socket.on("start", (payload) => {
+      console.log("🚀 Evento 'start' recibido:", payload);
       const duration = payload?.duration ?? payload?.time ?? 0;
       setSocketTimeData({
         started: true,
         timeLeft: duration,
-        timeFormatted: payload?.timeFormatted,
+        timeFormatted: payload?.timeFormatted ?? new Date(duration * 1000).toISOString().substr(11, 8),
         serverTime: payload?.serverTime ?? new Date().toLocaleTimeString("es-ES", { timeZone: "America/La_Paz" }),
         examStatus: examStatuses.IN_PROGRESS,
       });
     });
 
+    // 🔹 Evento msg (actualización de tiempo y estado)
     socket.on("msg", async (payload) => {
-      let serverStatus = payload?.examStatus ?? (payload?.isStarted ? examStatuses.IN_PROGRESS : examStatuses.PAUSED);
+      const serverStatus = payload?.examStatus ?? (payload?.isStarted ? examStatuses.IN_PROGRESS : examStatuses.PAUSED);
+
       if (serverStatus === examStatuses.COMPLETED || payload?.examCompleted) {
         setSocketTimeData({
           started: false,
@@ -221,19 +236,30 @@ const ViewQuestionsAndAnswers = () => {
 
         if (payload?.reason === "stopped") setStoppedByTeacher(true);
       } else {
-        setSocketTimeData((prev) => ({ ...prev, examStatus: serverStatus, started: serverStatus === examStatuses.IN_PROGRESS }));
+        // Actualiza tiempo y estado
+        setSocketTimeData((prev) => ({
+          ...prev,
+          examStatus: serverStatus,
+          started: serverStatus === examStatuses.IN_PROGRESS,
+          timeLeft: payload?.timeLeft ?? prev.timeLeft,
+          timeFormatted: payload?.timeFormatted ?? prev.timeFormatted,
+          serverTime: payload?.serverTime ?? prev.serverTime,
+        }));
       }
     });
 
+    // 🔹 Cleanup
     return () => {
       if (socketRef.current) {
         socket.off("start");
         socket.off("msg");
+        socket.off("joined");
+        socket.off("connect_error");
         socket.disconnect();
         socketRef.current = null;
       }
     };
-  }, [questionsData?.student_test_id]);
+  }, [questionsData?.student_test_id, alreadyAnswered]);
 
   // 🔹 Sincronización automática cada 30s
   useEffect(() => {

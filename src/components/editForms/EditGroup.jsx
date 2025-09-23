@@ -25,7 +25,7 @@ export const EditGroup = ({ data }) => {
     const [array, setArray] = useState([]);
     const { examn, getExamnById } = useExamns();
     const [groupId, setGroupId] = useState(null);
-    const {refresGroups} = fetchGroupByEvaluation();
+    const { refreshGroups } = fetchGroupByEvaluation();
     const isEdit = true;
     const {
         control,
@@ -38,7 +38,7 @@ export const EditGroup = ({ data }) => {
     });
     
     const { labs, getDataLabs } = fetchLabs();
-    
+
     useEffect(() => {
         getDataLabs();
     }, []);
@@ -69,49 +69,40 @@ export const EditGroup = ({ data }) => {
             setGroupId(data.id);
         }
     }, [data, examn, labs]); // 👈 se agregó labs aquí    
-
     const evaluation_id = id;
-
     const onSubmit = async (data) => {
         setResponse(true);
         const requestData = new FormData();
-        requestData.append('name', data.name);
-        requestData.append('description', data.description);
-        requestData.append('laboratory_id', Number(data.laboratory_id));
-        requestData.append('evaluation_id', evaluation_id);
+        requestData.append("name", data.name);
+        requestData.append("description", data.description);
+        requestData.append("laboratory_id", Number(data.laboratory_id));
+        requestData.append("evaluation_id", evaluation_id);
+      
         try {
-            const response = await updateApi(`groups/edit/${groupId}`, requestData);
-            setResponse(false);
-
-            if (response.status === 422) {
-                for (let key in response.data.errors) {
-                    setError(key, { type: 'custom', message: response.data.errors[key][0] });
-                }
-                return;
-            }
-
-            if (response) {
-                updateGroup(response);
-                customAlert('Grupo actualizado correctamente', 'success');
-                refresGroups(evaluation_id);
-                closeFormModal('editGroup');
-                reset();
-            } else {
-                customAlert('Error al actualizar el grupo', 'error');
-            }
+          const response = await updateApi(`groups/edit/${groupId}`, requestData);
+          updateGroup(response)
+          customAlert("Grupo actualizado correctamente", "success");
+          refreshGroups(evaluation_id);
+          closeFormModal("editGroup");
+          reset();
         } catch (error) {
-            if (error.response?.status === 403) {
-                customAlert('No tienes permisos para realizar esta acción', 'error');
-                closeFormModal('editGroup');
-                reset();
-            } else {
-                customAlert(error.response?.data?.message || 'Error al actualizar el grupo', 'error');
-                closeFormModal('editGroup');
+          if (error.response?.status === 422) {
+            const errors = error.response.data.errors;
+            for (let key in errors) {
+              setError(key, { type: "custom", message: errors[key][0] });
             }
+          } else if (error.response?.status === 403) {
+            customAlert("No tienes permisos para realizar esta acción", "error");
+            closeFormModal("editGroup");
+            reset();
+          } else {
+            customAlert(error.response?.data?.message || "Error al actualizar el grupo", "error");
+            closeFormModal("editGroup");
+          }
         } finally {
-            setResponse(false);
+          setResponse(false);
         }
-    };
+      };      
 
     const handleCancel = () => {
         closeFormModal('editGroup');
@@ -119,7 +110,7 @@ export const EditGroup = ({ data }) => {
 
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
-             <div className="mb-3">
+            <div className="mb-3">
                 <span className="text-align-center text-danger">Tiempo del examen {examn.time || "N/A"} minutos</span>
             </div>
             <ContainerInput>
