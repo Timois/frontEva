@@ -48,35 +48,47 @@ const ViewQuestionsAndAnswers = () => {
     serverTime: null,
     examStatus: examStatuses.WAITING,
   });
-
   // Registrar respuesta en localStorage
   const registrarEnLocalStorage = (questionId, answerId, time) => {
     const key = `exam_logs_${localStorage.getItem("test_code")}`;
     const currentLogs = JSON.parse(localStorage.getItem(key)) || [];
     const updatedLogs = currentLogs.filter((log) => log.question_id !== questionId);
-    updatedLogs.push({ question_id: questionId, answer_id: answerId, time });
+    updatedLogs.push({ question_id: Number(questionId), answer_id: answerId ?? null, time });
     localStorage.setItem(key, JSON.stringify(updatedLogs));
   };
-
   // Sincronizar todas las respuestas al backend
   const syncAnswersToBackend = async () => {
-    if (!questionsData?.student_test_id) return;
+    if (!questionsData?.student_test_id) {
+      console.error("❌ No se encontró student_test_id");
+      return;
+    }
+
     const key = `exam_logs_${localStorage.getItem("test_code")}`;
     const logs = JSON.parse(localStorage.getItem(key)) || [];
-    const logsToSync = logs.filter((log) => log.answer_id !== null);
-    if (logsToSync.length === 0) return;
+    const logsToSync = logs.filter((log) => log.answer_id !== null); // Filtrar respuestas no nulas
 
+    if (logsToSync.length === 0) {
+      console.log("ℹ️ No hay respuestas para sincronizar");
+      return;
+    }
+
+    const payload = {
+      student_test_id: Number(questionsData.student_test_id),
+      answers: logsToSync.map((log) => ({
+        question_id: Number(log.question_id),
+        answer_id: log.answer_id ?? null,
+        time: log.time // Ya está en formato HH:MM:SS
+      })),
+      finalize: false // Sincronización intermedia, no finaliza el examen
+    };
+    
     try {
-      await postApi("logs_answers/bulkSave", {
-        student_test_id: Number(questionsData.student_test_id), // 🔹 aquí
-        logs: logsToSync,
-      });
+      await postApi("logs_answers/bulkSave", payload);
       console.log("✅ Respuestas sincronizadas con el backend");
     } catch (err) {
       console.error("❌ Error al sincronizar respuestas:", err);
     }
-  };
-
+  }
 
   const handleAnswerSelection = (questionId, answerId) => {
     if (socketTimeData.examStatus !== examStatuses.IN_PROGRESS) return;
@@ -96,28 +108,41 @@ const ViewQuestionsAndAnswers = () => {
       // Asegurarse de sincronizar todos los logs antes de enviar
       await syncAnswersToBackend();
 
+      const savedLogsKey = `exam_logs_${localStorage.getItem("test_code")}`;
+      const logs = JSON.parse(localStorage.getItem(savedLogsKey)) || [];
+
       let answersArray = [];
       if (isAutoSubmit) {
-        const savedLogs = `exam_logs_${localStorage.getItem("test_code")}`;
-        const logs = JSON.parse(localStorage.getItem(savedLogs)) || [];
-        answersArray = logs.map((log) => ({ question_id: log.question_id, answer_id: log.answer_id }));
-      } else {
-        answersArray = Object.entries(selectedAnswers).map(([question_id, answer_id]) => ({
-          question_id: Number(question_id),
-          answer_id,
+        // Para autoenvío, usar logs de localStorage
+        answersArray = logs.map((log) => ({
+          question_id: Number(log.question_id),
+          answer_id: log.answer_id ?? null,
+          time: log.time // Ya está en formato HH:MM:SS
         }));
+      } else {
+        // Para envío manual, usar selectedAnswers y obtener time de localStorage
+        answersArray = Object.entries(selectedAnswers).map(([question_id, answer_id]) => {
+          const log = logs.find((l) => l.question_id === Number(question_id));
+          return {
+            question_id: Number(question_id),
+            answer_id: answer_id ?? null,
+            time: log?.time ?? "00:00:00" // Usar tiempo del log o "00:00:00" si no existe
+          };
+        });
       }
 
       const payload = {
-        student_test_id: parseInt(localStorage.getItem("student_test_id")),
+        student_test_id: Number(localStorage.getItem("student_test_id")),
         answers: answersArray,
+        finalize: true // Finalizar el examen
       };
-      console.log(parseInt(localStorage.getItem("student_test_id")))
-      const response = await postApi("student_answers/save", payload);
+
+      const response = await postApi("logs_answers/bulkSave", payload);
 
       setFinalScore(Math.floor(response.total_score));
       setAlreadyAnswered(true);
 
+      // Limpiar localStorage
       removeExamLogsByTestCode(localStorage.getItem("test_code"));
       removeTestCode();
       removeStudentTestId();
@@ -127,7 +152,7 @@ const ViewQuestionsAndAnswers = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   // Datos iniciales
   useEffect(() => {
@@ -177,36 +202,22 @@ const ViewQuestionsAndAnswers = () => {
 
   useEffect(() => {
     if (!questionsData?.student_test_id) return;
-
     const token = localStorage.getItem("jwt_token");
-
     // Inicializar socket solo una vez
     if (!socketRef.current) {
       socketRef.current = io(URL_SOCKET, { transports: ["websocket"], query: { token } });
     }
-
     const socket = socketRef.current;
-
     // 🔹 Conexión
     socket.on("connect", () => {
-      console.log("✅ Conectado al socket:", socket.id);
       socket.emit("join", { roomId: student.group.toString(), role: "student" });
     });
-
-    // 🔹 Confirmación de join
-    socket.on("joined", (payload) => {
-      console.log("📌 Cliente se unió a sala:", payload);
-    });
-
     // 🔹 Error de conexión
     socket.on("connect_error", (err) => {
-      console.error("❌ Error de conexión al socket:", err);
       customAlert(err || "No se pudo conectar al servidor de examen", "error");
     });
 
-    // 🔹 Evento start
     socket.on("start", (payload) => {
-      console.log("🚀 Evento 'start' recibido:", payload);
       const duration = payload?.duration ?? payload?.time ?? 0;
       setSocketTimeData({
         started: true,
