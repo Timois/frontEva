@@ -2,6 +2,7 @@
 import { Link } from "react-router-dom";
 
 const ExamStatusMessage = ({ closedByGroup, stoppedByTeacher, finalScore, studentId }) => {
+  
   return (
     <div className="container mt-4">
       <div className="alert alert-info text-center">

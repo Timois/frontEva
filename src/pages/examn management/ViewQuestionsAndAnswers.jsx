@@ -36,6 +36,7 @@ const ViewQuestionsAndAnswers = () => {
   const { getStudentTestById } = usFetchStudentTest();
   const [closedByGroup, setClosedByGroup] = useState(false);
   const student = JSON.parse(localStorage.getItem("user"));
+  const [studentId, setStudentId] = useState(null);
   const ci = student?.ci || null;
   const tiempoInicioRef = useRef(null);
   const API_BASE_URL = VITE_URL_IMAGES;
@@ -81,7 +82,7 @@ const ViewQuestionsAndAnswers = () => {
       })),
       finalize: false // Sincronización intermedia, no finaliza el examen
     };
-    
+
     try {
       await postApi("logs_answers/bulkSave", payload);
       console.log("✅ Respuestas sincronizadas con el backend");
@@ -134,12 +135,12 @@ const ViewQuestionsAndAnswers = () => {
       const payload = {
         student_test_id: Number(localStorage.getItem("student_test_id")),
         answers: answersArray,
-        finalize: true // Finalizar el examen
+        finalize: isAutoSubmit || e?.type === "submit" // ✅ Solo finaliza si es autoenvío o click en enviar
       };
 
       const response = await postApi("logs_answers/bulkSave", payload);
 
-      setFinalScore(Math.floor(response.total_score));
+      setFinalScore(Math.floor(response.score));
       setAlreadyAnswered(true);
 
       // Limpiar localStorage
@@ -153,7 +154,6 @@ const ViewQuestionsAndAnswers = () => {
       setLoading(false);
     }
   }
-
   // Datos iniciales
   useEffect(() => {
     let isMounted = true;
@@ -166,7 +166,9 @@ const ViewQuestionsAndAnswers = () => {
     try {
       const fetchedStudentId = await getApi(`student_evaluations/list/${ci}`);
       if (!isMounted) return;
+      setStudentId(fetchedStudentId);
       const response = await getStudentTestById(fetchedStudentId);
+
       if (!isMounted) return;
       localStorage.setItem("student_test_id", response.student_test_id);
       if (response?.examCompleted) {
@@ -288,7 +290,7 @@ const ViewQuestionsAndAnswers = () => {
         closedByGroup={closedByGroup}
         stoppedByTeacher={stoppedByTeacher}
         finalScore={finalScore}
-        studentId={student?.id}
+        studentId={studentId}
       />
     );
   }

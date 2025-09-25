@@ -111,7 +111,7 @@ export const postApi = async (url, values) => {
     
     try {
         const headers = {
-           "Content-Type": "application/json"
+           "Content-Type": "multipart/form-data"
         };
         
         // Solo incluir Authorization si hay un token y no es una ruta de auth
