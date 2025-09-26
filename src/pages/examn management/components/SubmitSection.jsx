@@ -4,7 +4,7 @@ const SubmitSection = ({ loading, socketTimeData, examStarted, handleSubmit }) =
     <button
       className="btn btn-primary px-5 py-3 rounded-pill fw-bold"
       disabled={loading || (socketTimeData?.timeLeft <= 0) || !examStarted}
-      onClick={handleSubmit}
+      onClick={(e) => handleSubmit(e, true)} // 🚨 forzamos finalize=true
     >
       {!examStarted
         ? "Esperando inicio del examen..."

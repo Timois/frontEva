@@ -16,20 +16,28 @@ const ResultsByGroup = ({ group, show, onClose }) => {
     setLoading(true);
     try {
       const response = await getApi(`groups/resultsGroup/${group.id}`);
-      if (response.students_results) {
-        setResults(response.students_results);
+
+      if (response.students_results && Object.keys(response.students_results).length > 0) {
+        // Convertir el objeto a array
+        const resultsArray = Object.values(response.students_results);
+        setResults(resultsArray);
         setMessage(""); // limpiar mensaje
       } else if (response.message) {
         setResults([]);
-        setMessage(response.message); // guardar el mensaje del backend
+        setMessage(response.message);
+      } else {
+        setResults([]);
+        setMessage("No hay resultados registrados en el grupo.");
       }
     } catch (error) {
       console.error("Error cargando resultados:", error);
       setMessage("Ocurrió un error al cargar los resultados");
+      setResults([]);
     } finally {
       setLoading(false);
     }
   };
+
   return (
     <div
       className={`modal fade ${show ? "show d-block" : ""}`}

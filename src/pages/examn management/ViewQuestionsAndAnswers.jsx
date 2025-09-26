@@ -53,8 +53,15 @@ const ViewQuestionsAndAnswers = () => {
   const registrarEnLocalStorage = (questionId, answerId, time) => {
     const key = `exam_logs_${localStorage.getItem("test_code")}`;
     const currentLogs = JSON.parse(localStorage.getItem(key)) || [];
+  
     const updatedLogs = currentLogs.filter((log) => log.question_id !== questionId);
-    updatedLogs.push({ question_id: Number(questionId), answer_id: answerId ?? null, time });
+    updatedLogs.push({
+      question_id: Number(questionId),
+      answer_id: answerId ?? null,
+      time,
+      finalize: false, // 🔹 siempre en false mientras responde
+    });
+  
     localStorage.setItem(key, JSON.stringify(updatedLogs));
   };
   // Sincronizar todas las respuestas al backend
@@ -137,7 +144,7 @@ const ViewQuestionsAndAnswers = () => {
         answers: answersArray,
         finalize: isAutoSubmit || e?.type === "submit" // ✅ Solo finaliza si es autoenvío o click en enviar
       };
-
+      console.log("📤 Enviando payload al backend:", payload);
       const response = await postApi("logs_answers/bulkSave", payload);
 
       setFinalScore(Math.floor(response.score));
@@ -232,24 +239,40 @@ const ViewQuestionsAndAnswers = () => {
 
     // 🔹 Evento msg (actualización de tiempo y estado)
     socket.on("msg", async (payload) => {
-      const serverStatus = payload?.examStatus ?? (payload?.isStarted ? examStatuses.IN_PROGRESS : examStatuses.PAUSED);
-
-      if (serverStatus === examStatuses.COMPLETED || payload?.examCompleted) {
+    
+      const serverStatus =
+        payload?.examStatus ??
+        (payload?.isStarted ? examStatuses.IN_PROGRESS : examStatuses.PAUSED);
+    
+      const isExamCompleted =
+        serverStatus === examStatuses.COMPLETED ||
+        payload?.examCompleted === true ||
+        payload?.reason === "stopped";
+    
+      if (isExamCompleted) {
         setSocketTimeData({
           started: false,
           timeLeft: 0,
           timeFormatted: "00:00:00",
-          serverTime: payload?.serverTime ?? new Date().toLocaleTimeString("es-ES", { timeZone: "America/La_Paz" }),
+          serverTime:
+            payload?.serverTime ??
+            new Date().toLocaleTimeString("es-ES", {
+              timeZone: "America/La_Paz",
+            }),
           examStatus: examStatuses.COMPLETED,
         });
-
+    
+        // Forzar guardado final si no se envió antes
         if (!alreadyAnswered) {
+          console.log("📤 Guardando respuestas finales (detenido por docente)...");
           await handleSubmit(null, true);
         }
-
-        if (payload?.reason === "stopped") setStoppedByTeacher(true);
+    
+        if (payload?.reason === "stopped") {
+          setStoppedByTeacher(true);
+        }
       } else {
-        // Actualiza tiempo y estado
+        // Actualizar mientras no esté terminado
         setSocketTimeData((prev) => ({
           ...prev,
           examStatus: serverStatus,
@@ -259,7 +282,7 @@ const ViewQuestionsAndAnswers = () => {
           serverTime: payload?.serverTime ?? prev.serverTime,
         }));
       }
-    });
+    });    
 
     // 🔹 Cleanup
     return () => {
