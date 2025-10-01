@@ -24,8 +24,9 @@ export const Examns = () => {
   const careerId = user ? user.career_id : null
   
   useEffect(() => {
-    getExamnsByCareer(careerId)
-    if (examns.length === 0) return
+    if (careerId) {
+      getExamnsByCareer(careerId)
+    }
   }, [careerId])
 
   if (examns.length === 0) {
@@ -42,8 +43,8 @@ export const Examns = () => {
   const idEditar = "editarExamn"
   const modalRegister = "registerStudent"
   const year = currentPeriod?.year
-  const periodName = currentPeriod?.periodo.level
-
+  const periodName = currentPeriod?.periodo?.level
+  
   return (
     <div className="container-fluid p-4">
       <button className="btn btn-dark mb-3" onClick={() => navigate(-1)}>Atras</button>

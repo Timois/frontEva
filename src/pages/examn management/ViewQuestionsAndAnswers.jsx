@@ -53,7 +53,7 @@ const ViewQuestionsAndAnswers = () => {
   const registrarEnLocalStorage = (questionId, answerId, time) => {
     const key = `exam_logs_${localStorage.getItem("test_code")}`;
     const currentLogs = JSON.parse(localStorage.getItem(key)) || [];
-  
+
     const updatedLogs = currentLogs.filter((log) => log.question_id !== questionId);
     updatedLogs.push({
       question_id: Number(questionId),
@@ -61,11 +61,15 @@ const ViewQuestionsAndAnswers = () => {
       time,
       finalize: false, // 🔹 siempre en false mientras responde
     });
-  
+
     localStorage.setItem(key, JSON.stringify(updatedLogs));
   };
   // Sincronizar todas las respuestas al backend
   const syncAnswersToBackend = async () => {
+    if (alreadyAnswered || socketTimeData.examStatus === examStatuses.COMPLETED) {
+      console.log("⏹️ Examen finalizado, no se sincronizan más respuestas");
+      return;
+    }
     if (!questionsData?.student_test_id) {
       console.error("❌ No se encontró student_test_id");
       return;
@@ -144,7 +148,6 @@ const ViewQuestionsAndAnswers = () => {
         answers: answersArray,
         finalize: isAutoSubmit || e?.type === "submit" // ✅ Solo finaliza si es autoenvío o click en enviar
       };
-      console.log("📤 Enviando payload al backend:", payload);
       const response = await postApi("logs_answers/bulkSave", payload);
 
       setFinalScore(Math.floor(response.score));
@@ -155,7 +158,6 @@ const ViewQuestionsAndAnswers = () => {
       removeTestCode();
       removeStudentTestId();
     } catch (error) {
-      console.error("Error al guardar respuestas:", error);
       setAlreadyAnswered(error?.response?.status === 409);
     } finally {
       setLoading(false);
@@ -239,16 +241,16 @@ const ViewQuestionsAndAnswers = () => {
 
     // 🔹 Evento msg (actualización de tiempo y estado)
     socket.on("msg", async (payload) => {
-    
+
       const serverStatus =
         payload?.examStatus ??
         (payload?.isStarted ? examStatuses.IN_PROGRESS : examStatuses.PAUSED);
-    
+
       const isExamCompleted =
         serverStatus === examStatuses.COMPLETED ||
         payload?.examCompleted === true ||
         payload?.reason === "stopped";
-    
+
       if (isExamCompleted) {
         setSocketTimeData({
           started: false,
@@ -261,13 +263,13 @@ const ViewQuestionsAndAnswers = () => {
             }),
           examStatus: examStatuses.COMPLETED,
         });
-    
+
         // Forzar guardado final si no se envió antes
         if (!alreadyAnswered) {
           console.log("📤 Guardando respuestas finales (detenido por docente)...");
           await handleSubmit(null, true);
         }
-    
+
         if (payload?.reason === "stopped") {
           setStoppedByTeacher(true);
         }
@@ -282,7 +284,7 @@ const ViewQuestionsAndAnswers = () => {
           serverTime: payload?.serverTime ?? prev.serverTime,
         }));
       }
-    });    
+    });
 
     // 🔹 Cleanup
     return () => {
@@ -298,11 +300,14 @@ const ViewQuestionsAndAnswers = () => {
   }, [questionsData?.student_test_id, alreadyAnswered]);
 
   // 🔹 Sincronización automática cada 30s
+  // 🔹 Sincronización automática cada 30s
   useEffect(() => {
     if (!questionsData?.student_test_id) return;
+    // ❌ Si ya terminó o ya fue respondido, no iniciar el intervalo
+    if (alreadyAnswered || socketTimeData.examStatus === examStatuses.COMPLETED) return;
     const interval = setInterval(syncAnswersToBackend, 30000);
     return () => clearInterval(interval);
-  }, [questionsData?.student_test_id]);
+  }, [questionsData?.student_test_id, alreadyAnswered, socketTimeData.examStatus]);
 
   // Render
   if (loading) return <LoadingComponent title={evaluationTitle} />;
