@@ -59,7 +59,7 @@ const IndexResults = () => {
 
   useEffect(() => {
     setFilteredPeriods(periodOptions);
-  }, [periodOptions]);  
+  }, [periodOptions]);
 
   useEffect(() => {
     if (selectedPeriodId) {
@@ -193,13 +193,16 @@ const IndexResults = () => {
               <th scope="col" width="20%" className="fw-medium text-primary">Apellido Paterno</th>
               <th scope="col" width="20%" className="fw-medium text-primary">Apellido Materno</th>
               <th scope="col" width="10%" className="fw-medium text-primary">Nota</th>
+              <th scope="col" width="10%" className="fw-medium text-primary">Estado</th>
             </tr>
           </thead>
           <tbody>
             {currentItems.length > 0 ? (
               currentItems.map((r, index) => (
                 <tr key={r.ci} className="transition-all text-center">
-                  <td className="fw-bold text-muted">{(currentPage - 1) * itemsPerPage + index + 1}</td>
+                  <td className="fw-bold text-muted">
+                    {(currentPage - 1) * itemsPerPage + index + 1}
+                  </td>
                   <td className="text-muted">{r.ci}</td>
                   <td className="fw-semibold text-start text-capitalize">{r.name}</td>
                   <td className="fw-semibold text-start text-capitalize">{r.paternal_surname}</td>
@@ -209,11 +212,22 @@ const IndexResults = () => {
                       {r.score}
                     </span>
                   </td>
+                  <td>
+                    {r.status === "completado" ? (
+                      <span className="badge bg-success bg-opacity-10 text-success py-2 px-3">
+                        <i className="bi bi-check-circle-fill me-1"></i> Completado
+                      </span>
+                    ) : (
+                      <span className="badge bg-warning bg-opacity-10 text-warning py-2 px-3">
+                        <i className="bi bi-hourglass-split me-1"></i> Pendiente
+                      </span>
+                    )}
+                  </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="6" className="text-center py-5">
+                <td colSpan="7" className="text-center py-5">
                   <div className="d-flex flex-column align-items-center text-muted">
                     <i className="bi bi-clipboard-x fs-1 mb-2" />
                     No hay resultados registrados para este examen.

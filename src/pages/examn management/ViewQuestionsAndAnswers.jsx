@@ -67,11 +67,9 @@ const ViewQuestionsAndAnswers = () => {
   // Sincronizar todas las respuestas al backend
   const syncAnswersToBackend = async () => {
     if (alreadyAnswered || socketTimeData.examStatus === examStatuses.COMPLETED) {
-      console.log("⏹️ Examen finalizado, no se sincronizan más respuestas");
       return;
     }
     if (!questionsData?.student_test_id) {
-      console.error("❌ No se encontró student_test_id");
       return;
     }
 
@@ -80,7 +78,6 @@ const ViewQuestionsAndAnswers = () => {
     const logsToSync = logs.filter((log) => log.answer_id !== null); // Filtrar respuestas no nulas
 
     if (logsToSync.length === 0) {
-      console.log("ℹ️ No hay respuestas para sincronizar");
       return;
     }
 
@@ -96,7 +93,6 @@ const ViewQuestionsAndAnswers = () => {
 
     try {
       await postApi("logs_answers/bulkSave", payload);
-      console.log("✅ Respuestas sincronizadas con el backend");
     } catch (err) {
       console.error("❌ Error al sincronizar respuestas:", err);
     }
@@ -266,7 +262,6 @@ const ViewQuestionsAndAnswers = () => {
 
         // Forzar guardado final si no se envió antes
         if (!alreadyAnswered) {
-          console.log("📤 Guardando respuestas finales (detenido por docente)...");
           await handleSubmit(null, true);
         }
 
@@ -299,7 +294,6 @@ const ViewQuestionsAndAnswers = () => {
     };
   }, [questionsData?.student_test_id, alreadyAnswered]);
 
-  // 🔹 Sincronización automática cada 30s
   // 🔹 Sincronización automática cada 30s
   useEffect(() => {
     if (!questionsData?.student_test_id) return;

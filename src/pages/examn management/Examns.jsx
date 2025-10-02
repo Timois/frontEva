@@ -2,8 +2,8 @@
 import React, { useEffect, useState } from 'react'
 import ButtonEdit from './ButtonEdit'
 import ModalEdit from './ModalEdit'
-import ButtonAssignQuestions from './ButtonAssignQuestions'
-import { ButtonViewGroups } from './ButtonViewGroups'
+import ButtonAssignQuestions from './buttons/ButtonAssignQuestions'
+import { ButtonViewGroups } from './buttons/ButtonViewGroups'
 import { FaClipboardList, FaRegClock } from 'react-icons/fa'
 import CheckPermissions from '../../routes/CheckPermissions'
 import { ButtonImport } from '../docentes/ButtonImport'
@@ -13,6 +13,7 @@ import ModalRegister from '../docentes/ModalRegister'
 import { ButtonViewStudents } from '../docentes/ButtonViewStudents'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useExamns } from '../../hooks/fetchExamns'
+import { ButtonViewResults } from './buttons/ButtonViewResults'
 
 export const Examns = () => {
   const navigate = useNavigate()
@@ -115,6 +116,7 @@ export const Examns = () => {
                         <ModalImport ModalId={`importarEstudiantes-${examn.id}`} title={"Importar Estudiantes"} examnID={examn.id} />
                         <ModalRegister modalId={modalRegister} title={"Registrar Estudiantes"} examId={examn.id} />
                         <ButtonViewStudents examnId={examn.id} />
+                        <ButtonViewResults examnId={examn.id} />
                       </div>
                     </div>
                   </div>

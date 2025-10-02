@@ -97,10 +97,7 @@ export const Groups = () => {
                 customAlert("Token inválido o sesión expirada", "error");
                 return;
             }
-
-            // 🔹 Obtener duración desde Laravel
             const groupData = await updateApi(`groups/startGroup/${group.id}`);
-            console.log("📤 START groupData desde Laravel:", groupData);
 
             // 🔹 Enviar al servidor socket todo: roomId + token + duración
             const payload = {
@@ -108,7 +105,6 @@ export const Groups = () => {
                 token,
                 duration: groupData.duration
             };
-            console.log("📤 Enviando a socket backend /emit/start-evaluation:", payload);
 
             const socketResponse = await fetch(`${URL_SOCKET}/emit/start-evaluation`, {
                 method: 'POST',
@@ -117,7 +113,6 @@ export const Groups = () => {
             });
 
             const socketResult = await socketResponse.json();
-            console.log("📥 Respuesta socket START:", socketResult);
 
             if (!socketResponse.ok) {
                 throw new Error(socketResult.message || 'Error al iniciar el examen en tiempo real');
@@ -127,7 +122,6 @@ export const Groups = () => {
             await getDataGroupEvaluation(evaluationId);
 
         } catch (error) {
-            console.error("❌ Error iniciando grupo:", error);
             customAlert(error.response?.data?.message || "No se pudo iniciar el grupo", "error");
         }
     };
@@ -146,17 +140,11 @@ export const Groups = () => {
                 return;
             }
 
-            console.log("📤 Enviando pausa a Laravel:", { roomId: group.id, token });
-
-            // 🔹 Llamada a Laravel → solo cambia estado en la BD
-            const response = await postApi(`groups/pauseGroup/${group.id}`);
-            console.log("📥 Respuesta Laravel pauseGroup:", response);
-
             const payload = {
                 roomId: group.id.toString(), // importante: convertir a string
                 token,
             };
-            console.log("📤 Enviando a socket backend /emit/pause-evaluation:", payload);
+
 
             const socketResponse = await fetch(`${URL_SOCKET}/emit/pause-evaluation`, {
                 method: 'POST',
@@ -165,7 +153,6 @@ export const Groups = () => {
             });
 
             const socketResult = await socketResponse.json();
-            console.log("📥 Respuesta socket PAUSE:", socketResult);
 
             if (!socketResponse.ok) {
                 throw new Error(socketResult.message || 'Error al pausar el examen en tiempo real');
@@ -174,7 +161,6 @@ export const Groups = () => {
             await getDataGroupEvaluation(evaluationId);
 
         } catch (error) {
-            console.error("❌ Error pausando grupo:", error);
             customAlert(error.response?.data?.message || "No se pudo pausar el grupo", "error");
         }
     };
@@ -191,17 +177,10 @@ export const Groups = () => {
                 customAlert("Token inválido o sesión expirada", "error");
                 return;
             }
-
-            console.log("📤 Enviando reanudar a Laravel:", { roomId: group.id, token });
-
-            // 🔹 Petición al backend Laravel que llama al socket
-            const response = await postApi(`groups/resumeGroup/${group.id}`);
-            console.log("📥 Respuesta Laravel resumeGroup:", response);
             const payload = {
                 roomId: group.id.toString(), // importante: convertir a string
                 token,
             };
-            console.log("📤 Enviando a socket backend /emit/continue-evaluation:", payload);
 
             const socketResponse = await fetch(`${URL_SOCKET}/emit/continue-evaluation`, {
                 method: 'POST',
@@ -210,14 +189,12 @@ export const Groups = () => {
             });
 
             const socketResult = await socketResponse.json();
-            console.log("📥 Respuesta socket RESUME:", socketResult)
             if (!socketResponse.ok) {
                 throw new Error(socketResult.message || 'Error al reanudar el examen en tiempo real');
             }
             customAlert("Grupo reanudado correctamente", "success");
             await getDataGroupEvaluation(evaluationId);
         } catch (error) {
-            console.error("❌ Error reanudando grupo:", error);
             customAlert(error.response?.data?.message || "No se pudo reanudar el grupo", "error");
         }
     };
@@ -235,16 +212,11 @@ export const Groups = () => {
                 return;
             }
 
-            console.log("📤 Enviando reanudar a Laravel:", { roomId: group.id, token });
-
-            // 🔹 Petición al backend Laravel que llama al socket
             const response = await postApi(`groups/stopGroup/${group.id}`);
-            console.log("📥 Respuesta Laravel stopGroup:", response);
             const payload = {
                 roomId: group.id.toString(), // importante: convertir a string
                 token,
             };
-            console.log("📤 Enviando a socket backend /emit/stop-evaluation:", payload);
 
             const socketResponse = await fetch(`${URL_SOCKET}/emit/stop-evaluation`, {
                 method: 'POST',
@@ -253,14 +225,12 @@ export const Groups = () => {
             });
 
             const socketResult = await socketResponse.json();
-            console.log("📥 Respuesta socket STOP:", socketResult)
             if (!socketResponse.ok) {
                 throw new Error(socketResult.message || 'Error al parar y enviar el examen en tiempo real');
             }
             customAlert("Grupo terminado correctamente", "success");
             await getDataGroupEvaluation(evaluationId);
         } catch (error) {
-            console.error("❌ Error reanudando grupo:", error);
             customAlert(error.response?.data?.message || "No se pudo reanudar el grupo", "error");
         }
     }

@@ -3,7 +3,7 @@
 // src/components/examns/ButtonOrderRandomQuestions.jsx
 
 import Swal from 'sweetalert2'
-import { postApi } from '../../services/axiosServices/ApiService'
+import { postApi } from '../../../services/axiosServices/ApiService'
 import { FaClipboardList, FaRandom } from 'react-icons/fa'
 
 export const ButtonOrderRandomQuestions = ({ examnId }) => {

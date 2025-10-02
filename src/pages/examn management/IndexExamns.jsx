@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import React from 'react'
-import ButtonAdd from './ButtonAdd'
+import ButtonAdd from './buttons/ButtonAdd'
 import { Examns } from './Examns'
 import ModalRegister from './ModalRegister'
 import CheckPermissions from '../../routes/CheckPermissions'
@@ -19,6 +19,6 @@ export const IndexExamns = () => {
       <CheckPermissions requiredPermission="crear-evaluaciones">
         <ModalRegister modalId={modalId} title="Registrar evaluacion" />
       </CheckPermissions>
-    </div >
+    </div > 
   )
 }
