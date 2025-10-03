@@ -112,7 +112,10 @@ export const FormAssignQuestions = ({ data }) => {
   useEffect(() => {
     const subscription = watch((value, { name }) => {
       if (name && (name.endsWith("puntajeTotal") || name.endsWith("cantidadTotal"))) {
-        const total = value.areas?.reduce((sum, area) => sum + (Number(area.puntajeTotal) || 0), 0) || 0;
+        const total = value.areas?.reduce(
+          (sum, area) => sum + (Number(area.puntajeTotal) || 0),
+          0
+        ) || 0;
         setTotalAssignedScore(total);
       }
     });
@@ -131,16 +134,23 @@ export const FormAssignQuestions = ({ data }) => {
     if (otherSum > 0) {
       const remaining = 100 - newValue;
       const factor = remaining / otherSum;
-      otherTypes.forEach((t, i) => setValue(`areas.${index}.porcentaje${t}`, Math.round(otherValues[i] * factor)));
+      otherTypes.forEach((t, i) =>
+        setValue(`areas.${index}.porcentaje${t}`, Math.round(otherValues[i] * factor))
+      );
     } else {
       const remaining = 100 - newValue;
       const share = Math.floor(remaining / otherTypes.length);
       otherTypes.forEach((t, i) =>
-        setValue(`areas.${index}.porcentaje${t}`, i === otherTypes.length - 1 ? remaining - share * (otherTypes.length - 1) : share)
+        setValue(
+          `areas.${index}.porcentaje${t}`,
+          i === otherTypes.length - 1
+            ? remaining - share * (otherTypes.length - 1)
+            : share
+        )
       );
     }
 
-    recalculateScores(index);
+    recalculateScores(index); // solo recalcula distribución interna del área
   };
 
   const recalculateScores = (index) => {
@@ -397,7 +407,7 @@ export const FormAssignQuestions = ({ data }) => {
                             <div className="mb-2">
                               <label>Disponibilidad de preguntas:</label>
                               <p>{disponibles?.[area.id]?.total || 0}</p>
-                             
+
                               {disponibles?.[area.id]?.total === 0 && (
                                 <button
                                   type="button"

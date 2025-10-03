@@ -27,7 +27,6 @@ import { ViewQuestionsAssigned } from "../pages/examn management/ViewQuestionsAs
 import ViewQuestionsAndAnswers from "../pages/examn management/ViewQuestionsAndAnswers"
 import ViewQuestionsForStudent from "../pages/examn management/ViewQuestionsForStudent"
 import { CareerById } from "../pages/careers/CareerById"
-import IndexResults from "../pages/results management/IndexResults"
 import LayoutStudent from "../components/layouts/layout/LayoutStudent"
 import { ImportQuestions } from "../pages/careers/questions/imports/ImportQuestions"
 import { CareerPeriodsList } from "../pages/careers/periodsAsign/CareerPeriodsList"
@@ -36,6 +35,7 @@ import { IndexStudents } from "../pages/docentes/IndexStudents"
 import { IndexLabs } from "../pages/labs/IndexLabs"
 import { IndexGroups } from "../pages/groups/IndexGroups"
 import { CompareAnswers } from "../pages/examn management/CompareAnswers"
+import { ResultsByTest } from "../pages/examn management/ResultsByTest"
 export const AppRoutes = () => {
   return (
     <Routes
@@ -116,7 +116,7 @@ export const AppRoutes = () => {
           <Route path="administracion/laboratories" element={
             <PermissionsGuard requiredPermission={"ver-laboratorios"}>
               <IndexLabs />
-            </PermissionsGuard>} />  
+            </PermissionsGuard>} />
           <Route path="administracion/examns/:id/groups" element={
             <PermissionsGuard requiredPermission={"ver-grupos-por-evaluacion"}>
               <IndexGroups />
@@ -130,10 +130,14 @@ export const AppRoutes = () => {
               <ViewQuestionsAssigned />
             </PermissionsGuard>
           } />
-          <Route path="administracion/results" element={
-            <PermissionsGuard requiredPermission={"ver-resultados"}>
-              <IndexResults />
-            </PermissionsGuard>} />
+          <Route
+            path="administracion/results/:id"
+            element={
+              <PermissionsGuard requiredPermission={"ver-resultados"}>
+                <ResultsByTest />
+              </PermissionsGuard>
+            }
+          />
           <Route path="administracion/users" element={
             <PermissionsGuard requiredPermission={"ver-usuarios"}>
               <IndexUser />
