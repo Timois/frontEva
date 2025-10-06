@@ -35,7 +35,7 @@ export const Groups = () => {
             return acc;
         }, 0);
     }, [groups]);
-
+    
     // ✔️ Manejo seguro de totalStudents
     const unassignedStudents = typeof totalStudents === "number"
         ? totalStudents - assignedStudents

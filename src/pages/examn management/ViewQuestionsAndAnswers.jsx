@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
 import { useEffect, useState, useRef } from "react";
 import { getApi, postApi } from "../../services/axiosServices/ApiService";
@@ -49,6 +50,11 @@ const ViewQuestionsAndAnswers = () => {
     serverTime: null,
     examStatus: examStatuses.WAITING,
   });
+
+  // Nuevos estados para la selección de evaluación
+  const [studentEvaluations, setStudentEvaluations] = useState([]);
+  const [selectedEvaluation, setSelectedEvaluation] = useState(null);
+
   // Registrar respuesta en localStorage
   const registrarEnLocalStorage = (questionId, answerId, time) => {
     const key = `exam_logs_${localStorage.getItem("test_code")}`;
@@ -59,36 +65,30 @@ const ViewQuestionsAndAnswers = () => {
       question_id: Number(questionId),
       answer_id: answerId ?? null,
       time,
-      finalize: false, // 🔹 siempre en false mientras responde
+      finalize: false,
     });
 
     localStorage.setItem(key, JSON.stringify(updatedLogs));
   };
-  // Sincronizar todas las respuestas al backend
+
   const syncAnswersToBackend = async () => {
-    if (alreadyAnswered || socketTimeData.examStatus === examStatuses.COMPLETED) {
-      return;
-    }
-    if (!questionsData?.student_test_id) {
-      return;
-    }
+    if (alreadyAnswered || socketTimeData.examStatus === examStatuses.COMPLETED) return;
+    if (!questionsData?.student_test_id) return;
 
     const key = `exam_logs_${localStorage.getItem("test_code")}`;
     const logs = JSON.parse(localStorage.getItem(key)) || [];
-    const logsToSync = logs.filter((log) => log.answer_id !== null); // Filtrar respuestas no nulas
+    const logsToSync = logs.filter((log) => log.answer_id !== null);
 
-    if (logsToSync.length === 0) {
-      return;
-    }
+    if (logsToSync.length === 0) return;
 
     const payload = {
       student_test_id: Number(questionsData.student_test_id),
       answers: logsToSync.map((log) => ({
         question_id: Number(log.question_id),
         answer_id: log.answer_id ?? null,
-        time: log.time // Ya está en formato HH:MM:SS
+        time: log.time,
       })),
-      finalize: false // Sincronización intermedia, no finaliza el examen
+      finalize: false,
     };
 
     try {
@@ -96,7 +96,7 @@ const ViewQuestionsAndAnswers = () => {
     } catch (err) {
       console.error("❌ Error al sincronizar respuestas:", err);
     }
-  }
+  };
 
   const handleAnswerSelection = (questionId, answerId) => {
     if (socketTimeData.examStatus !== examStatuses.IN_PROGRESS) return;
@@ -112,8 +112,6 @@ const ViewQuestionsAndAnswers = () => {
 
     try {
       setLoading(true);
-
-      // Asegurarse de sincronizar todos los logs antes de enviar
       await syncAnswersToBackend();
 
       const savedLogsKey = `exam_logs_${localStorage.getItem("test_code")}`;
@@ -121,20 +119,18 @@ const ViewQuestionsAndAnswers = () => {
 
       let answersArray = [];
       if (isAutoSubmit) {
-        // Para autoenvío, usar logs de localStorage
         answersArray = logs.map((log) => ({
           question_id: Number(log.question_id),
           answer_id: log.answer_id ?? null,
-          time: log.time // Ya está en formato HH:MM:SS
+          time: log.time,
         }));
       } else {
-        // Para envío manual, usar selectedAnswers y obtener time de localStorage
         answersArray = Object.entries(selectedAnswers).map(([question_id, answer_id]) => {
           const log = logs.find((l) => l.question_id === Number(question_id));
           return {
             question_id: Number(question_id),
             answer_id: answer_id ?? null,
-            time: log?.time ?? "00:00:00" // Usar tiempo del log o "00:00:00" si no existe
+            time: log?.time ?? "00:00:00",
           };
         });
       }
@@ -142,14 +138,13 @@ const ViewQuestionsAndAnswers = () => {
       const payload = {
         student_test_id: Number(localStorage.getItem("student_test_id")),
         answers: answersArray,
-        finalize: isAutoSubmit || e?.type === "submit" // ✅ Solo finaliza si es autoenvío o click en enviar
+        finalize: isAutoSubmit || e?.type === "submit",
       };
-      const response = await postApi("logs_answers/bulkSave", payload);
 
+      const response = await postApi("logs_answers/bulkSave", payload);
       setFinalScore(Math.floor(response.score));
       setAlreadyAnswered(true);
 
-      // Limpiar localStorage
       removeExamLogsByTestCode(localStorage.getItem("test_code"));
       removeTestCode();
       removeStudentTestId();
@@ -158,7 +153,8 @@ const ViewQuestionsAndAnswers = () => {
     } finally {
       setLoading(false);
     }
-  }
+  };
+
   // Datos iniciales
   useEffect(() => {
     let isMounted = true;
@@ -169,57 +165,36 @@ const ViewQuestionsAndAnswers = () => {
   const loadInitialExamData = async (isMounted) => {
     setError(null);
     try {
-      const fetchedStudentId = await getApi(`student_evaluations/list/${ci}`);
+      const evaluations = await getApi(`student_evaluations/list/${ci}`);
       if (!isMounted) return;
-      setStudentId(fetchedStudentId);
-      const response = await getStudentTestById(fetchedStudentId);
 
-      if (!isMounted) return;
-      localStorage.setItem("student_test_id", response.student_test_id);
-      if (response?.examCompleted) {
-        setAlreadyAnswered(true);
-        setClosedByGroup(true);
-        setQuestionsData(response);
+      if (!evaluations || evaluations.length === 0) {
+        setError("No tienes evaluaciones asignadas.");
         setLoading(false);
         return;
       }
 
-      setQuestionsData(response);
-      localStorage.setItem("test_code", response.test_code);
-
-      const evaluation = await getApi(`student_evaluations/find/${response.evaluation_id}`);
-      if (!isMounted) return;
-      setEvaluationTitle(evaluation.title);
-
-      const answeredResp = await getApi(`student_answers/list/${response.student_test_id}`);
-      if (!isMounted) return;
-
-      if (answeredResp?.answered) {
-        setAlreadyAnswered(true);
-        setFinalScore(Math.round(answeredResp.score));
-      }
-
+      setStudentEvaluations(evaluations);
       setLoading(false);
     } catch (err) {
       if (isMounted) setError(err?.response?.data?.message || "Error al cargar datos");
-    } finally {
       if (isMounted) setLoading(false);
     }
   };
 
+  // Socket
   useEffect(() => {
     if (!questionsData?.student_test_id) return;
     const token = localStorage.getItem("jwt_token");
-    // Inicializar socket solo una vez
     if (!socketRef.current) {
       socketRef.current = io(URL_SOCKET, { transports: ["websocket"], query: { token } });
     }
     const socket = socketRef.current;
-    // 🔹 Conexión
+
     socket.on("connect", () => {
       socket.emit("join", { roomId: student.group.toString(), role: "student" });
     });
-    // 🔹 Error de conexión
+
     socket.on("connect_error", (err) => {
       customAlert(err || "No se pudo conectar al servidor de examen", "error");
     });
@@ -235,12 +210,9 @@ const ViewQuestionsAndAnswers = () => {
       });
     });
 
-    // 🔹 Evento msg (actualización de tiempo y estado)
     socket.on("msg", async (payload) => {
-
       const serverStatus =
-        payload?.examStatus ??
-        (payload?.isStarted ? examStatuses.IN_PROGRESS : examStatuses.PAUSED);
+        payload?.examStatus ?? (payload?.isStarted ? examStatuses.IN_PROGRESS : examStatuses.PAUSED);
 
       const isExamCompleted =
         serverStatus === examStatuses.COMPLETED ||
@@ -252,24 +224,13 @@ const ViewQuestionsAndAnswers = () => {
           started: false,
           timeLeft: 0,
           timeFormatted: "00:00:00",
-          serverTime:
-            payload?.serverTime ??
-            new Date().toLocaleTimeString("es-ES", {
-              timeZone: "America/La_Paz",
-            }),
+          serverTime: payload?.serverTime ?? new Date().toLocaleTimeString("es-ES", { timeZone: "America/La_Paz" }),
           examStatus: examStatuses.COMPLETED,
         });
 
-        // Forzar guardado final si no se envió antes
-        if (!alreadyAnswered) {
-          await handleSubmit(null, true);
-        }
-
-        if (payload?.reason === "stopped") {
-          setStoppedByTeacher(true);
-        }
+        if (!alreadyAnswered) await handleSubmit(null, true);
+        if (payload?.reason === "stopped") setStoppedByTeacher(true);
       } else {
-        // Actualizar mientras no esté terminado
         setSocketTimeData((prev) => ({
           ...prev,
           examStatus: serverStatus,
@@ -281,7 +242,6 @@ const ViewQuestionsAndAnswers = () => {
       }
     });
 
-    // 🔹 Cleanup
     return () => {
       if (socketRef.current) {
         socket.off("start");
@@ -294,18 +254,73 @@ const ViewQuestionsAndAnswers = () => {
     };
   }, [questionsData?.student_test_id, alreadyAnswered]);
 
-  // 🔹 Sincronización automática cada 30s
+  // Sincronización automática cada 30s
   useEffect(() => {
     if (!questionsData?.student_test_id) return;
-    // ❌ Si ya terminó o ya fue respondido, no iniciar el intervalo
     if (alreadyAnswered || socketTimeData.examStatus === examStatuses.COMPLETED) return;
+
     const interval = setInterval(syncAnswersToBackend, 30000);
     return () => clearInterval(interval);
   }, [questionsData?.student_test_id, alreadyAnswered, socketTimeData.examStatus]);
 
+  // Cuando el estudiante selecciona una evaluación para empezar
+  const handleSelectEvaluation = async (evaluation) => {
+    setLoading(true);
+    setSelectedEvaluation(evaluation);
+    setError(null);
+
+    try {
+      const response = await getStudentTestById(evaluation.student_test_id);
+
+      setQuestionsData(response);
+      localStorage.setItem("student_test_id", response.student_test_id);
+      localStorage.setItem("test_code", response.test_code);
+      setEvaluationTitle(evaluation.title);
+
+      if (response?.examCompleted) {
+        setAlreadyAnswered(true);
+        setClosedByGroup(true);
+      } else {
+        // Revisar respuestas previas si existieran
+        const answeredResp = await getApi(`student_answers/list/${response.student_test_id}`);
+        if (answeredResp?.answered) {
+          setAlreadyAnswered(true);
+          setFinalScore(Math.round(answeredResp.score));
+        }
+      }
+    } catch (err) {
+      setError(err?.response?.data?.message || "Error al cargar el examen seleccionado");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Render
   if (loading) return <LoadingComponent title={evaluationTitle} />;
-  if (error) return <p className="text-danger">Error: {error}</p>;
+  if (error) return <p className="text-danger">{error}</p>;
+
+  // Si aún no seleccionó evaluación
+  if (!questionsData && studentEvaluations.length > 0) {
+    return (
+      <div className="container mt-4">
+        <h4>Selecciona la evaluación que deseas rendir</h4>
+        <ul className="list-group mt-3">
+          {studentEvaluations.map((evalItem) => (
+            <li
+              key={evalItem.student_test_id}
+              className="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+              style={{ cursor: "pointer" }}
+              onClick={() => handleSelectEvaluation(evalItem)}
+            >
+              {evalItem.title}{" "}
+              <span className="badge bg-secondary">{evalItem.status}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  }
+
   if (alreadyAnswered) {
     return (
       <ExamStatusMessage
@@ -316,7 +331,9 @@ const ViewQuestionsAndAnswers = () => {
       />
     );
   }
+
   if (!questionsData?.questions) return <LoadingComponent title={evaluationTitle} />;
+
   if (socketTimeData.examStatus === examStatuses.WAITING)
     return (
       <div className="container mt-4 text-center">
@@ -324,6 +341,7 @@ const ViewQuestionsAndAnswers = () => {
         <p>Permanece en esta ventana. El examen comenzará pronto.</p>
       </div>
     );
+
   if (socketTimeData.examStatus === examStatuses.PAUSED)
     return (
       <div className="container mt-4 text-center">
@@ -366,3 +384,4 @@ const ViewQuestionsAndAnswers = () => {
 };
 
 export default ViewQuestionsAndAnswers;
+
