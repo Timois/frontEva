@@ -175,6 +175,7 @@ const ViewQuestionsAndAnswers = () => {
       }
 
       setStudentEvaluations(evaluations);
+      setStudentId(evaluations[0].student_id);
       setLoading(false);
     } catch (err) {
       if (isMounted) setError(err?.response?.data?.message || "Error al cargar datos");
@@ -266,11 +267,12 @@ const ViewQuestionsAndAnswers = () => {
   // Cuando el estudiante selecciona una evaluación para empezar
   const handleSelectEvaluation = async (evaluation) => {
     setLoading(true);
-    setSelectedEvaluation(evaluation);
+    setSelectedEvaluation(evaluation); // Guardas el objeto seleccionado
     setError(null);
 
     try {
-      const response = await getStudentTestById(evaluation.student_test_id);
+      // 👇 Aquí usas evaluation.evaluation_id (no evaluation.id)
+      const response = await getStudentTestById(evaluation.student_id, evaluation.evaluation_id);
 
       setQuestionsData(response);
       localStorage.setItem("student_test_id", response.student_test_id);
@@ -281,7 +283,6 @@ const ViewQuestionsAndAnswers = () => {
         setAlreadyAnswered(true);
         setClosedByGroup(true);
       } else {
-        // Revisar respuestas previas si existieran
         const answeredResp = await getApi(`student_answers/list/${response.student_test_id}`);
         if (answeredResp?.answered) {
           setAlreadyAnswered(true);
@@ -293,8 +294,7 @@ const ViewQuestionsAndAnswers = () => {
     } finally {
       setLoading(false);
     }
-  };
-
+  }
   // Render
   if (loading) return <LoadingComponent title={evaluationTitle} />;
   if (error) return <p className="text-danger">{error}</p>;

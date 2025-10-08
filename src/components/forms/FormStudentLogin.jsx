@@ -26,39 +26,26 @@ const FormStudentLogin = () => {
     setResponse(true);
     try {
       const response = await loginStudent(data);
-      
-      
+
       if (response?.token) {
         storeStudent(response.student);
-        localStorage.setItem("jwt_token", response.token);        
-        localStorage.setItem("group", response.user.group);        
-        // Agregar confirmación antes de navegar
-        const confirmarExamen = window.confirm("¿Desea iniciar su examen ahora?");
-        if (confirmarExamen) {
-          navigate("/estudiantes/exams");
-        window.location.reload(); // Recargar la página para que se muestre el examen correctamente  
-        } else {
-          // Si el estudiante no confirma, cerrar sesión
-          localStorage.removeItem("jwt_token");
-          localStorage.removeItem("group");
-          storeStudent(null);
-          setError("root", { 
-            type: "custom", 
-            message: "Puede volver a iniciar sesión cuando esté listo para el examen" 
-          });
-        }
-        
+        localStorage.setItem("jwt_token", response.token);
+        localStorage.setItem("group", response.user.group);
+
+        // 👉 Navegar directamente al examen sin confirmar
+        navigate("/estudiantes/exams");
+        window.location.reload();
       } else {
-        setError("root", { 
-          type: "custom", 
-          message: response?.message || "Credenciales incorrectas" 
+        setError("root", {
+          type: "custom",
+          message: response?.message || "Credenciales incorrectas",
         });
       }
     } catch (error) {
       console.error("Error en el login:", error);
-      setError("root", { 
-        type: "custom", 
-        message: error.response?.data?.message || "Error en el servidor" 
+      setError("root", {
+        type: "custom",
+        message: error.response?.data?.message || "Error en el servidor",
       });
     } finally {
       setResponse(false);
@@ -90,7 +77,9 @@ const FormStudentLogin = () => {
           <span>{response ? "Iniciando..." : "Iniciar Sesión"}</span>
         </Button>
       </ContainerButton>
-      {errors.root && <p className="text-danger text-center mt-2">{errors.root.message}</p>}
+      {errors.root && (
+        <p className="text-danger text-center mt-2">{errors.root.message}</p>
+      )}
     </form>
   );
 };

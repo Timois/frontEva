@@ -23,10 +23,11 @@ export const useFetchStudent = () => {
 export const usFetchStudentTest = () => {
     const { assignQuestions, setAssignQuestions } = useContext(AssignQuestionsContext);
 
-    const getStudentTestById = async (studentTestId) => {
-        const response = await getApi(`student_evaluations/questions/${studentTestId}`);
-        setAssignQuestions(response)
+    const getStudentTestById = async (studentId, evaluationId) => {
+        const response = await getApi(`student_evaluations/questions/${studentId}/${evaluationId}`);
+        setAssignQuestions(response);
         return response;
-    }
+    };
+    
     return { assignQuestions, getStudentTestById };
 }
