@@ -187,75 +187,56 @@ const ViewQuestionsAndAnswers = () => {
   // Socket
   useEffect(() => {
     if (!questionsData?.student_test_id) return;
-    const token = localStorage.getItem("jwt_token");
-    if (!socketRef.current) {
-      socketRef.current = io(URL_SOCKET, { transports: ["websocket"], query: { token } });
-    }
-    const socket = socketRef.current;
+
+    const socket = io(URL_SOCKET, {
+      transports: ["websocket"],
+      query: { token: localStorage.getItem("jwt_token") },
+    });
+
+    socketRef.current = socket;
 
     socket.on("connect", () => {
-      socket.emit("join", { roomId: student.group.toString(), role: "student" });
+      console.log("🟢 Conectado al socket");
+      const roomId = student.group?.toString();
+      socket.emit("join", { roomId, role: "student" });
     });
 
-    socket.on("connect_error", (err) => {
-      customAlert(err || "No se pudo conectar al servidor de examen", "error");
-    });
-
+    // 🟢 Evento de inicio de examen
     socket.on("start", (payload) => {
-      console.log("Examen iniciado:", payload);
-      const duration = payload?.duration ?? payload?.time ?? 0;
+      console.log("🚀 START recibido:", payload);
+
       setSocketTimeData({
         started: true,
-        timeLeft: duration,
-        timeFormatted: payload?.timeFormatted ?? new Date(duration * 1000).toISOString().substr(11, 8),
-        serverTime: payload?.serverTime ?? new Date().toLocaleTimeString("es-ES", { timeZone: "America/La_Paz" }),
+        timeLeft: payload.duration,
+        timeFormatted: payload.timeFormatted,
+        serverTime: payload.serverTime,
         examStatus: examStatuses.IN_PROGRESS,
       });
     });
 
-    socket.on("msg", async (payload) => {
-      const serverStatus =
-        payload?.examStatus ?? (payload?.isStarted ? examStatuses.IN_PROGRESS : examStatuses.PAUSED);
+    // 🟡 Evento de estado general ("msg")
+    socket.on("msg", (payload) => {
+      console.log("📨 MSG recibido:", payload);
 
-      const isExamCompleted =
-        serverStatus === examStatuses.COMPLETED ||
-        payload?.examCompleted === true ||
-        payload?.reason === "stopped";
+      const status = payload.examStatus || examStatuses.WAITING;
 
-      if (isExamCompleted) {
-        setSocketTimeData({
-          started: false,
-          timeLeft: 0,
-          timeFormatted: "00:00:00",
-          serverTime: payload?.serverTime ?? new Date().toLocaleTimeString("es-ES", { timeZone: "America/La_Paz" }),
-          examStatus: examStatuses.COMPLETED,
-        });
+      setSocketTimeData({
+        started: status === examStatuses.IN_PROGRESS,
+        timeLeft: payload.timeLeft ?? 0,
+        timeFormatted: payload.timeFormatted ?? "00:00:00",
+        serverTime: payload.serverTime,
+        examStatus: status,
+      });
+    });
 
-        if (!alreadyAnswered) await handleSubmit(null, true);
-        if (payload?.reason === "stopped") setStoppedByTeacher(true);
-      } else {
-        setSocketTimeData((prev) => ({
-          ...prev,
-          examStatus: serverStatus,
-          started: serverStatus === examStatuses.IN_PROGRESS,
-          timeLeft: payload?.timeLeft ?? prev.timeLeft,
-          timeFormatted: payload?.timeFormatted ?? prev.timeFormatted,
-          serverTime: payload?.serverTime ?? prev.serverTime,
-        }));
-      }
+    socket.on("disconnect", () => {
+      console.warn("⚠️ Socket desconectado del servidor");
     });
 
     return () => {
-      if (socketRef.current) {
-        socket.off("start");
-        socket.off("msg");
-        socket.off("joined");
-        socket.off("connect_error");
-        socket.disconnect();
-        socketRef.current = null;
-      }
+      socket.disconnect();
     };
-  }, [questionsData?.student_test_id, alreadyAnswered]);
+  }, [questionsData?.student_test_id]);
 
   // Sincronización automática cada 30s
   useEffect(() => {
@@ -268,6 +249,8 @@ const ViewQuestionsAndAnswers = () => {
 
   // Cuando el estudiante selecciona una evaluación para empezar
   const handleSelectEvaluation = async (evaluation) => {
+    console.log("Evaluación seleccionada:", evaluation);
+    console.log("estado de la evaluacion:", socketTimeData.examStatus);
     setLoading(true);
     setSelectedEvaluation(evaluation); // Guardas el objeto seleccionado
     setError(null);
@@ -275,7 +258,7 @@ const ViewQuestionsAndAnswers = () => {
     try {
       // 👇 Aquí usas evaluation.evaluation_id (no evaluation.id)
       const response = await getStudentTestById(evaluation.student_id, evaluation.evaluation_id);
-      
+
       setQuestionsData(response);
       localStorage.setItem("student_test_id", response.student_test_id);
       localStorage.setItem("test_code", response.test_code);
@@ -335,7 +318,6 @@ const ViewQuestionsAndAnswers = () => {
   }
 
   if (!questionsData?.questions) return <LoadingComponent title={evaluationTitle} />;
-
   if (socketTimeData.examStatus === examStatuses.WAITING)
     return (
       <div className="container mt-4 text-center">
