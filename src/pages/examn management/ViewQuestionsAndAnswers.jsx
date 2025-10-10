@@ -16,6 +16,7 @@ import SubmitSection from "./components/SubmitSection";
 import { VITE_URL_IMAGES, VITE_URL_WEBSOCKET } from "../../utils/constants";
 import { customAlert } from "../../utils/domHelper";
 import ExamStatusMessage from "./components/ExamStatusMessage";
+import { Link, useNavigate } from "react-router-dom";
 
 const examStatuses = {
   WAITING: "pendiente",
@@ -201,6 +202,7 @@ const ViewQuestionsAndAnswers = () => {
     });
 
     socket.on("start", (payload) => {
+      console.log("Examen iniciado:", payload);
       const duration = payload?.duration ?? payload?.time ?? 0;
       setSocketTimeData({
         started: true,
@@ -273,7 +275,7 @@ const ViewQuestionsAndAnswers = () => {
     try {
       // 👇 Aquí usas evaluation.evaluation_id (no evaluation.id)
       const response = await getStudentTestById(evaluation.student_id, evaluation.evaluation_id);
-
+      
       setQuestionsData(response);
       localStorage.setItem("student_test_id", response.student_test_id);
       localStorage.setItem("test_code", response.test_code);
@@ -337,6 +339,9 @@ const ViewQuestionsAndAnswers = () => {
   if (socketTimeData.examStatus === examStatuses.WAITING)
     return (
       <div className="container mt-4 text-center">
+        <Link to="/" className="btn btn-primary">
+          Volver
+        </Link>
         <h4>Esperando inicio del examen...</h4>
         <p>Permanece en esta ventana. El examen comenzará pronto.</p>
       </div>

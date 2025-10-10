@@ -36,6 +36,8 @@ import { IndexLabs } from "../pages/labs/IndexLabs"
 import { IndexGroups } from "../pages/groups/IndexGroups"
 import { CompareAnswers } from "../pages/examn management/CompareAnswers"
 import { ResultsByTest } from "../pages/examn management/ResultsByTest"
+import IndexResults from "../pages/results management/IndexResults"
+import { StudentsHome } from "../pages/StudentsHome"
 export const AppRoutes = () => {
   return (
     <Routes
@@ -45,6 +47,7 @@ export const AppRoutes = () => {
         <Route path="/" element={<Navigate to={"/login"} />} ></Route>
         <Route path="/login" element={<Login />}></Route>
         <Route path="/estudiantes" element={<StudentLogin />}></Route>
+        <Route path="estudiantes/home" element={<StudentsHome />}></Route>
       </Route>
 
       <Route element={<PrivateGuard />}>
@@ -128,6 +131,11 @@ export const AppRoutes = () => {
           <Route path="administracion/examns/:id/questionsAssigned" element={
             <PermissionsGuard requiredPermission={"ver-preguntas-asignadas"}>
               <ViewQuestionsAssigned />
+            </PermissionsGuard>
+          } />
+          <Route path="administracion/examns/results" element={
+            <PermissionsGuard requiredPermission={"ver-resultados-por-evaluacion"}>
+              <IndexResults />
             </PermissionsGuard>
           } />
           <Route

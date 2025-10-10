@@ -239,7 +239,7 @@ export const Groups = () => {
         setShowResults(true);
     };
     const idEditar = "editGroup";
-
+    
     const examDate = examn?.date_of_realization;
 
     return (
