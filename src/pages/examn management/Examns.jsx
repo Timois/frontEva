@@ -87,6 +87,9 @@ export const Examns = () => {
                         <li className="list-group-item d-flex justify-content-between">
                           <strong><FaRegClock className="me-1" />Tiempo:</strong> {examn.time}
                         </li>
+                        <li className='list-group-item d-flex justify-content-between'>
+                          <strong>Plazas:</strong>{examn.places}
+                        </li>
                         <li className="list-group-item d-flex justify-content-between">
                           <strong>Estado:</strong>
                           <span className={`badge ${examn.status === 'Activo' ? 'bg-success' : 'bg-secondary'

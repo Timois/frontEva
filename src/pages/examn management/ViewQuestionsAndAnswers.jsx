@@ -17,6 +17,9 @@ import { VITE_URL_IMAGES, VITE_URL_WEBSOCKET } from "../../utils/constants";
 import { customAlert } from "../../utils/domHelper";
 import ExamStatusMessage from "./components/ExamStatusMessage";
 import { Link, useNavigate } from "react-router-dom";
+import WaitingExam from "./components/ExamStates/WaitingExam";
+import PausedExam from "./components/ExamStates/PausedExam";
+import ActiveExam from "./components/ActiveExam";
 
 const examStatuses = {
   WAITING: "pendiente",
@@ -196,15 +199,12 @@ const ViewQuestionsAndAnswers = () => {
     socketRef.current = socket;
 
     socket.on("connect", () => {
-      console.log("🟢 Conectado al socket");
       const roomId = student.group?.toString();
       socket.emit("join", { roomId, role: "student" });
     });
 
     // 🟢 Evento de inicio de examen
     socket.on("start", (payload) => {
-      console.log("🚀 START recibido:", payload);
-
       setSocketTimeData({
         started: true,
         timeLeft: payload.duration,
@@ -216,8 +216,6 @@ const ViewQuestionsAndAnswers = () => {
 
     // 🟡 Evento de estado general ("msg")
     socket.on("msg", (payload) => {
-      console.log("📨 MSG recibido:", payload);
-
       const status = payload.examStatus || examStatuses.WAITING;
 
       setSocketTimeData({
@@ -247,18 +245,15 @@ const ViewQuestionsAndAnswers = () => {
     return () => clearInterval(interval);
   }, [questionsData?.student_test_id, alreadyAnswered, socketTimeData.examStatus]);
 
-  // Cuando el estudiante selecciona una evaluación para empezar
+  const navigate = useNavigate();
+
   const handleSelectEvaluation = async (evaluation) => {
-    console.log("Evaluación seleccionada:", evaluation);
-    console.log("estado de la evaluacion:", socketTimeData.examStatus);
     setLoading(true);
-    setSelectedEvaluation(evaluation); // Guardas el objeto seleccionado
+    setSelectedEvaluation(evaluation);
     setError(null);
 
     try {
-      // 👇 Aquí usas evaluation.evaluation_id (no evaluation.id)
       const response = await getStudentTestById(evaluation.student_id, evaluation.evaluation_id);
-
       setQuestionsData(response);
       localStorage.setItem("student_test_id", response.student_test_id);
       localStorage.setItem("test_code", response.test_code);
@@ -274,17 +269,20 @@ const ViewQuestionsAndAnswers = () => {
           setFinalScore(Math.round(answeredResp.score));
         }
       }
+      navigate(`/estudiantes/exams/${evaluation.evaluation_id}`);
+
     } catch (err) {
       setError(err?.response?.data?.message || "Error al cargar el examen seleccionado");
     } finally {
       setLoading(false);
     }
-  }
-  // Render
+  };
+
+  // Renderizado condicional
   if (loading) return <LoadingComponent title={evaluationTitle} />;
   if (error) return <p className="text-danger">{error}</p>;
 
-  // Si aún no seleccionó evaluación
+  // Selección de evaluación
   if (!questionsData && studentEvaluations.length > 0) {
     return (
       <div className="container mt-4">
@@ -318,56 +316,27 @@ const ViewQuestionsAndAnswers = () => {
   }
 
   if (!questionsData?.questions) return <LoadingComponent title={evaluationTitle} />;
-  if (socketTimeData.examStatus === examStatuses.WAITING)
-    return (
-      <div className="container mt-4 text-center">
-        <Link to="/" className="btn btn-primary">
-          Volver
-        </Link>
-        <h4>Esperando inicio del examen...</h4>
-        <p>Permanece en esta ventana. El examen comenzará pronto.</p>
-      </div>
-    );
 
-  if (socketTimeData.examStatus === examStatuses.PAUSED)
-    return (
-      <div className="container mt-4 text-center">
-        <h4>El examen está pausado temporalmente</h4>
-        <p>Espera a que el docente lo reanude.</p>
-      </div>
-    );
+  switch (socketTimeData.examStatus) {
+    case examStatuses.WAITING:
+      return <WaitingExam />;
+    case examStatuses.PAUSED:
+      return <PausedExam />;
+    default:
+      return (
+        <ActiveExam
+          evaluationTitle={evaluationTitle}
+          questionsData={questionsData}
+          socketTimeData={socketTimeData}
+          selectedAnswers={selectedAnswers}
+          API_BASE_URL={API_BASE_URL}
+          handleAnswerSelection={handleAnswerSelection}
+          handleSubmit={handleSubmit}
+          loading={loading}
+        />
+      );
+  }
 
-  return (
-    <div className="container-fluid p-4">
-      <ExamHeader
-        evaluationTitle={evaluationTitle}
-        testCode={questionsData?.test_code}
-        socketTimeData={socketTimeData}
-        examStarted={socketTimeData.started}
-      />
-
-      <div className="questions-container">
-        {questionsData.questions.map((question, index) => (
-          <QuestionCard
-            key={question.question_id}
-            question={question}
-            index={index}
-            API_BASE_URL={API_BASE_URL}
-            selectedAnswers={selectedAnswers}
-            examStarted={socketTimeData.started}
-            handleAnswerSelection={handleAnswerSelection}
-          />
-        ))}
-      </div>
-
-      <SubmitSection
-        loading={loading}
-        socketTimeData={socketTimeData}
-        examStarted={socketTimeData.started}
-        handleSubmit={handleSubmit}
-      />
-    </div>
-  );
 };
 
 export default ViewQuestionsAndAnswers;

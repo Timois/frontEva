@@ -23,9 +23,7 @@ import AccessDenied from "../pages/errors/AccesDenied"
 import PermissionsGuard from "./PermissionsGuard"
 import { Answer } from "../pages/careers/questions/Answer"
 import { AssignQuestions } from "../pages/examn management/AssignQuestions"
-import { ViewQuestionsAssigned } from "../pages/examn management/ViewQuestionsAssigned"
 import ViewQuestionsAndAnswers from "../pages/examn management/ViewQuestionsAndAnswers"
-import ViewQuestionsForStudent from "../pages/examn management/ViewQuestionsForStudent"
 import { CareerById } from "../pages/careers/CareerById"
 import LayoutStudent from "../components/layouts/layout/LayoutStudent"
 import { ImportQuestions } from "../pages/careers/questions/imports/ImportQuestions"
@@ -124,15 +122,6 @@ export const AppRoutes = () => {
             <PermissionsGuard requiredPermission={"ver-grupos-por-evaluacion"}>
               <IndexGroups />
             </PermissionsGuard>} />
-          <Route path="administracion/examns/:id/prueba" element={
-            <PermissionsGuard requiredPermission={"ver-preguntas-asignadas"}>
-              <ViewQuestionsForStudent />
-            </PermissionsGuard>} />
-          <Route path="administracion/examns/:id/questionsAssigned" element={
-            <PermissionsGuard requiredPermission={"ver-preguntas-asignadas"}>
-              <ViewQuestionsAssigned />
-            </PermissionsGuard>
-          } />
           <Route path="administracion/examns/results" element={
             <PermissionsGuard requiredPermission={"ver-resultados-por-evaluacion"}>
               <IndexResults />
@@ -166,10 +155,17 @@ export const AppRoutes = () => {
       </Route>
       <Route element={<PrivateGuard />}>
         <Route element={<LayoutStudent><Outlet /></LayoutStudent>}>
-          <Route path="estudiantes/exams" element={<ViewQuestionsAndAnswers />} />
+          <Route path="estudiantes/exams">
+            <Route index element={<ViewQuestionsAndAnswers />} />
+            <Route path=":id" element={<ViewQuestionsAndAnswers />} />
+          </Route>
         </Route>
-        <Route path="estudiantes/exams/:id/compareAnswers" element={<CompareAnswers />} />
+        <Route
+          path="estudiantes/exams/:id/compareAnswers"
+          element={<CompareAnswers />}
+        />
       </Route>
+
       <Route path="404" element={<NotFound404 />}></Route>
     </Routes>
   )

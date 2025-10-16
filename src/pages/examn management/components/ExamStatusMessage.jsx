@@ -1,7 +1,10 @@
 /* eslint-disable react/prop-types */
-import { Link } from "react-router-dom";
-
+import { useNavigate } from "react-router-dom";
 const ExamStatusMessage = ({ closedByGroup, stoppedByTeacher, finalScore, studentId }) => {
+  const navigate = useNavigate();
+  const handleClick = () => {
+    navigate(`/estudiantes/exams/${studentId}/compareAnswers`);
+  };
   
   return (
     <div className="container mt-4">
@@ -31,9 +34,9 @@ const ExamStatusMessage = ({ closedByGroup, stoppedByTeacher, finalScore, studen
           </>
         )}
       </div>
-      <Link to={`${studentId}/compareAnswers`} className="btn btn-primary">
-        Comparar Respuestas
-      </Link>
+      <button className="btn btn-primary" onClick={handleClick}>
+        Comparar respuestas
+      </button>
     </div>
   );
 };

@@ -14,7 +14,7 @@ export const GroupsProvider = ({children}) => {
             const lista = [...groups]
             lista[posicion] = {...lista[posicion],...group }
             setGroups(lista)
-        }
+        }   
     }
 
     const values = { groups, addGroup, setGroups, updateGroup }
