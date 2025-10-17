@@ -42,10 +42,9 @@ export const AppRoutes = () => {
       future={{ v7_startTransition: true }}
     >
       <Route element={<PublicGuard />}>
-        <Route path="/" element={<Navigate to={"/login"} />} ></Route>
+        <Route path="/" element={<Navigate to={"/login"} replace/>} ></Route>
         <Route path="/login" element={<Login />}></Route>
         <Route path="/estudiantes" element={<StudentLogin />}></Route>
-        <Route path="estudiantes/home" element={<StudentsHome />}></Route>
       </Route>
 
       <Route element={<PrivateGuard />}>
@@ -155,6 +154,7 @@ export const AppRoutes = () => {
       </Route>
       <Route element={<PrivateGuard />}>
         <Route element={<LayoutStudent><Outlet /></LayoutStudent>}>
+        <Route path="estudiantes/home" element={<StudentsHome />} />
           <Route path="estudiantes/exams">
             <Route index element={<ViewQuestionsAndAnswers />} />
             <Route path=":id" element={<ViewQuestionsAndAnswers />} />

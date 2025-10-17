@@ -10,13 +10,9 @@ import {
 } from "../../services/storage/storageStudent";
 import { io } from "socket.io-client";
 import LoadingComponent from "./components/LoadingComponent";
-import ExamHeader from "./components/ExamHeader";
-import QuestionCard from "./components/QuestionCard";
-import SubmitSection from "./components/SubmitSection";
 import { VITE_URL_IMAGES, VITE_URL_WEBSOCKET } from "../../utils/constants";
-import { customAlert } from "../../utils/domHelper";
 import ExamStatusMessage from "./components/ExamStatusMessage";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import WaitingExam from "./components/ExamStates/WaitingExam";
 import PausedExam from "./components/ExamStates/PausedExam";
 import ActiveExam from "./components/ActiveExam";
@@ -146,6 +142,7 @@ const ViewQuestionsAndAnswers = () => {
       };
 
       const response = await postApi("logs_answers/bulkSave", payload);
+      
       setFinalScore(Math.floor(response.score));
       setAlreadyAnswered(true);
 
@@ -281,7 +278,16 @@ const ViewQuestionsAndAnswers = () => {
   // Renderizado condicional
   if (loading) return <LoadingComponent title={evaluationTitle} />;
   if (error) return <p className="text-danger">{error}</p>;
-
+  if (alreadyAnswered) {
+    return (
+      <ExamStatusMessage
+        closedByGroup={closedByGroup}
+        stoppedByTeacher={stoppedByTeacher}
+        finalScore={finalScore}
+        studentId={studentId}
+      />
+    );
+  }
   // Selección de evaluación
   if (!questionsData && studentEvaluations.length > 0) {
     return (
@@ -301,17 +307,6 @@ const ViewQuestionsAndAnswers = () => {
           ))}
         </ul>
       </div>
-    );
-  }
-
-  if (alreadyAnswered) {
-    return (
-      <ExamStatusMessage
-        closedByGroup={closedByGroup}
-        stoppedByTeacher={stoppedByTeacher}
-        finalScore={finalScore}
-        studentId={studentId}
-      />
     );
   }
 
