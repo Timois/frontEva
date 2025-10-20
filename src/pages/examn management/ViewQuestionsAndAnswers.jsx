@@ -16,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 import WaitingExam from "./components/ExamStates/WaitingExam";
 import PausedExam from "./components/ExamStates/PausedExam";
 import ActiveExam from "./components/ActiveExam";
+import { FaCheckCircle, FaClipboardList, FaClock } from "react-icons/fa";
 
 const examStatuses = {
   WAITING: "pendiente",
@@ -142,7 +143,7 @@ const ViewQuestionsAndAnswers = () => {
       };
 
       const response = await postApi("logs_answers/bulkSave", payload);
-      
+
       setFinalScore(Math.floor(response.score));
       setAlreadyAnswered(true);
 
@@ -184,7 +185,36 @@ const ViewQuestionsAndAnswers = () => {
     }
   };
 
-  // Socket
+  // --- Nueva función auxiliar ---
+  const handleExamAutoFinish = async (reason = "unknown") => {
+    try {
+      await handleSubmit(null, true); // ✅ Llamamos a handleSubmit en modo automático
+      setAlreadyAnswered(true);
+      removeExamLogsByTestCode(localStorage.getItem("test_code"));
+      removeTestCode();
+      removeStudentTestId();
+
+      if (reason === "stopped") {
+        setStoppedByTeacher(true);
+      } else if (reason === "timeup") {
+        setClosedByGroup(true);
+      }
+
+      setSocketTimeData((prev) => ({
+        ...prev,
+        examStatus: examStatuses.COMPLETED,
+        timeLeft: 0,
+        timeFormatted: "00:00:00",
+      }));
+
+      console.log("✅ Examen auto guardado por", reason);
+    } catch (err) {
+      console.error("❌ Error al guardar automáticamente:", err);
+    }
+  };
+
+
+  // --- Reemplaza TODO este useEffect ---
   useEffect(() => {
     if (!questionsData?.student_test_id) return;
 
@@ -211,27 +241,32 @@ const ViewQuestionsAndAnswers = () => {
       });
     });
 
-    // 🟡 Evento de estado general ("msg")
-    socket.on("msg", (payload) => {
-      const status = payload.examStatus || examStatuses.WAITING;
+    // 🟡 Evento de estado general
+    socket.on("msg", async (payload) => {
+      const { examStatus, timeLeft, timeFormatted, reason } = payload;
 
-      setSocketTimeData({
-        started: status === examStatuses.IN_PROGRESS,
-        timeLeft: payload.timeLeft ?? 0,
-        timeFormatted: payload.timeFormatted ?? "00:00:00",
-        serverTime: payload.serverTime,
-        examStatus: status,
-      });
-    });
+      setSocketTimeData((prev) => ({
+        ...prev,
+        timeLeft: timeLeft ?? prev.timeLeft,
+        timeFormatted: timeFormatted ?? prev.timeFormatted,
+        examStatus: examStatus ?? prev.examStatus,
+      }));
 
-    socket.on("disconnect", () => {
-      console.warn("⚠️ Socket desconectado del servidor");
+      // 🔴 Detectar finalización automática
+      if (examStatus === examStatuses.COMPLETED) {
+        if (reason === "stopped") {
+          await handleExamAutoFinish("stopped");
+        } else if (reason === "timeup") {
+          await handleExamAutoFinish("timeup");
+        }
+      }
     });
 
     return () => {
       socket.disconnect();
     };
   }, [questionsData?.student_test_id]);
+
 
   // Sincronización automática cada 30s
   useEffect(() => {
@@ -273,8 +308,8 @@ const ViewQuestionsAndAnswers = () => {
     } finally {
       setLoading(false);
     }
-  };
-
+  }
+  
   // Renderizado condicional
   if (loading) return <LoadingComponent title={evaluationTitle} />;
   if (error) return <p className="text-danger">{error}</p>;
@@ -288,24 +323,76 @@ const ViewQuestionsAndAnswers = () => {
       />
     );
   }
-  // Selección de evaluación
+
   if (!questionsData && studentEvaluations.length > 0) {
     return (
-      <div className="container mt-4">
-        <h4>Selecciona la evaluación que deseas rendir</h4>
-        <ul className="list-group mt-3">
-          {studentEvaluations.map((evalItem) => (
-            <li
-              key={evalItem.student_test_id}
-              className="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
-              style={{ cursor: "pointer" }}
-              onClick={() => handleSelectEvaluation(evalItem)}
-            >
-              {evalItem.title}{" "}
-              <span className="badge bg-secondary">{evalItem.status}</span>
-            </li>
-          ))}
-        </ul>
+      <div className="container mt-5">
+        <div className="card shadow-sm border-0">
+          <div className="card-header bg-dark text-white text-center py-3 rounded-top">
+            <h5 className="mb-0">Selecciona la evaluación que deseas rendir</h5>
+          </div>
+          <ul className="list-group list-group-flush">
+            {studentEvaluations.map((evalItem) => {
+              // 🧩 Normalizamos el estado real que llega del backend
+              const rawStatus = (evalItem.group_status || "").toString().trim().toLowerCase();
+              let statusBadge = "";
+              let statusText = "";
+              let statusIcon = null;
+
+              switch (rawStatus) {
+                case "pendiente":
+                case "pending":
+                  statusBadge = "bg-warning text-dark";
+                  statusText = "Pendiente";
+                  statusIcon = <FaClock className="me-1" />;
+                  break;
+
+                case "en_progreso":
+                case "in_progress":
+                  statusBadge = "bg-success";
+                  statusText = "En progreso";
+                  statusIcon = <FaClipboardList className="me-1" />;
+                  break;
+
+                case "completado":
+                case "finalizado":
+                case "completed":
+                  statusBadge = "bg-secondary";
+                  statusText = "Completado";
+                  statusIcon = <FaCheckCircle className="me-1" />;
+                  break;
+
+                default:
+                  statusBadge = "bg-light text-dark";
+                  statusText = rawStatus || "Desconocido";
+                  break;
+              }
+
+              return (
+                <li
+                  key={evalItem.student_test_id}
+                  className="list-group-item d-flex justify-content-between align-items-center list-group-item-action"
+                  style={{ cursor: "pointer" }}
+                  onClick={() => handleSelectEvaluation(evalItem)}
+                >
+                  <div>
+                    <h6 className="mb-1 text-dark">{evalItem.title}</h6>
+                    <small className="text-muted">
+                      <strong>Estado:</strong>{" "}
+                      <span className={`badge ${statusBadge}`}>
+                        {statusIcon} {statusText}
+                      </span>
+                    </small>
+                  </div>
+
+                  <button className="btn btn-outline-primary btn-sm">
+                    <i className="bi bi-play-circle me-1"></i> Entrar
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
       </div>
     );
   }

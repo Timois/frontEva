@@ -31,6 +31,16 @@ export const useFetchCareer = () => {
 
   return { careers, getDataCareer, loading, error };
 };
+
+export const useFetchCareerById = () => {
+  const { career, setCareer } = useContext(CareerContext) 
+  const getDataCareerById = async (careerId) => {
+    const response = await getApi(`careers/find/${careerId}`)
+    setCareer(response) 
+  }
+  return { career, getDataCareerById }
+}
+
 export const useFetchCareerAssign = () => {
   const { careerAssignments, setCareerAssignments } = useContext(CareerAssignContext)
   const getDataCareerAssignments = async (id) => {

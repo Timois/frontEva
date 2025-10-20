@@ -14,14 +14,6 @@ const SubmitSection = ({ loading, socketTimeData, examStarted, handleSubmit }) =
         ? <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" />
         : "Enviar Respuestas"}
     </button>
-
-    {socketTimeData && examStarted && (
-      <div className="ms-3 d-flex flex-column justify-content-center">
-        <small className="text-muted">
-          Estado: <span className="text-primary">{socketTimeData.examStatus}</span>
-        </small>
-      </div>
-    )}
   </div>
 );
 

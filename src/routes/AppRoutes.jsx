@@ -121,8 +121,8 @@ export const AppRoutes = () => {
             <PermissionsGuard requiredPermission={"ver-grupos-por-evaluacion"}>
               <IndexGroups />
             </PermissionsGuard>} />
-          <Route path="administracion/examns/results" element={
-            <PermissionsGuard requiredPermission={"ver-resultados-por-evaluacion"}>
+          <Route path="administracion/results" element={
+            <PermissionsGuard requiredPermission={"ver-resultados"}>
               <IndexResults />
             </PermissionsGuard>
           } />

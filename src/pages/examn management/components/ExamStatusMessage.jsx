@@ -5,14 +5,17 @@ const ExamStatusMessage = ({ closedByGroup, stoppedByTeacher, finalScore, studen
   const handleClick = () => {
     navigate(`/estudiantes/exams/${studentId}/compareAnswers`);
   };
-  
+
   return (
     <div className="container mt-4">
       <div className="alert alert-info text-center">
         {closedByGroup ? (
           <>
-            <h4>La evaluación de este grupo ya fue finalizada.</h4>
+            <h4>El tiempo de esta evaluacion ya termino</h4>
             <p>No puedes continuar con el examen.</p>
+            <p> 
+              Tu nota final es: <strong>{finalScore}</strong>
+            </p>
           </>
         ) : stoppedByTeacher ? (
           <>

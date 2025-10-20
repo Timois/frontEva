@@ -180,7 +180,7 @@ const IndexResults = () => {
       </form>
       <div className="d-flex w-100 p-2 m-2 justify-content-end" >
         <button className="rounded" onClick={downloadPdf}>
-          <FaFilePdf size={24} className="text-danger" />
+          <FaFilePdf size={24} className="text-danger" /> Descargar
         </button>
       </div>
       <div className="mt-4">

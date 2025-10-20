@@ -5,11 +5,12 @@ import { useSidebar } from "../../../hooks/useSidebar";
 import "./Layout.css";
 import { Sidebar, SidebarOpenButton, MenuButton } from "./components";
 import { clearStorage } from "../../../services/storage/clearStorage";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { UserContext } from "../../../context/UserProvider";
 import { MdLogout } from "react-icons/md";
 import { FaUserShield, FaQuestionCircle } from "react-icons/fa";
 import { PermissionsContext } from "../../../context/PermissionsProvider";
+import { useFetchCareerById } from "../../../hooks/fetchCareers";
 
 // Asegúrate de tener esto en tu entry point del frontend:
 // import 'bootstrap/dist/js/bootstrap.bundle.min.js';
@@ -17,9 +18,11 @@ import { PermissionsContext } from "../../../context/PermissionsProvider";
 const Layout = ({ children }) => {
   const { user, storeUser } = useContext(UserContext);
   const { permissions, isLoading } = useContext(PermissionsContext);
+  const { career, getDataCareerById } = useFetchCareerById();
   const { toggleSidebar, closeSidebar } = useSidebar();
   const navigate = useNavigate();
   const name = user?.nombre;
+  const careerId = user?.career_id;
   const logout = () => {
     try {
       clearStorage();
@@ -30,12 +33,17 @@ const Layout = ({ children }) => {
       console.error("Error durante el logout:", error);
     }
   };
+  useEffect(() => {
+    if (careerId) {
+      getDataCareerById(careerId); // 👈 usa esto
+    }
+  }, [careerId]);
 
   if (isLoading) {
     return <div className="text-center mt-10">Cargando Layout...</div>;
   }
-
   const hasPermission = (permission) => permissions.includes(permission);
+
 
   const hasAnyAdminPermission = () => {
     const adminPermissions = [
@@ -62,24 +70,39 @@ const Layout = ({ children }) => {
 
   return (
     <div className="d-flex flex-column vh-100">
-      {/* Navbar */}
       <nav className="navbar navbar-dark bg-primary shadow-sm py-3">
         <div className="container-fluid">
-          <div className="d-flex align-items-center text-capitalize">
-            <span className="navbar-brand mb-0 h6 ms-3 text-truncate">
-              <FaUserShield className="me-2" />
-              Bienvenido, {name}
-            </span>
-          </div>
-          <div className="d-flex align-items-center">
-            <button
-              onClick={logout}
-              className="btn btn-outline-light d-flex align-items-center gap-2"
-              title="Cerrar sesión"
-            >
-              <MdLogout size={18} />
-              <span className="d-none d-sm-inline">Cerrar sesión</span>
-            </button>
+          <div className="container-fluid d-flex justify-content-between align-items-center">
+            <div className="d-flex flex-column flex-md-row align-items-center text-capitalize">
+              <span className="navbar-brand mb-0 h6 d-flex align-items-center">
+                <FaUserShield className="me-2" />
+                Bienvenido: {name}
+              </span>
+              {career?.name && (
+                <span
+                  className="ms-md-4 mt-2 mt-md-0 text-white fw-bold d-flex align-items-center justify-content-center"
+                  style={{
+                    fontSize: "1.5rem",
+                    textShadow: "1px 1px 3px rgba(0, 0, 0, 0.3)",
+                    padding: "4px 12px",
+                    borderRadius: "8px",
+                    backgroundColor: "rgba(255,255,255,0.1)",
+                  }}
+                >
+                  CARRERA: {career.name.toUpperCase()}
+                </span>
+              )}
+            </div>
+            <div className="d-flex align-items-center">
+              <button
+                onClick={logout}
+                className="btn btn-outline-light d-flex align-items-center gap-2"
+                title="Cerrar sesión"
+              >
+                <MdLogout size={18} />
+                <span className="d-none d-sm-inline">Cerrar sesión</span>
+              </button>
+            </div>
           </div>
         </div>
       </nav>
@@ -176,8 +199,6 @@ const Layout = ({ children }) => {
             )}
           </div>
         </Sidebar>
-
-        {/* Contenido principal */}
         <div className="flex-grow-1 overflow-auto bg-light p-4">
           <div className="container-fluid bg-white rounded-3 shadow-sm p-4">
             {children}
