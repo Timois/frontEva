@@ -12,7 +12,7 @@ import { io } from "socket.io-client";
 import LoadingComponent from "./components/LoadingComponent";
 import { VITE_URL_IMAGES, VITE_URL_WEBSOCKET } from "../../utils/constants";
 import ExamStatusMessage from "./components/ExamStatusMessage";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import WaitingExam from "./components/ExamStates/WaitingExam";
 import PausedExam from "./components/ExamStates/PausedExam";
 import ActiveExam from "./components/ActiveExam";
@@ -158,11 +158,12 @@ const ViewQuestionsAndAnswers = () => {
   };
 
   // Datos iniciales
+  const location = useLocation();
   useEffect(() => {
     let isMounted = true;
     loadInitialExamData(isMounted);
     return () => { isMounted = false; };
-  }, []);
+  }, [location.pathname]);
 
   const loadInitialExamData = async (isMounted) => {
     setError(null);
@@ -309,8 +310,7 @@ const ViewQuestionsAndAnswers = () => {
       setLoading(false);
     }
   }
-  
-  // Renderizado condicional
+
   if (loading) return <LoadingComponent title={evaluationTitle} />;
   if (error) return <p className="text-danger">{error}</p>;
   if (alreadyAnswered) {
@@ -333,7 +333,6 @@ const ViewQuestionsAndAnswers = () => {
           </div>
           <ul className="list-group list-group-flush">
             {studentEvaluations.map((evalItem) => {
-              // 🧩 Normalizamos el estado real que llega del backend
               const rawStatus = (evalItem.group_status || "").toString().trim().toLowerCase();
               let statusBadge = "";
               let statusText = "";
@@ -377,7 +376,12 @@ const ViewQuestionsAndAnswers = () => {
                 >
                   <div>
                     <h6 className="mb-1 text-dark">{evalItem.title}</h6>
-                    <small className="text-muted">
+                    <small className="d-block text-muted text-capitalize">
+                      <strong>Carrera:</strong> {evalItem.career_name} <br />
+                      <strong>Periodo:</strong> {evalItem.period_name} <br />
+                      <strong>Gestión:</strong> {evalItem.gestion_year}
+                    </small>
+                    <small className="text-muted d-block mt-1">
                       <strong>Estado:</strong>{" "}
                       <span className={`badge ${statusBadge}`}>
                         {statusIcon} {statusText}

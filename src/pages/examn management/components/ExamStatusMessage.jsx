@@ -1,19 +1,25 @@
 /* eslint-disable react/prop-types */
 import { useNavigate } from "react-router-dom";
+
 const ExamStatusMessage = ({ closedByGroup, stoppedByTeacher, finalScore, studentId }) => {
   const navigate = useNavigate();
-  const handleClick = () => {
+
+  const handleCompareClick = () => {
     navigate(`/estudiantes/exams/${studentId}/compareAnswers`);
   };
 
+  const handleBackClick = () => {
+    navigate("/estudiantes/exams"); // 👈 vuelve a la lista principal
+  }  
+
   return (
-    <div className="container mt-4">
-      <div className="alert alert-info text-center">
+    <div className="container mt-4 text-center">
+      <div className="alert alert-info">
         {closedByGroup ? (
           <>
-            <h4>El tiempo de esta evaluacion ya termino</h4>
+            <h4>El tiempo de esta evaluación ya terminó</h4>
             <p>No puedes continuar con el examen.</p>
-            <p> 
+            <p>
               Tu nota final es: <strong>{finalScore}</strong>
             </p>
           </>
@@ -37,9 +43,15 @@ const ExamStatusMessage = ({ closedByGroup, stoppedByTeacher, finalScore, studen
           </>
         )}
       </div>
-      <button className="btn btn-primary" onClick={handleClick}>
-        Comparar respuestas
-      </button>
+
+      <div className="d-flex justify-content-center gap-3">
+        <button className="btn btn-secondary" onClick={handleBackClick}>
+          Volver atrás
+        </button>
+        <button className="btn btn-primary" onClick={handleCompareClick}>
+          Comparar respuestas
+        </button>
+      </div>
     </div>
   );
 };
