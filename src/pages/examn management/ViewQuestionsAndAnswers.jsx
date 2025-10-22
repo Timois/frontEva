@@ -207,8 +207,6 @@ const ViewQuestionsAndAnswers = () => {
         timeLeft: 0,
         timeFormatted: "00:00:00",
       }));
-
-      console.log("✅ Examen auto guardado por", reason);
     } catch (err) {
       console.error("❌ Error al guardar automáticamente:", err);
     }

@@ -23,7 +23,7 @@ export const Examns = () => {
   const { id: periodId } = useParams()
   const user = JSON.parse(localStorage.getItem('user'))
   const careerId = user ? user.career_id : null
-  
+
   useEffect(() => {
     if (careerId) {
       getExamnsByCareer(careerId)
@@ -35,17 +35,17 @@ export const Examns = () => {
   }
 
   const currentPeriod = examns.find(p => p.academic_management_period_id == periodId)
-  
+
   const examnsByPeriod = currentPeriod?.evaluations?.map(e => ({
     ...e,
     period_name: currentPeriod.periodo.period
-  })) || []  
+  })) || []
 
   const idEditar = "editarExamn"
   const modalRegister = "registerStudent"
   const year = currentPeriod?.year
   const periodName = currentPeriod?.periodo?.level
-  
+
   return (
     <div className="container-fluid p-4">
       <button className="btn btn-dark mb-3" onClick={() => navigate(-1)}>Atras</button>
@@ -64,7 +64,7 @@ export const Examns = () => {
 
         </div>
 
-        <div className="p-4"> 
+        <div className="p-4">
           {examnsByPeriod.length > 0 ? (
             <div className="row g-4">
               {examnsByPeriod.map((examn) => (
@@ -119,7 +119,7 @@ export const Examns = () => {
                         <ModalImport ModalId={`importarEstudiantes-${examn.id}`} title={"Importar Estudiantes"} examnID={examn.id} />
                         <ModalRegister modalId={modalRegister} title={"Registrar Estudiantes"} examId={examn.id} />
                         <ButtonViewStudents examnId={examn.id} />
-                        <ButtonViewResults examnId={examn.id} />
+                        <ButtonViewResults examnId={examn.id} places={examn.places}/>
                       </div>
                     </div>
                   </div>
