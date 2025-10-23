@@ -11,8 +11,9 @@ export const ResultsByTest = () => {
   const { results, getResults } = fetchResultsByExam()
   const { id } = useParams()
   const location = useLocation()
-  const places = location.state?.places
+  const places = location.state?.places // 👈 número de plazas
   const navigate = useNavigate()
+
   useEffect(() => {
     if (id) {
       getResults(id)
@@ -28,35 +29,37 @@ export const ResultsByTest = () => {
     doc.text(`Total estudiantes: ${results?.total_students || 0}`, 14, 28)
 
     const tableColumn = ["CI", "Nombre completo", "Código", "Puntaje", "Estado"]
-    const tableRows = results?.students?.map((s) => [
-      s.ci,
-      `${s.name} ${s.paternal_surname} ${s.maternal_surname}`,
-      s.code,
-      s.score,
-      s.status === "completado" ? "Completado" : "Pendiente"
-    ]) || []
+    const tableRows =
+      results?.students?.map((s) => [
+        s.ci,
+        `${s.name} ${s.paternal_surname} ${s.maternal_surname}`,
+        s.code,
+        s.score,
+        s.status === "completado" ? "Completado" : "Pendiente",
+      ]) || []
 
     doc.autoTable({
       head: [tableColumn],
       body: tableRows,
-      startY: 35
+      startY: 35,
     })
 
     doc.save(`resultados_examen_${id}.pdf`)
   }
 
   // 🔑 Validar si todos están completados
-  const allCompleted = results?.students?.length > 0
-    && results.students.every(s => s.status === "completado")
+  const allCompleted =
+    results?.students?.length > 0 &&
+    results.students.every((s) => s.status === "completado")
 
   return (
     <div className="container mt-3">
-       <h3>Total de plazas: {places}</h3>
       <div>
-        <button onClick={() => navigate(-1)} className="btn btn-primary">
-          Atras
+        <button onClick={() => navigate(-1)} className="btn btn-dark">
+          Atrás
         </button>
       </div>
+      <h3>Total de plazas: {places}</h3>
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h3>Resultados del Examen</h3>
 
@@ -65,16 +68,24 @@ export const ResultsByTest = () => {
             <FaFilePdf className="me-2" />
             Descargar Resultados
           </button>
-
         ) : (
           <button className="btn btn-danger" disabled title="Esperando que todos finalicen">
             <FaFilePdf className="me-2" />
             Descargar Resultados
           </button>
         )}
+
+        {/* 🔹 Botón para abrir el modal */}
         <ButtonCurva modalId="curvaModal" />
       </div>
-      <ModalCurva modalId="curvaModal" studentsResults={results?.students} />
+
+      {/* 🔹 ModalCurva recibe ahora también las plazas */}
+      <ModalCurva
+        modalId="curvaModal"
+        studentsResults={results?.students}
+        plazas={places} // ✅ Aquí se pasa la cantidad de plazas
+      />
+
       <p>Total estudiantes: {results?.total_students || 0}</p>
 
       <table className="table table-bordered table-hover">
@@ -112,7 +123,7 @@ export const ResultsByTest = () => {
             ))
           ) : (
             <tr>
-              <td colSpan="5" className="text-center text-muted">
+              <td colSpan="7" className="text-center text-muted">
                 No hay resultados disponibles
               </td>
             </tr>
