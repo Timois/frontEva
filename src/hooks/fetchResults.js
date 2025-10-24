@@ -19,7 +19,7 @@ export const fetchResultsByExam = () => {
 
     const getFinalResults = async (examId) => {
         try {
-            const response = await postApi(`results/finalResults/${examId}`)
+            const response = await getApi(`results/list/${examId}`)
             setResults(response)
         } catch (error) {
            // console.error("Error al obtener preguntas del estudiante:", error)

@@ -12,7 +12,7 @@ import { useFetchCareerAssign, useFetchCareerAssignPeriod } from "../../hooks/fe
 const IndexResults = () => {
   const { control, watch } = useForm();
   const { careerAssignments, getDataCareerAssignments } = useFetchCareerAssign();
-  const { results, getResults } = fetchResultsByExam();
+  const { results, getFinalResults } = fetchResultsByExam();
   const { careerAssignmentsPeriods, getDataCareerAssignmentPeriods } = useFetchCareerAssignPeriod();
   const { examns, getExmansByPeriod } = useExamns();
 
@@ -82,14 +82,13 @@ const IndexResults = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (Number.isInteger(selectedExamnId)) {
-      getResults(selectedExamnId);
+      getFinalResults(selectedExamnId);
       setCurrentPage(1);
     }
-  };
-
-  const totalItems = results?.students?.length ?? 0;
+  }
+  const totalItems = results?.students_results?.length ?? 0;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
-  const currentItems = results?.students?.slice(
+  const currentItems = results?.students_results?.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   ) ?? [];
@@ -105,7 +104,7 @@ const IndexResults = () => {
       .join(" ");
 
   const downloadPdf = () => {
-    if (!results?.students?.length) return;
+    if (!results?.students_results?.length) return;
 
     const gestion = careerAssignments.find(g => g.academmic_management_career_id === selectedGestionId);
     const period = careerAssignmentsPeriods.find(p => p.id === selectedPeriodId);
@@ -119,14 +118,14 @@ const IndexResults = () => {
 
     const titulo = `Resultados del Examen - ${examnTitle}`;
     const subtitulo = `Gestión: ${gestionText} - Periodo: ${periodText}`;
-
+    console.log(subtitulo)
     doc.setFontSize(14);
     doc.text(titulo, 14, 15);
     doc.setFontSize(11);
     doc.text(subtitulo, 14, 22);
 
     const tableColumn = ["N°", "CI", "Nombre", "Apellido Paterno", "Apellido Materno", "Nota"];
-    const tableRows = results.students.map((student, index) => [
+    const tableRows = results.students_results.map((student, index) => [
       index + 1,
       student.ci,
       capitalizeWords(student.name),
@@ -189,37 +188,31 @@ const IndexResults = () => {
             <tr className="text-center">
               <th scope="col" width="5%" className="fw-medium text-primary">N°</th>
               <th scope="col" width="15%" className="fw-medium text-primary">CI</th>
-              <th scope="col" width="25%" className="fw-medium text-primary">Nombre</th>
-              <th scope="col" width="20%" className="fw-medium text-primary">Apellido Paterno</th>
-              <th scope="col" width="20%" className="fw-medium text-primary">Apellido Materno</th>
-              <th scope="col" width="10%" className="fw-medium text-primary">Nota</th>
+              <th scope="col" width="15%" className="fw-medium text-primary">Nota</th>
               <th scope="col" width="10%" className="fw-medium text-primary">Estado</th>
             </tr>
           </thead>
           <tbody>
             {currentItems.length > 0 ? (
               currentItems.map((r, index) => (
-                <tr key={r.ci} className="transition-all text-center">
+                <tr key={r.student_id} className="transition-all text-center">
                   <td className="fw-bold text-muted">
                     {(currentPage - 1) * itemsPerPage + index + 1}
                   </td>
-                  <td className="text-muted">{r.ci}</td>
-                  <td className="fw-semibold text-start text-capitalize">{r.name}</td>
-                  <td className="fw-semibold text-start text-capitalize">{r.paternal_surname}</td>
-                  <td className="fw-semibold text-start text-capitalize">{r.maternal_surname}</td>
+                  <td className="text-muted">{r.student_ci || "—"}</td>
                   <td>
                     <span className="badge bg-success bg-opacity-10 text-success py-2 px-3">
-                      {r.score}
+                      {r.score_obtained ?? 0}
                     </span>
                   </td>
                   <td>
-                    {r.status === "completado" ? (
+                    {r.status === "admitido" ? (
                       <span className="badge bg-success bg-opacity-10 text-success py-2 px-3">
-                        <i className="bi bi-check-circle-fill me-1"></i> Completado
+                        <i className="bi bi-check-circle-fill me-1"></i> Admitido
                       </span>
                     ) : (
-                      <span className="badge bg-warning bg-opacity-10 text-warning py-2 px-3">
-                        <i className="bi bi-hourglass-split me-1"></i> Pendiente
+                      <span className="badge bg-warning bg-opacity-10 text-danger py-2 px-3">
+                        <i className="bi bi-hourglass-split me-1"></i> No admitido
                       </span>
                     )}
                   </td>
@@ -237,7 +230,6 @@ const IndexResults = () => {
             )}
           </tbody>
         </table>
-
         {totalPages > 1 && (
           <nav className="d-flex justify-content-center mt-4">
             <ul className="pagination">
