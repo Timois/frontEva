@@ -118,7 +118,7 @@ const IndexResults = () => {
 
     const titulo = `Resultados del Examen - ${examnTitle}`;
     const subtitulo = `Gestión: ${gestionText} - Periodo: ${periodText}`;
-    console.log(subtitulo)
+    
     doc.setFontSize(14);
     doc.text(titulo, 14, 15);
     doc.setFontSize(11);
