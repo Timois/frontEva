@@ -24,6 +24,13 @@ export const InputFile = ({ onChange, error, accept, defaultPreview }) => {
     }
   };
 
+  useEffect(() => {
+    if (defaultPreview) {
+      setPreview(defaultPreview);
+      setIsImage(true);
+    }
+  }, [defaultPreview]);
+
   // Limpieza del objeto URL
   useEffect(() => {
     return () => {
@@ -43,12 +50,27 @@ export const InputFile = ({ onChange, error, accept, defaultPreview }) => {
       />
 
       {preview && (
-        <div style={{ marginTop: "10px" }}>
+        <div
+          style={{
+            marginTop: "10px",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            flexDirection: "column",
+          }}
+        >
           {isImage ? (
             <img
               src={preview}
               alt="Vista previa"
-              style={{ maxWidth: "150px", height: "auto", borderRadius: "8px" }}
+              style={{
+                width: "180px",
+                height: "180px",
+                objectFit: "contain", // mantiene proporciones
+                borderRadius: "12px",
+                border: "1px solid #ccc",
+                boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+              }}
             />
           ) : (
             <div
@@ -57,6 +79,8 @@ export const InputFile = ({ onChange, error, accept, defaultPreview }) => {
                 border: "1px solid #ccc",
                 borderRadius: "8px",
                 background: "#f9f9f9",
+                textAlign: "center",
+                width: "100%",
               }}
             >
               <strong>Archivo seleccionado:</strong> {fileName}
@@ -65,7 +89,7 @@ export const InputFile = ({ onChange, error, accept, defaultPreview }) => {
         </div>
       )}
 
-      {error && <p style={{ color: "red" }}>{error.message}</p>}
+      {error && <p style={{ color: "red", textAlign: "center" }}>{error.message}</p>}
     </div>
   );
 };

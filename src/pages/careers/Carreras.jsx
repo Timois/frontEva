@@ -1,6 +1,5 @@
 /* eslint-disable no-unused-vars */
-import React, { useContext, useEffect, useState } from "react";
-import { CareerContext } from "../../context/CareerProvider";
+import React, { useEffect, useState } from "react";
 import ButtonEdit from "./ButtonEdit";
 import { ModalEdit } from "./ModalEdit";
 import { useFetchCareer } from "../../hooks/fetchCareers";
@@ -68,11 +67,7 @@ export const Carreras = () => {
                             }}
                             onError={(e) => {
                               e.target.onerror = null;
-                              e.target.parentNode.innerHTML = `
-        <div class='d-flex align-items-center justify-content-center text-muted' 
-             style="width:80px;height:80px;font-size:12px">
-          Sin logo
-        </div>`;
+                              e.target.parentNode.innerHTML = ``;
                             }}
                           />
                         ) : (

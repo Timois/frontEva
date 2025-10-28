@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
 import React, { useContext, useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CareerSchema } from "../../models/schemas/CareerSchema";
 import { ContainerInput } from "../login/ContainerInput";
@@ -16,6 +16,7 @@ import { Validate } from "../forms/components/Validate";
 import { SelectInput } from "../forms/components/SelectInput";
 import CancelButton from "../forms/components/CancelButon";
 import { closeFormModal, customAlert } from "../../utils/domHelper";
+import { InputFile } from "../forms/components/InputFile";
 
 const arrayOption = [
     { value: "mayor", text: "Unidad Mayor" },
@@ -32,10 +33,11 @@ export const EditCareer = ({ data, closeModal }) => {
     const [array, setArray] = useState([]);
     const [preview, setPreview] = useState(null);
     const [selectedType, setSelectedType] = useState("");
-    
-    const { control, handleSubmit, reset, setValue, formState: { errors }, setError, watch,} = useForm({
+
+    const { control, handleSubmit, reset, setValue, formState: { errors }, setError, watch, } = useForm({
         resolver: zodResolver(CareerSchema),
     });
+    
     useEffect(() => {
         if (data) {
             setValue("name", data.name);
@@ -50,16 +52,16 @@ export const EditCareer = ({ data, closeModal }) => {
     // Actualiza unit_id a "0" si el tipo cambia a algo distinto de "dependiente"
     useEffect(() => {
         if (!data) return;
-    
+
         if (selectedType !== "mayor" && selectedType !== "facultad" && data.unit_id) {
             setValue("unit_id", String(data.unit_id));
         } else {
             setValue("unit_id", "0");
         }
-    }, [selectedType, setValue, data]); 
+    }, [selectedType, setValue, data]);
 
     const onSubmit = async (formData, event) => {
-        if(event) event.preventDefault()
+        if (event) event.preventDefault()
         setResponse(true);
 
         const requestData = new FormData();
@@ -67,9 +69,10 @@ export const EditCareer = ({ data, closeModal }) => {
         requestData.append("initials", formData.initials);
         requestData.append("type", formData.type);
         requestData.append("unit_id", formData.unit_id);
-        if (formData.logo && formData.logo[0]) {
+        if (data.logo && data.logo.length > 0) {
             requestData.append("logo", formData.logo[0]);
         }
+
         try {
             const response = await postApi(`careers/edit/${data.id}`, requestData);
             setResponse(false);
@@ -86,10 +89,9 @@ export const EditCareer = ({ data, closeModal }) => {
             closeFormModal("editarCarrera");
             reset();
         } catch (error) {
-            console.error("Error al actualizar unidad:", error);
             closeFormModal("editarCarrera");
             customAlert(error.response?.data?.message, "error");
-        }finally {
+        } finally {
             setResponse(false);
         }
     };
@@ -130,9 +132,19 @@ export const EditCareer = ({ data, closeModal }) => {
                 <Validate error={errors.initials} />
             </ContainerInput>
             <ContainerInput>
-                <input type="file" onChange={onChange} />
+                <Controller
+                    name="logo"
+                    control={control}
+                    render={({ field }) => (
+                        <InputFile
+                            onChange={field.onChange}
+                            error={errors.logo}
+                            accept="image/*"
+                            defaultPreview={preview}
+                        />
+                    )}
+                />
                 <Validate error={errors.logo} />
-                {preview ? <img src={preview} alt="preview" width={80} height={80} /> : null}
             </ContainerInput>
             <ContainerInput>
                 <SelectInput
