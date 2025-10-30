@@ -69,10 +69,10 @@ export const EditCareer = ({ data, closeModal }) => {
         requestData.append("initials", formData.initials);
         requestData.append("type", formData.type);
         requestData.append("unit_id", formData.unit_id);
-        if (data.logo && data.logo.length > 0) {
+        if (formData.logo && formData.logo.length > 0) {
             requestData.append("logo", formData.logo[0]);
         }
-
+        
         try {
             const response = await postApi(`careers/edit/${data.id}`, requestData);
             setResponse(false);
