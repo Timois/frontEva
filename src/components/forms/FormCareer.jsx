@@ -31,6 +31,7 @@ export const FormCareer = () => {
     const [response, setResponse] = useState(false);
     const { addCareer } = useContext(CareerContext);
     const [array, setArray] = useState([]);
+    const [resetKey, setResetKey] = useState(0);
 
     const { control, handleSubmit, reset, setValue, watch, formState: { errors }, setError } = useForm({
         defaultValues: {
@@ -98,8 +99,9 @@ export const FormCareer = () => {
     };
 
     const resetForm = () => {
-        reset({ name: '', initials: '', unit_id: '', logo: null });
+        reset({ name: '', initials: '', unit_id: '', logo: '' });
         setPreview(null);
+        setResetKey(prev => prev + 1); // 👈 fuerza a remount del InputFile
     };
 
     const formatData = () => {
@@ -118,6 +120,7 @@ export const FormCareer = () => {
     useEffect(() => {
         formatData();
     }, [units]);
+
 
     const onChange = (e) => {
         const files = e.target.files;
@@ -145,6 +148,7 @@ export const FormCareer = () => {
                     control={control}
                     render={({ field }) => (
                         <InputFile
+                            key={resetKey} // 👈 esto lo reinicia completamente
                             onChange={field.onChange}
                             error={errors.logo}
                             accept="image/*"

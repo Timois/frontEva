@@ -37,7 +37,7 @@ export const EditCareer = ({ data, closeModal }) => {
     const { control, handleSubmit, reset, setValue, formState: { errors }, setError, watch, } = useForm({
         resolver: zodResolver(CareerSchema),
     });
-    
+
     useEffect(() => {
         if (data) {
             setValue("name", data.name);
@@ -72,7 +72,7 @@ export const EditCareer = ({ data, closeModal }) => {
         if (formData.logo && formData.logo.length > 0) {
             requestData.append("logo", formData.logo[0]);
         }
-        
+
         try {
             const response = await postApi(`careers/edit/${data.id}`, requestData);
             setResponse(false);
@@ -153,7 +153,7 @@ export const EditCareer = ({ data, closeModal }) => {
                     options={arrayOption}
                     control={control}
                     error={errors.type}
-                    onChange={(e) => setSelectedType(e.target.value)} // Actualiza el estado cuando cambia el tipo
+                    onChange={(e) => setSelectedType(e.target.value)}
                 />
                 <Validate error={errors.type} />
             </ContainerInput>

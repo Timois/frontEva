@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import { Controller } from "react-hook-form";
 
-export const SelectInput = ({ name, options, error, control, label, castToNumber = false }) => (
+export const SelectInput = ({ name, options, error, control, label, castToNumber = false, onChange }) => (
   <div className="mb-3">
     {label && <label className="form-label">{label}</label>}
     <Controller
@@ -14,11 +14,9 @@ export const SelectInput = ({ name, options, error, control, label, castToNumber
           className={`form-select w-100 ${error ? "is-invalid" : ""}`}
           onChange={(e) => {
             const value = e.target.value;
-            if (value === "") {
-              field.onChange(undefined); // o null si prefieres
-            } else {
-              field.onChange(castToNumber ? Number(value) : value);
-            }
+            const finalValue = value === "" ? undefined : (castToNumber ? Number(value) : value);
+            field.onChange(finalValue); // actualiza react-hook-form
+            if (onChange) onChange(e);  // actualiza tu estado local si se lo pasas
           }}
           value={field.value ?? ""}
         >
@@ -33,3 +31,4 @@ export const SelectInput = ({ name, options, error, control, label, castToNumber
     />
   </div>
 );
+  
