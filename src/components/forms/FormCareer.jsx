@@ -39,7 +39,6 @@ export const FormCareer = () => {
         },
         resolver: zodResolver(CareerSchema)
     });
-
     const [preview, setPreview] = useState(null);
     const selectedType = watch("type");
 

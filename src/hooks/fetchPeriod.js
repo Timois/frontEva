@@ -26,7 +26,6 @@ export const useFetchPeriod = () => {
         }
       };
     return { periods, getData, refreshPeriods, getPeriodsByCareerId, getPeriodsByCareerAndGestion }
-
 }
 
 

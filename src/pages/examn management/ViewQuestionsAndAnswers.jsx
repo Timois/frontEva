@@ -250,7 +250,6 @@ const ViewQuestionsAndAnswers = () => {
         timeFormatted: timeFormatted ?? prev.timeFormatted,
         examStatus: examStatus ?? prev.examStatus,
       }));
-
       // 🔴 Detectar finalización automática
       if (examStatus === examStatuses.COMPLETED) {
         if (reason === "stopped") {

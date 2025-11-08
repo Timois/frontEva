@@ -7,17 +7,18 @@ export const CareerSchema = z.object({
     .array(z.instanceof(File))
     .max(1, { message: "Solo se permite un archivo" })
     .refine(
-      (files) =>
-        files.length === 0 || files[0].size <= 2 * 1024 * 1024,
+      (files) => !files || files.length === 0 || files[0].size <= 2 * 1024 * 1024,
       { message: "El archivo debe ser menor a 2MB" }
     )
     .refine(
       (files) =>
+        !files ||
         files.length === 0 ||
         ["image/jpeg", "image/png", "image/webp", "image/svg+xml"].includes(files[0].type),
       { message: "Solo se permiten archivos JPG, PNG, WEBP o SVG" }
     )
-    .optional(),
+    .optional()
+    .default([]), // ⬅️ asegura que RHF tenga un array vacío por defecto
   type: z.string({ required_error: "Seleccione una opción" }),
   unit_id: z.union([
     z.string().regex(/^[0-9]+$/, { message: "Debe ser un ID válido" }),
