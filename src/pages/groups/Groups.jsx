@@ -35,7 +35,7 @@ export const Groups = () => {
             return acc;
         }, 0);
     }, [groups]);
-    
+
     // ✔️ Manejo seguro de totalStudents
     const unassignedStudents = typeof totalStudents === "number"
         ? totalStudents - assignedStudents
@@ -140,11 +140,11 @@ export const Groups = () => {
                 return;
             }
 
+            const pause = await postApi(`groups/pauseGroup/${group.id}`);
             const payload = {
-                roomId: group.id.toString(), // importante: convertir a string
+                roomId: group.id.toString(),
                 token,
             };
-
 
             const socketResponse = await fetch(`${URL_SOCKET}/emit/pause-evaluation`, {
                 method: 'POST',
@@ -153,14 +153,17 @@ export const Groups = () => {
             });
 
             const socketResult = await socketResponse.json();
+            console.log("🧩 Respuesta del socket:", socketResult);
 
             if (!socketResponse.ok) {
                 throw new Error(socketResult.message || 'Error al pausar el examen en tiempo real');
             }
+
             customAlert("Grupo pausado correctamente", "success");
             await getDataGroupEvaluation(evaluationId);
 
         } catch (error) {
+            console.error("❌ Error al pausar:", error);
             customAlert(error.response?.data?.message || "No se pudo pausar el grupo", "error");
         }
     };
@@ -177,6 +180,7 @@ export const Groups = () => {
                 customAlert("Token inválido o sesión expirada", "error");
                 return;
             }
+            const resume = await postApi(`groups/resumeGroup/${group.id}`);
             const payload = {
                 roomId: group.id.toString(), // importante: convertir a string
                 token,
@@ -239,7 +243,7 @@ export const Groups = () => {
         setShowResults(true);
     };
     const idEditar = "editGroup";
-    
+
     const examDate = examn?.date_of_realization;
 
     return (

@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
 import { useEffect, useState, useRef } from "react";
-import { getApi, postApi } from "../../services/axiosServices/ApiService";
+import { getApi, postApi, updateApi } from "../../services/axiosServices/ApiService";
 import { usFetchStudentTest } from "../../hooks/fetchStudent";
 import {
   removeExamLogsByTestCode,
@@ -212,11 +212,7 @@ const ViewQuestionsAndAnswers = () => {
     }
   };
 
-
-  // --- Reemplaza TODO este useEffect ---
-  useEffect(() => {
-    if (!questionsData?.student_test_id) return;
-
+  const connectSocketToGroup = (groupId) => {
     const socket = io(URL_SOCKET, {
       transports: ["websocket"],
       query: { token: localStorage.getItem("jwt_token") },
@@ -225,12 +221,13 @@ const ViewQuestionsAndAnswers = () => {
     socketRef.current = socket;
 
     socket.on("connect", () => {
-      const roomId = student.group?.toString();
-      socket.emit("join", { roomId, role: "student" });
+      console.log(`✅ Conectado al socket y unido a la sala  ${groupId}`);
+      socket.emit("join", { roomId: groupId, role: "student" });
     });
 
     // 🟢 Evento de inicio de examen
     socket.on("start", (payload) => {
+      console.log("🚀 Examen iniciado:", payload);
       setSocketTimeData({
         started: true,
         timeLeft: payload.duration,
@@ -243,14 +240,14 @@ const ViewQuestionsAndAnswers = () => {
     // 🟡 Evento de estado general
     socket.on("msg", async (payload) => {
       const { examStatus, timeLeft, timeFormatted, reason } = payload;
-
+      console.log(examStatus, timeLeft, timeFormatted)
       setSocketTimeData((prev) => ({
         ...prev,
         timeLeft: timeLeft ?? prev.timeLeft,
         timeFormatted: timeFormatted ?? prev.timeFormatted,
         examStatus: examStatus ?? prev.examStatus,
       }));
-      // 🔴 Detectar finalización automática
+
       if (examStatus === examStatuses.COMPLETED) {
         if (reason === "stopped") {
           await handleExamAutoFinish("stopped");
@@ -260,11 +257,10 @@ const ViewQuestionsAndAnswers = () => {
       }
     });
 
-    return () => {
-      socket.disconnect();
-    };
-  }, [questionsData?.student_test_id]);
-
+    socket.on("disconnect", () => {
+      console.log(`❌ Socket desconectado del grupo ${groupId}`);
+    });
+  };
 
   // Sincronización automática cada 30s
   useEffect(() => {
@@ -285,9 +281,15 @@ const ViewQuestionsAndAnswers = () => {
     try {
       const response = await getStudentTestById(evaluation.student_id, evaluation.evaluation_id);
       setQuestionsData(response);
+
       localStorage.setItem("student_test_id", response.student_test_id);
       localStorage.setItem("test_code", response.test_code);
       setEvaluationTitle(evaluation.title);
+
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+      }
+      connectSocketToGroup(evaluation.group_id);
 
       if (response?.examCompleted) {
         setAlreadyAnswered(true);
@@ -299,14 +301,14 @@ const ViewQuestionsAndAnswers = () => {
           setFinalScore(Math.round(answeredResp.score));
         }
       }
-      navigate(`/estudiantes/exams/${evaluation.evaluation_id}`);
 
+      navigate(`/estudiantes/exams/${evaluation.evaluation_id}`);
     } catch (err) {
       setError(err?.response?.data?.message || "Error al cargar el examen seleccionado");
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   if (loading) return <LoadingComponent title={evaluationTitle} />;
   if (error) return <p className="text-danger">{error}</p>;
@@ -329,69 +331,65 @@ const ViewQuestionsAndAnswers = () => {
             <h5 className="mb-0">Selecciona la evaluación que deseas rendir</h5>
           </div>
           <ul className="list-group list-group-flush">
-            {studentEvaluations.map((evalItem) => {
-              const rawStatus = (evalItem.group_status || "").toString().trim().toLowerCase();
-              let statusBadge = "";
-              let statusText = "";
-              let statusIcon = null;
+            {studentEvaluations
+              .filter((evalItem) => {
+                const status = (evalItem.group_status || "");
+                return status !== "completado"
+              })
+              .map((evalItem) => {
+                const rawStatus = (evalItem.group_status || "").toString().trim().toLowerCase();
+                let statusBadge = "";
+                let statusText = "";
+                let statusIcon = null;
 
-              switch (rawStatus) {
-                case "pendiente":
-                case "pending":
-                  statusBadge = "bg-warning text-dark";
-                  statusText = "Pendiente";
-                  statusIcon = <FaClock className="me-1" />;
-                  break;
+                switch (rawStatus) {
+                  case "pendiente":
+                  case "pending":
+                    statusBadge = "bg-warning text-dark";
+                    statusText = "Pendiente";
+                    statusIcon = <FaClock className="me-1" />;
+                    break;
 
-                case "en_progreso":
-                case "in_progress":
-                  statusBadge = "bg-success";
-                  statusText = "En progreso";
-                  statusIcon = <FaClipboardList className="me-1" />;
-                  break;
+                  case "en_progreso":
+                  case "in_progress":
+                    statusBadge = "bg-success";
+                    statusText = "En progreso";
+                    statusIcon = <FaClipboardList className="me-1" />;
+                    break;
 
-                case "completado":
-                case "finalizado":
-                case "completed":
-                  statusBadge = "bg-secondary";
-                  statusText = "Completado";
-                  statusIcon = <FaCheckCircle className="me-1" />;
-                  break;
+                  default:
+                    statusBadge = "bg-light text-dark";
+                    statusText = rawStatus || "Desconocido";
+                    break;
+                }
 
-                default:
-                  statusBadge = "bg-light text-dark";
-                  statusText = rawStatus || "Desconocido";
-                  break;
-              }
-
-              return (
-                <li
-                  key={evalItem.student_test_id}
-                  className="list-group-item d-flex justify-content-between align-items-center list-group-item-action"
-                  style={{ cursor: "pointer" }}
-                  onClick={() => handleSelectEvaluation(evalItem)}
-                >
-                  <div>
-                    <h6 className="mb-1 text-dark">{evalItem.title}</h6>
-                    <small className="d-block text-muted text-capitalize">
-                      <strong>Carrera:</strong> {evalItem.career_name} <br />
-                      <strong>Periodo:</strong> {evalItem.period_name} <br />
-                      <strong>Gestión:</strong> {evalItem.gestion_year}
-                    </small>
-                    <small className="text-muted d-block mt-1">
-                      <strong>Estado:</strong>{" "}
-                      <span className={`badge ${statusBadge}`}>
-                        {statusIcon} {statusText}
-                      </span>
-                    </small>
-                  </div>
-
-                  <button className="btn btn-outline-primary btn-sm">
-                    <i className="bi bi-play-circle me-1"></i> Entrar
-                  </button>
-                </li>
-              );
-            })}
+                return (
+                  <li
+                    key={evalItem.student_test_id}
+                    className="list-group-item d-flex justify-content-between align-items-center list-group-item-action"
+                    style={{ cursor: "pointer" }}
+                    onClick={() => handleSelectEvaluation(evalItem)}
+                  >
+                    <div>
+                      <h6 className="mb-1 text-dark">{evalItem.evaluation_title}</h6>
+                      <small className="d-block text-muted text-capitalize">
+                        <strong>Carrera:</strong> {evalItem.career_name} <br />
+                        <strong>Periodo:</strong> {evalItem.period_name} <br />
+                        <strong>Gestión:</strong> {evalItem.gestion_year}
+                      </small>
+                      <small className="text-muted d-block mt-1">
+                        <strong>Estado:</strong>{" "}
+                        <span className={`badge ${statusBadge}`}>
+                          {statusIcon} {statusText}
+                        </span>
+                      </small>
+                    </div>
+                    <button className="btn btn-outline-primary btn-sm">
+                      <i className="bi bi-play-circle me-1"></i> Entrar
+                    </button>
+                  </li>
+                );
+              })}
           </ul>
         </div>
       </div>

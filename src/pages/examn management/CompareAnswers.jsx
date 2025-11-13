@@ -4,7 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { getApi } from "../../services/axiosServices/ApiService";
 
 export const CompareAnswers = () => {
-    const { id } = useParams();
+    const { studentId, evaluationId } = useParams();
     const [evaluationData, setEvaluationData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -12,7 +12,7 @@ export const CompareAnswers = () => {
     useEffect(() => {
         const fetchAnswers = async () => {
             try {
-                const data = await getApi(`student_evaluations/findAnswersCorrect/${id}`);
+                const data = await getApi(`student_evaluations/findAnswersCorrect/${studentId}?evaluation_id=${evaluationId}`);
                 setEvaluationData(data);
             } catch (err) {
                 setError("Error al cargar las respuestas.");
@@ -23,7 +23,7 @@ export const CompareAnswers = () => {
         };
 
         fetchAnswers();
-    }, [id]);
+    }, [studentId, evaluationId]);
 
     if (loading) return <p>Cargando respuestas...</p>;
     if (error) return <p>{error}</p>;

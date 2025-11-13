@@ -30,8 +30,6 @@ const FormStudentLogin = () => {
       if (response?.token) {
         storeStudent(response.student);
         localStorage.setItem("jwt_token", response.token);
-        localStorage.setItem("group", response.user.group);
-
         // 👉 Navegar directamente al examen sin confirmar
         navigate("/estudiantes/home");
         window.location.reload();
