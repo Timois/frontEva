@@ -31,7 +31,7 @@ const QuestionCard = ({ question, index, API_BASE_URL, selectedAnswers, examStar
             selectedAnswers[question.question_id] === answer.id
               ? "bg-primary bg-opacity-10 border border-primary"
               : "bg-light border"
-          } ${!examStarted ? "opacity-50" : ""}`}
+          }`}
           onClick={() =>
             examStarted && handleAnswerSelection(question.question_id, answer.id)
           }

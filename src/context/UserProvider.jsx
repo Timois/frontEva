@@ -18,7 +18,8 @@ export const UserProvider = ({ children }) => {
         setUsers(prev =>[...prev, usuario]);
     }
 
-    const updateUser = (usuario) => {
+    const updateUser = (data) => {
+        const{user: usuario} = data 
         const posicion = users.findIndex(p => p.id === usuario.id)
         if (posicion !== -1) {
             const lista = [...users]

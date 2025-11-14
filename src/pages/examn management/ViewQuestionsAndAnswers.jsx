@@ -45,7 +45,6 @@ const ViewQuestionsAndAnswers = () => {
   const URL_SOCKET = VITE_URL_WEBSOCKET;
 
   const [socketTimeData, setSocketTimeData] = useState({
-    started: false,
     timeLeft: null,
     timeFormatted: "00:00:00",
     serverTime: null,
@@ -200,7 +199,10 @@ const ViewQuestionsAndAnswers = () => {
       } else if (reason === "timeup") {
         setClosedByGroup(true);
       }
-
+      // const response = await postApi (`groups/updateStatusGroup/${}`, {
+      //   score: finalScore,
+      //   answered: true,
+      // });
       setSocketTimeData((prev) => ({
         ...prev,
         examStatus: examStatuses.COMPLETED,
@@ -229,7 +231,6 @@ const ViewQuestionsAndAnswers = () => {
     socket.on("start", (payload) => {
       console.log("🚀 Examen iniciado:", payload);
       setSocketTimeData({
-        started: true,
         timeLeft: payload.duration,
         timeFormatted: payload.timeFormatted,
         serverTime: payload.serverTime,
@@ -292,13 +293,22 @@ const ViewQuestionsAndAnswers = () => {
       connectSocketToGroup(evaluation.group_id);
 
       if (response?.examCompleted) {
+        // caso 1: el docente cerró el examen desde el backend
         setAlreadyAnswered(true);
         setClosedByGroup(true);
       } else {
+        // caso 2: revisar en backend si el estudiante ya finalizó
         const answeredResp = await getApi(`student_answers/list/${response.student_test_id}`);
-        if (answeredResp?.answered) {
+
+        if (answeredResp?.answered === true) {
           setAlreadyAnswered(true);
           setFinalScore(Math.round(answeredResp.score));
+        } else {
+          if (answeredResp?.answers) {
+            setSelectedAnswers(answeredResp.answers);
+          }
+
+          setAlreadyAnswered(false);
         }
       }
 

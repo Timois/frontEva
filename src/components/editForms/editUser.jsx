@@ -103,7 +103,7 @@ export const EditUser = ({ data, closeModal }) => {
         }
         return;
       }
-      updateUser(response.data);
+      updateUser(response);
       customAlert("Usuario actualizado exitosamente", "success");
       refreshUsers();
       closeFormModal("editarUsuario");

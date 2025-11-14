@@ -20,7 +20,6 @@ const ActiveExam = ({
         evaluationTitle={evaluationTitle}
         testCode={questionsData?.test_code}
         socketTimeData={socketTimeData}
-        examStarted={socketTimeData?.started}
       />
 
       <div className="questions-container">
@@ -31,7 +30,7 @@ const ActiveExam = ({
             index={index}
             API_BASE_URL={API_BASE_URL}
             selectedAnswers={selectedAnswers}
-            examStarted={socketTimeData?.started}
+            examStarted={socketTimeData}
             handleAnswerSelection={handleAnswerSelection}
           />
         ))}
@@ -40,7 +39,6 @@ const ActiveExam = ({
       <SubmitSection
         loading={loading}
         socketTimeData={socketTimeData}
-        examStarted={socketTimeData?.started}
         handleSubmit={handleSubmit}
       />
     </div>

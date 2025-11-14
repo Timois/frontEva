@@ -39,6 +39,7 @@ export const FormCareer = () => {
         },
         resolver: zodResolver(CareerSchema)
     });
+    
     const [preview, setPreview] = useState(null);
     const selectedType = watch("type");
 
@@ -50,7 +51,7 @@ export const FormCareer = () => {
 
     const onSubmit = async (data) => {
         setResponse(true);
-        const formData = new FormData();
+        const formData = new FormData();    
         formData.append("name", data.name);
         formData.append("initials", data.initials);
 
@@ -98,7 +99,7 @@ export const FormCareer = () => {
     };
 
     const resetForm = () => {
-        reset({ name: '', initials: '', unit_id: '', logo: '' });
+        reset({ name: '', initials: '', unit_id: '', logo: [] });
         setPreview(null);
         setResetKey(prev => prev + 1); // 👈 fuerza a remount del InputFile
     };

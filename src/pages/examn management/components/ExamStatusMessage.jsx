@@ -1,5 +1,4 @@
 /* eslint-disable react/prop-types */
-import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 const ExamStatusMessage = ({ closedByGroup, stoppedByTeacher, finalScore, studentId }) => {
@@ -12,9 +11,6 @@ const ExamStatusMessage = ({ closedByGroup, stoppedByTeacher, finalScore, studen
   const handleBackClick = () => {
     navigate("/estudiantes/exams"); // 👈 vuelve a la lista principal
   }  
-  useEffect(() => {
-    console.log("props" + closedByGroup + stoppedByTeacher + finalScore + studentId)
-  }, []);
   return (
     <div className="container mt-4 text-center">
       <div className="alert alert-info">

@@ -2,7 +2,7 @@
 import { FaQuestionCircle } from "react-icons/fa";
 import TimerDisplay from "./TimerDisplay";
 
-const ExamHeader = ({ evaluationTitle, testCode, socketTimeData, examStarted }) => (
+const ExamHeader = ({ evaluationTitle, testCode, socketTimeData }) => (    
   <div className="card shadow-lg border-0 rounded-3 mb-4 overflow-hidden">
     <div className="card-header bg-primary text-white py-3 rounded-top d-flex justify-content-between align-items-center">
       <div>
@@ -11,7 +11,7 @@ const ExamHeader = ({ evaluationTitle, testCode, socketTimeData, examStarted }) 
         </h3>
         {testCode && <span className="mb-1">Código de Examen: {testCode}</span>}
       </div>
-      {socketTimeData?.timeFormatted && examStarted && (
+      {socketTimeData?.examStatus === 'en_progreso' && (
         <TimerDisplay socketTimeData={socketTimeData} />
       )}
     </div>

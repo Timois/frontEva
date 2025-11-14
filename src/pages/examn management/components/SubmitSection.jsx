@@ -1,12 +1,12 @@
 /* eslint-disable react/prop-types */
-const SubmitSection = ({ loading, socketTimeData, examStarted, handleSubmit }) => (
+const SubmitSection = ({ loading, socketTimeData, handleSubmit }) => (
   <div className="d-flex justify-content-center mb-4">
     <button
       className="btn btn-primary px-5 py-3 rounded-pill fw-bold"
-      disabled={loading || (socketTimeData?.timeLeft <= 0) || !examStarted}
+      disabled={loading || (socketTimeData?.timeLeft <= 0) || socketTimeData?.examStatus === "completado"}
       onClick={(e) => handleSubmit(e, true)} 
     >
-      {!examStarted
+      {socketTimeData?.examStatus === 'pendiente'
         ? "Esperando inicio del examen..."
         : socketTimeData?.timeLeft <= 0
         ? "Tiempo Agotado"
