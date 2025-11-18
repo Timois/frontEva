@@ -8,7 +8,7 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ImportQuestionsSchema } from "../../models/schemas/ImportQuestionsSchema";
 import { useParams } from "react-router-dom";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { ContainerInput } from "../login/ContainerInput";
 import { ContainerButton } from "../login/ContainerButton";
 import { Button } from "../login/Button";
@@ -25,6 +25,8 @@ export const FileUpload = () => {
   const area_id = id;
   const { getData } = useContext(ImportExcelQuestionsContext);
   const [array, setArray] = useState([]);
+  const fileRef = useRef(null);
+
   // hook que permitirá volver a consultar las preguntas del área
   const { getDataQuestions } = useFetchQuestionsByArea();                    // ← NUEVO
 
@@ -52,7 +54,7 @@ export const FileUpload = () => {
       getDataCareerAssignments(career_id);
     }
   }, [career_id])
-  
+
   useEffect(() => {
     if (academic_management_career_id) {
       getDataCareerAssignmentPeriods(academic_management_career_id);
@@ -61,14 +63,17 @@ export const FileUpload = () => {
   const academic_management_period_id = careerAssignmentsPeriods?.[0]?.academic_management_period_id;
   useEffect(() => {
     if (careerAssignmentsPeriods.length > 0) {
-      const periodOptions = careerAssignmentsPeriods.map(period => ({
-        value: period.academic_management_period_id, // 🔹 usar el id correcto
-        text: `${period.period}`
-      }));
+      const periodOptions = careerAssignmentsPeriods.map(period => {
+        const year = new Date(period.initial_date).getFullYear();
+        return {
+          value: period.academic_management_period_id,
+          text: `${period.period}/${year}` // Ej: "1/2026"
+        };
+      });
       setArray(periodOptions);
     }
   }, [careerAssignmentsPeriods]);
-  
+
   const importOption = watch("importOption");
 
   /* ============== SUBMIT ============== */
@@ -157,6 +162,10 @@ export const FileUpload = () => {
       description: "",
       academic_management_period_id: ""
     });
+    // limpieza manual del input file
+    if (fileRef.current) {
+      fileRef.current.value = null;
+    }
   };
   return (
     <form onSubmit={handleSubmit(onSubmit)}>

@@ -31,9 +31,10 @@ export const useFetchQuestionsByArea = () => {
 
 export const useFetchDisponibleQuestions = () => {
     const { questions, setQuestions } = useContext(QuestionContext)
-    const fetchDisponibles = async (areaId) => {
+    const fetchDisponibles = async (areaId, evaluationId) => {
+        
         try {
-            const response = await getApi(`question_evaluations/list?area_id=${areaId}`)
+            const response = await getApi(`question_evaluations/list?area_id=${areaId}&evaluation_id=${evaluationId}`)
             setQuestions(response)
             return response
         } catch (error) {

@@ -111,7 +111,7 @@ export const Examns = () => {
                           <ButtonEdit idEditar={idEditar} onEditClick={() => handleEditClick(examn)} />
                         </CheckPermissions>
                         <CheckPermissions requiredPermission="asignar-cantidad-preguntas">
-                          <ButtonAssignQuestions examnId={examn.id} />
+                          <ButtonAssignQuestions examnId={examn.id} periodId={periodId} />
                         </CheckPermissions>
                         <ButtonViewGroups examnId={examn.id} />
                         <ButtonImport modalId={`importarEstudiantes-${examn.id}`} />

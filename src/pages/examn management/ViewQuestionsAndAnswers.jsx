@@ -164,26 +164,25 @@ const ViewQuestionsAndAnswers = () => {
     return () => { isMounted = false; };
   }, [location.pathname]);
 
-  const loadInitialExamData = async (isMounted) => {
-    setError(null);
-    try {
-      const evaluations = await getApi(`student_evaluations/list/${ci}`);
-      if (!isMounted) return;
+    const loadInitialExamData = async (isMounted) => {
+      setError(null);
+      try {
+        const evaluations = await getApi(`student_evaluations/list/${ci}`);
+        if (!isMounted) return;
+        if (!evaluations || evaluations.length === 0) {
+          setError("No tienes evaluaciones asignadas.");
+          setLoading(false);
+          return;
+        }
 
-      if (!evaluations || evaluations.length === 0) {
-        setError("No tienes evaluaciones asignadas.");
+        setStudentEvaluations(evaluations);
+        setStudentId(evaluations[0].student_id);
         setLoading(false);
-        return;
+      } catch (err) {
+        if (isMounted) setError(err?.response?.data?.message || "Error al cargar datos");
+        if (isMounted) setLoading(false);
       }
-
-      setStudentEvaluations(evaluations);
-      setStudentId(evaluations[0].student_id);
-      setLoading(false);
-    } catch (err) {
-      if (isMounted) setError(err?.response?.data?.message || "Error al cargar datos");
-      if (isMounted) setLoading(false);
-    }
-  };
+    };
 
   // --- Nueva función auxiliar ---
   const handleExamAutoFinish = async (reason = "unknown") => {
@@ -282,7 +281,6 @@ const ViewQuestionsAndAnswers = () => {
     try {
       const response = await getStudentTestById(evaluation.student_id, evaluation.evaluation_id);
       setQuestionsData(response);
-
       localStorage.setItem("student_test_id", response.student_test_id);
       localStorage.setItem("test_code", response.test_code);
       setEvaluationTitle(evaluation.title);

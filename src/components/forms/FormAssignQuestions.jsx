@@ -12,6 +12,9 @@ import { useFetchAreasActive } from "../../hooks/fetchAreas";
 import { getApi, postApi } from "../../services/axiosServices/ApiService";
 import { useNavigate, useParams } from "react-router-dom";
 import { useFetchDisponibleQuestions } from "../../hooks/fetchQuestions";
+import { ButtonImport } from "../../pages/careers/questions/imports/ButtonImport";
+import { ModalImport } from "../../pages/careers/questions/imports/ModalImport";
+
 
 export const FormAssignQuestions = ({ data }) => {
   const { id } = useParams();
@@ -44,7 +47,6 @@ export const FormAssignQuestions = ({ data }) => {
     };
     loadAreas();
   }, []);
-
   /* Verificar si ya hay preguntas asignadas */
   useEffect(() => {
     const verificarAsignacion = async () => {
@@ -56,17 +58,15 @@ export const FormAssignQuestions = ({ data }) => {
         setAsignado(false);
       }
     };
-
     if (id) verificarAsignacion();
   }, [id]);
-
   /* Cargar preguntas disponibles por área */
   useEffect(() => {
     const loadDisponibles = async () => {
       const disponiblesPorArea = {};
       for (const area of areas) {
         try {
-          const disponibles = await fetchDisponibles(area.id);
+          const disponibles = await fetchDisponibles(area.id, id);
           disponiblesPorArea[area.id] = disponibles || { facil: 0, media: 0, dificil: 0, total: 0 };
         } catch (error) {
           console.error(`Error al cargar preguntas del área ${area.id}:`, error);
@@ -74,7 +74,6 @@ export const FormAssignQuestions = ({ data }) => {
       }
       setDisponibles(disponiblesPorArea);
     };
-
     if (areas.length > 0) loadDisponibles();
   }, [areas]);
 
@@ -85,7 +84,6 @@ export const FormAssignQuestions = ({ data }) => {
       areas: [],
     },
   });
-
   /* Inicializar valores del formulario por área */
   useEffect(() => {
     if (areas.length > 0) {
@@ -107,7 +105,6 @@ export const FormAssignQuestions = ({ data }) => {
       reset(defaultValues);
     }
   }, [areas, modo]);
-
   /* Calcular puntaje total asignado */
   useEffect(() => {
     const subscription = watch((value, { name }) => {
@@ -121,7 +118,6 @@ export const FormAssignQuestions = ({ data }) => {
     });
     return () => subscription.unsubscribe();
   }, [watch]);
-
   /* Manejar cambios de porcentaje por dificultad */
   const handleAreaPercentageChange = (index, type, value) => {
     const newValue = Math.max(0, Math.min(100, Number(value)));
@@ -149,10 +145,8 @@ export const FormAssignQuestions = ({ data }) => {
         )
       );
     }
-
     recalculateScores(index); // solo recalcula distribución interna del área
   };
-
   const recalculateScores = (index) => {
     const area = watch(`areas.${index}`);
     const totalScore = Number(area.puntajeTotal) || 0;
@@ -168,7 +162,6 @@ export const FormAssignQuestions = ({ data }) => {
 
     setCalculatedScores((prev) => ({ ...prev, [index]: scores }));
   };
-
   const watchedAreas = watch("areas");
   useEffect(() => {
     if (watchedAreas?.length > 0 && modo === 1) {
@@ -188,7 +181,6 @@ export const FormAssignQuestions = ({ data }) => {
     const facilPorc = porcentajeFacil / 100;
     const mediaPorc = porcentajeMedia / 100;
     const dificilPorc = porcentajeDificil / 100;
-
     return {
       puntajeFacil: cantidadFacil > 0 ? (totalScore * facilPorc) / cantidadFacil : 0,
       puntajeMedia: cantidadMedia > 0 ? (totalScore * mediaPorc) / cantidadMedia : 0,
@@ -198,7 +190,6 @@ export const FormAssignQuestions = ({ data }) => {
       puntajeTotalDificil: (totalScore * dificilPorc).toFixed(2),
     };
   };
-
   /* Enviar asignación de preguntas */
   const onSubmit = async (formData) => {
     if (totalAssignedScore !== Number(data.total_score)) {
@@ -208,7 +199,6 @@ export const FormAssignQuestions = ({ data }) => {
       );
       return;
     }
-
     const questionsPerArea = formData.areas.map((area) => {
       const cantidadFacil = Number(area.cantidadFacil || 0);
       const cantidadMedia = Number(area.cantidadMedia || 0);
@@ -245,7 +235,6 @@ export const FormAssignQuestions = ({ data }) => {
       setResponse(false);
     }
   };
-
   const resetForm = () => {
     reset({
       evaluation_id: data?.id || "",
@@ -263,13 +252,11 @@ export const FormAssignQuestions = ({ data }) => {
       })),
     });
   };
-
   const handleCancel = () => {
     closeFormModal();
     resetForm();
     navigate(-1);
   };
-
   /* Renderizado principal */
   return asignado ? (
     <div className="container-fluid p-4">
@@ -293,7 +280,6 @@ export const FormAssignQuestions = ({ data }) => {
             <button type="button" className={`btn ${modo === 1 ? "btn-info" : "btn-outline-info"} btn-sm fw-bold`} onClick={() => setModo(1)}>📊 Ponderar</button>
             <button type="button" className={`btn ${modo === 0 ? "btn-warning" : "btn-outline-warning"} btn-sm fw-bold`} onClick={() => setModo(0)}>➖ No Ponderar</button>
           </div>
-
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="alert alert-info mb-4 d-flex justify-content-between align-items-center">
               <span>ID de Evaluación: {data?.id}</span>
@@ -303,136 +289,151 @@ export const FormAssignQuestions = ({ data }) => {
                 <p className="text-danger text-sm mt-2">⚠️ La suma de puntajes asignados no coincide con el puntaje total.</p>
               )}
             </div>
-
             {isLoading.current ? (
               <div>Cargando áreas...</div>
             ) : (
               <div className="row">
                 {areas?.map((area, index) => (
-                  <div key={area.id} className="col-md-6 mb-4">
-                    <div className="card">
-                      <div className="card-header bg-primary text-white">
-                        <h5 className="mb-0">{area.name}</h5>
-                      </div>
-                      <div className="card-body">
-                        <ContainerInput>
-                          <Input
-                            name={`areas.${index}.puntajeTotal`}
-                            type="number"
-                            placeholder="Puntaje total del área"
-                            control={control}
-                            onChange={() => modo === 1 && recalculateScores(index)}
-                          />
-                          <Validate error={errors?.areas?.[index]?.puntajeTotal} />
-                        </ContainerInput>
-
-                        {modo === 1 ? (
-                          <>
-                            <div className="mb-2">
-                              <label>Distribución de porcentajes:</label>
-                              <div className="d-flex gap-2">
-                                {["Facil", "Media", "Dificil"].map((tipo) => (
-                                  <Input
-                                    key={tipo}
-                                    name={`areas.${index}.porcentaje${tipo}`}
-                                    type="number"
-                                    placeholder={`${tipo} %`}
-                                    control={control}
-                                    onChange={(e) => handleAreaPercentageChange(index, tipo, e.target.value)}
-                                  />
-                                ))}
+                  <>
+                    <div key={area.id} className="col-md-6 mb-4">
+                      <div className="card">
+                        <div className="card-header bg-primary text-white">
+                          <h5 className="mb-0">{area.name}</h5>
+                        </div>
+                        <div className="card-body">
+                          <ContainerInput>
+                            <Input
+                              name={`areas.${index}.puntajeTotal`}
+                              type="number"
+                              placeholder="Puntaje total del área"
+                              control={control}
+                              onChange={() => modo === 1 && recalculateScores(index)}
+                            />
+                            <Validate error={errors?.areas?.[index]?.puntajeTotal} />
+                          </ContainerInput>
+                          {modo === 1 ? (
+                            <>
+                              <div className="mb-2">
+                                <label>Distribución de porcentajes:</label>
+                                <div className="d-flex gap-2">
+                                  {["Facil", "Media", "Dificil"].map((tipo) => (
+                                    <Input
+                                      key={tipo}
+                                      name={`areas.${index}.porcentaje${tipo}`}
+                                      type="number"
+                                      placeholder={`${tipo} %`}
+                                      control={control}
+                                      onChange={(e) => handleAreaPercentageChange(index, tipo, e.target.value)}
+                                    />
+                                  ))}
+                                </div>
                               </div>
-                            </div>
-                            <div className="mb-2">
-                              <label>Cantidades por dificultad:</label>
-                              <div className="d-flex gap-2">
-                                <Input name={`areas.${index}.cantidadFacil`} type="number" placeholder="Fácil" control={control} onChange={() => recalculateScores(index)} />
-                                <Input name={`areas.${index}.cantidadMedia`} type="number" placeholder="Media" control={control} onChange={() => recalculateScores(index)} />
-                                <Input name={`areas.${index}.cantidadDificil`} type="number" placeholder="Difícil" control={control} onChange={() => recalculateScores(index)} />
+                              <div className="mb-2">
+                                <label>Cantidades por dificultad:</label>
+                                <div className="d-flex gap-2">
+                                  <Input name={`areas.${index}.cantidadFacil`} type="number" placeholder="Fácil" control={control} onChange={() => recalculateScores(index)} />
+                                  <Input name={`areas.${index}.cantidadMedia`} type="number" placeholder="Media" control={control} onChange={() => recalculateScores(index)} />
+                                  <Input name={`areas.${index}.cantidadDificil`} type="number" placeholder="Difícil" control={control} onChange={() => recalculateScores(index)} />
+                                </div>
                               </div>
-                            </div>
-
-                            <div className="mt-3">
-                              <p><strong>Disponibilidad de preguntas:</strong></p>
-                              <ul>
-                                <li>Fácil: {disponibles?.[area.id]?.facil || 0}</li>
-                                <li>Media: {disponibles?.[area.id]?.media || 0}</li>
-                                <li>Difícil: {disponibles?.[area.id]?.dificil || 0}</li>
-                              </ul>
-
-                              {disponibles?.[area.id]?.total === 0 && (
-                                <button
-                                  type="button"
-                                  className="btn btn-sm btn-success mt-2"
-                                  onClick={async () => {
-                                    try {
-                                      await postApi(`question_evaluations/activeQuestions/${area.id}`);
-                                      const nuevasDisponibles = await fetchDisponibles(area.id);
-                                      setDisponibles((prev) => ({ ...prev, [area.id]: nuevasDisponibles }));
-                                      customAlert("Preguntas activadas correctamente", "success");
-                                    } catch (error) {
-                                      console.error(error);
-                                      customAlert("Error al activar las preguntas", "error");
-                                    }
-                                  }}
-                                >
-                                  Activar preguntas
-                                </button>
-                              )}
-                            </div>
-
-                            {calculatedScores[index] && (
-                              <div className="alert alert-secondary mt-2">
-                                <strong>Puntajes calculados:</strong>
-                                <ul className="mb-0">
-                                  <li>Fácil: {calculatedScores[index].puntajeFacil} (Total: {calculatedScores[index].puntajeTotalFacil})</li>
-                                  <li>Media: {calculatedScores[index].puntajeMedia} (Total: {calculatedScores[index].puntajeTotalMedia})</li>
-                                  <li>Difícil: {calculatedScores[index].puntajeDificil} (Total: {calculatedScores[index].puntajeTotalDificil})</li>
+                              <div className="mt-3">
+                                <p><strong>Disponibilidad de preguntas:</strong></p>
+                                <ul>
+                                  <li>Fácil: {disponibles?.[area.id]?.facil || 0}</li>
+                                  <li>Media: {disponibles?.[area.id]?.media || 0}</li>
+                                  <li>Difícil: {disponibles?.[area.id]?.dificil || 0}</li>
                                 </ul>
+                                {disponibles?.[area.id]?.total === 0 && (
+                                  <>
+                                    <button
+                                      type="button"
+                                      className="btn btn-sm btn-success mt-2"
+                                      onClick={async () => {
+                                        try {
+                                          await postApi(`question_evaluations/activeQuestions/${area.id}`, { evaluation_id: Number(id) });
+                                          const nuevasDisponibles = await fetchDisponibles(area.id, id);
+                                          setDisponibles((prev) => ({ ...prev, [area.id]: nuevasDisponibles }));
+                                          customAlert("Preguntas activadas correctamente", "success");
+                                        } catch (error) {
+                                          customAlert(error?.response?.data?.message || "Error al activar las preguntas", "error");
+                                        }
+                                      }}
+                                    >
+                                      Activar preguntas
+                                    </button>
+                                    <ButtonImport
+                                      modalIdImp={`importar-${area.id}`}
+                                      className={`btn btn-sm btn-outline-success d-flex align-items-center ${area.status === "inactivo" ? "opacity-75" : ""
+                                        }`}
+                                    />
+                                  </>
+                                )}
                               </div>
-                            )}
-                          </>
-                        ) : (
-                          <>
-                            <div className="mb-2">
-                              <label>Cantidad Total de Preguntas:</label>
-                              <Input
-                                name={`areas.${index}.cantidadTotal`}
-                                type="number"
-                                placeholder="Cantidad total"
-                                control={control}
-                              />
-                              <Validate error={errors?.areas?.[index]?.cantidadTotal} />
-                            </div>
-                            <div className="mb-2">
-                              <label>Disponibilidad de preguntas:</label>
-                              <p>{disponibles?.[area.id]?.total || 0}</p>
-
-                              {disponibles?.[area.id]?.total === 0 && (
-                                <button
-                                  type="button"
-                                  className="btn btn-sm btn-success mt-2"
-                                  onClick={async () => {
-                                    try {
-                                      await postApi(`question_evaluations/activeQuestions/${area.id}`);
-                                      const nuevasDisponibles = await fetchDisponibles(area.id);
-                                      setDisponibles((prev) => ({ ...prev, [area.id]: nuevasDisponibles }));
-                                      customAlert("Preguntas activadas correctamente", "success");
-                                    } catch (error) {
-                                      console.error(error);
-                                      customAlert("Error al activar las preguntas", "error");
-                                    }
-                                  }}
-                                >
-                                  Activar preguntas
-                                </button>
+                              {calculatedScores[index] && (
+                                <div className="alert alert-secondary mt-2">
+                                  <strong>Puntajes calculados:</strong>
+                                  <ul className="mb-0">
+                                    <li>Fácil: {calculatedScores[index].puntajeFacil} (Total: {calculatedScores[index].puntajeTotalFacil})</li>
+                                    <li>Media: {calculatedScores[index].puntajeMedia} (Total: {calculatedScores[index].puntajeTotalMedia})</li>
+                                    <li>Difícil: {calculatedScores[index].puntajeDificil} (Total: {calculatedScores[index].puntajeTotalDificil})</li>
+                                  </ul>
+                                </div>
                               )}
-                            </div>
-                          </>
-                        )}
+                            </>
+                          ) : (
+                            <>
+                              <div className="mb-2">
+                                <label>Cantidad Total de Preguntas:</label>
+                                <Input
+                                  name={`areas.${index}.cantidadTotal`}
+                                  type="number"
+                                  placeholder="Cantidad total"
+                                  control={control}
+                                />
+                                <Validate error={errors?.areas?.[index]?.cantidadTotal} />
+                              </div>
+                              <div className="mb-2">
+                                <label>Disponibilidad de preguntas:</label>
+                                <p>{disponibles?.[area.id]?.total || 0}</p>
+
+                                {disponibles?.[area.id]?.total === 0 && (
+                                  <>
+                                    <ButtonImport
+                                      modalIdImp={`importar-${area.id}`}
+                                      className={`btn btn-sm btn-outline-success d-flex align-items-center ${area.status === "inactivo" ? "opacity-75" : ""
+                                        }`}
+                                    />
+                                    <button
+                                      type="button"
+                                      className="btn btn-sm btn-success mt-2"
+                                      onClick={async () => {
+                                        try {
+                                          await postApi(`question_evaluations/activeQuestions/${area.id}`);
+                                          const nuevasDisponibles = await fetchDisponibles(area.id, id);
+                                          setDisponibles((prev) => ({ ...prev, [area.id]: nuevasDisponibles }));
+                                          customAlert("Preguntas activadas correctamente", "success");
+                                        } catch (error) {
+                                          console.error(error);
+                                          customAlert("Error al activar las preguntas", "error");
+                                        }
+                                      }}
+                                    >
+                                      Activar preguntas
+                                    </button>
+                                  </>
+                                )}
+                              </div>
+                            </>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
+                    <ModalImport
+                      modalIdImp={`importar-${area.id}`}
+                      title={`Importar Preguntas - ${area.name}`}
+                      areaId={area.id}
+                    />
+                  </>
                 ))}
               </div>
             )}

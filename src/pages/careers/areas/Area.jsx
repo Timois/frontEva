@@ -1,5 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
-import { AreaContext } from '../../../context/AreaProvider';
+import { useEffect, useState } from 'react';
 import { useFetchAreasByCareer } from '../../../hooks/fetchAreas';
 import ButtonEdit from './ButtonEdit';
 import { ModalEdit } from './ModalEdit';
@@ -12,12 +11,11 @@ import { customAlert } from '../../../utils/domHelper';
 import { HiThumbDown, HiThumbUp } from 'react-icons/hi';
 
 export const Area = () => {
-  const { areas } = useContext(AreaContext);
   const [selectedArea, setSelectedArea] = useState(null);
   const [careerId, setCareerId] = useState(null);
 
-  const { getData } = useFetchAreasByCareer();
-
+  const {areas, getData } = useFetchAreasByCareer();
+  
   const handleEditClick = (area) => {
     setSelectedArea(area);
   };
@@ -129,7 +127,7 @@ export const Area = () => {
                               : "btn-outline-success"
                               }`}
                           >
-                            {area.status === "inactivo" ? <HiThumbDown /> : <HiThumbUp />}
+                            {area.status === "inactivo"? <HiThumbDown /> : <HiThumbUp />}
                           </button>
                         </CheckPermissions>
                       </div>
