@@ -142,7 +142,7 @@ const Layout = ({ children }) => {
                       <MenuButton path={"/administracion/career"} label={"Carrera"} onClick={closeSidebar} />
                     )}
                     {hasPermission("ver-unidades-academicas") && (
-                      <MenuButton path={"/administracion/unit"} label={"Unidades"} onClick={closeSidebar} />
+                      <MenuButton path={"/administracion/unit"} label={"Unidades Academicas"} onClick={closeSidebar} />
                     )}
                     {hasPermission("ver-carreras") && (
                       <MenuButton path={"/administracion/careers"} label={"Carreras"} onClick={closeSidebar} />

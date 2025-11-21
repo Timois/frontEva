@@ -61,7 +61,7 @@ export const Area = () => {
         <div className="card-header bg-primary text-white py-3 rounded-top">
           <h3 className="mb-0">
             <FaClipboardList className="me-2" />
-            Áreas Académicas
+            Áreas de Conocimiento
           </h3>
         </div>
 

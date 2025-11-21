@@ -282,7 +282,7 @@ export const FormAssignQuestions = ({ data }) => {
           </div>
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="alert alert-info mb-4 d-flex justify-content-between align-items-center">
-              <span>ID de Evaluación: {data?.id}</span>
+              <span>Titulo de Evaluación: {data?.title}</span>
               <span>Puntaje Total del Examen: {data?.total_score}</span>
               <span>Puntaje Asignado: {totalAssignedScore}</span>
               {totalAssignedScore !== Number(data.total_score) && (
@@ -344,10 +344,10 @@ export const FormAssignQuestions = ({ data }) => {
                                   <li>Difícil: {disponibles?.[area.id]?.dificil || 0}</li>
                                 </ul>
                                 {disponibles?.[area.id]?.total === 0 && (
-                                  <>
+                                  <div className="d-flex align-items-center gap-2 mt-2">
                                     <button
                                       type="button"
-                                      className="btn btn-sm btn-success mt-2"
+                                      className="btn btn-sm btn-success"
                                       onClick={async () => {
                                         try {
                                           await postApi(`question_evaluations/activeQuestions/${area.id}`, { evaluation_id: Number(id) });
@@ -361,12 +361,13 @@ export const FormAssignQuestions = ({ data }) => {
                                     >
                                       Activar preguntas
                                     </button>
+
                                     <ButtonImport
                                       modalIdImp={`importar-${area.id}`}
                                       className={`btn btn-sm btn-outline-success d-flex align-items-center ${area.status === "inactivo" ? "opacity-75" : ""
                                         }`}
                                     />
-                                  </>
+                                  </div>
                                 )}
                               </div>
                               {calculatedScores[index] && (
@@ -397,15 +398,16 @@ export const FormAssignQuestions = ({ data }) => {
                                 <p>{disponibles?.[area.id]?.total || 0}</p>
 
                                 {disponibles?.[area.id]?.total === 0 && (
-                                  <>
+                                  <div className="d-flex align-items-center gap-2 mt-2">
                                     <ButtonImport
                                       modalIdImp={`importar-${area.id}`}
                                       className={`btn btn-sm btn-outline-success d-flex align-items-center ${area.status === "inactivo" ? "opacity-75" : ""
                                         }`}
                                     />
+
                                     <button
                                       type="button"
-                                      className="btn btn-sm btn-success mt-2"
+                                      className="btn btn-sm btn-success"
                                       onClick={async () => {
                                         try {
                                           await postApi(`question_evaluations/activeQuestions/${area.id}`);
@@ -420,7 +422,7 @@ export const FormAssignQuestions = ({ data }) => {
                                     >
                                       Activar preguntas
                                     </button>
-                                  </>
+                                  </div>
                                 )}
                               </div>
                             </>

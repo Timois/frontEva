@@ -40,7 +40,7 @@ export const CareerPeriodsList = () => {
                                 <Card className={"card h-100"}>
                                     <div className="card-body text-center">
                                         <h4 className="card-title">
-                                            Periodo <br />
+                                            Periodos Academicos<br />
                                             {period.periodo.level || '—'} <span className="text-muted">/</span> {period.year}
                                         </h4>
                                     </div>

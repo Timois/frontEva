@@ -222,13 +222,11 @@ const ViewQuestionsAndAnswers = () => {
     socketRef.current = socket;
 
     socket.on("connect", () => {
-      console.log(`✅ Conectado al socket y unido a la sala  ${groupId}`);
       socket.emit("join", { roomId: groupId, role: "student" });
     });
 
     // 🟢 Evento de inicio de examen
     socket.on("start", (payload) => {
-      console.log("🚀 Examen iniciado:", payload);
       setSocketTimeData({
         timeLeft: payload.duration,
         timeFormatted: payload.timeFormatted,
@@ -240,7 +238,6 @@ const ViewQuestionsAndAnswers = () => {
     // 🟡 Evento de estado general
     socket.on("msg", async (payload) => {
       const { examStatus, timeLeft, timeFormatted, reason } = payload;
-      console.log(examStatus, timeLeft, timeFormatted)
       setSocketTimeData((prev) => ({
         ...prev,
         timeLeft: timeLeft ?? prev.timeLeft,
@@ -327,6 +324,7 @@ const ViewQuestionsAndAnswers = () => {
         stoppedByTeacher={stoppedByTeacher}
         finalScore={finalScore}
         studentId={studentId}
+        evaluationId={selectedEvaluation?.evaluation_id}
       />
     );
   }

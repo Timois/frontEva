@@ -20,7 +20,7 @@ export const IndexGestion = () => {
       </div>
       <CheckPermissions requiredPermission="crear-gestiones">
         <div>
-          <ModalRegister modalId={modalId} title="Registrar Gestion Academica" />
+          <ModalRegister modalId={modalId} title="Registrar Gestion" />
         </div>
       </CheckPermissions>
     </div>

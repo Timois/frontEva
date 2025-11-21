@@ -81,7 +81,6 @@ export const Question = () => {
                                 <th scope="col" width="10%" className="fw-medium text-primary">Imagen</th>
                                 <th scope="col" width="10%" className="fw-medium text-primary">Tipo</th>
                                 <th scope="col" width="15%" className="fw-medium text-primary">Respuestas</th>
-                                <th scope="col" width="10%" className="fw-medium text-primary">Acción</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -124,15 +123,6 @@ export const Question = () => {
                                                 <ButtonViewAnswers
                                                     questionId={question.id}
                                                     className="btn btn-sm btn-outline-primary"
-                                                />
-                                            </CheckPermissions>
-                                        </td>
-                                        <td className="text-center">
-                                            <CheckPermissions requiredPermission="editar-preguntas">
-                                                <ButtonEdit
-                                                    idEditar={idEditar}
-                                                    onEditClick={() => handleEditClick(question)}
-                                                    className="btn btn-sm btn-outline-primary d-flex align-items-center justify-content-center mx-auto"
                                                 />
                                             </CheckPermissions>
                                         </td>

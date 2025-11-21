@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { GroupSchema } from "../../models/schemas/GroupSchema";
+import { GroupSchema } from "../../models/schemas/GroupSchema"; // Asegúrate de actualizar este schema también
 import { postApi } from "../../services/axiosServices/ApiService";
 import { closeFormModal, customAlert } from "../../utils/domHelper";
 import { ContainerInput } from "../login/ContainerInput";
@@ -13,26 +13,26 @@ import { ContainerButton } from "../login/ContainerButton";
 import { Button } from "../login/Button";
 import CancelButton from "./components/CancelButon";
 import { fetchLabs } from "../../hooks/fetchLabs";
-import { SelectInput } from "./components/SelectInput";
 import { useParams } from "react-router-dom";
 import { useExamns } from "../../hooks/fetchExamns";
 import { fetchGroupByEvaluation } from "../../hooks/fetchGroup";
 import { DateInput } from "./components/DateInput";
-const arrayOption = [
-    { value: "turno1", text: "Turno 1" }, { value: "turno2", text: "Turno 2" }, { value: "turno3", text: "Turno 3" }, { value: "turno4", text: "Turno 4" }
-];
+
 const ordens = [
     { value: "id_asc", text: "Por ID (ascendente)" },
-    { value: "alphabetical", text: "Por Apellido (A-Z)" },
-]
+    { value: "alphabetical", text: "Por Apellido Paterno (A-Z)" },
+];
+
 export const FormGroup = () => {
-    const { id } = useParams();
-    const { examn, getExamnById } = useExamns()
-    const [response, setResponse] = useState(false);
+    const { id } = useParams(); // evaluation_id
+    const { examn, getExamnById } = useExamns();
     const { refreshGroups } = fetchGroupByEvaluation();
     const { labs, getDataLabs } = fetchLabs();
-    const [array, setArray] = useState([]);
-    const isEdit = false;
+
+    const [labOptions, setLabOptions] = useState([]);
+    const [selectedLabs, setSelectedLabs] = useState([]); // Para mostrar selección visual
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
     const {
         control,
         handleSubmit,
@@ -42,153 +42,215 @@ export const FormGroup = () => {
         watch,
         setValue,
     } = useForm({
-        resolver: zodResolver(GroupSchema(isEdit)),
+        resolver: zodResolver(GroupSchema(false)), // Ajusta tu schema si es necesario
         defaultValues: {
             name: "",
             description: "",
-            laboratory_id: null,
-            order_type: "",
+            laboratory_ids: [],        // ← Ahora es array
+            start_time: "",
+            end_time: "",
+            order_type: "alphabetical",
         },
     });
+
     const startTime = watch("start_time");
-    const endTime = watch("end_time");
+
+    // Cargar laboratorios
     useEffect(() => {
         getDataLabs();
-    }, []);
-
-    useEffect(() => {
         getExamnById(id);
     }, [id]);
 
-    const evaluationId = id;
-    useEffect(() => {
-        if (!startTime || !/^\d{2}:\d{2}$/.test(startTime) || !examn?.time) return
-
-        const [hours, minutes] = startTime.split(":").map(Number)
-        if (isNaN(hours) || isNaN(minutes)) return
-
-        const totalMinutes = hours * 60 + minutes + parseInt(examn.time)
-        const endHours = Math.floor(totalMinutes / 60) % 24
-        const endMinutes = totalMinutes % 60
-
-        const formattedEndTime = `${endHours.toString().padStart(2, "0")}:${endMinutes
-            .toString()
-            .padStart(2, "0")}`
-
-        setValue("end_time", formattedEndTime)
-    }, [startTime, examn?.time])
-
+    // Generar opciones de laboratorios
     useEffect(() => {
         if (labs.length > 0) {
-            const newArray = labs.map((lab) => ({
+            const options = labs.map((lab) => ({
                 value: lab.id,
-                text: `${lab.name} - ${lab.location}`,
+                text: `${lab.name} - ${lab.location} (${lab.equipment_count} equipos)`,
             }));
-            setArray(newArray);
+            setLabOptions(options);
         }
     }, [labs]);
 
+    // Calcular hora de fin automáticamente
+    useEffect(() => {
+        if (!startTime || !examn?.time || !/^\d{2}:\d{2}$/.test(startTime)) return;
+
+        const [hours, minutes] = startTime.split(":").map(Number);
+        const totalMinutes = hours * 60 + minutes + parseInt(examn.time);
+        const endHours = Math.floor(totalMinutes / 60) % 24;
+        const endMinutes = totalMinutes % 60;
+
+        const formatted = `${endHours.toString().padStart(2, "0")}:${endMinutes
+            .toString()
+            .padStart(2, "0")}`;
+
+        setValue("end_time", formatted);
+    }, [startTime, examn?.time, setValue]);
+
+    // Manejar selección múltiple de laboratorios
+    const handleLabChange = (e) => {
+        const options = e.target.options;
+        const selected = [];
+        const selectedIds = [];
+
+        for (let i = 0; i < options.length; i++) {
+            if (options[i].selected) {
+                selected.push(options[i].text);
+                selectedIds.push(parseInt(options[i].value));
+            }
+        }
+
+        setSelectedLabs(selected);
+        setValue("laboratory_ids", selectedIds); // Actualiza react-hook-form
+    };
+
     const onSubmit = async (data) => {
-        
-        setResponse(true);
+        if (data.laboratory_ids.length === 0) {
+            customAlert("Debe seleccionar al menos un laboratorio.", "warning");
+            return;
+        }
+
+        setIsSubmitting(true);
+
         const formData = new FormData();
-        formData.append("name", data.name);
-        formData.append("description", data.description);
-        formData.append("evaluation_id", evaluationId);
-        formData.append("start_time", data.start_time); // Enviar como HH:mm
-        formData.append("end_time", data.end_time); // Enviar como HH:mm
-        formData.append("laboratory_id", data.laboratory_id);
+        formData.append("evaluation_id", id);
+        formData.append("name", data.name.trim());
+        if (data.description?.trim()) {
+            formData.append("description", data.description.trim());
+        }
+        formData.append("start_time", data.start_time);
+        formData.append("end_time", data.end_time);
         formData.append("order_type", data.order_type);
+
+        data.laboratory_ids.forEach((labId) => {
+            formData.append("laboratory_ids[]", labId);
+        });
 
         try {
             const response = await postApi("groups/save", formData);
-
-            if (!response) {
-                throw new Error("No se pudo guardar el grupo");
+            if (response.status === 201 || response.status === 200) {
+                customAlert(
+                    `¡Éxito! Se crearon ${response.data.total_groups_created} grupos en ${response.data.total_turns} turno(s).`,
+                    "success"
+                );
+                closeFormModal("registerGroup");
+                await refreshGroups(id);
+                resetForm();
             }
-            if (response.status === 422) { // Asumiendo que el éxito es 201 Created
-                for (let key in response.data.errors) {
-                    setError(key, { type: "custom", message: response.data.errors[key][0] });
-                }
-                return;
-            }
-            customAlert("Grupo guardado correctamente", "success");
-            closeFormModal("registerGroup");
-            await refreshGroups(evaluationId); // Refrescar la list
-            resetForm();
         } catch (error) {
-            if (error.response?.status === 403) {
-                customAlert("No tienes permisos para guardar el grupo", "error");
-            } else {
-                customAlert(error.response?.data?.message, "error");
+            const msg = error.response?.data?.message || "Error al crear los grupos";
+            customAlert(msg, "error");
+
+            if (error.response?.status === 422) {
+                Object.keys(error.response.data.errors).forEach((key) => {
+                    const messages = error.response.data.errors[key];
+                    setError(key.replace("laboratory_ids.", "laboratory_ids."), {
+                        type: "server",
+                        message: messages[0],
+                    });
+                });
             }
-            closeFormModal("registerGroup");
-            resetForm();
         } finally {
-            setResponse(false);
+            setIsSubmitting(false);
         }
     };
 
     const resetForm = () => {
-        reset({
-            name: "",
-            description: "",
-            laboratory_id: "",
-            start_time: "",
-            end_time: "",
-            order_type: "",
-        });
+        reset();
+        setSelectedLabs([]);
     };
 
     const handleCancel = () => {
         resetForm();
         closeFormModal("registerGroup");
     };
-    const onError = (errors) => {
-        // console.log("Errores del formulario:", errors);
-      };
+
     return (
-        <form onSubmit={handleSubmit(onSubmit, onError)}>
-            <div className="mb-3">
-                <span className="text-align-center text-danger">Tiempo del examen {examn.time || "N/A"} minutos</span>
+        <form onSubmit={handleSubmit(onSubmit)}>
+            <div className="mb-4 text-center">
+                <span className="text-lg font-semibold text-blue-600">
+                    Tiempo del examen: {examn?.time || "N/A"} minutos
+                </span>
             </div>
             <ContainerInput>
-                <Input name="name" placeholder="Ingrese el Nombre del grupo" control={control} errors={errors} />
+                <Input
+                    name="name"
+                    placeholder="Ej: Examen Final de Matemáticas"
+                    control={control}
+                    errors={errors}
+                    label="Nombre base de los grupos"
+                />
                 <Validate errors={errors.name} />
             </ContainerInput>
             <ContainerInput>
-                <SelectInput label="Seleccione una opcion" name="description" options={arrayOption} control={control} />
+                <Input
+                    name="description"
+                    placeholder="Opcional: notas generales para todos los grupos"
+                    control={control}
+                    errors={errors}
+                    label="Descripción general (opcional)"
+                />
                 <Validate errors={errors.description} />
             </ContainerInput>
             <ContainerInput>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-600 mb-2">
                     La hora de fin se calcula automáticamente según la duración del examen.
                 </p>
-                <div style={{ display: "flex", gap: "10px", justifyContent: "space-around" }}>
-                    <DateInput label={"Hora de inicio"} name={"start_time"} control={control} type={"time"} />
-                    <DateInput label={"Hora de Fin"} name={"end_time"} control={control} type={"time"} disabled />
+                <div className="grid grid-cols-2 gap-4">
+                    <DateInput label="Hora de inicio" name="start_time" control={control} type="time" />
+                    <DateInput label="Hora de fin (automática)" name="end_time" control={control} type="time" disabled />
                 </div>
                 <Validate errors={errors.start_time} />
-                <Validate errors={errors.end_time} />
             </ContainerInput>
             <ContainerInput>
-                <SelectInput label="Seleccione un Ambiente" name="laboratory_id" options={array} control={control} castToNumber={true} />
-                <Validate errors={errors.laboratory_id} />
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Selecciona uno o más laboratorios (mantiene 3 equipos de reserva por lab)
+                </label>
+                <select
+                    multiple
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 h-48 text-sm"
+                    onChange={handleLabChange}
+                    value={watch("laboratory_ids") || []}
+                >
+                    {labOptions.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                            {opt.text}
+                        </option>
+                    ))}
+                </select>
+                {selectedLabs.length > 0 && (
+                    <div className="mt-2 text-sm text-green-600 font-medium">
+                        Seleccionados: {selectedLabs.join(" | ")}
+                    </div>
+                )}
+                <Validate errors={errors.laboratory_ids} />
+                <p className="text-xs text-gray-500 mt-1">
+                    Mantén presionado Ctrl (o Cmd) para seleccionar varios.
+                </p>
             </ContainerInput>
             <ContainerInput>
-                <SelectInput
-                    label="Seleccione el tipo de ordenamiento"
-                    name="order_type"
-                    options={ordens}
-                    control={control}
-                />
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Orden de asignación de estudiantes
+                </label>
+                <select
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    {...control.register("order_type")}
+                >
+                    <option value="">Seleccione un orden...</option>
+                    {ordens.map((orden) => (
+                        <option key={orden.value} value={orden.value}>
+                            {orden.text}
+                        </option>
+                    ))}
+                </select>
                 <Validate errors={errors.order_type} />
             </ContainerInput>
             <ContainerButton>
-                <Button type="submit" name="submit" disabled={response}>
-                    <span>{response ? "Guardando..." : "Guardar"}</span>
+                <Button type="submit" disabled={isSubmitting}>
+                    {isSubmitting ? "Creando grupos..." : "Crear Grupos Automáticos"}
                 </Button>
-                <CancelButton disabled={response} onClick={handleCancel} />
+                <CancelButton onClick={handleCancel} disabled={isSubmitting} />
             </ContainerButton>
         </form>
     );

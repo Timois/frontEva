@@ -26,7 +26,7 @@ export const Periodos = () => {
         <div className="card-header bg-primary text-white py-3 rounded-top">
           <h3 className="mb-0">
             <FaCalendarAlt className="me-2" />
-            Gestión de Periodos
+            Gestión de Periodos Academicos
           </h3>
         </div>
 

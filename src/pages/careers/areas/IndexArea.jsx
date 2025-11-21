@@ -21,7 +21,7 @@ export const IndexArea = () => {
         <ViewAreas />
       </div>
       <CheckPermissions requiredPermission="crear-areas">
-        <ModalRegister modalId={modalId} title="Registrar Area" />
+        <ModalRegister modalId={modalId} title="Registrar Area de Conocimiento" />
       </CheckPermissions>
     </div>
   )

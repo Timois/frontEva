@@ -18,7 +18,7 @@ export const IndexPeriod = () => {
         <Periodos />
       </div>
       <CheckPermissions requiredPermission="crear-periodos">
-      <ModalRegister modalIdP={modalId} title="Registrar Periodo" />
+      <ModalRegister modalIdP={modalId} title="Registrar Periodo Academico" />
       </CheckPermissions>
     </div >
   )

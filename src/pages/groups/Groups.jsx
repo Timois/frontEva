@@ -54,9 +54,11 @@ export const Groups = () => {
     }, [evaluationId]);
 
     const handleViewStudents = (group) => {
+        setSelectedGroup(group);
         setSelectedGroupStudents(group.students || []);
         setShowStudentsModal(true);
     };
+
     const tokenCache = new Map(); // key: token, value: { valid, role, expires }
 
     const verifyApi = async (token) => {
@@ -382,11 +384,12 @@ export const Groups = () => {
                 title="Editar Grupo"
                 onClose={() => setShowEditModal(false)}
             />
-
             {showStudentsModal && (
                 <ModalViewStudents
                     modalId="modalViewStudents"
                     students={selectedGroupStudents}
+                    groupName={selectedGroup?.name}
+                    examTitle={examn?.title}
                     onClose={() => setShowStudentsModal(false)}
                 />
             )}

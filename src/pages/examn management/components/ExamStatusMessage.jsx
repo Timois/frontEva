@@ -1,11 +1,11 @@
 /* eslint-disable react/prop-types */
 import { useNavigate } from "react-router-dom";
 
-const ExamStatusMessage = ({ closedByGroup, stoppedByTeacher, finalScore, studentId }) => {
+const ExamStatusMessage = ({ closedByGroup, stoppedByTeacher, finalScore, studentId, evaluationId }) => {
   const navigate = useNavigate();
 
   const handleCompareClick = () => {
-    navigate(`/estudiantes/exams/${studentId}/compareAnswers`);
+    navigate(`/estudiantes/exams/${studentId}/compareAnswers/${evaluationId}	`);
   };
 
   const handleBackClick = () => {

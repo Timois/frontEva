@@ -118,7 +118,7 @@ export const CareerAssigns = ({ data }) => {
                 ))}
             </div>
             <CheckPermissions requiredPermission="ver-periodos-asignados">
-                <ModalViewManagementPeriod ModalId="verPeriodo" title="Periodos" />
+                <ModalViewManagementPeriod ModalId="verPeriodo" title="Periodos Academicos" />
             </CheckPermissions>
         </div>
     );
