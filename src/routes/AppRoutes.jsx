@@ -36,6 +36,7 @@ import { CompareAnswers } from "../pages/examn management/CompareAnswers"
 import { ResultsByTest } from "../pages/examn management/ResultsByTest"
 import IndexResults from "../pages/results management/IndexResults"
 import { StudentsHome } from "../pages/StudentsHome"
+import { RegisterGroupView } from "../pages/groups/RegisterGroup"
 export const AppRoutes = () => {
   return (
     <Routes
@@ -121,6 +122,9 @@ export const AppRoutes = () => {
             <PermissionsGuard requiredPermission={"ver-grupos-por-evaluacion"}>
               <IndexGroups />
             </PermissionsGuard>} />
+            <Route path="administracion/examns/:id/groups/register" element={
+                <RegisterGroupView />
+            } />
           <Route path="administracion/results" element={
             <PermissionsGuard requiredPermission={"ver-resultados"}>
               <IndexResults />

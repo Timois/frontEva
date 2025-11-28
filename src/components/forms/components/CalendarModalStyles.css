@@ -1,0 +1,22 @@
+.rbc-day-bg {
+  background-color: #f0f0f0;
+}
+.rbc-day-bg {
+  border-top: 1px solid green; 
+  border-right: 1px solid green; 
+  border-left: 1px solid green; 
+}
+
+.rbc-day-bg:hover {
+ background-color: #b3e4b3;
+ cursor: pointer;
+}
+.rbc-month-header {
+  background-color: #a1eea1;
+}
+.rbc-header {
+  background-color: #a1eea1;
+  border-top: 1px solid green;
+  border-right: 1px solid green; 
+  border-left: 1px solid green;
+}

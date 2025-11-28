@@ -13,8 +13,17 @@ export const fetchLabs = () => {
       // console.log(error)
     }
   }
+  const getLabsByCareer = async (careerId) => {
+    try {
+      const response = await getApi(`laboratories/listByCareer/${careerId}`)
+      setLabs(response)
+    }catch (error) {
+      // console.log(error)
+    }
+  }
   return {
     labs,
+    getLabsByCareer,
     getDataLabs
   }
 }

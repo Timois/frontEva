@@ -7,12 +7,14 @@ import ModalEdit from "./ModalEdit"
 
 export const Labs = () => {
     const [selectedLab, setSelectedLab] = useState(null)
-    const { labs, getDataLabs } = fetchLabs()
+    const { labs, getLabsByCareer } = fetchLabs()
     
+    const user = JSON.parse(localStorage.getItem("user"));
+    const careerID = user.career_id;
     useEffect(() => {
-        getDataLabs()
+        getLabsByCareer(careerID)
     }, [])
-
+    
     const handleEditClick = (data) => {
         setSelectedLab(data)
     }

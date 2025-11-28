@@ -18,6 +18,8 @@ export const FormLabs = () => {
     const { control, handleSubmit, reset, formState: { errors }, setError } = useForm({
         resolver: zodResolver(LabSchema),
     })
+    const user = localStorage.getItem('user')
+    const careerId = JSON.parse(user).career_id
     
     const onSubmit = async (data) => {
         setResponse(true)
@@ -25,7 +27,7 @@ export const FormLabs = () => {
         formData.append('name', data.name)
         formData.append('location', data.location)
         formData.append('equipment_count', data.equipment_count)
-
+        formData.append('career_id', careerId)
         try {
             const response = await postApi("laboratories/save", formData)
             if (!response) {

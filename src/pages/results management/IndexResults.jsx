@@ -8,7 +8,7 @@ import { Button } from "../../components/login/Button";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { FaFilePdf } from "react-icons/fa";
-import { useFetchCareerAssign, useFetchCareerAssignPeriod } from "../../hooks/fetchcareers";
+import { useFetchCareerAssign, useFetchCareerAssignPeriod } from "../../hooks/fetchCareers";
 const IndexResults = () => {
   const { control, watch } = useForm();
   const { careerAssignments, getDataCareerAssignments } = useFetchCareerAssign();

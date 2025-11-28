@@ -66,7 +66,7 @@ export const User = () => {
                                 personas.map((persona, index) => (
                                     <tr key={persona.id || index} className="transition-all">
                                         <td className="text-center text-muted">{index + 1}</td>
-                                        <td className="fw-semibold">{persona.name}</td>
+                                        <td className="fw-semibold text-capitalize">{persona.name}</td>
                                         <td>
                                             <a href={`mailto:${persona.email}`} className="text-decoration-none">
                                                 {persona.email}
@@ -85,7 +85,7 @@ export const User = () => {
                                             </div>
                                         </td>
                                         <td>
-                                            <div className="d-flex align-items-center gap-2">
+                                            <div className="d-flex align-items-center gap-2 text-capitalize">
                                                 <span className="text-muted">
                                                     {getCareerName(persona.career_id) || "Sin asignar"}
                                                 </span>
