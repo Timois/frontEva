@@ -15,8 +15,11 @@
   background-color: #a1eea1;
 }
 .rbc-header {
-  background-color: #a1eea1;
+  background-color: hwb(120 32% 25%);
   border-top: 1px solid green;
   border-right: 1px solid green; 
   border-left: 1px solid green;
+}
+.rbc-toolbar{
+  background-color: #a1b3ee;
 }

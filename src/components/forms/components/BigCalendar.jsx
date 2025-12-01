@@ -1,7 +1,7 @@
 import moment from "moment";
 import "moment/locale/es";
 import { Calendar, momentLocalizer } from "react-big-calendar";
-
+import "./CalendarModalStyles.css"
 export const BigCalendar = ({ doubleClick }) => {
 
   moment.locale("es");

@@ -15,6 +15,11 @@ import { fetchGroupByEvaluation } from "../../hooks/fetchGroup";
 import Select from "react-select";
 import { Card } from "../login/Card";
 import { BigCalendar } from "./components/BigCalendar";
+import { ContainerButton } from "../login/ContainerButton";
+import { Button } from "../login/Button";
+import CancelButton from "./components/CancelButon";
+import { Input } from "../login/Input";
+import { DateInput } from "./components/DateInput";
 
 export const FormGroup = () => {
     const { id } = useParams();
@@ -28,13 +33,8 @@ export const FormGroup = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const {
-        control,
-        handleSubmit,
-        reset,
-        formState: { errors },
-        setError,
-        watch,
-        setValue,
+        control, handleSubmit, reset, formState: { errors },
+        setError, watch, setValue,
     } = useForm({
         resolver: zodResolver(GroupSchema(false)),
         defaultValues: {
@@ -46,7 +46,7 @@ export const FormGroup = () => {
         },
     });
 
-    // -------------- BUSCAR LABS Y EXAMEN -------------------
+    // Cargar labs y examen
     useEffect(() => {
         getDataLabs();
         getExamnById(id);
@@ -67,7 +67,6 @@ export const FormGroup = () => {
         }
     }, [filteredLabs]);
 
-    // -------------- FILTRO DE LABORATORIOS -------------------
     const onFilterChange = (e) => {
         const value = e.target.value;
         setFilterValue(value);
@@ -83,9 +82,8 @@ export const FormGroup = () => {
         }
     };
 
-    // -------------- ENVIAR FORMULARIO -------------------
+    // ---------------- ENVIAR FORMULARIO -------------------
     const onSubmit = async (data) => {
-
         if (data.laboratory_ids.length === 0) {
             customAlert("Debe seleccionar al menos un laboratorio.", "warning");
             return;
@@ -98,7 +96,7 @@ export const FormGroup = () => {
             laboratory_ids: data.laboratory_ids,
             name: data.name.trim(),
             description: data.description?.trim() || "",
-            start_time: data.start_time, // formato ISO 8601 ya valido
+            start_time: data.start_time,
             end_time: data.end_time,
         };
 
@@ -129,29 +127,28 @@ export const FormGroup = () => {
         }
     };
 
-    const resetForm = () => {
-        reset();
+    const resetForm = () => reset();
+
+    const handleCancel = () => {
+        resetForm();
     };
 
-    // -------------- UI -------------------
     const doubleClick = (event) => {
         alert(JSON.stringify(event, null, 4));
     };
 
     return (
-        <>
+        <form onSubmit={handleSubmit(onSubmit)}>
             <div className="card p-3 mb-3">
                 <h5>Seleccionar Laboratorios</h5>
 
-                <form>
-                    <input
-                        value={filterValue}
-                        onChange={onFilterChange}
-                        type="search"
-                        placeholder="Buscar por carrera..."
-                    />
-                </form>
-
+                <input
+                    value={filterValue}
+                    onChange={onFilterChange}
+                    type="search"
+                    placeholder="Buscar por carrera..."
+                    className="form-control mb-2"
+                />
                 <Controller
                     name="laboratory_ids"
                     control={control}
@@ -172,29 +169,44 @@ export const FormGroup = () => {
                 />
                 <Validate errors={errors.laboratory_ids} />
             </div>
-
+            <ContainerInput>
+                <Input
+                    name="name"
+                    placeholder="Ej: Examen Final de Matemáticas"
+                    control={control}
+                    errors={errors}
+                    label="Nombre base de los grupos"
+                />
+                <Validate errors={errors.name} />
+            </ContainerInput>
+            <ContainerInput>
+                <Input
+                    name="description"
+                    placeholder="Opcional: notas generales para todos los grupos"
+                    control={control}
+                    errors={errors}
+                />
+            </ContainerInput>
+            <ContainerInput>
+                <p className="text-xs text-gray-600 mb-2">
+                    La hora de fin se calcula automáticamente según la duración del examen.
+                </p>
+                <div style={{ display: "flex", gap: "10px", justifyContent: "space-around" }}>
+                    <DateInput label={"Hora de inicio"} name={"start_time"} control={control} type={"time"} />
+                    <DateInput label={"Hora de Fin"} name={"end_time"} control={control} type={"time"} disabled />
+                </div>
+            </ContainerInput>
             <ContainerInput>
                 <Card className="card align-items-center h-auto gap-3 p-3">
                     <BigCalendar labs={labs} doubleClick={doubleClick} />
                 </Card>
             </ContainerInput>
-            <div className="d-flex justify-content-end mt-3">
-                <button
-                    className="btn btn-secondary me-2"
-                    onClick={resetForm}
-                    disabled={isSubmitting}
-                >
-                    Resetear
-                </button>
-
-                <button
-                    className="btn btn-primary"
-                    onClick={handleSubmit(onSubmit)}
-                    disabled={isSubmitting}
-                >
-                    {isSubmitting ? "Guardando..." : "Guardar grupos"}
-                </button>
-            </div>
-        </>
+            <ContainerButton>
+                <Button type="submit" name="submit" disabled={isSubmitting}>
+                    <span>{isSubmitting ? "Guardando..." : "Guardar"}</span>
+                </Button>
+                <CancelButton disabled={isSubmitting} onClick={handleCancel} />
+            </ContainerButton>
+        </form>
     );
 };
