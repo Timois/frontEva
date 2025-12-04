@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import { useContext } from "react"
 import { LabsContext } from "../context/LabsProvider"
-import { getApi } from "../services/axiosServices/ApiService"
+import { getApi, postApi } from "../services/axiosServices/ApiService"
 
 export const fetchLabs = () => {
   const {labs, setLabs} = useContext(LabsContext)
@@ -21,9 +21,20 @@ export const fetchLabs = () => {
       // console.log(error)
     }
   }
+  const getHorarioByLab = async (labIds) => {
+    try {
+      const response = await postApi("laboratories/horario/ids", labIds);
+      return response.data || response;  
+    } catch (error) {
+      console.log(error);
+      return [];
+    }
+  };
+  
   return {
     labs,
     getLabsByCareer,
-    getDataLabs
+    getDataLabs,
+    getHorarioByLab
   }
 }
