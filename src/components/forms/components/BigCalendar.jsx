@@ -3,7 +3,7 @@ import "moment/locale/es";
 import { Calendar, momentLocalizer } from "react-big-calendar";
 import "./CalendarModalStyles.css"
 import { useEffect, useState } from "react";
-export const BigCalendar = ({ doubleClick, events }) => {
+export const BigCalendar = ({ doubleClick, events, onSelectSlot }) => {
   const [eventMapped, setEventMapped] = useState([])
   moment.locale("es");
 
@@ -41,6 +41,8 @@ export const BigCalendar = ({ doubleClick, events }) => {
         events={eventMapped}
         startAccessor="start"
         endAccessor="end"
+        selectable
+        onSelectSlot={onSelectSlot}
         onDoubleClickEvent={doubleClick}
         step={30}
         timeslots={1}

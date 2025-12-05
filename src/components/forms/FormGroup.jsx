@@ -104,6 +104,7 @@ export const FormGroup = () => {
     }, [labs]);
 
     const onSubmit = async (data) => {
+        console.log("DATA EN SUBMIT ===>", data);
         if (data.laboratory_ids.length === 0) {
             customAlert("Debe seleccionar al menos un laboratorio.", "warning");
             return;
@@ -149,6 +150,20 @@ export const FormGroup = () => {
                 "info"
             );
         }
+    };
+    const handleSelectSlot = ({ start, end }) => {
+        const date = moment(start).format("YYYY-MM-DD");
+        const startTime = moment(start).format("HH:mm");
+        const endTime = moment(end).format("HH:mm");
+
+        setValue("date", date);
+        setValue("start_time", startTime);
+        setValue("end_time", endTime);
+
+        customAlert(
+            `Seleccionado: ${date} de ${startTime} a ${endTime}`,
+            "info"
+        );
     };
 
     return (
@@ -245,6 +260,7 @@ export const FormGroup = () => {
                     <BigCalendar
                         events={calendarEvents}
                         doubleClick={handleCalendarDoubleClick}
+                        onSelectSlot={handleSelectSlot}
                     />
                 </Card>
             </ContainerInput>

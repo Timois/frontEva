@@ -45,14 +45,6 @@ export const GroupSchema = (isEdit = false) =>
       )
       .min(1, "Debes seleccionar al menos un laboratorio")
       .max(50, "No puedes seleccionar más de 50 laboratorios a la vez"), // prevención
-
-    // Tipo de ordenamiento (alfabético o por ID)
-    order_type: isEdit
-      ? z.enum(["alphabetical", "id_asc"]).optional()
-      : z.enum(["alphabetical", "id_asc"], {
-          required_error: "Debes seleccionar el tipo de ordenamiento",
-          invalid_type_error: "Opción inválida",
-        }),
   })
   // Validación adicional: end_time debe ser posterior a start_time
   .refine(
