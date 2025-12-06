@@ -46,6 +46,7 @@ export const BigCalendar = ({ doubleClick, events, onSelectSlot }) => {
         onDoubleClickEvent={doubleClick}
         step={30}
         timeslots={1}
+        defaultView="week"
       />
     </div>
   );

@@ -51,6 +51,7 @@ export const FormGroup = () => {
             name: "",
             description: "",
             laboratory_ids: [],
+            date: moment().format("YYYY-MM-DD"), // Add date field with today as default
             start_time: "",
             end_time: "",
         },
@@ -109,28 +110,50 @@ export const FormGroup = () => {
             customAlert("Debe seleccionar al menos un laboratorio.", "warning");
             return;
         }
+
+        // Get date from watched value or use today
+        const baseDate = watch("date") || moment().format("YYYY-MM-DD");
+
+        // Combine date with time to create full datetime strings
+        const startDateTime = `${baseDate} ${data.start_time}:00`;
+        const endDateTime = `${baseDate} ${data.end_time}:00`;
+
         setIsSubmitting(true);
-        const payload = {
-            evaluation_id: parseInt(id),
-            laboratory_ids: data.laboratory_ids,
-            name: data.name.trim(),
-            description: data.description?.trim() || "",
-            start_time: data.start_time,
-            end_time: data.end_time,
-        };
-        try {
-            const response = await postApi("groups/save", payload);
-            if (response.status === 201) {
-                customAlert("¡Grupos creados correctamente!", "success");
-                closeFormModal("registerGroup");
-                await refreshGroups(id);
-                reset();
+
+        // Create groups for each selected laboratory
+        const errors = [];
+        const successes = [];
+
+        for (const labId of data.laboratory_ids) {
+            // Create FormData object
+            const formData = new FormData();
+            formData.append('evaluation_id', parseInt(id));
+            formData.append('laboratory_id', labId); // Send ONE laboratory ID (singular)
+            formData.append('name', data.name.trim());
+            formData.append('description', data.description?.trim() || "");
+            formData.append('start_time', startDateTime);
+            formData.append('end_time', endDateTime);
+
+            try {
+                const response = await postApi("groups/save", formData);
+                successes.push(`Grupo creado en laboratorio ${labId}`);
+            } catch (error) {
+                const msg = error.response?.data?.message || `Error en laboratorio ${labId}`;
+                errors.push(msg);
             }
-        } catch (error) {
-            const msg = error.response?.data?.message || "Error al crear los grupos";
-            customAlert(msg, "error");
-        } finally {
-            setIsSubmitting(false);
+        }
+
+        setIsSubmitting(false);
+
+        if (successes.length > 0) {
+            customAlert(`${successes.length} grupo(s) creado(s) correctamente!`, "success");
+            closeFormModal("registerGroup");
+            await refreshGroups(id);
+            reset();
+        }
+
+        if (errors.length > 0) {
+            customAlert(errors.join("\n"), "error");
         }
     };
 
@@ -155,16 +178,30 @@ export const FormGroup = () => {
         const date = moment(start).format("YYYY-MM-DD");
         const startTime = moment(start).format("HH:mm");
         const endTime = moment(end).format("HH:mm");
+        const ellapsedMinutes = moment(end).diff(moment(start), "minutes");
 
         setValue("date", date);
         setValue("start_time", startTime);
         setValue("end_time", endTime);
 
-        customAlert(
-            `Seleccionado: ${date} de ${startTime} a ${endTime}`,
-            "info"
-        );
+        const checkIfDaveIsValid = checkIfDateIsMoreThanOneDay(ellapsedMinutes) && checkIfDateIsMoreThanToday(date);
+
+        if (!checkIfDaveIsValid) {
+            customAlert("La fecha seleccionada no es válida.", "warning");
+            return;
+        }
     };
+
+    const checkIfDateIsMoreThanToday = (selectedDate) => {
+        const today = moment().startOf("day");
+        const selected = moment(selectedDate, "YYYY-MM-DD").startOf("day");
+        return !selected.isBefore(today);
+    }
+
+    const checkIfDateIsMoreThanOneDay = (ellapsedMinutes) => {
+        const maxTime = 5 * 60; // 5 horas en minutos
+        return ellapsedMinutes < maxTime;
+    }
 
     return (
         <form onSubmit={handleSubmit(onSubmit)}>

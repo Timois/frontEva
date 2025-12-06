@@ -1,15 +1,17 @@
 .rbc-day-bg {
+  border-top: 1px solid green;
+  border-right: 1px solid green;
+  border-left: 1px solid green;
   background-color: #f0f0f0;
 }
-.rbc-day-bg {
-  border-top: 1px solid green; 
-  border-right: 1px solid green; 
-  border-left: 1px solid green; 
+
+.rbc-day-bg.rbc-selected-cell {
+  background-color: #a1eea1;
 }
 
 .rbc-day-bg:hover {
- background-color: #b3e4b3;
- cursor: pointer;
+  background-color: #e3f0e3;
+  cursor: pointer;
 }
 .rbc-month-header {
   background-color: #a1eea1;
@@ -17,16 +19,24 @@
 .rbc-header {
   background-color: hwb(120 32% 25%);
   border-top: 1px solid green;
-  border-right: 1px solid green; 
+  border-right: 1px solid green;
   border-left: 1px solid green;
 }
-.rbc-toolbar{
+.rbc-toolbar {
   background-color: #a1b3ee;
 }
 
 .rbc-time-view {
   background-color: #a1b3ee;
-}	
+}
+
 .rbc-agenda-view {
-  background-color: #a1b3ee; 
+  background-color: #a1b3ee;
+}
+
+.rbc-day-slot.rbc-time-column {
+  border-top: 1px solid green;
+  border-right: 1px solid green;
+  border-left: 1px solid green;
+  background-color: #f0f0f0;
 }
