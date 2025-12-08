@@ -147,7 +147,6 @@ export const FormGroup = () => {
 
         if (successes.length > 0) {
             customAlert(`${successes.length} grupo(s) creado(s) correctamente!`, "success");
-            closeFormModal("registerGroup");
             await refreshGroups(id);
             reset();
         }

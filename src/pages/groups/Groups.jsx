@@ -11,6 +11,8 @@ import { getApi, postApi, updateApi } from "../../services/axiosServices/ApiServ
 import { customAlert } from "../../utils/domHelper";
 import { VITE_URL_WEBSOCKET } from "../../utils/constants";
 import ResultsByGroup from "./ResultsByGroup";
+import { ButtonAsignStudents } from "./ButtonAsignStudents";
+import { ModalAsignStudents } from "./ModalAsignStudents";
 
 export const Groups = () => {
     const navigate = useNavigate();
@@ -245,7 +247,10 @@ export const Groups = () => {
         setShowResults(true);
     };
     const idEditar = "editGroup";
-
+    const idAsignar = "asignarEstudiantes";
+    const handleCloseStudentsModal = () => {
+        setShowStudentsModal(false);
+    };
     const examDate = examn?.date_of_realization;
 
     return (
@@ -355,6 +360,11 @@ export const Groups = () => {
                                                 >
                                                     Ver resultados
                                                 </button>
+                                                <ButtonAsignStudents
+                                                    modalId={idAsignar}
+                                                    groupId={group.id}
+                                                    onClose={() => setShowStudentsModal(false)}
+                                                />
                                             </td>
                                         </tr>
                                     );
@@ -393,6 +403,12 @@ export const Groups = () => {
                     onClose={() => setShowStudentsModal(false)}
                 />
             )}
+            <ModalAsignStudents
+                modalId={idAsignar}
+                groupId={selectedGroup?.id}
+                title="Asignar Estudiantes"
+                onClose={() => setShowStudentsModal(false)}
+            />
         </div>
     );
 };
