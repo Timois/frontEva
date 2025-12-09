@@ -1,13 +1,13 @@
-import moment from "moment";
-import "moment/locale/es";
-import { Calendar, momentLocalizer } from "react-big-calendar";
+import globalize from "globalize";
+import "globalize/lib/cultures/globalize.culture.es";
+import { Calendar, globalizeLocalizer } from "react-big-calendar";
 import "./CalendarModalStyles.css"
 import { useEffect, useState } from "react";
+
+const localizer = globalizeLocalizer(globalize);
+
 export const BigCalendar = ({ doubleClick, events, onSelectSlot }) => {
   const [eventMapped, setEventMapped] = useState([])
-  moment.locale("es");
-
-  const localizer = momentLocalizer(moment);
 
   const messages = {
     today: "Hoy",
@@ -22,10 +22,16 @@ export const BigCalendar = ({ doubleClick, events, onSelectSlot }) => {
     event: "Evento",
     noEventsInRange: "No hay eventos en este rango.",
   };
+
+  const parsedTitleName = (event) => {
+    return `${event.nombre_laboratorio} - ${event.nombre_grupo}`
+  };
+
   useEffect(() => {
     const mapped = events.map((event) => {
       return {
         ...event,
+        title: parsedTitleName(event),
         start: new Date(event.start),
         end: new Date(event.end),
       };
