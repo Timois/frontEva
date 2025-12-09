@@ -137,6 +137,7 @@ export const FormGroup = () => {
             try {
                 const response = await postApi("groups/save", formData);
                 successes.push(`Grupo creado en laboratorio ${labId}`);
+                getSchedules();
             } catch (error) {
                 const msg = error.response?.data?.message || `Error en laboratorio ${labId}`;
                 errors.push(msg);
@@ -147,8 +148,11 @@ export const FormGroup = () => {
 
         if (successes.length > 0) {
             customAlert(`${successes.length} grupo(s) creado(s) correctamente!`, "success");
-            await refreshGroups(id);
+            // await refreshGroups(id);
+            // Keep selected laboratories and reset only other fields
+            const selectedLabs = data.laboratory_ids;
             reset();
+            setValue("laboratory_ids", selectedLabs);
         }
 
         if (errors.length > 0) {
