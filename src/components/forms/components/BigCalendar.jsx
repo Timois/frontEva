@@ -1,10 +1,14 @@
-import globalize from "globalize";
-import "globalize/lib/cultures/globalize.culture.es";
-import { Calendar, globalizeLocalizer } from "react-big-calendar";
+import moment from "moment";
+import { Calendar, momentLocalizer } from "react-big-calendar";
 import "./CalendarModalStyles.css"
 import { useEffect, useState } from "react";
 
-const localizer = globalizeLocalizer(globalize);
+// Import Spanish locale for moment
+import 'moment/dist/locale/es';
+
+// Configure moment to use Spanish and create localizer
+moment.locale('es');
+const localizer = momentLocalizer(moment);
 
 export const BigCalendar = ({ doubleClick, events, onSelectSlot }) => {
   const [eventMapped, setEventMapped] = useState([])
