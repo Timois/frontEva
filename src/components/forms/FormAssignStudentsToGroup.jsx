@@ -10,8 +10,13 @@ import CancelButton from './components/CancelButon';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { postApi } from '../../services/axiosServices/ApiService';
-const options = [{ value: 'alfabetical', text: 'Ordenado por apellido paterno' }, { value: 'id', text: 'Ordenado por id ascendente' }, { value: '3', label: 'ordenado por id descendente' }]
-export const FormAssignStudentsToGroup = () => {
+const options = [
+  { value: 'apellido', text: 'Ordenado por apellido paterno' },
+  { value: 'id_asc', text: 'Ordenado por ID ascendente' },
+  { value: 'id_desc', text: 'Ordenado por ID descendente' }
+];
+
+export const FormAssignStudentsToGroup = ({groupId}) => {
     const [response, setResponse] = useState(false);
     const { control, handleSubmit, formState: { errors }, setError, reset } = useForm({
         defaultValues: {
@@ -24,7 +29,7 @@ export const FormAssignStudentsToGroup = () => {
         const formData = new FormData();
         formData.append('order_type', data.order_type);
         try {
-            const response = await postApi(`groups/addStudentsToGroup${groupId}`, formData);
+            const response = await postApi(`groups/addStudentsToGroup/${groupId}`, formData);
             if (response.status === 422) {
                 for (let key in response.data.errors) {
                     setError(key, { type: "custom", message: response.data.errors[key][0] });
@@ -32,7 +37,7 @@ export const FormAssignStudentsToGroup = () => {
                 return;
             }
             customAlert("Estudiantes asignados correctamente", 'success');
-            closeFormModal(asignarEstudiantes);
+            closeFormModal("asignarEstudiantes");
             resetForm();
         } catch (error) {
             if (response?.status === 403) {

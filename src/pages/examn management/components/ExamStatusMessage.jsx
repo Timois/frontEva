@@ -39,14 +39,14 @@ const ExamStatusMessage = ({ closedByGroup, stoppedByTeacher, finalScore, studen
         )}
       </div>
 
-      <div className="d-flex justify-content-center gap-3">
+      {/* <div className="d-flex justify-content-center gap-3">
         <button className="btn btn-secondary" onClick={handleBackClick}>
           Volver atrás
         </button>
         <button className="btn btn-primary" onClick={handleCompareClick}>
           Comparar respuestas
         </button>
-      </div>
+      </div> */}
     </div>
   );
 };

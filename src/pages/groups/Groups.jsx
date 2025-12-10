@@ -246,6 +246,10 @@ export const Groups = () => {
         setSelectedGroup(group);
         setShowResults(true);
     };
+    const handleAsignToGroup = (group) => {
+        setSelectedGroup(group);
+    };
+
     const idEditar = "editGroup";
     const idAsignar = "asignarEstudiantes";
     const handleCloseStudentsModal = () => {
@@ -362,8 +366,7 @@ export const Groups = () => {
                                                 </button>
                                                 <ButtonAsignStudents
                                                     modalId={idAsignar}
-                                                    groupId={group.id}
-                                                    onClose={() => setShowStudentsModal(false)}
+                                                    onClick={() => handleAsignToGroup(group)}
                                                 />
                                             </td>
                                         </tr>
@@ -405,9 +408,8 @@ export const Groups = () => {
             )}
             <ModalAsignStudents
                 modalId={idAsignar}
-                groupId={selectedGroup?.id}
+                groupId={selectedGroup?.id}   // solo el ID
                 title="Asignar Estudiantes"
-                onClose={() => setShowStudentsModal(false)}
             />
         </div>
     );
