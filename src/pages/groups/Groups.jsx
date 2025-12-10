@@ -252,9 +252,6 @@ export const Groups = () => {
 
     const idEditar = "editGroup";
     const idAsignar = "asignarEstudiantes";
-    const handleCloseStudentsModal = () => {
-        setShowStudentsModal(false);
-    };
     const examDate = examn?.date_of_realization;
 
     return (
@@ -283,7 +280,6 @@ export const Groups = () => {
                         </p>
                     )}
                 </div>
-
                 <div className="table-responsive rounded-3">
                     <table className="table table-hover align-middle mb-0">
                         <thead className="bg-light">

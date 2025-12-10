@@ -3,7 +3,6 @@ import { Card } from '../../components/login/Card'
 import { FormAssignStudentsToGroup } from '../../components/forms/FormAssignStudentsToGroup'
 
 export const ModalAsignStudents = ({modalId, title, groupId}) => {
-    console.log("modal", groupId)
     return (
         <div
             className="modal fade"
