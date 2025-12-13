@@ -5,7 +5,7 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { GroupSchema } from "../../models/schemas/GroupSchema";
 import { postApi } from "../../services/axiosServices/ApiService";
-import { closeFormModal, customAlert } from "../../utils/domHelper";
+import { customAlert } from "../../utils/domHelper";
 import { ContainerInput } from "../login/ContainerInput";
 import { Validate } from "./components/Validate";
 import { fetchLabs } from "../../hooks/fetchLabs";
@@ -17,7 +17,6 @@ import { BigCalendar } from "./components/BigCalendar"; // Tu componente
 import { ContainerButton } from "../login/ContainerButton";
 import { Button } from "../login/Button";
 import CancelButton from "./components/CancelButon";
-import { Input } from "../login/Input";
 import { DateInput } from "./components/DateInput";
 import moment from "moment";
 
@@ -48,15 +47,11 @@ export const FormGroup = () => {
     const { control, handleSubmit, reset, watch, setValue, setError, formState: { errors }, } = useForm({
         resolver: zodResolver(GroupSchema(false)),
         defaultValues: {
-            name: "",
-            description: "",
             laboratory_ids: [],
             date: moment().format("YYYY-MM-DD"), // Add date field with today as default
             start_time: "",
-            end_time: "",
         },
     });
-
     // Observar valores
     const watchedStartTime = watch("start_time");
     const watchedLabIds = watch("laboratory_ids");
@@ -99,65 +94,37 @@ export const FormGroup = () => {
 
     const labOptions = useMemo(() => {
         return labs.map((lab) => ({
-            value: lab.id,
+            value: Number(lab.id),
             label: `${lab.name} - ${lab.career?.name || ""}`,
         }));
     }, [labs]);
 
     const onSubmit = async (data) => {
-        console.log("DATA EN SUBMIT ===>", data);
         if (data.laboratory_ids.length === 0) {
             customAlert("Debe seleccionar al menos un laboratorio.", "warning");
             return;
         }
 
-        // Get date from watched value or use today
         const baseDate = watch("date") || moment().format("YYYY-MM-DD");
-
-        // Combine date with time to create full datetime strings
         const startDateTime = `${baseDate} ${data.start_time}:00`;
-        const endDateTime = `${baseDate} ${data.end_time}:00`;
 
         setIsSubmitting(true);
 
-        // Create groups for each selected laboratory
-        const errors = [];
-        const successes = [];
-
-        for (const labId of data.laboratory_ids) {
-            // Create FormData object
-            const formData = new FormData();
-            formData.append('evaluation_id', parseInt(id));
-            formData.append('laboratory_id', labId); // Send ONE laboratory ID (singular)
-            formData.append('name', data.name.trim());
-            formData.append('description', data.description?.trim() || "");
-            formData.append('start_time', startDateTime);
-            formData.append('end_time', endDateTime);
-
-            try {
-                const response = await postApi("groups/save", formData);
-                successes.push(`Grupo creado en laboratorio ${labId}`);
-                getSchedules();
-            } catch (error) {
-                const msg = error.response?.data?.message || `Error en laboratorio ${labId}`;
-                errors.push(msg);
-            }
+        const payload = {
+            evaluation_id: parseInt(id),
+            laboratories: data.laboratory_ids,    // ✔ ARRAY COMPLETO
+            start_time: startDateTime,            // ✔ DATETIME COMPLETO
+        };
+        try {
+            const response = await postApi("groups/save", payload); // ✔ UN SOLO POST
+            customAlert("Grupos creados correctamente", "success");
+            getSchedules();
+        } catch (error) {
+            const msg = error.response?.data?.message || "Error al generar grupos.";
+            customAlert(msg, "error");
         }
 
         setIsSubmitting(false);
-
-        if (successes.length > 0) {
-            customAlert(`${successes.length} grupo(s) creado(s) correctamente!`, "success");
-            // await refreshGroups(id);
-            // Keep selected laboratories and reset only other fields
-            const selectedLabs = data.laboratory_ids;
-            reset();
-            setValue("laboratory_ids", selectedLabs);
-        }
-
-        if (errors.length > 0) {
-            customAlert(errors.join("\n"), "error");
-        }
     };
 
     const handleCancel = () => {
@@ -269,29 +236,8 @@ export const FormGroup = () => {
                 <Validate errors={errors.laboratory_ids} />
             </div>
             <ContainerInput>
-                <Input
-                    name="name"
-                    placeholder="Ej: Grupo A"
-                    control={control}
-                    errors={errors}
-                    label="Nombre del Grupo"
-                />
-                <Validate errors={errors.name} />
-            </ContainerInput>
-            <ContainerInput>
-                <Input
-                    name="description"
-                    placeholder="Ej: Grupo de estudiantes de la carrera de Ingeniería de Sistemas"
-                    control={control}
-                    errors={errors}
-                    label="Descripción"
-                />
-                <Validate errors={errors.description} />
-            </ContainerInput>
-            <ContainerInput>
                 <div style={{ display: "flex", gap: "10px", justifyContent: "space-around" }}>
                     <DateInput label="Hora Inicio" name="start_time" control={control} type="time" />
-                    <DateInput label="Hora Fin" name="end_time" control={control} type="time" />
                 </div>
             </ContainerInput>
             <ContainerInput>

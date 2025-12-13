@@ -10,13 +10,16 @@ import CancelButton from './components/CancelButon';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { postApi } from '../../services/axiosServices/ApiService';
+import { useParams } from 'react-router-dom';
 const options = [
   { value: 'apellido', text: 'Ordenado por apellido paterno' },
   { value: 'id_asc', text: 'Ordenado por ID ascendente' },
-  { value: 'id_desc', text: 'Ordenado por ID descendente' }
+  { value: 'id_desc', text: 'Ordenado por ID descendente' },
+  { value: 'random', text: 'Orden aleatorio' },
 ];
 
-export const FormAssignStudentsToGroup = ({groupId}) => {
+export const FormAssignStudentsToGroup = () => {
+    const id = useParams().id;
     const [response, setResponse] = useState(false);
     const { control, handleSubmit, formState: { errors }, setError, reset } = useForm({
         defaultValues: {
@@ -28,8 +31,9 @@ export const FormAssignStudentsToGroup = ({groupId}) => {
         setResponse(true);
         const formData = new FormData();
         formData.append('order_type', data.order_type);
+        formData.append('evaluation_id', id);
         try {
-            const response = await postApi(`groups/addStudentsToGroup/${groupId}`, formData);
+            const response = await postApi(`groups/addStudentsToGroup`, formData);
             if (response.status === 422) {
                 for (let key in response.data.errors) {
                     setError(key, { type: "custom", message: response.data.errors[key][0] });

@@ -2,7 +2,7 @@ import React from 'react'
 import { Card } from '../../components/login/Card'
 import { FormAssignStudentsToGroup } from '../../components/forms/FormAssignStudentsToGroup'
 
-export const ModalAsignStudents = ({modalId, title, groupId}) => {
+export const ModalAsignStudents = ({modalId, title}) => {
     return (
         <div
             className="modal fade"
@@ -19,7 +19,7 @@ export const ModalAsignStudents = ({modalId, title, groupId}) => {
                         <h5 className="modal-title text-center text-success" id="exampleModalLabel">{title}</h5>
                     </div>
                     <Card className="card align-items-center h-auto gap-3 p-3">
-                        <FormAssignStudentsToGroup groupId={groupId} />
+                        <FormAssignStudentsToGroup />
                     </Card>
                 </div>
             </div>

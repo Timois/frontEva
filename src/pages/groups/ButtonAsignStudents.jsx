@@ -9,7 +9,7 @@ export const ButtonAsignStudents = ({ modalId, onClick }) => {
             style={{ backgroundColor: "#58bd14ff", color: "white" }}
             data-bs-toggle="modal"
             data-bs-target={`#${modalId}`}
-            onClick={onClick}  // <--- aquí llamamos a la función enviada
+            onClick={onClick} 
         >
             <IoAddCircleOutline className="me-2" />
             Asignar Estudiantes
