@@ -297,7 +297,7 @@ const ViewQuestionsAndAnswers = () => {
 
         if (answeredResp?.answered === true) {
           setAlreadyAnswered(true);
-          setFinalScore(Math.round(answeredResp.score));
+          setFinalScore(Math.floor(answeredResp.score));
         } else {
           if (answeredResp?.answers) {
             setSelectedAnswers(answeredResp.answers);

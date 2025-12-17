@@ -43,7 +43,7 @@ export const AppRoutes = () => {
       future={{ v7_startTransition: true }}
     >
       <Route element={<PublicGuard />}>
-        <Route path="/" element={<Navigate to={"/login"} replace />} ></Route>
+        <Route path="/" element={<Navigate to={"/estudiantes"} replace />} ></Route>
         <Route path="/login" element={<Login />}></Route>
         <Route path="/estudiantes" element={<StudentLogin />}></Route>
       </Route>
