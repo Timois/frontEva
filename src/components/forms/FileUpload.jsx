@@ -164,7 +164,7 @@ export const FileUpload = () => {
     });
     // limpieza manual del input file
     if (fileRef.current) {
-      fileRef.current.value = null;
+      fileRef.current.value = "";
     }
   };
   return (
@@ -196,6 +196,7 @@ export const FileUpload = () => {
           defaultValue={[]}
           render={({ field: { onChange, value }, fieldState: { error } }) => (
             <InputFile
+              ref={fileRef}
               onChange={(files) => onChange(files)}
               value={value}
               error={error}
