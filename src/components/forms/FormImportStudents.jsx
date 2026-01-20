@@ -11,11 +11,14 @@ import { ContainerButton } from "../login/ContainerButton";
 import { Button } from "../login/Button";
 import { ImputStudents } from "./components/ImputStudents";
 import CancelButton from "./components/CancelButon";
+import { useIdempotentSubmit } from "../../hooks/useIdempotentSubmit";
 
 export const FormImportStudents = ({ examID, modalId }) => {
     const [response, setResponse] = useState(false);
-
-    const { control,
+    const [inputKey, setInputKey] = useState(0); // 🔑 fuerza reset del file
+    const {start,end,isSubmitting,idempotencyKey,} = useIdempotentSubmit();
+    
+    const {
         handleSubmit,
         reset,
         setValue,
@@ -25,92 +28,97 @@ export const FormImportStudents = ({ examID, modalId }) => {
         resolver: zodResolver(ImportStudentsSchema),
     });
 
+    const resetForm = () => {
+        reset({ file: null });
+        setInputKey(prev => prev + 1);
+    
+        // 🔁 Permite un nuevo intento limpio
+        setIdempotencyKey(null);
+    };
+    
     const onSubmit = async (data) => {
-        setResponse(true);
+        const key =  start();
+        if (!key) return;
 
-        if (!data.file) {
-            setError("file", {
-                type: "custom",
-                message: "Debes subir un archivo Excel válido",
-            });
-            setResponse(false);
-            return;
-        }
+        setResponse(true);
 
         const formData = new FormData();
         formData.append("file", data.file);
         formData.append("evaluation_id", examID);
+        formData.append("idempotency_key", idempotencyKey);
+
         try {
-            const response = await postApi("students/import", formData)
+            const response = await postApi("students/import", formData);
+
             if (response) {
                 const resumen = response.resumen;
 
-                const resumenMensaje = `✅ Importación completada:
-            
-            • Total de filas: ${resumen.total_filas}
-            • Éxitos: ${resumen.exitosos}
-            • Errores: ${resumen.errores}`;
-
-                customAlert(resumenMensaje, "success");
+                customAlert(
+                    `✅ Importación completada:
+                    • Total de filas: ${resumen.total_filas}
+                    • Éxitos: ${resumen.exitosos}
+                    • Errores: ${resumen.errores}`,
+                    "success"
+                );
 
                 resetForm();
                 closeFormModal(modalId);
-                setResponse(false);
-                return;
             }
         } catch (error) {
-            console.error('Error completo:', error);
-            if (error.response && error.response.status === 403) {
-                customAlert("No tienes permisos para importar estudiantes", "error");
-            } else if (error.response && error.response.data && error.response.data.message) {
-                customAlert(error.response.data.message, "error");
-            } else {
-                customAlert("Error al importar estudiantes. Por favor, verifica el formato del archivo.", "error");
-            }
+            customAlert(
+                error.response?.data?.message || "Error al importar estudiantes",
+                "error"
+            );
             resetForm();
             closeFormModal(modalId);
-            setResponse(false);
+        } finally {
+            end();
         }
-    };
-    const resetForm = () => {
-        reset(
-            "file",
-            "evaluation_id"
-        );
-    }
-    const handleCancel = () => {
-        closeFormModal(modalId);
     };
 
     const handleFile = (file) => {
-        if (file) {
-            if (file.name.match(/\.(xlsx|xls|csv)$/i)) {
-                setValue("file", file, { shouldValidate: true });
-            } else {
-                setError("file", {
-                    type: "custom",
-                    message: "Formato de archivo no permitido",
-                });
-            }
-        } else {
+        if (!file) {
             setError("file", {
                 type: "custom",
                 message: "Debes seleccionar un archivo",
             });
+            return;
         }
+
+        if (!file.name.match(/\.(xlsx|xls|csv)$/i)) {
+            setError("file", {
+                type: "custom",
+                message: "Formato de archivo no permitido",
+            });
+            return;
+        }
+
+        // 🔑 Nuevo intento → nuevo idempotency key
+        setIdempotencyKey(crypto.randomUUID());
+
+        setValue("file", file, { shouldValidate: true });
+    };
+
+
+    const handleCancel = () => {
+        closeFormModal(modalId);
     };
 
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
             <ContainerInput>
-                <ImputStudents onChange={handleFile} />
+                <ImputStudents
+                    key={inputKey} // 🔑 clave del reset
+                    onChange={handleFile}
+                />
                 {errors.file && (
                     <span className="text-danger">{errors.file.message}</span>
                 )}
             </ContainerInput>
+
             <ContainerButton>
-                <Button type="submit" name="submit" disabled={response}>
-                    <span>{response ? "Importando..." : "Importar"}</span>
+                <Button type="submit" disabled={isSubmitting}>
+                    <span>{isSubmitting ? "Importando..." : "Importar"}</span>
                 </Button>
                 <CancelButton disabled={response} onClick={handleCancel} />
             </ContainerButton>
