@@ -6,7 +6,7 @@ const ROLES_SIN_CARRERA = ["admin", "super-admin", "decano"];
 
 export const UserSchema = z.object({
   name: z.string({ required_error: "El nombre es obligatorio" })
-    .max(20, "El máximo de caracteres es 20")
+    .max(60, "El máximo de caracteres es 60")
     .min(2, "El mínimo de caracteres es 2"),
   email: z.string({ required_error: "El email es obligatorio" })
     .email("El email es inválido"),
