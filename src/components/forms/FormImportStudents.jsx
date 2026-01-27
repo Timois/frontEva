@@ -31,9 +31,6 @@ export const FormImportStudents = ({ examID, modalId }) => {
     const resetForm = () => {
         reset({ file: null });
         setInputKey(prev => prev + 1);
-    
-        // 🔁 Permite un nuevo intento limpio
-        setIdempotencyKey(null);
     };
     
     const onSubmit = async (data) => {
@@ -45,7 +42,7 @@ export const FormImportStudents = ({ examID, modalId }) => {
         const formData = new FormData();
         formData.append("file", data.file);
         formData.append("evaluation_id", examID);
-        formData.append("idempotency_key", idempotencyKey);
+        formData.append("idempotency_key", key);
 
         try {
             const response = await postApi("students/import", formData);
@@ -92,9 +89,6 @@ export const FormImportStudents = ({ examID, modalId }) => {
             });
             return;
         }
-
-        // 🔑 Nuevo intento → nuevo idempotency key
-        setIdempotencyKey(crypto.randomUUID());
 
         setValue("file", file, { shouldValidate: true });
     };
