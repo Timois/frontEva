@@ -20,7 +20,7 @@ export const FormStudent = ({ examnID }) => {
   const [response, setResponse] = useState(false);
   const { control, handleSubmit, reset, formState: { errors }, setError } = useForm({
     resolver: zodResolver(StudentSchema)
-  });
+  })
   const onSubmit = async (data) => {
     setResponse(true);
     try {
@@ -35,7 +35,7 @@ export const FormStudent = ({ examnID }) => {
       formData.append("phone_number", data.phone_number);
       formData.append("birthdate", data.birthdate);
       formData.append("evaluation_id", examnID);
-
+      
       const response = await postApi("students/save", formData);
 
       if (response.status === 422) {

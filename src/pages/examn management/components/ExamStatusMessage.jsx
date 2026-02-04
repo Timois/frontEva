@@ -18,23 +18,23 @@ const ExamStatusMessage = ({ closedByGroup, stoppedByTeacher, finalScore, studen
           <>
             <h4>El tiempo de esta evaluación ya terminó</h4>
             <p>No puedes continuar con el examen.</p>
-            <p>
+            {/* <p>
               Tu nota final es: <strong>{finalScore}</strong>
-            </p>
+            </p> */}
           </>
         ) : stoppedByTeacher ? (
           <>
             <h4>El docente ha detenido el examen.</h4>
-            <p>
+            {/* <p>
               Tu nota final es: <strong>{finalScore}</strong>
-            </p>
+            </p> */}
           </>
         ) : (
           <>
             <h4>Ya has respondido esta evaluación.</h4>
-              <p>
+              {/* <p>
                 Tu nota final es: <strong>{finalScore}</strong>
-             </p>   
+             </p>    */}
           </>
         )}
       </div>

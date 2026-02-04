@@ -6,10 +6,14 @@ export const StudentSchema = z.object({
     paternal_surname: z.string().optional().or(z.literal("")),
     maternal_surname: z.string().optional().or(z.literal("")),
     phone_number: z
-        .string({ required_error: "El número de teléfono es obligatorio" })
-        .min(7, "Debe tener al menos 7 dígitos")
-        .max(15, "No debe exceder 15 dígitos")
-        .regex(/^[0-9]+$/, "Solo se permiten números")
+        .string()
+        .optional()
+        .refine((val) => !val || /^[0-9]+$/.test(val), {
+            message: "Solo se permiten números",
+        })
+        .refine((val) => !val || (val.length >= 7 && val.length <= 15), {
+            message: "Debe tener entre 7 y 15 dígitos",
+        })
         .transform((val) => Number(val)),
     birthdate: z.string({ required_error: "La fecha de nacimiento es obligatoria" }).refine(
         (value) => !isNaN(new Date(value).getTime()),
