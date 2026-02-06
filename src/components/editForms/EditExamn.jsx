@@ -123,7 +123,7 @@ export const EditExamn = ({ data, closeModal }) => {
     };
 
     const handleCancel = () => {
-        closeModal();
+        closeFormModal("editarExamn")
     };
 
     return (
