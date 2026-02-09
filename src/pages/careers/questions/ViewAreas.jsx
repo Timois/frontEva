@@ -9,19 +9,18 @@ import { ModalImport } from '../questions/imports/ModalImport';
 import { FaClipboardList } from 'react-icons/fa';
 import { getApi, postApi } from '../../../services/axiosServices/ApiService';
 import { customAlert } from '../../../utils/domHelper';
-import { HiThumbDown, HiThumbUp } from 'react-icons/hi';
 import styles from './AreaCards.module.css';
 
 export const ViewAreas = () => {
   const [questionCounts, setQuestionCounts] = useState({});
   const [selectedArea, setSelectedArea] = useState(null);
   const [careerId, setCareerId] = useState(null);
-  const {areas, getData } = useFetchAreasByCareer();
-  
+  const { areas, getData } = useFetchAreasByCareer();
+
   const handleEditClick = (area) => {
     setSelectedArea(area);
   };
- 
+
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user'));
     const careerIdFromStorage = user ? user.career_id : null;
@@ -114,11 +113,11 @@ export const ViewAreas = () => {
                             <p className="invisible">Sin descripción</p>
                           )}
                         </div>
-                        {/* <div className="mt-2">
+                        <div className="mt-2">
                           <span className={`badge px-3 py-2 ${area.status === "inactivo" ? "bg-danger" : "bg-success"}`}>
                             {area.status}
                           </span>
-                        </div> */}
+                        </div>
                         <div className="badge bg-primary mt-2">
                           {questionCounts[area.id] !== undefined
                             ? `${questionCounts[area.id]} preguntas`
@@ -145,9 +144,10 @@ export const ViewAreas = () => {
                         <CheckPermissions requiredPermission="editar-areas">
                           <button
                             onClick={() => handleUnsubscribe(area.id)}
-                            className="btn btn-sm d-flex align-items-center btn-outline-success"
+                            className={`btn btn-sm d-flex align-items-center ${area.status === "inactivo" ? "btn-outline-success" : "btn-outline-danger"
+                              }`}
                           >
-                            {area.status === "inactivo" ? <HiThumbDown /> : <HiThumbUp />}
+                            {area.status === "inactivo" ? "Activar" : "Desactivar"}
                           </button>
                         </CheckPermissions>
                       </div>
