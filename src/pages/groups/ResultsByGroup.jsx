@@ -18,10 +18,9 @@ const ResultsByGroup = ({ group, show, onClose }) => {
       const response = await getApi(`groups/resultsGroup/${group.id}`);
 
       if (response.students_results && Object.keys(response.students_results).length > 0) {
-        // Convertir el objeto a array
         const resultsArray = Object.values(response.students_results);
         setResults(resultsArray);
-        setMessage(""); // limpiar mensaje
+        setMessage(""); 
       } else if (response.message) {
         setResults([]);
         setMessage(response.message);

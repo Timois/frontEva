@@ -47,7 +47,6 @@ export const ResultsByTest = () => {
     doc.save(`resultados_examen_${id}.pdf`)
   }
 
-  // 🔑 Validar si todos están completados
   const allCompleted =
     results?.students?.length > 0 &&
     results.students.every((s) => s.status === "completado")
@@ -74,20 +73,14 @@ export const ResultsByTest = () => {
             Descargar Resultados
           </button>
         )}
-
-        {/* 🔹 Botón para abrir el modal */}
         <ButtonCurva modalId="curvaModal" />
       </div>
-
-      {/* 🔹 ModalCurva recibe ahora también las plazas */}
       <ModalCurva
         modalId="curvaModal"
         studentsResults={results?.students}
-        plazas={places} // ✅ Aquí se pasa la cantidad de plazas
+        plazas={places} 
       />
-
       <p>Total estudiantes: {results?.total_students || 0}</p>
-
       <table className="table table-bordered table-hover">
         <thead className="table-dark text-center">
           <tr>
@@ -107,7 +100,7 @@ export const ResultsByTest = () => {
                 <td>{index + 1}</td>
                 <td>{s.ci}</td>
                 <td className="text-capitalize">
-                  {`${s.name} ${s.paternal_surname} ${s.maternal_surname}`}
+                  {`${s.paternal_surname} ${s.maternal_surname} ${s.name}`}
                 </td>
                 <td>{s.code}</td>
                 <td>{s.score}</td>

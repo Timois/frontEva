@@ -13,7 +13,7 @@ const ButtonEdit = ({ idEditar, onEditClick }) => {
       data-bs-target={`#${idEditar}`}
       onClick={onEditClick}
     >
-      <FaEdit size={16} /> {/* Agrega el ícono aquí */}
+      <FaEdit size={16} /> Editar
     </button>
   );
 };

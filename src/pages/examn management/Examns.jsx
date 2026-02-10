@@ -18,7 +18,7 @@ import { ButtonViewResults } from './buttons/ButtonViewResults'
 export const Examns = () => {
   const navigate = useNavigate()
   const [selectedExamn, setSelectedExamn] = useState(null)
-  const { examns, getExamnsByCareer } = useExamns() // Obtener las evaluaciones desde el contexto o desde una API, por ejemplo, fetchExamsByCareer() o useFetchExamsByCareer()
+  const { examns, getExamnsByCareer } = useExamns() 
   const handleEditClick = (examn) => setSelectedExamn(examn)
   const { id: periodId } = useParams()
   const user = JSON.parse(localStorage.getItem('user'))

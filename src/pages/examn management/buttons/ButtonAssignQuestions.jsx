@@ -8,7 +8,7 @@ const ButtonAssignQuestions = ({ examnId }) => {
    <Link to={`/administracion/examns/${examnId}/assignQuestions`}
         className="btn btn-primary btn-sm ms-2"
    >
-      <FaClipboardList />
+      Asignar Preguntas
     </Link>
   );
 };
