@@ -24,7 +24,7 @@ const ExamStatusMessage = ({ closedByGroup, stoppedByTeacher, finalScore, studen
           </>
         ) : stoppedByTeacher ? (
           <>
-            <h4>El docente ha detenido el examen.</h4>
+            <h4>El examen ha finalizado.</h4>
             {/* <p>
               Tu nota final es: <strong>{finalScore}</strong>
             </p> */}

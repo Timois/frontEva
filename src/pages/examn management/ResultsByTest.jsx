@@ -2,17 +2,26 @@ import { useEffect } from "react"
 import { fetchResultsByExam } from "../../hooks/fetchResults"
 import { useLocation, useNavigate, useParams } from "react-router-dom"
 import jsPDF from "jspdf"
-import "jspdf-autotable"
+import autoTable from "jspdf-autotable"
 import { FaFilePdf } from "react-icons/fa"
 import { ButtonCurva } from "./buttons/ButtonCurva"
 import { ModalCurva } from "./ModalCurva"
+import { useFetchCareer } from "../../hooks/fetchCareers"
 
 export const ResultsByTest = () => {
   const { results, getResults } = fetchResultsByExam()
+  const { careeer, setCareer } = useFetchCareer()
   const { id } = useParams()
   const location = useLocation()
   const places = location.state?.places // 👈 número de plazas
   const navigate = useNavigate()
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("user"))
+    const careerId = user?.career_id
+
+    if (careerId) getDataCareerById(careerId)
+  }, [])
 
   useEffect(() => {
     if (id) {
@@ -32,13 +41,13 @@ export const ResultsByTest = () => {
     const tableRows =
       results?.students?.map((s) => [
         s.ci,
-        `${s.name} ${s.paternal_surname} ${s.maternal_surname}`,
+        `${s.name} ${s.paternal_surname} ${s.maternal_surname}`.toUpperCase(),
         s.code,
         s.score,
         s.status === "completado" ? "Completado" : "Pendiente",
       ]) || []
 
-    doc.autoTable({
+    autoTable(doc, {
       head: [tableColumn],
       body: tableRows,
       startY: 35,
@@ -78,7 +87,7 @@ export const ResultsByTest = () => {
       <ModalCurva
         modalId="curvaModal"
         studentsResults={results?.students}
-        plazas={places} 
+        plazas={places}
       />
       <p>Total estudiantes: {results?.total_students || 0}</p>
       <table className="table table-bordered table-hover">
@@ -99,7 +108,7 @@ export const ResultsByTest = () => {
               <tr key={index} className="text-center">
                 <td>{index + 1}</td>
                 <td>{s.ci}</td>
-                <td className="text-capitalize">
+                <td className="text-uppercase text-start">
                   {`${s.paternal_surname} ${s.maternal_surname} ${s.name}`}
                 </td>
                 <td>{s.code}</td>
