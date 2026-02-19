@@ -6,38 +6,47 @@ import autoTable from "jspdf-autotable"
 import { FaFilePdf } from "react-icons/fa"
 import { ButtonCurva } from "./buttons/ButtonCurva"
 import { ModalCurva } from "./ModalCurva"
-import { useFetchCareer } from "../../hooks/fetchCareers"
-
+import { useFetchCareerById } from "../../hooks/fetchCareers"
 export const ResultsByTest = () => {
-  const { results, getResults } = fetchResultsByExam()
-  const { careeer, setCareer } = useFetchCareer()
-  const { id } = useParams()
-  const location = useLocation()
-  const places = location.state?.places // 👈 número de plazas
-  const navigate = useNavigate()
+  const { results, getResults } = fetchResultsByExam();
+  const { career, getDataCareerById } = useFetchCareerById();
+  const { id } = useParams();
+  const location = useLocation();
+  const places = location.state?.places;
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("user"))
-    const careerId = user?.career_id
+    const user = JSON.parse(localStorage.getItem("user"));
+    const careerId = user?.career_id;
+    if (careerId) getDataCareerById(careerId);
+  }, []);
 
-    if (careerId) getDataCareerById(careerId)
-  }, [])
+  const capitalizeWords = (text = "") => {
+    return text
+      .toLowerCase()
+      .replace(/\b\w/g, (char) => char.toUpperCase());
+  };
+
+  const name = capitalizeWords(career?.name || "");
 
   useEffect(() => {
     if (id) {
-      getResults(id)
+      getResults(id);
     }
-  }, [id])
-
+  }, [id]);
+  const exam = (results?.students?.[0]?.code || "").trim();
+  
   const exportPDF = () => {
-    const doc = new jsPDF()
+    const doc = new jsPDF();
 
-    doc.setFontSize(16)
-    doc.text("Resultados del Examen", 14, 20)
-    doc.setFontSize(10)
-    doc.text(`Total estudiantes: ${results?.total_students || 0}`, 14, 28)
+    doc.setFontSize(16);
+    doc.text(`Resultados del Examen de ${name}`, 14, 20);
 
-    const tableColumn = ["CI", "Nombre completo", "Código", "Puntaje", "Estado"]
+    doc.setFontSize(10);
+    doc.text(`Total estudiantes: ${results?.total_students || 0}`, 14, 28);
+
+    const tableColumn = ["CI", "Nombre completo", "Código", "Puntaje", "Estado"];
+    
     const tableRows =
       results?.students?.map((s) => [
         s.ci,
@@ -45,17 +54,16 @@ export const ResultsByTest = () => {
         s.code,
         s.score,
         s.status === "completado" ? "Completado" : "Pendiente",
-      ]) || []
+      ]) || [];
 
     autoTable(doc, {
       head: [tableColumn],
       body: tableRows,
       startY: 35,
-    })
+    });
 
-    doc.save(`resultados_examen_${id}.pdf`)
-  }
-
+    doc.save(`resultados_examen_${id}.pdf`);
+  };
   const allCompleted =
     results?.students?.length > 0 &&
     results.students.every((s) => s.status === "completado")
@@ -69,8 +77,8 @@ export const ResultsByTest = () => {
       </div>
       <h3>Total de plazas: {places}</h3>
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <h3>Resultados del Examen</h3>
-
+        <h3>Resultados del Examen: {exam}</h3>
+        <h3>Carrera: {name}</h3>
         {allCompleted ? (
           <button onClick={exportPDF} className="btn btn-danger">
             <FaFilePdf className="me-2" />

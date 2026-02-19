@@ -16,19 +16,34 @@ export const ModalCurva = ({ modalId, studentsResults, plazas }) => {
     if (!studentsResults?.length) return;
 
     const evaluated = studentsResults.map((student) => {
-      const score = parseFloat(student.score) || 0;
+      const rawScore = student.score;
+      const score = parseFloat(rawScore);
+
+      if (rawScore === null || rawScore === undefined || rawScore === "" || isNaN(score)) {
+        return {
+          ...student,
+          score: 0,
+          status: "no se presento",
+        };
+      }
+
       return {
         ...student,
         score,
-        status: score >= scoreLimit ? "admitido" : "no_admitido",
+        status: score >= scoreLimit ? "admitido" : "no admitido",
       };
     });
 
     const admittedCount = evaluated.filter((s) => s.status === "admitido").length;
-    const notAdmittedCount = evaluated.length - admittedCount;
+    const notAdmittedCount = evaluated.filter((s) => s.status === "no admitido").length;
+    const noPresentCount = evaluated.filter((s) => s.status === "no se presento").length;
 
     setEvaluatedResults(evaluated);
-    setSummary({ admitted: admittedCount, notAdmitted: notAdmittedCount });
+    setSummary({
+      admitted: admittedCount,
+      notAdmitted: notAdmittedCount,
+      noPresent: noPresentCount,
+    });
   };
 
   useEffect(() => {
@@ -126,9 +141,9 @@ export const ModalCurva = ({ modalId, studentsResults, plazas }) => {
                       <tr key={i}>
                         <td>{i + 1}</td>
                         <td>{s.ci}</td>
-                        <td>{`${s.name} ${s.paternal_surname} ${s.maternal_surname}`}</td>
+                        <td className="text-uppercase">{`${s.name} ${s.paternal_surname} ${s.maternal_surname}`}</td>
                         <td>{s.score}</td>
-                        <td className="text-success fw-bold">{s.status}</td>
+                        <td className="text-success fw-bold text-uppercase">{s.status}</td>
                       </tr>
                     ))}
                   </tbody>

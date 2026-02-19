@@ -106,9 +106,17 @@ const IndexResults = () => {
   const downloadPdf = () => {
     if (!results?.students_results?.length) return;
 
-    const gestion = careerAssignments.find(g => g.academmic_management_career_id === selectedGestionId);
-    const period = careerAssignmentsPeriods.find(p => p.id === selectedPeriodId);
-    const examn = examns.find(e => e.id === selectedExamnId);
+    const gestion = careerAssignments.find(
+      g => g.academic_management_career_id === selectedGestionId
+    );
+
+    const period = careerAssignmentsPeriods.find(
+      p => p.academic_management_period_id === selectedPeriodId
+    );
+
+    const examn = examns.find(
+      e => e.id === selectedExamnId
+    );
 
     const gestionText = gestion?.year || "desconocido";
     const periodText = period?.period || "desconocido";
@@ -118,38 +126,23 @@ const IndexResults = () => {
 
     const titulo = `Resultados del Examen - ${examnTitle}`;
     const subtitulo = `Gestión: ${gestionText} - Periodo: ${periodText}`;
-    
+
     doc.setFontSize(14);
     doc.text(titulo, 14, 15);
     doc.setFontSize(11);
     doc.text(subtitulo, 14, 22);
 
-    const tableColumn = ["N°", "CI", "Nombre", "Apellido Paterno", "Apellido Materno", "Nota"];
+    const tableColumn = ["N°", "CI", "Estado"];
     const tableRows = results.students_results.map((student, index) => [
       index + 1,
-      student.ci,
-      capitalizeWords(student.name),
-      capitalizeWords(student.paternal_surname),
-      capitalizeWords(student.maternal_surname),
-      student.score
+      student.student_ci,
+      student.status
     ]);
 
     autoTable(doc, {
       head: [tableColumn],
       body: tableRows,
       startY: 30,
-      styles: {
-        fontSize: 10,
-        cellPadding: 3,
-      },
-      headStyles: {
-        fillColor: [41, 128, 185],
-        textColor: 255,
-        halign: 'center',
-      },
-      bodyStyles: {
-        halign: 'center',
-      },
     });
 
     const fileName = `resultados_examen_${gestionText}_${periodText}_${examnTitle}.pdf`;
@@ -208,11 +201,11 @@ const IndexResults = () => {
                   <td>
                     {r.status === "admitido" ? (
                       <span className="badge bg-success bg-opacity-10 text-success py-2 px-3">
-                        <i className="bi bi-check-circle-fill me-1"></i> Admitido
+                        <i className="bi bi-check-circle-fill me-1"></i> ADMITIDO
                       </span>
                     ) : (
                       <span className="badge bg-warning bg-opacity-10 text-danger py-2 px-3">
-                        <i className="bi bi-hourglass-split me-1"></i> No admitido
+                        <i className="bi bi-hourglass-split me-1"></i> NOADMITIDO
                       </span>
                     )}
                   </td>
