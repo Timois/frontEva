@@ -86,12 +86,23 @@ const IndexResults = () => {
       setCurrentPage(1);
     }
   }
-  const totalItems = results?.students_results?.length ?? 0;
+  const orderStatus = {
+    "admitido": 1,
+    "no admitido": 2,
+    "no se presento": 3,
+  };
+  const sortedResults = results?.students_results
+    ?.slice()
+    ?.sort((a, b) => orderStatus[a.status] - orderStatus[b.status])
+    ?? [];
+
+  const totalItems = sortedResults.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
-  const currentItems = results?.students_results?.slice(
+
+  const currentItems = sortedResults.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
-  ) ?? [];
+  );
 
   const handlePageChange = (page) => {
     if (page >= 1 && page <= totalPages) setCurrentPage(page);
@@ -132,11 +143,21 @@ const IndexResults = () => {
     doc.setFontSize(11);
     doc.text(subtitulo, 14, 22);
 
+    const orderStatus = {
+      "admitido": 1,
+      "no admitido": 2,
+      "no se presento": 3,
+    };
+
+    const sortedList = results.students_results
+      .slice()
+      .sort((a, b) => orderStatus[a.status] - orderStatus[b.status]);
+
     const tableColumn = ["N°", "CI", "Estado"];
-    const tableRows = results.students_results.map((student, index) => [
+    const tableRows = sortedList.map((student, index) => [
       index + 1,
       student.student_ci,
-      student.status
+      student.status.toUpperCase()
     ]);
 
     autoTable(doc, {

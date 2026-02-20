@@ -34,19 +34,23 @@ export const ResultsByTest = () => {
       getResults(id);
     }
   }, [id]);
+
   const exam = (results?.students?.[0]?.code || "").trim();
-  
+
   const exportPDF = () => {
     const doc = new jsPDF();
 
     doc.setFontSize(16);
-    doc.text(`Resultados del Examen de ${name}`, 14, 20);
+    doc.text(`Resultados del examen: ${results.evaluation_title}`, 14, 20);
+
+    doc.setFontSize(12);
+    doc.text(`Carrera: ${name}`, 14, 30);
 
     doc.setFontSize(10);
-    doc.text(`Total estudiantes: ${results?.total_students || 0}`, 14, 28);
+    doc.text(`Total estudiantes: ${results?.total_students || 0}`, 14, 38);
 
     const tableColumn = ["CI", "Nombre completo", "Código", "Puntaje", "Estado"];
-    
+
     const tableRows =
       results?.students?.map((s) => [
         s.ci,
@@ -59,7 +63,10 @@ export const ResultsByTest = () => {
     autoTable(doc, {
       head: [tableColumn],
       body: tableRows,
-      startY: 35,
+      startY: 45,
+      margin: { top: 15 },
+      styles: { fontSize: 9, cellPadding: 2 },
+      headStyles: { fillColor: [230, 230, 230] },
     });
 
     doc.save(`resultados_examen_${id}.pdf`);
@@ -76,21 +83,25 @@ export const ResultsByTest = () => {
         </button>
       </div>
       <h3>Total de plazas: {places}</h3>
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <h3>Resultados del Examen: {exam}</h3>
+      <div className="d-flex flex-column mb-3 gap-2">
+
         <h3>Carrera: {name}</h3>
+        <h3>Resultados del: {results.evaluation_title}</h3>
+
         {allCompleted ? (
-          <button onClick={exportPDF} className="btn btn-danger">
+          <button onClick={exportPDF} className="btn btn-danger w-25">
             <FaFilePdf className="me-2" />
             Descargar Resultados
           </button>
         ) : (
-          <button className="btn btn-danger" disabled title="Esperando que todos finalicen">
+          <button className="btn btn-danger w-25" disabled title="Esperando que todos finalicen">
             <FaFilePdf className="me-2" />
             Descargar Resultados
           </button>
         )}
+
         <ButtonCurva modalId="curvaModal" />
+
       </div>
       <ModalCurva
         modalId="curvaModal"

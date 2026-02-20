@@ -5,8 +5,8 @@ export const ButtonCurva = ({ modalId }) => {
   return (
     <button
       type="button"
-      className="btn btn-secondary justify-content-end"
-      style={{ backgroundColor: "#5dbf1a", color: "white" }}
+      className="btn btn-secondary justify-content-start w-25"
+      style={{ backgroundColor: "#2d6806", color: "white" }}
       data-bs-toggle="modal"
       data-bs-target={`#${modalId}`}
     >
