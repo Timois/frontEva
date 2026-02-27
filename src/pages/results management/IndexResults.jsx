@@ -130,18 +130,21 @@ const IndexResults = () => {
     );
 
     const gestionText = gestion?.year || "desconocido";
-    const periodText = period?.period || "desconocido";
+    const periodText = capitalizeWords(period?.period) || "desconocido";
     const examnTitle = examn?.title || "Examen";
 
     const doc = new jsPDF();
 
-    const titulo = `Resultados del Examen - ${examnTitle}`;
-    const subtitulo = `Gestión: ${gestionText} - Periodo: ${periodText}`;
+    const careerName = capitalizeWords(careerAssignments[0]?.name || "desconocida");
+
+    doc.setFontSize(16);
+    doc.text(`Carrera: ${careerName}`, 105, 15, { align: "center" });
 
     doc.setFontSize(14);
-    doc.text(titulo, 14, 15);
-    doc.setFontSize(11);
-    doc.text(subtitulo, 14, 22);
+    doc.text(`Periodo: ${periodText} - Gestión: ${gestionText}`, 105, 23, { align: "center" });
+
+    doc.setFontSize(13);
+    doc.text(`Examen: ${examnTitle}`, 105, 31, { align: "center" });
 
     const orderStatus = {
       "admitido": 1,
@@ -151,7 +154,11 @@ const IndexResults = () => {
 
     const sortedList = results.students_results
       .slice()
-      .sort((a, b) => orderStatus[a.status] - orderStatus[b.status]);
+      .sort((a, b) => {
+        const ciA = parseInt(a.student_ci);
+        const ciB = parseInt(b.student_ci);
+        return ciA - ciB;
+      });
 
     const tableColumn = ["N°", "CI", "Estado"];
     const tableRows = sortedList.map((student, index) => [
@@ -163,7 +170,20 @@ const IndexResults = () => {
     autoTable(doc, {
       head: [tableColumn],
       body: tableRows,
-      startY: 30,
+      startY: 40,
+      styles: {
+        fontSize: 11,
+        halign: "left"
+      },
+      headStyles: {
+        halign: "center",
+        fontStyle: "bold"
+      },
+      columnStyles: {
+        0: { halign: "center", cellWidth: 12 },
+        1: { halign: "left" },
+        2: { halign: "center" }
+      }
     });
 
     const fileName = `resultados_examen_${gestionText}_${periodText}_${examnTitle}.pdf`;
@@ -220,13 +240,21 @@ const IndexResults = () => {
                     </span>
                   </td>
                   <td>
-                    {r.status === "admitido" ? (
+                    {r.status === "admitido" && (
                       <span className="badge bg-success bg-opacity-10 text-success py-2 px-3">
                         <i className="bi bi-check-circle-fill me-1"></i> ADMITIDO
                       </span>
-                    ) : (
+                    )}
+
+                    {r.status === "no admitido" && (
                       <span className="badge bg-warning bg-opacity-10 text-danger py-2 px-3">
-                        <i className="bi bi-hourglass-split me-1"></i> NOADMITIDO
+                        <i className="bi bi-x-circle-fill me-1"></i> NO ADMITIDO
+                      </span>
+                    )}
+
+                    {r.status === "no se presento" && (
+                      <span className="badge bg-secondary bg-opacity-10 text-secondary py-2 px-3">
+                        <i className="bi bi-dash-circle-fill me-1"></i> NO SE PRESENTÓ
                       </span>
                     )}
                   </td>
