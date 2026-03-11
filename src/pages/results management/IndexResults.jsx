@@ -92,9 +92,8 @@ const IndexResults = () => {
     "no se presento": 3,
   };
   const sortedResults = results?.students_results
-    ?.slice()
-    ?.sort((a, b) => orderStatus[a.status] - orderStatus[b.status])
-    ?? [];
+  ?.slice()
+  ?.sort((a, b) => Number(a.student_ci) - Number(b.student_ci)) ?? [];
 
   const totalItems = sortedResults.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
