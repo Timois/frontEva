@@ -90,7 +90,6 @@ export const StudentsList = () => {
                 <th scope="col" className="fw-medium text-primary">Apellido Paterno</th>
                 <th scope="col" className="fw-medium text-primary">Apellido Materno</th>
                 <th scope="col" className="fw-medium text-primary">Teléfono</th>
-                <th scope="col" className="fw-medium text-primary">Fecha Nacimiento</th>
               </tr>
             </thead>
             <tbody>
@@ -110,7 +109,6 @@ export const StudentsList = () => {
                         </a>
                       )}
                     </td>
-                    <td>{student.birthdate}</td>
                   </tr>
                 ))
               ) : (

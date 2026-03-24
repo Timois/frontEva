@@ -11,10 +11,16 @@ export const StudentSchema = z.object({
         .optional()
         .or(z.literal(""))
         .nullable(),
-    birthdate: z.string({ required_error: "La fecha de nacimiento es obligatoria" }).refine(
-        (value) => !isNaN(new Date(value).getTime()),
-        { message: "La fecha de fin debe ser válida" }
-    ),
+    birthdate: z
+        .string()
+        .optional()
+        .refine(
+            (value) =>
+                value === undefined ||
+                value === "" ||
+                !isNaN(new Date(value).getTime()),
+            { message: "La fecha debe ser válida" }
+        ),
 }).refine(
     (data) =>
         (data.paternal_surname && data.paternal_surname.trim()) ||
