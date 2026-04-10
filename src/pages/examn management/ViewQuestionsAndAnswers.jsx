@@ -164,25 +164,25 @@ const ViewQuestionsAndAnswers = () => {
     return () => { isMounted = false; };
   }, [location.pathname]);
 
-    const loadInitialExamData = async (isMounted) => {
-      setError(null);
-      try {
-        const evaluations = await getApi(`student_evaluations/list/${ci}`);
-        if (!isMounted) return;
-        if (!evaluations || evaluations.length === 0) {
-          setError("No tienes evaluaciones asignadas.");
-          setLoading(false);
-          return;
-        }
-
-        setStudentEvaluations(evaluations);
-        setStudentId(evaluations[0].student_id);
+  const loadInitialExamData = async (isMounted) => {
+    setError(null);
+    try {
+      const evaluations = await getApi(`student_evaluations/list/${ci}`);
+      if (!isMounted) return;
+      if (!evaluations || evaluations.length === 0) {
+        setError("No tienes evaluaciones asignadas.");
         setLoading(false);
-      } catch (err) {
-        if (isMounted) setError(err?.response?.data?.message || "Error al cargar datos");
-        if (isMounted) setLoading(false);
+        return;
       }
-    };
+
+      setStudentEvaluations(evaluations);
+      setStudentId(evaluations[0].student_id);
+      setLoading(false);
+    } catch (err) {
+      if (isMounted) setError(err?.response?.data?.message || "Error al cargar datos");
+      if (isMounted) setLoading(false);
+    }
+  };
 
   // --- Nueva función auxiliar ---
   const handleExamAutoFinish = async (reason = "unknown") => {
@@ -401,8 +401,12 @@ const ViewQuestionsAndAnswers = () => {
       </div>
     );
   }
+  
+  const areas = questionsData?.questions_by_area || [];
 
-  if (!questionsData?.questions) return <LoadingComponent title={evaluationTitle} />;
+  if (areas.length === 0) {
+    return <LoadingComponent title={evaluationTitle} />;
+  }
 
   switch (socketTimeData.examStatus) {
     case examStatuses.WAITING:
@@ -413,7 +417,7 @@ const ViewQuestionsAndAnswers = () => {
       return (
         <ActiveExam
           evaluationTitle={evaluationTitle}
-          questionsData={questionsData}
+          questionsData={{ ...questionsData, questions_by_area: areas }}
           socketTimeData={socketTimeData}
           selectedAnswers={selectedAnswers}
           API_BASE_URL={API_BASE_URL}

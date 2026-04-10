@@ -8,7 +8,6 @@ const TimerDisplay = ({ socketTimeData }) => {
       className="position-fixed top-20 end-0 bg-white text-dark px-3 py-2 rounded shadow border d-flex flex-column align-items-start"
       style={{ top: "80px", zIndex: 1050, minWidth: "220px" }}
     >
-      {/* ⏱ Ícono + tiempo */}
       <div className="d-flex align-items-center">
         <MdOutlineTimer
           className={`me-2 fs-4 ${timeLeft <= 300 ? "text-danger" : "text-primary"}`}
@@ -16,7 +15,6 @@ const TimerDisplay = ({ socketTimeData }) => {
         <strong>Tiempo restante:</strong>
       </div>
 
-      {/* 🕐 Tiempo dinámico */}
       <div className="mt-1">
         <span className={`fw-bold fs-5 ${timeLeft <= 300 ? "text-danger" : ""}`}>
           {timeFormatted}
@@ -29,7 +27,6 @@ const TimerDisplay = ({ socketTimeData }) => {
         )}
       </div>
 
-      {/* 📘 Estado del examen */}
       {examStatus && (
         <div className="mt-2">
           <small className="text-muted">

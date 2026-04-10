@@ -104,6 +104,12 @@ export const Examns = () => {
                             {examn.period_name || 'No asignado'}
                           </span>
                         </li>
+                        <li className="list-group-item d-flex justify-content-between">
+                          <strong className='text-truncate'>Mostrar Notas:</strong>
+                          <span className={`badge ${examn.view_score ? 'bg-success' : 'bg-secondary'}`}>
+                            {examn.view_score ? 'Sí' : 'No'}
+                          </span>
+                        </li>
                       </ul>
 
                       <div className="mt-auto d-flex flex-wrap gap-1 justify-content-center">
