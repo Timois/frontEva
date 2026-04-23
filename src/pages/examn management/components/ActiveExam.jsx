@@ -27,9 +27,11 @@ const ActiveExam = ({
         socketTimeData={socketTimeData}
       />
 
-      <div className="card shadow-sm border-0 mb-4">
+      <div
+        className="card shadow-sm border-0 mb-4 position-sticky top-0 z-3"
+        style={{ background: "white" }}
+      >
         <div className="card-body">
-
           <ul className="nav nav-pills justify-content-center gap-2">
             {areas.map((area, index) => (
               <li className="nav-item" key={index}>
@@ -42,7 +44,7 @@ const ActiveExam = ({
                   onClick={() => setActiveTab(index)}
                 >
                   {area.area.toUpperCase()}
-                  
+
                 </button>
               </li>
             ))}

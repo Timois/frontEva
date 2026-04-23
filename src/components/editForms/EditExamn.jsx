@@ -27,11 +27,11 @@ export const EditExamn = ({ data, closeModal }) => {
     const [selectedPeriod, setSelectedPeriod] = useState(null)
     const { id: periodId } = useParams()
     const { refreshExamns } = useExamns()
-    
+
     const { control, handleSubmit, reset, setValue, formState: { errors }, setError, register } = useForm({
         resolver: zodResolver(ExmansSchema),
     })
-    
+
     const user = JSON.parse(localStorage.getItem('user'))
     const career_id = user?.career_id
 
@@ -76,7 +76,8 @@ export const EditExamn = ({ data, closeModal }) => {
                 type: data.type,
                 time: data.time, // Agregar este campo si lo tienes en tu esquema de zod
                 places: data.places, // Agregar este campo si lo tienes en tu esquema de zod
-                academic_management_period_id: data.academic_management_period_id // Convertir a string
+                academic_management_period_id: data.academic_management_period_id ,// Convertir a string
+                view_score: data.view_score
             });
         }
     }, [data, reset]);
@@ -96,6 +97,7 @@ export const EditExamn = ({ data, closeModal }) => {
         requestData.append("type", "web");
         requestData.append("time", Number(formData.time));
         requestData.append("places", Number(formData.places));
+        requestData.append("view_score", formData.view_score ? 1 : 0);
         try {
             const response = await updateApi(`evaluations/edit/${data.id}`, requestData);
 
@@ -151,6 +153,15 @@ export const EditExamn = ({ data, closeModal }) => {
             <ContainerInput>
                 <Input name="places" control={control} type="number" placeholder="Ingrese el número de lugares" />
                 <Validate error={errors.places} />
+            </ContainerInput>
+            <ContainerInput>
+                <label>
+                    <input
+                        type="checkbox"
+                        {...register("view_score")}
+                    />
+                    Mostrar calificación
+                </label>
             </ContainerInput>
             <input
                 type="hidden"

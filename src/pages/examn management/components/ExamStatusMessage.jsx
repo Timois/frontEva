@@ -1,16 +1,19 @@
 /* eslint-disable react/prop-types */
 import { useNavigate } from "react-router-dom";
 
-const ExamStatusMessage = ({ closedByGroup, stoppedByTeacher, finalScore, studentId, evaluationId }) => {
+const ExamStatusMessage = ({
+  closedByGroup,
+  stoppedByTeacher,
+  finalScore,
+  canViewScore,
+  studentId,
+  evaluationId
+}) => {
   const navigate = useNavigate();
 
   const handleCompareClick = () => {
-    navigate(`/estudiantes/exams/${studentId}/compareAnswers/${evaluationId}	`);
+    navigate(`/estudiantes/exams/${studentId}/compareAnswers/${evaluationId}`);
   };
-
-  const handleBackClick = () => {
-    navigate("/estudiantes/exams"); // 👈 vuelve a la lista principal
-  }  
   return (
     <div className="container mt-4 text-center">
       <div className="alert alert-info">
@@ -18,35 +21,41 @@ const ExamStatusMessage = ({ closedByGroup, stoppedByTeacher, finalScore, studen
           <>
             <h4>El tiempo de esta evaluación ya terminó</h4>
             <p>No puedes continuar con el examen.</p>
-            {/* <p>
-              Tu nota final es: <strong>{finalScore}</strong>
-            </p> */}
+
+            {canViewScore ? (
+              <p>Tu nota final es: <strong>{finalScore}</strong></p>
+            ) : (
+              <p className="text-muted">
+                El examen ha finalizado
+              </p>
+            )}
           </>
         ) : stoppedByTeacher ? (
           <>
             <h4>El examen ha finalizado.</h4>
-            {/* <p>
-              Tu nota final es: <strong>{finalScore}</strong>
-            </p> */}
+
+            {canViewScore ? (
+              <p>Tu nota final es: <strong>{finalScore}</strong></p>
+            ) : (
+              <p className="text-muted">
+                El examen has finalizado
+              </p>
+            )}
           </>
         ) : (
           <>
             <h4>Ya has respondido esta evaluación.</h4>
-              {/* <p>
-                Tu nota final es: <strong>{finalScore}</strong>
-             </p>    */}
+
+            {canViewScore ? (
+              <p>Tu nota final es: <strong>{finalScore}</strong></p>
+            ) : (
+              <p className="text-muted">
+                El examen ha finalizado
+              </p>
+            )}
           </>
         )}
       </div>
-
-      {/* <div className="d-flex justify-content-center gap-3">
-        <button className="btn btn-secondary" onClick={handleBackClick}>
-          Volver atrás
-        </button>
-        <button className="btn btn-primary" onClick={handleCompareClick}>
-          Comparar respuestas
-        </button>
-      </div> */}
     </div>
   );
 };

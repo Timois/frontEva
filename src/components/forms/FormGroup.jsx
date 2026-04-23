@@ -251,7 +251,7 @@ export const FormGroup = () => {
                 </Card>
             </ContainerInput>
             <ContainerButton>
-                <Button type="submit" disabled={isSubmitting}>
+                <Button type="submit" disabled={isSubmitting} fullWidth={false}>
                     <span>{isSubmitting ? "Guardando..." : "Guardar"}</span>
                 </Button>
                 <CancelButton onClick={handleCancel} />

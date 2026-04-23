@@ -34,6 +34,7 @@ const ViewQuestionsAndAnswers = () => {
   const [selectedAnswers, setSelectedAnswers] = useState({});
   const [alreadyAnswered, setAlreadyAnswered] = useState(false);
   const [finalScore, setFinalScore] = useState(null);
+  const [canViewScore, setCanViewScore] = useState(false);
   const [stoppedByTeacher, setStoppedByTeacher] = useState(false);
   const { getStudentTestById } = usFetchStudentTest();
   const [closedByGroup, setClosedByGroup] = useState(false);
@@ -144,6 +145,7 @@ const ViewQuestionsAndAnswers = () => {
       const response = await postApi("logs_answers/bulkSave", payload);
 
       setFinalScore(Math.floor(response.score));
+      setCanViewScore(response.view_score === true); // 👈 NUEVO
       setAlreadyAnswered(true);
 
       removeExamLogsByTestCode(localStorage.getItem("test_code"));
@@ -198,10 +200,6 @@ const ViewQuestionsAndAnswers = () => {
       } else if (reason === "timeup") {
         setClosedByGroup(true);
       }
-      // const response = await postApi (`groups/updateStatusGroup/${}`, {
-      //   score: finalScore,
-      //   answered: true,
-      // });
       setSocketTimeData((prev) => ({
         ...prev,
         examStatus: examStatuses.COMPLETED,
@@ -278,6 +276,7 @@ const ViewQuestionsAndAnswers = () => {
     try {
       const response = await getStudentTestById(evaluation.student_id, evaluation.evaluation_id);
       setQuestionsData(response);
+
       localStorage.setItem("student_test_id", response.student_test_id);
       localStorage.setItem("test_code", response.test_code);
       setEvaluationTitle(evaluation.title);
@@ -296,8 +295,14 @@ const ViewQuestionsAndAnswers = () => {
         const answeredResp = await getApi(`student_answers/list/${response.student_test_id}`);
 
         if (answeredResp?.answered === true) {
-          setAlreadyAnswered(true);
           setFinalScore(Math.floor(answeredResp.score));
+          setCanViewScore(answeredResp.view_score === true);
+          setAlreadyAnswered(true);
+
+          setSocketTimeData((prev) => ({
+            ...prev,
+            examStatus: examStatuses.COMPLETED,
+          }));
         } else {
           if (answeredResp?.answers) {
             setSelectedAnswers(answeredResp.answers);
@@ -317,16 +322,19 @@ const ViewQuestionsAndAnswers = () => {
 
   if (loading) return <LoadingComponent title={evaluationTitle} />;
   if (error) return <p className="text-danger">{error}</p>;
-  if (alreadyAnswered) {
-    return (
-      <ExamStatusMessage
-        closedByGroup={closedByGroup}
-        stoppedByTeacher={stoppedByTeacher}
-        finalScore={finalScore}
-        studentId={studentId}
-        evaluationId={selectedEvaluation?.evaluation_id}
-      />
-    );
+  {
+    if (alreadyAnswered) {
+      return (
+        <ExamStatusMessage
+          closedByGroup={closedByGroup}
+          stoppedByTeacher={stoppedByTeacher}
+          finalScore={finalScore}
+          canViewScore={canViewScore}
+          studentId={studentId}
+          evaluationId={selectedEvaluation?.evaluation_id}
+        />
+      );
+    }
   }
 
   if (!questionsData && studentEvaluations.length > 0) {
@@ -401,7 +409,7 @@ const ViewQuestionsAndAnswers = () => {
       </div>
     );
   }
-  
+
   const areas = questionsData?.questions_by_area || [];
 
   if (areas.length === 0) {

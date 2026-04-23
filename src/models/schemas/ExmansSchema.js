@@ -15,5 +15,6 @@ export const ExmansSchema = z.object({
        .min(1, "El tiempo debe ser mayor o igual a 1"), 
     places: z.number({ required_error: "El numero de lugares es obligatorio" })
       .min(1, "El numero de plazas debe ser mayor o igual a 1"),
+    view_score: z.boolean(),
     academic_management_period_id: z.number({ required_error: "El periodo es obligatorio" })
 })

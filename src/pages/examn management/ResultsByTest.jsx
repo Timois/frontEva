@@ -88,17 +88,10 @@ export const ResultsByTest = () => {
         <h3>Carrera: {name}</h3>
         <h3>Resultados del: {results.evaluation_title}</h3>
 
-        {allCompleted ? (
-          <button onClick={exportPDF} className="btn btn-danger w-25">
-            <FaFilePdf className="me-2" />
-            Descargar Resultados
-          </button>
-        ) : (
-          <button className="btn btn-danger w-25" disabled title="Esperando que todos finalicen">
-            <FaFilePdf className="me-2" />
-            Descargar Resultados
-          </button>
-        )}
+        <button onClick={exportPDF} className="btn btn-danger w-25">
+          <FaFilePdf className="me-2" />
+          Descargar Resultados
+        </button>
 
         <ButtonCurva modalId="curvaModal" />
 

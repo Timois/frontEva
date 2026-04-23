@@ -12,8 +12,6 @@ import { useFetchAreasActive } from "../../hooks/fetchAreas";
 import { getApi, postApi } from "../../services/axiosServices/ApiService";
 import { useNavigate, useParams } from "react-router-dom";
 import { useFetchDisponibleQuestions } from "../../hooks/fetchQuestions";
-import { ButtonImport } from "../../pages/careers/questions/imports/ButtonImport";
-import { ModalImport } from "../../pages/careers/questions/imports/ModalImport";
 
 
 export const FormAssignQuestions = ({ data }) => {
@@ -361,12 +359,6 @@ export const FormAssignQuestions = ({ data }) => {
                                     >
                                       Activar preguntas
                                     </button>
-
-                                    <ButtonImport
-                                      modalIdImp={`importar-${area.id}`}
-                                      className={`btn btn-sm btn-outline-success d-flex align-items-center ${area.status === "inactivo" ? "opacity-75" : ""
-                                        }`}
-                                    />
                                   </div>
                                 )}
                               </div>
@@ -399,18 +391,12 @@ export const FormAssignQuestions = ({ data }) => {
 
                                 {disponibles?.[area.id]?.total === 0 && (
                                   <div className="d-flex align-items-center gap-2 mt-2">
-                                    <ButtonImport
-                                      modalIdImp={`importar-${area.id}`}
-                                      className={`btn btn-sm btn-outline-success d-flex align-items-center ${area.status === "inactivo" ? "opacity-75" : ""
-                                        }`}
-                                    />
-
                                     <button
                                       type="button"
                                       className="btn btn-sm btn-success"
                                       onClick={async () => {
                                         try {
-                                          await postApi(`question_evaluations/activeQuestions/${area.id}`);
+                                          await postApi(`question_evaluations/activeQuestions/${area.id}` , { evaluation_id: Number(id) });
                                           const nuevasDisponibles = await fetchDisponibles(area.id, id);
                                           setDisponibles((prev) => ({ ...prev, [area.id]: nuevasDisponibles }));
                                           customAlert("Preguntas activadas correctamente", "success");
@@ -430,11 +416,6 @@ export const FormAssignQuestions = ({ data }) => {
                         </div>
                       </div>
                     </div>
-                    <ModalImport
-                      modalIdImp={`importar-${area.id}`}
-                      title={`Importar Preguntas - ${area.name}`}
-                      areaId={area.id}
-                    />
                   </>
                 ))}
               </div>

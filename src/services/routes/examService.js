@@ -1,6 +1,6 @@
 // services/ExamService.js
 
-import { getApi } from "../axiosServices/ApiService"
+import { getApi, updateApi } from "../axiosServices/ApiService"
 
 export const fetchAllExamns = async () => {
   return await getApi("evaluations/list")
@@ -21,4 +21,5 @@ export const fetchExamnsByCareer = async (careerId) => {
 export const fetchExamnsByPeriod = async (periodId) => {
   return await getApi(`evaluations/listExmansByPeriod/${periodId}`)
 }
+
 

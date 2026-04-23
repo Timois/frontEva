@@ -34,7 +34,7 @@ export const FormExamn = () => {
     const { control, handleSubmit, reset, formState: { errors }, setError, setValue, register } = useForm({
         resolver: zodResolver(ExmansSchema)
     })
-    
+
     const user = JSON.parse(localStorage.getItem('user'))
     const career_id = user?.career_id
 
@@ -71,7 +71,7 @@ export const FormExamn = () => {
     }, [careerAssignmentsPeriods, periodId, setValue]);
 
     const onSubmit = async (data) => {
-        
+
         if (!data.academic_management_period_id) {
             customAlert("error", "No se encontró un período académico válido.");
             return;
@@ -87,6 +87,7 @@ export const FormExamn = () => {
         formData.append("time", Number(data.time));
         formData.append("places", Number(data.places));
         formData.append("status", "inactivo");
+        formData.append("view_score", data.view_score ? "1" : "0");
         formData.append("academic_management_period_id", periodId);
 
         try {
@@ -127,6 +128,7 @@ export const FormExamn = () => {
             places: "",
             type: "",
             time: "",
+            view_score: false,
         })
     }
 
@@ -160,6 +162,20 @@ export const FormExamn = () => {
             <ContainerInput>
                 <Input name="places" control={control} type="number" placeholder="Ingrese el número de plazas" />
                 <Validate error={errors.places} />
+            </ContainerInput>
+            <input
+                type="hidden"
+                {...register("academic_management_period_id", { valueAsNumber: true })}
+                value={parseInt(periodId)}
+            />
+            <ContainerInput>
+                <label>
+                    <input
+                        type="checkbox"
+                        {...register("view_score")}
+                    />
+                    Mostrar calificación
+                </label>
             </ContainerInput>
             <input
                 type="hidden"
