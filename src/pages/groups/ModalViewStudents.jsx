@@ -3,8 +3,17 @@ import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import { getApi } from "../../services/axiosServices/ApiService";
 
-export const ModalViewStudents = ({ modalId, students, groupName, examTitle, onClose }) => {
-    
+export const ModalViewStudents = ({ modalId, students, groupName, examTitle, onClose, startTime }) => {
+    const formatTime = (dateTime) => {
+        if (!dateTime) return "N/D";
+
+        return new Date(dateTime.replace(" ", "T"))
+            .toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: false
+            });
+    };
     const handleGeneratePdf = async () => {
         const user = JSON.parse(localStorage.getItem("user"));
         const careerId = user?.career_id;
@@ -21,7 +30,7 @@ export const ModalViewStudents = ({ modalId, students, groupName, examTitle, onC
         doc.text(`Carrera: ${careerName.toUpperCase()}`, 10, 10);
         doc.text(`Examen: ${examTitle}`, 10, 18);
         doc.text(`Grupo: ${groupName}`, 10, 26);
-
+        doc.text(`Hora de inicio: ${formatTime(startTime)}`, 10, 34);
         autoTable(doc, {
             startY: 36,
             head: [['N°', 'Estudiante', 'CI']],
@@ -32,7 +41,7 @@ export const ModalViewStudents = ({ modalId, students, groupName, examTitle, onC
             ]),
             theme: "striped",
             styles: { fontSize: 10 }
-        });        
+        });
 
         doc.save(`Estudiantes-${groupName}.pdf`);
     };

@@ -253,7 +253,7 @@ export const Groups = () => {
     const idEditar = "editGroup";
     const idAsignar = "asignarEstudiantes";
     const examDate = examn?.date_of_realization;
-
+    
     return (
         <div className="container-fluid p-4">
             <button
@@ -395,6 +395,7 @@ export const Groups = () => {
                     students={selectedGroupStudents}
                     groupName={selectedGroup?.name}
                     examTitle={examn?.title}
+                    startTime={selectedGroup?.start_time}
                     onClose={() => setShowStudentsModal(false)}
                 />
             )}
